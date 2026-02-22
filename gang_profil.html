@@ -89,6 +89,19 @@
       font-weight:900;
       margin:0 0 12px 0;
       font-size:18px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      display:inline-block;
+      font-size:12px;
+      font-weight:900;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.15);
+      border:1px solid rgba(255,255,255,.18);
     }
     .membersGrid{
       display:grid;
@@ -140,7 +153,10 @@
       <div class="content" id="content"></div>
 
       <div class="membersBar">
-        <p class="membersTitle">Membres</p>
+        <p class="membersTitle">
+          <span>Membres</span>
+          <span class="pill" id="membersInfo"></span>
+        </p>
         <div class="membersGrid" id="members"></div>
       </div>
     </section>
@@ -164,15 +180,21 @@
     const pageTitle = document.getElementById("pageTitle");
     const content = document.getElementById("content");
     const members = document.getElementById("members");
+    const membersInfo = document.getElementById("membersInfo");
 
     if(!gang){
       pageTitle.textContent = "Gang introuvable";
       content.innerHTML = "<p style='padding:18px'>Ce gang n'existe pas.</p>";
+      membersInfo.textContent = "";
     } else {
       pageTitle.textContent = "Gang : " + gang.name;
 
       const xpStr = (gang.totalXp||0).toLocaleString("fr-FR") + " xp";
       const karaStr = (gang.totalKaras||0) ? gang.totalKaras.toLocaleString("fr-FR") + " Kara" : "—";
+
+      // compatible avec ancien roleLabel/roleValue + nouveau chefLabel/chefValue
+      const chefLabel = gang.chefLabel ?? gang.roleLabel ?? "Chef du gang";
+      const chefValue = gang.chefValue ?? gang.roleValue ?? "—";
 
       content.innerHTML = `
         <div class="left">
@@ -204,7 +226,7 @@
 
             <div class="col-right">
               <div class="item"><span class="label">Kara :</span><span class="value">${karaStr}</span></div>
-              <div class="item"><span class="label">${gang.chefLabel ?? "Chef du gang"} :</span><span class="value">${gang.chefValue ?? "—"}</span></div>
+              <div class="item"><span class="label">${chefLabel} :</span><span class="value">${chefValue}</span></div>
               <div class="item"><span class="label">Recrutement :</span><span class="value">${gang.recrutement ?? "—"}</span></div>
               <div class="item"><span class="label">Trophées :</span><span class="value">${gang.trophees ?? "—"}</span></div>
             </div>
@@ -212,8 +234,11 @@
         </div>
       `;
 
-      // tri xp croissant
+      // tri xp desc
       const list = (gang.membersResolved || []).slice().sort((a,b)=> (b.xp||0) - (a.xp||0));
+      const topAuto = list.filter(m => m.top50Rank != null && (m.xp||0) > 0).length;
+
+      membersInfo.textContent = `${list.length} membres • ${topAuto} Top50 auto`;
 
       members.innerHTML = list.map(m => `
         <div class="mCard" title="${m.nom}">
