@@ -1,7 +1,9 @@
 // gangdata.js
 // Données gangs + membres.
-// Règle: si un membre a xp/karas ici => manuel (prioritaire)
-// sinon gang.html cherchera dans Top50 (scrap) puis fallback (data.js) sinon 0.
+// Règle :
+// - Si un membre est Top50 => XP/Kara pris automatiquement du scrap (data/snokido_top50.json)
+// - Si le membre n'est PAS Top50 => tu peux mettre xp/karas manuellement ici
+// - Si tu veux FORCER "pas de fallback" (éviter une XP fake), mets: noFallback:true
 
 const gangsData = [
   {
@@ -16,12 +18,12 @@ const gangsData = [
     kara: null,
     members: [
       { nom: "Talk Takashi" },
+      { nom: "Ko0pa" }, // ✅ AJOUT ICI
       { nom: "Venom_", avatar: "avatar/21.jpg" },
       { nom: "lumia" },
       { nom: "Unit" },
       { nom: "redbot" },
-      { nom: "Jordan.io" },
-      { nom: "Alexis279" },
+      { nom: "Jordan.io" }
     ],
   },
 
@@ -31,12 +33,13 @@ const gangsData = [
     creation: "23-01-2026",
     rang: "—",
     chefLabel: "Chef du gang",
-    chefValue: "alex.c2109",
+    chefValue: "—",
     recrutement: "—",
     trophees: "—",
     kara: null,
     members: [
-      { nom: "alex.c2109" },
+      // ⚠️ alex.c2109 supprimé chez toi, donc on ne le met pas
+      { nom: "Alexis279" }, // ✅ à la place
       { nom: "TheGladiator" },
       { nom: "Pingu" },
       { nom: "Abelard" },
@@ -59,15 +62,19 @@ const gangsData = [
     kara: null,
     members: [
       { nom: "Esdras950" },
+
+      // non-top50 => manuel
       { nom: "ariel005", xp: 26844, karas: 128092, avatar: "avatar/140.jpg" },
       { nom: "tidadouslip", xp: 26846, karas: 143834, avatar: "avatar/106.jpg" },
       { nom: "Esdrasso", xp: 746, karas: 495, avatar: "avatar/104.jpg" },
       { nom: "esdrasnoob", xp: 4, karas: 4, avatar: "avatar/111.jpg" },
       { nom: "Esdras270", xp: 116, karas: 50, avatar: "avatar/120.jpg" },
       { nom: "Esdras512", xp: 56, karas: 29, avatar: "avatar/121.jpg" },
-      { nom: "francoeur" },
-      { nom: "josué455" },
-      { nom: "djabrail" },
+
+      { nom: "francoeur" }, // top50 => auto (xp+k)
+      { nom: "josué455" },  // top50 => auto (xp+k)
+
+      { nom: "djabrail" },  // top50 ? (selon scrap) sinon = 0 si pas manuel
       { nom: "multijoueur", xp: 6184, karas: 233, avatar: "avatar/124.jpg" },
       { nom: "ESC2019", xp: 10386, karas: 19836, avatar: "avatar/82.jpg" },
     ],
@@ -173,15 +180,12 @@ const gangsData = [
       { nom: "Vendémiaire", xp: 8, karas: 8, avatar: "avatar/123.jpg" },
       { nom: "Pluviôse", xp: 8, karas: 8, avatar: "avatar/123.jpg" },
       { nom: "Brumaire", xp: 8, karas: 8, avatar: "avatar/123.jpg" },
-
       { nom: "Messidor", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
       { nom: "Frimaire", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
       { nom: "Ventôse", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
-
       { nom: "Nivôse", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
       { nom: "Germinal", xp: 8, karas: 8, avatar: "avatar/111.jpg" },
       { nom: "Floréal", xp: 8, karas: 8, avatar: "avatar/111.jpg" },
-
       { nom: "Prairial", xp: 8, karas: 8, avatar: "avatar/115.jpg" },
       { nom: "Fructidor", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
       { nom: "Thermidor", xp: 8, karas: 8, avatar: "avatar/115.jpg" },
@@ -217,22 +221,15 @@ const gangsData = [
     kara: null,
     members: [
       { nom: "Largo672" },
-      { nom: "Largo675", xp: 0, karas: 0, avatar: "avatar/123.jpg" },
       { nom: "largo678", xp: 50, karas: 24, avatar: "avatar/121.jpg" },
-      { nom: "largo679", xp: 0, karas: 0, avatar: "avatar/116.jpg" },
-      { nom: "Largo674", xp: 6, karas: 6, avatar: "avatar/111.jpg" },
       { nom: "Largo673", xp: 562, karas: 1068, avatar: "avatar/111.jpg" },
-      { nom: "largo671", xp: 34, karas: 8, avatar: "avatar/132.jpg" },
       { nom: "Largo670", xp: 1618, karas: 547, avatar: "avatar/133.jpg" },
-      { nom: "Largo1", xp: 102, karas: 156, avatar: "avatar/111.jpg" },
-      { nom: "largo", xp: 12, karas: 17, avatar: "avatar/115.jpg" },
-
       { nom: "obito45", xp: 6532, karas: 7478, avatar: "avatar/153.jpg" },
       { nom: "bob", xp: 14596, karas: 68551, avatar: "avatar/114.jpg" },
-      { nom: "seka" },
-      { nom: "marcosino" },
       { nom: "cahincaha", xp: 42000, karas: 305789, avatar: "avatar/141.jpg" },
       { nom: "akaï", xp: 17138, karas: 5488, avatar: "avatar/103.jpg" },
+      { nom: "seka" },
+      { nom: "marcosino" },
     ],
   },
 
@@ -242,7 +239,7 @@ const gangsData = [
     creation: "05-08-2022",
     rang: "—",
     chefLabel: "Chef du gang",
-    chefValue: "UY-Scuty",
+    chefValue: "—",
     recrutement: "—",
     trophees: "—",
     kara: null,
@@ -260,8 +257,7 @@ const gangsData = [
       { nom: "venom2" },
       { nom: "Clovis1er" },
       { nom: "Polyy" },
-      { nom: "LargoJunior" },
+      { nom: "LargoJunior", noFallback: true }, // ✅ évite XP fake si pas top50
     ],
   },
 ];
-
