@@ -6,248 +6,82 @@
   <title>Profil du gang</title>
 
   <link rel="stylesheet" href="style.css">
+  <script src="header.js" defer></script>
 
   <style>
-    body{
-      margin:0;
-      font-family: Arial, sans-serif;
-      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
-    }
-    .wrap{ max-width:1180px; margin:26px auto 40px; padding:0 12px; }
-    .panel{
-      background:#fff;
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 12px 30px rgba(0,0,0,.28);
-      border:1px solid rgba(0,0,0,.10);
-    }
-    .titlebar{
-      background:#3b3b3b;
-      color:#fff;
-      padding:14px 16px;
-      font-size:22px;
-      font-weight:900;
-    }
-
-    .content{ display:flex; gap:16px; padding:16px; align-items:flex-start; }
-    .left{
-      width:290px; background:#f6f6f6; border:1px solid #d9d9d9;
-      border-radius:12px; padding:12px;
-    }
-    .left img{
-      width:100%; border-radius:10px; border:2px solid #bdbdbd; background:#eee; display:block;
-    }
-
-    .main{ flex:1; min-width:460px; }
-
-    .headerRow{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
-    .badgeMax{
-      width:46px; height:46px; border-radius:10px;
-      display:grid; place-items:center; font-weight:900;
-      background:linear-gradient(#ffd44d,#f0b300);
-      border:2px solid rgba(0,0,0,.12);
-      box-shadow:0 2px 0 rgba(0,0,0,.12);
-      color:#111;
-    }
-    .name{ font-size:28px; font-weight:900; margin:0; }
-
-    .xpRow{ margin:6px 0 12px; }
-    .xpWrap{
-      position:relative; height:20px; border-radius:10px;
-      overflow:hidden; background:#d9d9d9; border:1px solid #cfcfcf;
-    }
-    .xpFill{ height:100%; width:100%; background:#78b72d; }
-    .xpText{
-      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-      font-weight:900; color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.35);
-      font-size:13px;
-    }
-
-    .cols{ display:flex; gap:14px; align-items:flex-start; }
-    .col-left{ flex:1.25; }
-    .col-right{ flex:0.75; }
-
-    .item{
-      display:flex; align-items:center; gap:12px;
-      font-size:15px; border-bottom:1px solid #e6e6e6; padding:12px 0;
-    }
-    .label{ width:160px; flex:0 0 auto; color:#444; }
-    .value{ font-weight:900; color:#000; }
-
-    .linkRow{ margin-top:10px; font-size:14px; padding-top:10px; }
-    .linkRow a{ color:#2c6fb7; text-decoration:none; font-weight:900; }
-    .linkRow a:hover{ text-decoration:underline; }
-
-    .membersBar{
-      margin-top:14px;
-      background: linear-gradient(#1e6f92,#114e6a);
-      padding:16px;
-      border-top:1px solid rgba(0,0,0,.12);
-    }
-    .membersTitle{
-      color:#fff;
-      font-weight:900;
-      margin:0 0 12px 0;
-      font-size:18px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .pill{
-      display:inline-block;
-      font-size:12px;
-      font-weight:900;
-      padding:6px 10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.15);
-      border:1px solid rgba(255,255,255,.18);
-    }
-    .membersGrid{
-      display:grid;
-      grid-template-columns: repeat(8, minmax(0,1fr));
-      gap:12px;
-    }
-    .mCard{
-      background: rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.15);
-      border-radius:14px;
-      padding:10px;
-      text-align:center;
-      color:#fff;
-      font-weight:900;
-      font-size:13px;
-    }
-    .mCard img{
-      width:66px; height:66px;
-      object-fit:cover;
-      border-radius:14px;
-      border:2px solid rgba(0,0,0,.25);
-      background:#ddd;
-      display:block;
-      margin:0 auto 8px;
-    }
-    .mXp{
-      margin-top:6px;
-      font-weight:700;
-      font-size:12px;
-      opacity:.95;
-    }
-
-    @media (max-width: 1020px){
-      .content{ flex-direction:column; }
-      .left{ width:auto; }
-      .main{ min-width:auto; }
-      .cols{ flex-direction:column; }
-      .membersGrid{ grid-template-columns: repeat(4, minmax(0,1fr)); }
-    }
+    body{margin:0;font-family:Arial,sans-serif;background:radial-gradient(1100px 600px at 25% 15%,#2a88ad 0%,#0b3551 60%,#062638 100%);}
+    .wrap{max-width:1180px;margin:26px auto 40px;padding:0 12px;}
+    .panel{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.28);border:1px solid rgba(0,0,0,.10);}
+    .titlebar{background:#3b3b3b;color:#fff;padding:14px 16px;font-size:22px;font-weight:900;}
+    .content{padding:16px;}
+    .membersGrid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:12px;padding:16px;background:linear-gradient(#1e6f92,#114e6a);}
+    .mCard{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:10px;text-align:center;color:#fff;font-weight:900;font-size:13px;}
+    .mCard img{width:66px;height:66px;object-fit:cover;border-radius:14px;border:2px solid rgba(0,0,0,.25);background:#ddd;display:block;margin:0 auto 8px;}
+    .mXp{margin-top:6px;font-weight:700;font-size:12px;opacity:.95;}
+    @media (max-width:1020px){.membersGrid{grid-template-columns:repeat(4,minmax(0,1fr));}}
   </style>
 </head>
 
 <body>
-  <script src="header.js"></script>
-
   <main class="wrap">
     <section class="panel">
       <div class="titlebar" id="pageTitle">Gang</div>
       <div class="content" id="content"></div>
-
-      <div class="membersBar">
-        <p class="membersTitle">
-          <span>Membres</span>
-          <span class="pill" id="membersInfo"></span>
-        </p>
-        <div class="membersGrid" id="members"></div>
-      </div>
+      <div class="membersGrid" id="members"></div>
     </section>
   </main>
 
   <script>
     function slugify(s){
-      return (s||"")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g,"")
-        .replace(/[^a-zA-Z0-9]/g,"")
-        .toLowerCase();
+      return (s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]/g,"").toLowerCase();
     }
 
-    const params = new URLSearchParams(location.search);
-    const gSlug = params.get("g");
+    window.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(location.search);
+      const gSlug = params.get("g");
 
-    const gangs = JSON.parse(localStorage.getItem("gangsResolved") || "[]");
-    const gang = gangs.find(x => slugify(x.name) === gSlug);
+      const pageTitle = document.getElementById("pageTitle");
+      const content = document.getElementById("content");
+      const members = document.getElementById("members");
 
-    const pageTitle = document.getElementById("pageTitle");
-    const content = document.getElementById("content");
-    const members = document.getElementById("members");
-    const membersInfo = document.getElementById("membersInfo");
+      const gangs = JSON.parse(localStorage.getItem("gangsResolved") || "[]");
 
-    if(!gang){
-      pageTitle.textContent = "Gang introuvable";
-      content.innerHTML = "<p style='padding:18px'>Ce gang n'existe pas.</p>";
-      membersInfo.textContent = "";
-    } else {
+      if(!gangs.length){
+        pageTitle.textContent = "Donnees manquantes";
+        content.innerHTML = `<p style="font-weight:900">Reviens sur <a href="gang.html">gang.html</a> (le classement) pour recalculer les gangs.</p>`;
+        return;
+      }
+
+      const gang = gangs.find(x => slugify(x.name) === gSlug);
+
+      if(!gang){
+        pageTitle.textContent = "Gang introuvable";
+        content.innerHTML = `<p style="font-weight:900">Gang introuvable. Retour: <a href="gang.html">gang.html</a></p>`;
+        return;
+      }
+
       pageTitle.textContent = "Gang : " + gang.name;
 
       const xpStr = (gang.totalXp||0).toLocaleString("fr-FR") + " xp";
-      const karaStr = (gang.totalKaras||0) ? gang.totalKaras.toLocaleString("fr-FR") + " Kara" : "—";
-
-      // compatible avec ancien roleLabel/roleValue + nouveau chefLabel/chefValue
-      const chefLabel = gang.chefLabel ?? gang.roleLabel ?? "Chef du gang";
-      const chefValue = gang.chefValue ?? gang.roleValue ?? "—";
+      const karaStr = (gang.totalKaras||0) ? (gang.totalKaras.toLocaleString("fr-FR") + " Kara") : "—";
 
       content.innerHTML = `
-        <div class="left">
-          <img src="${gang.img}" alt="${gang.name}">
-        </div>
-
-        <div class="main">
-          <div class="headerRow">
-            <div class="badgeMax">Max</div>
-            <h1 class="name">${gang.name}</h1>
-          </div>
-
-          <div class="xpRow">
-            <div class="xpWrap">
-              <div class="xpFill"></div>
-              <div class="xpText">${xpStr}</div>
-            </div>
-          </div>
-
-          <div class="cols">
-            <div class="col-left">
-              <div class="item"><span class="label">Classement :</span><span class="value">${gang.classement ?? "—"}</span></div>
-              <div class="item"><span class="label">Membres :</span><span class="value">${gang.count} / 50</span></div>
-              <div class="item"><span class="label">Rang :</span><span class="value">${gang.rang ?? "—"}</span></div>
-              <div class="item"><span class="label">Création :</span><span class="value">${gang.creation ?? "—"}</span></div>
-
-              <div class="linkRow"><a href="gang.html">Classement des gangs</a></div>
-            </div>
-
-            <div class="col-right">
-              <div class="item"><span class="label">Kara :</span><span class="value">${karaStr}</span></div>
-              <div class="item"><span class="label">${chefLabel} :</span><span class="value">${chefValue}</span></div>
-              <div class="item"><span class="label">Recrutement :</span><span class="value">${gang.recrutement ?? "—"}</span></div>
-              <div class="item"><span class="label">Trophées :</span><span class="value">${gang.trophees ?? "—"}</span></div>
-            </div>
-          </div>
-        </div>
+        <p style="font-size:18px;font-weight:900;margin:0 0 10px">Classement: ${gang.classement ?? "—"}</p>
+        <p style="margin:0 0 6px"><b>XP total:</b> ${xpStr}</p>
+        <p style="margin:0 0 6px"><b>Kara total:</b> ${karaStr}</p>
+        <p style="margin:0"><b>Membres:</b> ${gang.count} / 50</p>
       `;
 
-      // tri xp desc
       const list = (gang.membersResolved || []).slice().sort((a,b)=> (b.xp||0) - (a.xp||0));
-      const topAuto = list.filter(m => m.top50Rank != null && (m.xp||0) > 0).length;
-
-      membersInfo.textContent = `${list.length} membres • ${topAuto} Top50 auto`;
-
       members.innerHTML = list.map(m => `
         <div class="mCard" title="${m.nom}">
-          <img src="${m.avatar}" alt="${m.nom}">
+          <img src="${m.avatar || "avatar/1.jpg"}" alt="${m.nom}">
           ${m.nom}
           <div class="mXp">${(m.xp||0).toLocaleString("fr-FR")} xp</div>
+          <div class="mXp">${(m.karas||0).toLocaleString("fr-FR")} Kara</div>
         </div>
       `).join("");
-    }
+    });
   </script>
 </body>
 </html>
