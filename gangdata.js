@@ -242,7 +242,7 @@ const gangsData = [
     creation: "05-08-2022",
     rang: "—",
     chefLabel: "Chef du gang",
-    chefValue: "—",
+    chefValue: "UY-Scuty",
     recrutement: "—",
     trophees: "—",
     kara: null,
@@ -264,3 +264,4 @@ const gangsData = [
     ],
   },
 ];
+
