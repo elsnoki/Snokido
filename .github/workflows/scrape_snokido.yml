@@ -2,7 +2,7 @@ name: Update Snokido Top 50
 
 on:
   schedule:
-    - cron: "0 3 1,16 * *"   # 03:00 UTC les 1 et 16 (≈ tous les 15 jours)
+    - cron: "0 3 1,16 * *"
   workflow_dispatch: {}
 
 permissions:
