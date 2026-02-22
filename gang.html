@@ -27,7 +27,12 @@
       padding:14px 16px;
       font-size:22px;
       font-weight:900;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
     }
+    .topInfo{ font-size:12px; font-weight:900; opacity:.85; white-space:nowrap; }
 
     table{ width:100%; border-collapse:separate; border-spacing:0; }
     thead th{
@@ -86,6 +91,15 @@
       font-size:14px;
     }
     .btnOpen:hover{ background:#f3f3f3; }
+
+    .warn{
+      display:none;
+      padding:10px 16px;
+      background:#fff3cd;
+      border-bottom:1px solid #e7d59a;
+      font-weight:900;
+      color:#6b5600;
+    }
   </style>
 </head>
 
@@ -94,7 +108,11 @@
 
   <main class="wrap">
     <section class="panel">
-      <div class="titlebar">Classement des gangs</div>
+      <div class="titlebar">
+        <span>Classement des gangs</span>
+        <span class="topInfo" id="topInfo">Top50: chargement…</span>
+      </div>
+      <div class="warn" id="warn">⚠️ Impossible de charger data/snokido_top50.json (XP Top50 = 0)</div>
 
       <table>
         <thead>
@@ -116,6 +134,8 @@
   <script src="gangdata.js"></script>
 
   <script>
+  (async function(){
+
     function slugify(s){
       return (s||"")
         .normalize("NFD")
@@ -124,51 +144,99 @@
         .toLowerCase();
     }
 
-    // Map joueurs connus (depuis data.js)
-    const playerBySlug = new Map();
-    if (typeof joueurs !== "undefined") {
-      joueurs.forEach(p => playerBySlug.set(slugify(p.nom), p));
-    }
-
     // alias pour matcher des pseudos différents
     const alias = {
       "talk":"talktakashi",
       "talktakashi":"talktakashi",
+
       "alex":"alexc2109",
       "alexc":"alexc2109",
       "alex.c":"alexc2109",
+      "alexc2109":"alexc2109",
+      "alexis279":"alexc2109",
+
       "jordan":"jordanio",
       "jordanio":"jordanio",
       "jordan.io":"jordanio",
+
       "josue":"josue455",
       "josué":"josue455",
+      "josue455":"josue455",
+
       "esdras":"esdras950",
+      "esdras950":"esdras950",
+
       "thegladiator":"thegladiator",
     };
 
+    function resolveKey(name){
+      const s = slugify(name);
+      return alias[s] || s;
+    }
+
+    // 1) Charger Top50 (scrap)
+    let top50List = [];
+    let top50Map = new Map();
+
+    const topInfo = document.getElementById("topInfo");
+    const warn = document.getElementById("warn");
+
+    try{
+      const res = await fetch("data/snokido_top50.json", { cache: "no-store" });
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      const json = await res.json();
+
+      // support: fichier = tableau [...]
+      // (si un jour tu passes en {top50:[...]}, ça marche aussi)
+      top50List = Array.isArray(json) ? json : (json.top50 || []);
+
+      top50Map = new Map(
+        top50List.map(p => [ resolveKey(p.nom), p ])
+      );
+
+      topInfo.textContent = `Top50: OK (${top50List.length})`;
+      localStorage.setItem("top50Count", String(top50List.length));
+    }catch(e){
+      console.warn(e);
+      topInfo.textContent = "Top50: indisponible";
+      warn.style.display = "block";
+      localStorage.setItem("top50Count", "0");
+    }
+
+    // 2) Map joueurs manuels (data.js) (fallback)
+    const manualBySlug = new Map();
+    if (typeof joueurs !== "undefined") {
+      joueurs.forEach(p => manualBySlug.set(resolveKey(p.nom), p));
+    }
+
+    // 3) Résoudre un membre:
+    // - si xp dans gangdata => manuel prioritaire
+    // - sinon si membre est Top50 => xp auto (scrap)
+    // - sinon => 0 (ou fallback data.js si tu l’utilises)
     function resolveMember(m){
-      // m = {nom, xp?, karas?, avatar?}
-      const raw = m.nom || "";
-      const s = slugify(raw);
-      const key = alias[s] || s;
-      const found = playerBySlug.get(key);
+      const key = resolveKey(m.nom || "");
+
+      const top = top50Map.get(key);
+      const man = manualBySlug.get(key);
 
       const xp =
         (typeof m.xp === "number") ? m.xp :
-        (found?.modes?.nv100?.xp != null ? found.modes.nv100.xp : 0);
+        (top?.xp != null ? Number(top.xp) :
+          (man?.modes?.nv100?.xp != null ? Number(man.modes.nv100.xp) : 0)
+        );
 
-      const karas =
-        (typeof m.karas === "number") ? m.karas : 0;
+      const karas = (typeof m.karas === "number") ? m.karas : 0;
 
       const avatar =
         m.avatar ||
-        found?.avatar ||
+        top?.avatar ||
+        man?.avatar ||
         "avatar/1.jpg";
 
-      return { ...m, slug:key, xp, karas, avatar };
+      return { ...m, slug:key, xp, karas, avatar, top50Rank: top?.rank ?? null };
     }
 
-    // utilise gangsData (objets complets)
+    // 4) Calcul gangs + tri
     const gangs = (gangsData || []).map(g => {
       const membersResolved = (g.members || []).map(resolveMember);
       const totalXp = membersResolved.reduce((sum,x)=> sum + (x.xp||0), 0);
@@ -176,12 +244,12 @@
       return { ...g, membersResolved, totalXp, totalKaras, count: membersResolved.length };
     });
 
-    // tri par XP total desc
     gangs.sort((a,b)=> b.totalXp - a.totalXp);
 
-    // stocke pour gang_profil.html (sans serveur)
+    // 5) Stocker pour gang_profil.html
     localStorage.setItem("gangsResolved", JSON.stringify(gangs));
 
+    // 6) Render tableau
     const tbody = document.getElementById("tbody");
     tbody.innerHTML = "";
 
@@ -210,6 +278,8 @@
       `;
       tbody.appendChild(tr);
     });
+
+  })();
   </script>
 </body>
 </html>
