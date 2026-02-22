@@ -206,8 +206,10 @@
         // XP: priorité manuel, sinon top50, sinon 0
         const xp = (typeof m.xp === "number") ? m.xp : (top?.xp != null ? Number(top.xp) : 0);
 
-        // Kara: priorité manuel, sinon 0 (ton scrap ne donne pas kara)
-        const karas = (typeof m.karas === "number") ? m.karas : 0;
+        // Kara: priorité manuel, sinon top50.karas, sinon 0
+const karas =
+  (typeof m.karas === "number") ? m.karas :
+  (top?.karas != null ? Number(top.karas) : 0);
 
         const avatar = m.avatar || top?.avatar || "avatar/1.jpg";
         return { ...m, slug:k, xp, karas, avatar };
@@ -260,3 +262,4 @@
   </script>
 </body>
 </html>
+
