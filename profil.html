@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Profil</title>
+
+  <style>
+    :root{
+      --top1:#3a3a3a;
+      --top2:#232323;
+      --accent:#1b7aa1;
+
+      --blue1:#0b3551;
+      --blue3:#062638;
+
+      --panel:#ffffff;
+      --line:#e6e6e6;
+      --link:#2c6fb7;
+
+      --xp:#78b72d;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      color:#222;
+      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, var(--blue1) 60%, var(--blue3) 100%);
+    }
+
+    /* ===== Header (tu peux garder, même si header.js l’injecte) ===== */
+    .topbar{
+      background: linear-gradient(var(--top1), var(--top2));
+      border-bottom: 4px solid var(--accent);
+      box-shadow: 0 3px 0 rgba(0,0,0,.25);
+    }
+    .topbar-inner{
+      max-width: 1180px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding: 10px 12px;
+    }
+    .logo{ display:flex; align-items:center; text-decoration:none; }
+    .logo img{ height:46px; width:auto; display:block; }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      margin-left: 8px;
+      flex:1;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .nav a.tab{
+      color:#e6e6e6;
+      text-decoration:none;
+      font-weight:900;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size:14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+    }
+    .nav a.tab:hover{ background: rgba(255,255,255,.10); }
+    .nav a.active{
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.18);
+    }
+    .tab-sep{
+      color: rgba(255,255,255,.35);
+      font-weight: 900;
+      margin: 0 6px;
+      user-select:none;
+    }
+
+    .nav a.tab-nv100{ box-shadow: inset 0 -3px 0 #2ecc71; }
+    .nav a.tab-nv0  { box-shadow: inset 0 -3px 0 #00d2ff; }
+    .nav a.tab-100  { box-shadow: inset 0 -3px 0 #f1c40f; }
+    .nav a.tab-200  { box-shadow: inset 0 -3px 0 #e67e22; }
+    .nav a.tab-300  { box-shadow: inset 0 -3px 0 #e74c3c; }
+    .nav a.tab-400  { box-shadow: inset 0 -3px 0 #9b59b6; }
+    .nav a.tab-500  { box-shadow: inset 0 -3px 0 #3498db; }
+    .nav a.tab-gang { box-shadow: inset 0 -3px 0 #ff5bd6; }
+    .nav a.tab-graph{ box-shadow: inset 0 -3px 0 #a6ff4d; }
+    .nav a.tab-pause{ box-shadow: inset 0 -3px 0 #ff3b3b; }
+    .nav a.tab-chrono{ box-shadow: inset 0 -3px 0 #00ffaa; }
+
+    /* ===== Page ===== */
+    .wrap{
+      max-width: 1180px;
+      margin: 26px auto 40px;
+      padding: 0 12px;
+    }
+    .panel{
+      background: var(--panel);
+      border-radius: 12px;
+      overflow:hidden;
+      box-shadow: 0 12px 30px rgba(0,0,0,.28);
+      border: 1px solid rgba(0,0,0,.10);
+    }
+    .titlebar{
+      background:#3b3b3b;
+      color:#fff;
+      padding: 12px 14px;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .content{
+      display:flex;
+      gap: 16px;
+      padding: 16px;
+      align-items:flex-start;
+    }
+
+    /* Avatar */
+    .avatarBox{
+      width: 290px;
+      background:#f6f6f6;
+      border: 1px solid #d9d9d9;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .avatarBox img{
+      width:100%;
+      display:block;
+      border-radius: 10px;
+      border: 2px solid #bdbdbd;
+      background:#eee;
+    }
+
+    /* Main */
+    .main{
+      flex:1;
+      min-width: 460px;
+      padding-right: 6px;
+    }
+
+    .headerRow{
+      display:flex;
+      align-items:center;
+      width:100%;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .headerLeft{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .badge100{
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      display:grid;
+      place-items:center;
+      font-weight: 900;
+      color:#111;
+      background: linear-gradient(#ffd44d, #f0b300);
+      border: 2px solid rgba(0,0,0,.12);
+      box-shadow: 0 2px 0 rgba(0,0,0,.12);
+      flex: 0 0 auto;
+    }
+
+    .name{
+      font-size: 28px;
+      font-weight: 900;
+      margin:0;
+    }
+
+    /* Gen à droite */
+    .genBadge{
+      margin-left:auto;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.12);
+      box-shadow: 0 2px 0 rgba(0,0,0,.12);
+      color:#111;
+      background:#eee;
+      white-space:nowrap;
+    }
+    .gen-0{ background: linear-gradient(#e8e8e8, #cfcfcf); }
+    .gen-1{ background: linear-gradient(#b9ff9e, #77d86a); }
+    .gen-2{ background: linear-gradient(#a7e7ff, #60bfff); }
+    .gen-3{ background: linear-gradient(#e2c0ff, #b587ff); }
+    .gen-4{ background: linear-gradient(#ffd1a6, #ff9d4f); }
+    .gen-5{ background: linear-gradient(#ffb0b7, #ff6d79); }
+    .gen-6{ background: linear-gradient(#ffd0f0, #ff77c9); }
+
+    /* XP bar */
+    .xpRow{ margin: 6px 0 12px; }
+    .xpWrap{
+      position:relative;
+      height: 20px;
+      border-radius: 10px;
+      overflow:hidden;
+      background:#d9d9d9;
+      border: 1px solid #cfcfcf;
+    }
+    .xpFill{ height:100%; width:100%; background: var(--xp); }
+    .xpText{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      color:#fff;
+      text-shadow: 0 1px 0 rgba(0,0,0,.35);
+      font-size: 13px;
+    }
+
+    /* Colonnes */
+    .cols{
+      display:flex;
+      gap: 14px;
+      align-items:flex-start;
+    }
+    .col-left{ flex: 1.25; }
+    .col-right{ flex: 0.75; }
+
+    .item{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      font-size:14px;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 0;
+    }
+    .item .label{
+      width: 160px;
+      flex: 0 0 auto;
+      color:#444;
+    }
+    .item .value{
+      font-weight:900;
+      color:#000;
+    }
+
+    .rightTitle{
+      font-size:14px;
+      color:#000;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      font-weight: 700;
+    }
+
+    .pauseLine{
+      font-size:14px;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 0;
+      color:#333;
+      line-height: 1.25;
+    }
+    /* IMPORTANT : seul le XP est en gras */
+    .pauseLine b{ font-weight:900; color:#000; }
+
+    .linkRow{
+      margin-top: 10px;
+      font-size: 14px;
+      padding-top: 10px;
+      border-bottom: none;
+    }
+    .linkRow a{
+      color: var(--link);
+      text-decoration:none;
+      font-weight: 900;
+    }
+    .linkRow a:hover{ text-decoration:underline; }
+
+    .icon{
+      display:inline-block;
+      width: 14px;
+      height: 14px;
+      margin-right: 6px;
+      vertical-align:-2px;
+      background:
+        linear-gradient(to top, #666 0 100%) left/3px 60% no-repeat,
+        linear-gradient(to top, #666 0 100%) center/3px 85% no-repeat,
+        linear-gradient(to top, #666 0 100%) right/3px 45% no-repeat;
+      opacity:.8;
+    }
+
+    @media (max-width: 1020px){
+      .content{ flex-direction:column; }
+      .avatarBox{ width:auto; }
+      .main{ min-width:auto; }
+      .cols{ flex-direction:column; }
+      .col-left,.col-right{ flex:1; }
+    }
+  </style>
+</head>
+
+<body>
+
+<main class="wrap">
+  <section class="panel">
+    <div class="titlebar" id="pageTitle">Profil</div>
+    <div class="content" id="content"></div>
+  </section>
+</main>
+
+<script src="data.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const u = params.get("u");
+  const mode = (params.get("mode") || "nv100").toLowerCase(); // nv100 | 100k | 200k | 300k | 400k | 500k
+
+  const pageTitle = document.getElementById("pageTitle");
+  const content = document.getElementById("content");
+
+  // ✅ AJOUT: slugify manquant (gros bug dans ton fichier)
+  function slugify(name){
+    return (name || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toLowerCase();
+  }
+
+  function plural(n, one, many){ return n === 1 ? one : many; }
+
+  // XP affichée par défaut selon le mode (si stats.xp absent)
+  function defaultXpForMode(m){
+    if(m === "100k") return 100000;
+    if(m === "200k") return 200000;
+    if(m === "300k") return 300000;
+    if(m === "400k") return 400000;
+    if(m === "500k") return 500000;
+    // NV100
+    return 49500;
+  }
+
+  // Label progression (colonne gauche)
+  function progressLabel(m){
+    if(m === "100k") return "100K en :";
+    if(m === "200k") return "200K en :";
+    if(m === "300k") return "300K en :";
+    if(m === "400k") return "400K en :";
+    if(m === "500k") return "500K en :";
+    return "Niveau 100 en :";
+  }
+
+  // Lien retour classement selon le mode
+  function backHref(m){
+    if(m === "100k") return "100k.html";
+    if(m === "200k") return "200k.html";
+    if(m === "300k") return "300k.html";
+    if(m === "400k") return "400k.html";
+    if(m === "500k") return "500k.html";
+    return "rank.html";
+  }
+
+  if(!u){
+    pageTitle.textContent = "Profil";
+    content.innerHTML = "<p style='padding:18px'>Lien invalide (paramètre u manquant).</p>";
+  } else {
+    const player = joueurs.find(p => slugify(p.nom) === u);
+
+    if(!player){
+      pageTitle.textContent = "Joueur introuvable";
+      content.innerHTML = "<p style='padding:18px'>Ce profil n'existe pas.</p>";
+    } else {
+      const stats = (player.modes && player.modes[mode]) ? player.modes[mode] : null;
+
+      if(!stats){
+        pageTitle.textContent = "Joueur introuvable";
+        content.innerHTML = "<p style='padding:18px'>Ce profil n'existe pas pour ce mode.</p>";
+      } else {
+        pageTitle.textContent = "Profil de " + player.nom;
+
+        const genVal = (player.gen ?? 0);
+
+        const xpValue = (stats.xp != null) ? stats.xp : defaultXpForMode(mode);
+        const xpText = Number(xpValue).toLocaleString("fr-FR") + " xp";
+
+        // Pauses
+        const t = stats.pauses_total || {nb:0, mois:0, jours:0};
+        const details = Array.isArray(stats.pauses_detail) ? stats.pauses_detail : [];
+
+        let rightCol = `
+          <div class="col-right">
+            <div class="rightTitle">Pauses</div>
+            <div class="pauseLine">Aucune pause</div>
+          </div>
+        `;
+
+        if((t.nb ?? 0) > 0){
+          const nb = Number(t.nb || 0);
+          const jours = (t.jours != null) ? Number(t.jours) : null;
+
+          rightCol = `
+            <div class="col-right">
+              <div class="rightTitle">
+                ${nb} ${plural(nb,"pause","pauses")} : ${t.mois ?? "?"} mois (${jours ?? "?"} ${plural(jours ?? 2,"jour","jours")})
+              </div>
+              ${
+                details.length
+                  ? details.map(p => `
+                      <div class="pauseLine">
+                        <b>${Number(p.xp).toLocaleString("fr-FR")}</b> :
+                        ${p.periode} (${p.mois} mois${p.jours != null ? `, ${p.jours} jours` : ""})
+                      </div>
+                    `).join("")
+                  : `<div class="pauseLine">—</div>`
+              }
+            </div>
+          `;
+        }
+
+        content.innerHTML = `
+          <div class="avatarBox">
+            <img src="${player.avatar}" alt="${player.nom}">
+          </div>
+
+          <div class="main">
+            <div class="headerRow">
+              <div class="headerLeft">
+                <div class="badge100">100</div>
+                <h1 class="name">${player.nom}</h1>
+              </div>
+              <div class="genBadge gen-${genVal}">Gen ${genVal}</div>
+            </div>
+
+            <div class="xpRow">
+              <div class="xpWrap">
+                <div class="xpFill"></div>
+                <div class="xpText">${xpText}</div>
+              </div>
+            </div>
+
+            <div class="cols">
+              <div class="col-left">
+                <div class="item">
+                  <span class="label">${progressLabel(mode)}</span>
+                  <span class="value">${stats.jours} jours</span>
+                </div>
+
+                <div class="item">
+                  <span class="label">Atteint le :</span>
+                  <span class="value">${stats.atteint_le ?? "—"}</span>
+                </div>
+
+                <div class="item">
+                  <span class="label">Rang :</span>
+                  <span class="value">${stats.rang ?? "—"}</span>
+                </div>
+
+                <div class="item">
+                  <span class="label">Inscription :</span>
+                  <span class="value">${player.inscription ?? "—"}</span>
+                </div>
+
+                <div class="linkRow">
+                  <span class="icon"></span>
+                  <a href="${backHref(mode)}">Classement</a>
+                </div>
+              </div>
+
+              ${rightCol}
+            </div>
+          </div>
+        `;
+      }
+    }
+  }
+</script>
+
+<!-- ✅ Mets header.js à la fin pour éviter les glitches -->
+<script src="header.js"></script>
+
+</body>
+</html>

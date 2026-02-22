@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>XP par année (générations)</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+  body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+    color:#222;
+  }
+
+  .wrap{
+    max-width:1180px;
+    margin:26px auto 40px;
+    padding:0 12px;
+  }
+
+  .panel{
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 12px 30px rgba(0,0,0,.28);
+    border:1px solid rgba(0,0,0,.10);
+  }
+
+  .titlebar{
+    background:#3b3b3b;
+    color:#fff;
+    padding:14px 16px;
+    font-size:22px;
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .subtitle{
+    padding:12px 16px;
+    background:#f6f6f6;
+    border-bottom:1px solid #d9d9d9;
+    color:#444;
+    font-size:13px;
+    font-weight:700;
+  }
+
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+  }
+
+  thead th{
+    background:#ffffff;
+    padding:14px 12px;
+    text-align:left;
+    font-size:14px;
+    font-weight:900;
+    border-bottom:2px solid #d9d9d9;
+  }
+
+  tbody td{
+    padding:16px 12px;
+    border-bottom:1px solid #e6e6e6;
+    vertical-align:top;
+    font-size:15px;
+  }
+
+  tbody tr:nth-child(odd){ background:#fafafa; }
+
+  .rank{
+    width:70px;
+    font-weight:900;
+    font-size:18px;
+    color:#444;
+    text-align:center;
+  }
+
+  .year{
+    width:120px;
+    font-weight:900;
+    font-size:16px;
+  }
+
+  .total{
+    width:180px;
+    font-weight:900;
+    font-size:16px;
+    color:#111;
+    white-space:nowrap;
+  }
+
+  .players{
+    padding-top:2px;
+  }
+
+  .pillWrap{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:999px;
+    border:1px solid #d2d2d2;
+    background:#fff;
+    box-shadow:0 2px 0 rgba(0,0,0,.05);
+    font-size:13px;
+    font-weight:900;
+    color:#222;
+    white-space:nowrap;
+  }
+
+  .pill .xp{
+    font-weight:900;
+    color:#2b2b2b;
+    opacity:.9;
+  }
+
+  .muted{
+    color:#666;
+    font-weight:700;
+    font-size:12px;
+    margin-top:8px;
+  }
+
+  /* petit effet top 1 */
+  tr.firstRow td{
+    background: linear-gradient(rgba(255,212,77,.18), rgba(255,255,255,.10));
+    border-bottom-color:#e9d28a;
+  }
+  tr.firstRow .total{
+    color:#7a5200;
+  }
+</style>
+</head>
+
+<body>
+
+<script src="header.js"></script>
+
+<main class="wrap">
+  <section class="panel">
+    <div class="titlebar">
+      <div>XP par année (générations)</div>
+      <div style="font-size:13px; font-weight:900; color:#bfe6ff;">
+        Classement basé sur la somme d’XP des comptes créés l’année
+      </div>
+    </div>
+
+    <div class="subtitle">
+      Pour l’instant, les totaux sont ceux que tu as donnés. Plus tard, on branchera ça sur ton Top 50 pour calculer automatiquement.
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Année</th>
+          <th>Total XP</th>
+          <th>Joueurs (XP individuel)</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+  // NOTE: on ignore "fluffy" comme demandé.
+
+  const years = [
+    {
+      year: 2013,
+      total: 192596,
+      players: [
+        { nom: "Dude", xp: 100258 },
+        { nom: "Korben", xp: 92406 },
+      ],
+    },
+    {
+      year: 2014,
+      total: 1542018,
+      players: [
+        { nom: "Talk Takashi", xp: 1225000 },
+        { nom: "Josué455", xp: 159480 },
+        { nom: "Largo672", xp: 57836 },
+        { nom: "Djabrail", xp: 57054 },
+        { nom: "Seka", xp: 42648 },
+      ],
+    },
+    {
+      year: 2015,
+      total: 660222,
+      players: [
+        { nom: "Francoeur", xp: 443222 },
+        { nom: "Hoopa", xp: 175000 },
+        { nom: "Cahincaha", xp: 42000 },
+      ],
+    },
+    {
+      year: 2016,
+      total: 201568,
+      players: [
+        { nom: "Abelard", xp: 201568 },
+      ],
+    },
+    {
+      year: 2017,
+      total: 881358,
+      players: [
+        { nom: "Alex.c2109", xp: 817544 },
+        { nom: "Golder", xp: 66666 },
+      ],
+    },
+    {
+      year: 2018,
+      total: 317282,
+      players: [
+        { nom: "Alexis279", xp: 157282 },
+        { nom: "Esdras950", xp: 100000 },
+        { nom: "Unit", xp: 61724 },
+        // "fluffy" ignoré
+      ],
+    },
+    {
+      year: 2019,
+      total: 528054,
+      players: [
+        { nom: "Jordan.io", xp: 200000 },
+        { nom: "Lumia", xp: 114994 },
+        { nom: "Pingu", xp: 50000 },
+        { nom: "Marcosino", xp: 45216 },
+        { nom: "Blackout", xp: 40000 },
+        { nom: "Athèna", xp: 40000 },
+        { nom: "Acno", xp: 40000 },
+      ],
+    },
+    {
+      year: 2020,
+      total: 626208,
+      players: [
+        { nom: "TheGladiator", xp: 394442 },
+        { nom: "Cirpacha", xp: 102876 },
+        { nom: "Bételgeuse", xp: 40000 },
+        { nom: "Aldébaran", xp: 40000 },
+        { nom: "Tellor", xp: 51014 },
+      ],
+    },
+    {
+      year: 2021,
+      total: 48108,
+      players: [
+        { nom: "Venom_", xp: 48108 },
+      ],
+    },
+    {
+      year: 2022,
+      total: 89500,
+      players: [
+        { nom: "Redbot", xp: 49500 },
+        { nom: "UY-Scuty", xp: 40000 },
+      ],
+    },
+    {
+      year: 2023,
+      total: 83000,
+      players: [
+        { nom: "Houka", xp: 41000 },
+        { nom: "Cahincaha2", xp: 42000 },
+      ],
+    },
+    {
+      year: 2024,
+      total: 52940,
+      players: [
+        { nom: "Justice-", xp: 40268 },
+        { nom: "Napoléon.1er", xp: 14312 },
+      ],
+    },
+    {
+      year: 2025,
+      total: 18596,
+      players: [
+        { nom: "Polyy", xp: 4044 },
+        { nom: "Venom2", xp: 14912 },
+      ],
+    },
+    {
+      year: 2026,
+      total: 56808,
+      players: [
+        { nom: "Ko0pa", xp: 58214 },        // si tu veux respecter EXACT top50, garde 58214
+        { nom: "LargoJunior", xp: 7860 },
+        { nom: "Clovis1er", xp: 100 },
+      ],
+    },
+  ];
+
+  // Tri décroissant par total
+  const sorted = years.slice().sort((a,b)=>b.total - a.total);
+
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+
+  sorted.forEach((y, idx) => {
+    const totalStr = y.total.toLocaleString("fr-FR") + " xp";
+
+    // Optionnel: trier les joueurs par xp décroissant dans l’affichage
+    const players = (y.players || []).slice().sort((a,b)=> (b.xp||0) - (a.xp||0));
+
+    const pills = players.map(p => `
+      <span class="pill">
+        ${p.nom}
+        <span class="xp">${(p.xp||0).toLocaleString("fr-FR")} xp</span>
+      </span>
+    `).join("");
+
+    const tr = document.createElement("tr");
+    if(idx === 0) tr.classList.add("firstRow");
+
+    tr.innerHTML = `
+      <td class="rank">${idx+1}</td>
+      <td class="year">${y.year}</td>
+      <td class="total">${totalStr}</td>
+      <td class="players">
+        <div class="pillWrap">${pills}</div>
+        <div class="muted">${players.length} joueur(s)</div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+</script>
+
+</body>
+</html>

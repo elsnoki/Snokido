@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Chronologie Niveau 100</title>
+
+  <!-- Ton CSS global (menu/topbar) -->
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+      color:#fff;
+    }
+
+    .wrap{
+      max-width: 1180px;
+      margin: 26px auto 50px;
+      padding: 0 12px;
+    }
+
+    .hero{
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      padding: 18px 18px 14px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(6px);
+    }
+
+    .hero h1{
+      margin:0;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+
+    .hero p{
+      margin: 8px 0 0;
+      color: rgba(255,255,255,.85);
+      line-height: 1.35;
+      font-size: 14px;
+    }
+
+    /* ===== Timeline ===== */
+    .timeline{
+      margin-top: 18px;
+      position: relative;
+      padding: 20px 0 0;
+    }
+
+    /* ligne centrale */
+    .timeline:before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:0;
+      bottom:0;
+      width:4px;
+      transform: translateX(-50%);
+      background: linear-gradient(
+        rgba(255,255,255,.18),
+        rgba(255,255,255,.45),
+        rgba(255,255,255,.18)
+      );
+      border-radius: 999px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.25);
+    }
+
+    .event{
+      position: relative;
+      display:flex;
+      gap: 14px;
+      margin: 18px 0;
+      min-height: 80px;
+    }
+
+    /* alternance */
+    .event.left{ justify-content: flex-end; padding-right: calc(50% + 18px); }
+    .event.right{ justify-content: flex-start; padding-left: calc(50% + 18px); }
+
+    /* point */
+    .dot{
+      position:absolute;
+      left:50%;
+      top: 18px;
+      width: 18px;
+      height: 18px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: #fff;
+      box-shadow:
+        0 0 0 4px rgba(255,255,255,.18),
+        0 10px 20px rgba(0,0,0,.35);
+    }
+
+    /* carte */
+    .card{
+      width: 460px;
+      max-width: calc(100vw - 60px);
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 16px;
+      overflow:hidden;
+      box-shadow: 0 16px 35px rgba(0,0,0,.32);
+      backdrop-filter: blur(6px);
+    }
+
+    .cardTop{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      padding: 14px 14px 12px;
+      background: rgba(0,0,0,.18);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+
+    .avatar{
+      width: 62px;
+      height: 62px;
+      border-radius: 12px;
+      overflow:hidden;
+      background: rgba(255,255,255,.12);
+      border: 2px solid rgba(255,255,255,.25);
+      flex: 0 0 auto;
+    }
+    .avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .who{
+      flex:1;
+      min-width:0;
+    }
+    .name{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      justify-content: space-between;
+    }
+    .name a{
+      color:#fff;
+      text-decoration:none;
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 260px;
+    }
+    .name a:hover{ text-decoration:underline; }
+
+    .meta{
+      margin-top: 4px;
+      color: rgba(255,255,255,.85);
+      font-size: 13px;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.14);
+      font-weight: 800;
+      font-size: 12px;
+      color:#fff;
+      white-space:nowrap;
+    }
+
+    .year{
+      background: linear-gradient(#ffd44d,#f0b300);
+      color:#111;
+      border-color: rgba(0,0,0,.10);
+      box-shadow: 0 2px 0 rgba(0,0,0,.18);
+    }
+
+    .rank{
+      background: rgba(255,255,255,.16);
+    }
+
+    .cardBody{
+      padding: 12px 14px 14px;
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+      color: rgba(255,255,255,.90);
+      font-size: 13px;
+    }
+
+    .cardBody b{ color:#fff; }
+
+    /* responsive : timeline au centre devient “colonne unique” */
+    @media (max-width: 900px){
+      .timeline:before{ left: 16px; transform:none; }
+      .dot{ left: 16px; transform:none; }
+
+      .event.left,
+      .event.right{
+        padding: 0 0 0 38px;
+        justify-content:flex-start;
+      }
+
+      .card{ width: 100%; }
+      .name a{ max-width: 60vw; }
+    }
+
+    /* ===== Effet Premier (upgrade) ===== */
+.event.first .card{
+  border: 2px solid #ffd44d;
+  background: linear-gradient(rgba(255,212,77,.16), rgba(255,255,255,.10));
+  box-shadow:
+    0 0 18px rgba(255,212,77,.55),
+    0 18px 40px rgba(0,0,0,.35);
+  position: relative;
+  overflow: hidden; /* important pour le shine */
+}
+
+.event.first .dot{
+  background:#ffd44d;
+  box-shadow:
+    0 0 12px rgba(255,212,77,.9),
+    0 0 0 4px rgba(255,255,255,.20),
+    0 10px 20px rgba(0,0,0,.35);
+}
+
+/* Badge "Premier" */
+.pill.champion{
+  background: linear-gradient(#ffd44d,#f0b300);
+  color:#111;
+  border: 1px solid rgba(0,0,0,.15);
+  font-weight:900;
+}
+
+/* ===== Couronne ===== */
+.event.first .avatar{
+  position: relative;
+}
+
+.event.first .avatar:before{
+  content:"👑";
+  position:absolute;
+  top:-18px;
+  left:50%;
+  transform: translateX(-50%);
+  font-size: 22px;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
+}
+
+/* ===== Shine ===== */
+.event.first .card:after{
+  content:"";
+  position:absolute;
+  top:-35%;
+  left:-60%;
+  width: 50%;
+  height: 200%;
+  transform: rotate(20deg);
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.35) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  animation: shineMove 2.8s ease-in-out infinite;
+  pointer-events:none;
+}
+
+@keyframes shineMove{
+  0%   { left:-60%; opacity:.0; }
+  15%  { opacity:.65; }
+  50%  { left:120%; opacity:.55; }
+  100% { left:120%; opacity:0; }
+}
+  </style>
+</head>
+
+<body>
+
+<script src="header.js"></script>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Chronologie du Niveau 100</h1>
+    <p>
+      Classement par <b>date d’arrivée au niveau 100</b> (pas par vitesse).
+      Du premier arrivé au dernier.
+    </p>
+  </section>
+
+  <section class="timeline" id="timeline"></section>
+</main>
+
+<script>
+  function slugify(name){
+    return name
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toLowerCase();
+  }
+
+  // Parse dates:
+  // - "dd-mm-yyyy" / "dd/mm/yyyy"
+  // - "~Mai 2018" (approx => 2018-05-01)
+  function parseArrivee(str){
+    if(!str) return null;
+
+    const s = String(str).trim();
+
+    // Approx: "~Mai 2018"
+    const approx = s.match(/^~\s*([A-Za-zÀ-ÿ]+)\s+(\d{4})$/i);
+    if(approx){
+      const monthName = approx[1].toLowerCase();
+      const year = Number(approx[2]);
+
+      const months = {
+        "janvier":1,"fevrier":2,"février":2,"mars":3,"avril":4,"mai":5,"juin":6,
+        "juillet":7,"aout":8,"août":8,"septembre":9,"octobre":10,"novembre":11,"decembre":12,"décembre":12
+      };
+      const m = months[monthName] ?? 1;
+      return new Date(year, m-1, 1);
+    }
+
+    // dd-mm-yyyy or dd/mm/yyyy
+    const dmy = s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+    if(dmy){
+      const d = Number(dmy[1]);
+      const m = Number(dmy[2]);
+      const y = Number(dmy[3]);
+      return new Date(y, m-1, d);
+    }
+
+    // fallback: try Date.parse
+    const t = Date.parse(s);
+    if(!Number.isNaN(t)) return new Date(t);
+
+    return null;
+  }
+
+  function formatDateFR(dateObj){
+    // format: dd-mm-yyyy
+    const dd = String(dateObj.getDate()).padStart(2,"0");
+    const mm = String(dateObj.getMonth()+1).padStart(2,"0");
+    const yyyy = dateObj.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+  }
+
+  // === Mets ici EXACTEMENT la liste de ta page rank.html (arrivee + avatar + nom + jours) ===
+  // (c’est “les dates de l’autre page” comme tu voulais)
+ const joueurs = [
+  {nom:"Ko0pa", jours:23, arrivee:"16-02-2026", insc:"24-01-2026", gen:6, avatar:"avatar/17.jpg"},
+  {nom:"TheGladiator", jours:54, arrivee:"16-07-2020", insc:"23-05-2020", gen:4, avatar:"avatar/4.jpg"},
+  {nom:"redbot", jours:55, arrivee:"01-10-2022", insc:"07-08-2022", gen:5, avatar:"avatar/20.jpg"},
+  {nom:"cirpacha", jours:94, arrivee:"07-05-2020", insc:"03-02-2020", gen:4, avatar:"avatar/11.jpg"},
+  {nom:"LargoJunior", jours:100, arrivee:"20-05-2026", insc:"10-02-2026", gen:6, avatar:"avatar/35.jpg"},
+  {nom:"Tellor", jours:170, arrivee:"17-09-2020", insc:"10-04-2020", gen:5, avatar:"avatar/18.jpg"},
+  {nom:"Abelard", jours:325, arrivee:"17-01-2017", insc:"27-02-2016", gen:2, avatar:"avatar/5.jpg"},
+  {nom:"Jordan.io", jours:387, arrivee:"06-04-2020", insc:"16-03-2019", gen:4, avatar:"avatar/6.jpg"},
+  {nom:"Alexis279", jours:522, arrivee:"12-03-2020", insc:"07-10-2018", gen:4, avatar:"avatar/9.jpg"},
+  {nom:"Largo672", jours:610, arrivee:"10-10-2015", insc:"10-02-2014", gen:1, avatar:"avatar/15.jpg"},
+  {nom:"Unit", jours:636, arrivee:"09-04-2020", insc:"13-07-2018", gen:4, avatar:"avatar/14.jpg"},
+  {nom:"alex.c2109", jours:645, arrivee:"31-03-2019", insc:"24-06-2017", gen:3, avatar:"avatar/2.jpg"},
+  {nom:"djabrail", jours:693, arrivee:"30-06-2016", insc:"07-08-2014", gen:1, avatar:"avatar/16.jpg"},
+  {nom:"Esdras950", jours:727, arrivee:"27-04-2020", insc:"01-05-2018", gen:4, avatar:"avatar/12.jpg"},
+  {nom:"josué455", jours:778, arrivee:"01-10-2016", insc:"15-08-2014", gen:2, avatar:"avatar/8.jpg"},
+  {nom:"Golder", jours:980, arrivee:"30-03-2020", insc:"24-07-2017", gen:4, avatar:"avatar/13.jpg"},
+  {nom:"Talk Takashi", jours:1013, arrivee:"20-01-2017", insc:"13-04-2014", gen:2, avatar:"avatar/1.jpg"},
+  {nom:"francoeur", jours:1203, arrivee:"04-04-2019", insc:"18-12-2015", gen:3, avatar:"avatar/3.jpg"},
+  {nom:"lumia", jours:1226, arrivee:"15-05-2022", insc:"01-01-2019", gen:5, avatar:"avatar/10.jpg"},
+  {nom:"hoopa", jours:1277, arrivee:"19-05-2019", insc:"19-11-2015", gen:3, avatar:"avatar/7.jpg"},
+  {nom:"dude", jours:1866, arrivee:"~Mai 2018", insc:"22-03-2013", gen:0, avatar:"avatar/37.jpg"},
+  {nom:"Pingu", jours:1953, arrivee:"15-09-2024", insc:"12-05-2019", gen:5, avatar:"avatar/19.jpg"},
+  {nom:"Korben", jours:1958, arrivee:"~Août 2018", insc:"22-03-2013", gen:0, avatar:"avatar/38.jpg"}
+];
+
+  // tri par date d’arrivée
+  const withDate = joueurs.map(j => ({...j, d: parseArrivee(j.arrivee)}));
+  withDate.sort((a,b)=>{
+    if(!a.d && !b.d) return 0;
+    if(!a.d) return 1;
+    if(!b.d) return -1;
+    return a.d - b.d;
+  });
+
+  const root = document.getElementById("timeline");
+
+  withDate.forEach((j, idx) => {
+    const isFirst = (idx === 0);
+    const side = (idx % 2 === 0) ? "left" : "right";
+    const d = j.d;
+    const year = d ? d.getFullYear() : "—";
+    const dateText = d ? formatDateFR(d) : j.arrivee;
+
+    const el = document.createElement("div");
+    el.className = `event ${side} ${isFirst ? "first" : ""}`;
+    el.innerHTML = `
+      <div class="dot"></div>
+
+      <div class="card">
+        <div class="cardTop">
+          <div class="avatar">
+            <img src="${j.avatar}" alt="${j.nom}">
+          </div>
+
+          <div class="who">
+            <div class="name">
+  <a href="profil.html?u=${slugify(j.nom)}">${j.nom}</a>
+  <span class="pill year">${year}</span>
+  ${isFirst ? '<span class="pill champion">🏆 Premier</span>' : ""}
+</div>
+
+            <div class="meta">
+              <span class="pill rank">#${idx+1}</span>
+              <span class="pill">Arrivé : <b>${dateText}</b></span>
+              <span class="pill">Niveau 100 : <b>${j.jours} jours</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cardBody">
+  <div>Inscription : <b>${j.insc ?? "—"}</b></div>
+  <div>
+  <span class="pill">Gen ${j.gen ?? "?"}</span>
+</div>
+    `;
+    root.appendChild(el);
+  });
+</script>
+
+</body>
+</html>

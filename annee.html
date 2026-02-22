@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Classement des Années</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+}
+
+.wrap{
+  max-width:1180px;
+  margin:26px auto 40px;
+  padding:0 12px;
+}
+
+.panel{
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,0,0,.28);
+  border:1px solid rgba(0,0,0,.10);
+}
+
+.titlebar{
+  background:#3b3b3b;
+  color:#fff;
+  padding:14px 16px;
+  font-size:22px;
+  font-weight:900;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+thead th{
+  background:#f2f2f2;
+  padding:14px 10px;
+  font-size:14px;
+  text-align:left;
+  border-bottom:2px solid #d9d9d9;
+}
+
+tbody td{
+  padding:16px 10px;
+  border-bottom:1px solid #e6e6e6;
+  font-size:15px;
+}
+
+tbody tr:nth-child(odd){ background:#fafafa; }
+
+.rank{
+  font-weight:900;
+  font-size:18px;
+  width:80px;
+}
+
+.points{
+  font-weight:900;
+  font-size:16px;
+  color:#111;
+}
+
+.year{
+  font-weight:900;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<script src="header.js"></script>
+
+<main class="wrap">
+<section class="panel">
+  <div class="titlebar">Classement des années</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Année</th>
+        <th>Total points</th>
+        <th>Événements</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</section>
+</main>
+
+<script>
+/* ===== DONNÉES (mêmes points que frise.html) ===== */
+
+const frise = [
+  { year:2013, events:[4,5,5,2,3,1,1,6,2,1,4] },
+  { year:2014, events:[6,5,3,6,2,6,4,5,10,2,2,2] },
+  { year:2015, events:[2,5,4,2,2,2,6,5,5,5,-3] },
+  { year:2016, events:[5,4,2,4,2,4,5,5,6,4] },
+  { year:2017, events:[10,6,6,1,3,5,5,4,5,5,5,4] },
+  { year:2018, events:[2,6,5,5,4,5,2,2,4,5] },
+  { year:2019, events:[15,4,6,15,2,2,10,5,4,4,5,5,2,-4,5,5,2] },
+  { year:2020, events:[4,5,4,6,10,5,6,15,5,5,5,6,5,10,2,4,5,2,5,6,5,5,5,6,4,5,5,5,5] },
+  { year:2021, events:[5,6,5,5,5,5,5] },
+  { year:2022, events:[5,4,6,5,7,4,5,4,2,5,-2] },
+  { year:2023, events:[5,10,5,5,5] },
+  { year:2024, events:[5,5,4,5,5,5,5] },
+  { year:2025, events:[5,5,5,5] },
+  { year:2026, events:[5,5,15,2,2,5,5,5] } // inclut Dude + Korben nv100
+];
+
+/* ===== Calcul ===== */
+
+const results = frise.map(y => {
+  const total = y.events.reduce((a,b)=>a+b,0);
+  return {
+    year:y.year,
+    total,
+    count:y.events.length
+  };
+});
+
+/* Tri décroissant */
+results.sort((a,b)=>b.total - a.total);
+
+/* Affichage */
+const tbody = document.getElementById("tbody");
+
+results.forEach((y,i)=>{
+  tbody.insertAdjacentHTML("beforeend",`
+    <tr>
+      <td class="rank">${i+1}</td>
+      <td class="year">${y.year}</td>
+      <td class="points">${y.total} pts</td>
+      <td>${y.count}</td>
+    </tr>
+  `);
+});
+</script>
+
+</body>
+</html>

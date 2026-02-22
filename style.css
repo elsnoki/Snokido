@@ -1,0 +1,160 @@
+/* ================= HEADER / NAV ================= */
+
+.topbar{
+  background: linear-gradient(#3a3a3a,#232323);
+  border-bottom: 4px solid #1b7aa1;
+  box-shadow: 0 3px 0 rgba(0,0,0,.25);
+}
+
+.topbar-inner{
+  max-width:1180px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:10px 12px;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  text-decoration:none;
+}
+
+.logo img{
+  height:46px;
+  width:auto;
+  display:block;
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+  margin-left:8px;
+  flex:1;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.nav a.tab{
+  color:#e6e6e6;
+  text-decoration:none;
+  font-weight:900;
+  padding:8px 12px;
+  border-radius:10px;
+  font-size:14px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+}
+
+.nav a.tab:hover{
+  background:rgba(255,255,255,.10);
+}
+
+.tab-sep{
+  color:rgba(255,255,255,.35);
+  font-weight:900;
+  margin:0 6px;
+  user-select:none;
+}
+
+/* Onglets colorés */
+.nav a.tab-nv100{ box-shadow: inset 0 -3px 0 #2ecc71; }
+.nav a.tab-nv0  { box-shadow: inset 0 -3px 0 #00d2ff; }
+.nav a.tab-100  { box-shadow: inset 0 -3px 0 #f1c40f; }
+.nav a.tab-200  { box-shadow: inset 0 -3px 0 #e67e22; }
+.nav a.tab-300  { box-shadow: inset 0 -3px 0 #e74c3c; }
+.nav a.tab-400  { box-shadow: inset 0 -3px 0 #9b59b6; }
+.nav a.tab-500  { box-shadow: inset 0 -3px 0 #3498db; }
+.nav a.tab-gang { box-shadow: inset 0 -3px 0 #ff5bd6; }
+.nav a.tab-graph{ box-shadow: inset 0 -3px 0 #a6ff4d; }
+.nav a.tab-pause{ box-shadow: inset 0 -3px 0 #ff3b3b; } /* rouge vif */
+.nav a.tab-chrono{ box-shadow: inset 0 -3px 0 #00ffaa; }
+.nav a.tab-frise{
+  box-shadow: inset 0 -3px 0 #00ffaa;
+}
+
+/* ================= TIMELINE / EFFET 1ER ================= */
+
+.event.first .card{
+  border: 2px solid #ffd44d;
+  background: linear-gradient(
+    rgba(255,212,77,.15),
+    rgba(255,255,255,.12)
+  );
+  box-shadow:
+    0 0 20px rgba(255,212,77,.6),
+    0 18px 40px rgba(0,0,0,.35);
+}
+
+.event.first .dot{
+  background:#ffd44d;
+  box-shadow:
+    0 0 12px rgba(255,212,77,.9),
+    0 0 0 4px rgba(255,255,255,.2);
+}
+
+.pill.champion{
+  background: linear-gradient(#ffd44d,#f0b300);
+  color:#111;
+  border: 1px solid rgba(0,0,0,.15);
+  font-weight:900;
+}
+
+/* ================= SOUS-MENU PAUSES ================= */
+
+.pauseWrap{
+  position: relative;
+  display: inline-block;
+}
+
+.caret{
+  margin-left:6px;
+  font-weight:900;
+  opacity:.9;
+}
+
+/* caché par défaut, montré par JS avec .is-open */
+.pauseMenu{
+  position:absolute;
+  top: 42px;
+  left: 0;
+  min-width: 260px;
+  background: #2a2a2a;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(0,0,0,.35);
+  padding: 8px;
+  display:none;
+  z-index:9999;
+}
+
+.pauseWrap.is-open .pauseMenu{
+  display:block;
+}
+
+.pauseMenu a{
+  display:block;
+  padding:10px 10px;
+  border-radius:8px;
+  color:#eee;
+  text-decoration:none;
+  font-weight:900;
+  font-size:13px;
+}
+
+.pauseMenu a:hover{
+  background: rgba(255,255,255,.10);
+}
+
+.pauseMenu a.is-active{
+  background: rgba(255,255,255,.14);
+}
+
+/* ================= PETIT STYLE (si tu utilises span non cliquable) ================= */
+
+.name span{
+  color:#2c6fb7;
+  font-weight:700;
+}

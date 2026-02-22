@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Pauses — Total par joueur</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+    }
+    .wrap{
+      max-width: 1180px;
+      margin: 26px auto 40px;
+      padding: 0 12px;
+    }
+    .panel{
+      background:#fff;
+      border-radius: 12px;
+      overflow:hidden;
+      box-shadow: 0 12px 30px rgba(0,0,0,.28);
+      border: 1px solid rgba(0,0,0,.10);
+    }
+    .titlebar{
+      background:#3b3b3b;
+      color:#fff;
+      padding: 12px 14px;
+      font-size: 18px;
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .titlebar small{ font-weight:600; opacity:.85; }
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+    }
+    thead th{
+      background:#fff;
+      padding:12px 10px;
+      text-align:left;
+      font-size:13px;
+      font-weight:700;
+      border-bottom:1px solid #cfcfcf;
+    }
+    tbody td{
+      padding:14px 10px;
+      border-bottom:1px solid #e1e1e1;
+      font-size:14px;
+      vertical-align:middle;
+    }
+    tbody tr:nth-child(odd){ background:#f4f4f4; }
+    tbody tr:nth-child(even){ background:#ffffff; }
+
+    .rank{
+      width:60px;
+      text-align:center;
+      font-size:20px;
+      font-weight:900;
+      color:#333;
+    }
+
+    .avatarCell{ width:70px; text-align:center; }
+    .avatarCell .frame{
+      width:52px; height:52px; margin:0 auto;
+      background:#e9e9e9;
+      border:1px solid #bdbdbd;
+      border-radius:6px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .avatarCell img{
+      width:46px; height:46px;
+      object-fit:cover;
+      border:2px solid #8f8f8f;
+      border-radius:6px;
+      background:#ddd;
+      display:block;
+    }
+
+    .who a{
+      color:#2c6fb7;
+      font-weight:900;
+      text-decoration:none;
+    }
+    .who a:hover{ text-decoration:underline; }
+
+    .tot{
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .muted{ color:#666; }
+
+    /* ===== Sous-menu Pauses ===== */
+    .nav{ position:relative; }
+    .pauseWrap{ position:relative; display:inline-block; }
+    .pauseMenu{
+      position:absolute;
+      top: 44px;
+      left: 0;
+      min-width: 240px;
+      background: #2a2a2a;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      box-shadow: 0 14px 30px rgba(0,0,0,.35);
+      padding: 8px;
+      display:none;
+      z-index:999;
+    }
+    .pauseMenu a{
+      display:block;
+      padding:10px 10px;
+      border-radius:8px;
+      color:#eee;
+      text-decoration:none;
+      font-weight:900;
+      font-size:13px;
+    }
+    .pauseMenu a:hover{ background: rgba(255,255,255,.10); }
+    .pauseMenu a.is-active{ background: rgba(255,255,255,.14); }
+    .caret{ margin-left:6px; opacity:.9; font-weight:900; }
+
+    .hint{
+      padding: 12px 14px;
+      font-size: 13px;
+      color:#444;
+      background:#fafafa;
+      border-top: 1px solid #e8e8e8;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="logo" href="rank.html" aria-label="Accueil">
+      <img src="snokiki.png" alt="SNOKIKI">
+    </a>
+
+    <nav class="nav">
+      <a class="tab tab-nv100" href="rank.html">NV100</a>
+      <a class="tab tab-nv0" href="rank0pause.html">NV100 sans pause</a>
+      <a class="tab tab-100" href="100k.html">100K</a>
+      <a class="tab tab-200" href="200k.html">200K</a>
+      <a class="tab tab-300" href="300k.html">300K</a>
+      <a class="tab tab-400" href="400k.html">400K</a>
+      <a class="tab tab-500" href="500k.html">500K et +</a>
+      <span class="tab-sep">|</span>
+      <a class="tab tab-gang" href="gang.html">Gang</a>
+      <span class="tab-sep">|</span>
+      <a class="tab tab-graph" href="graphe.html">Graphe</a>
+
+      <span class="pauseWrap">
+        <a class="tab tab-pause active" href="pauses_total.html" id="pauseBtn">Pauses<span class="caret">▾</span></a>
+        <div class="pauseMenu" id="pauseMenu">
+          <a href="pause.html">Records — pauses uniques</a>
+          <a class="is-active" href="pauses_total.html">Records — total par joueur</a>
+        </div>
+      </span>
+
+      <a class="tab tab-chrono" href="timeline.html">Timeline</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel">
+    <div class="titlebar">
+      <div>Records total de pauses par joueur</div>
+      <small>Somme des jours de pause (tous objectifs confondus)</small>
+    </div>
+
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th></th>
+          <th></th>
+          <th>Joueur</th>
+          <th>Total pauses</th>
+          <th>Nb pauses</th>
+          <th class="muted">Détail (modes)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="hint">
+      Totaux calculés en additionnant toutes les pauses trouvées dans <b>data.js</b> (nv100/100k/200k/300k/400k...).  
+      Cliquer sur un joueur ouvre son profil NV100.
+    </div>
+  </section>
+</main>
+
+<script src="data.js"></script>
+<script>
+  // menu
+  const pauseBtn = document.getElementById("pauseBtn");
+  const pauseMenu = document.getElementById("pauseMenu");
+  pauseBtn.addEventListener("click", (e)=>{
+    e.preventDefault();
+    pauseMenu.style.display = (pauseMenu.style.display === "block") ? "none" : "block";
+  });
+  document.addEventListener("click", (e)=>{
+    if(!e.target.closest(".pauseWrap")){
+      pauseMenu.style.display = "none";
+    }
+  });
+
+  function slugify(name){
+    return String(name || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toLowerCase();
+  }
+
+  function modeLabel(mode){
+    if(mode === "nv100") return "NV100";
+    if(mode === "100k") return "100K";
+    if(mode === "200k") return "200K";
+    if(mode === "300k") return "300K";
+    if(mode === "400k") return "400K";
+    if(mode === "500k") return "500K+";
+    return mode;
+  }
+
+  const rows = [];
+
+  if(typeof joueurs !== "undefined" && Array.isArray(joueurs)){
+    joueurs.forEach(p=>{
+      let totalDays = 0;
+      let totalCount = 0;
+      const detail = [];
+
+      const modes = p.modes || {};
+      Object.keys(modes).forEach(mode=>{
+        const st = modes[mode];
+        const t = st.pauses_total || {nb:0, jours:0};
+        const nb = Number(t.nb || 0);
+        const jd = Number(t.jours || 0);
+
+        if(nb > 0 || jd > 0){
+          totalDays += jd;
+          totalCount += nb;
+          detail.push(`${modeLabel(mode)}: ${jd}j (${nb})`);
+        }
+      });
+
+      if(totalDays > 0 || totalCount > 0){
+        rows.push({
+          nom: p.nom,
+          slug: slugify(p.nom),
+          avatar: p.avatar,
+          totalDays,
+          totalCount,
+          detail: detail.join(" • ")
+        });
+      }
+    });
+  }
+
+  rows.sort((a,b)=>b.totalDays - a.totalDays);
+
+  const tbody = document.querySelector("#tbl tbody");
+
+  if(rows.length === 0){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="6" style="padding:16px">Aucune pause trouvée dans data.js</td>`;
+    tbody.appendChild(tr);
+  } else {
+    rows.forEach((r, idx)=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="rank">${idx+1}</td>
+
+        <td class="avatarCell">
+          <div class="frame">
+            <img src="${r.avatar}" alt="${r.nom}">
+          </div>
+        </td>
+
+        <td class="who">
+          <a href="profil.html?mode=nv100&u=${encodeURIComponent(r.slug)}">${r.nom}</a>
+        </td>
+
+        <td class="tot">${r.totalDays.toLocaleString("fr-FR")} jours</td>
+        <td class="tot">${r.totalCount}</td>
+        <td class="muted">${r.detail || "—"}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+</script>
+
+</body>
+</html>
