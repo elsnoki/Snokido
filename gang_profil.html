@@ -6,6 +6,7 @@
   <title>Profil du gang</title>
 
   <link rel="stylesheet" href="style.css">
+
   <style>
     body{
       margin:0;
@@ -120,6 +121,12 @@
       opacity:.95;
     }
 
+    .notice{
+      padding:16px;
+      font-weight:900;
+      color:#222;
+    }
+
     @media (max-width: 1020px){
       .content{ flex-direction:column; }
       .left{ width:auto; }
@@ -136,6 +143,12 @@
   <main class="wrap">
     <section class="panel">
       <div class="titlebar" id="pageTitle">Gang</div>
+
+      <!-- ✅ bouton TOUJOURS visible -->
+      <div class="notice">
+        <a href="gang.html" style="color:#2c6fb7;text-decoration:none;font-weight:900;">← Classement des gangs</a>
+      </div>
+
       <div class="content" id="content"></div>
 
       <div class="membersBar">
@@ -166,16 +179,22 @@
 
     if(!gang){
       pageTitle.textContent = "Gang introuvable";
-      content.innerHTML = "<p style='padding:18px;font-weight:900'>Ouvre d'abord <a href='gang.html'>gang.html</a> (classement) pour recalculer.</p>";
+      content.innerHTML = `
+        <div class="notice">
+          Ce profil ne peut pas se charger car les données ne sont pas encore calculées.<br>
+          Ouvre d’abord <b>gang.html</b> puis reviens ici.
+        </div>
+      `;
+      members.innerHTML = "";
     } else {
       pageTitle.textContent = "Gang : " + gang.name;
 
       const xpStr = (gang.totalXp||0).toLocaleString("fr-FR") + " xp";
       const karaStr = (gang.totalKaras||0) ? gang.totalKaras.toLocaleString("fr-FR") + " Kara" : "—";
 
-      // ✅ accepte chefLabel/chefValue OU roleLabel/roleValue
-      const leaderLabel = gang.chefLabel || gang.roleLabel || "Chef du gang";
-      const leaderValue = gang.chefValue || gang.roleValue || "—";
+      // ✅ chef toujours affiché (chefLabel/chefValue)
+      const leaderLabel = gang.chefLabel || "Chef du gang";
+      const leaderValue = gang.chefValue || "—";
 
       content.innerHTML = `
         <div class="left">
@@ -201,8 +220,6 @@
               <div class="item"><span class="label">Membres :</span><span class="value">${gang.count} / 50</span></div>
               <div class="item"><span class="label">Rang :</span><span class="value">${gang.rang ?? "—"}</span></div>
               <div class="item"><span class="label">Création :</span><span class="value">${gang.creation ?? "—"}</span></div>
-
-              <div class="linkRow"><a href="gang.html">Classement des gangs</a></div>
             </div>
 
             <div class="col-right">
@@ -215,7 +232,6 @@
         </div>
       `;
 
-      // tri xp desc
       const list = (gang.membersResolved || []).slice().sort((a,b)=> (b.xp||0) - (a.xp||0));
 
       members.innerHTML = list.map(m => `
