@@ -6,9 +6,6 @@
   <title>Classement des gangs</title>
 
   <link rel="stylesheet" href="style.css">
-  <script src="header.js" defer></script>
-  <script src="gangdata.js" defer></script>
-
   <style>
     body{
       margin:0;
@@ -29,17 +26,6 @@
       padding:14px 16px;
       font-size:22px;
       font-weight:900;
-    }
-
-    .msg{
-      margin:12px 16px 0;
-      padding:10px 12px;
-      background:#fff3cd;
-      border:1px solid #ffe69c;
-      border-radius:10px;
-      font-weight:900;
-      color:#664d03;
-      display:none;
     }
 
     table{ width:100%; border-collapse:separate; border-spacing:0; }
@@ -83,6 +69,7 @@
     .name a:hover{ text-decoration:underline; }
 
     .center{ text-align:center; white-space:nowrap; }
+
     .xpTxt{ font-weight:900; }
     .karaTxt{ color:#444; font-weight:700; font-size:14px; margin-top:4px; }
 
@@ -98,14 +85,27 @@
       font-size:14px;
     }
     .btnOpen:hover{ background:#f3f3f3; }
+
+    .warn{
+      margin:12px 16px 0;
+      padding:10px 12px;
+      background:#fff3cd;
+      border:1px solid #ffe69c;
+      border-radius:10px;
+      font-weight:900;
+      color:#664d03;
+      display:none;
+    }
   </style>
 </head>
 
 <body>
+  <script src="header.js"></script>
+
   <main class="wrap">
     <section class="panel">
       <div class="titlebar">Classement des gangs</div>
-      <div id="msg" class="msg"></div>
+      <div id="warn" class="warn"></div>
 
       <table>
         <thead>
@@ -123,6 +123,8 @@
     </section>
   </main>
 
+  <script src="gangdata.js"></script>
+
   <script>
     function slugify(s){
       return (s||"")
@@ -131,13 +133,19 @@
         .replace(/[^a-zA-Z0-9]/g,"")
         .toLowerCase();
     }
-    const msg = document.getElementById("msg");
-    function warn(t){ msg.style.display="block"; msg.textContent=t; }
-    function safeNum(n){ return (typeof n === "number" && Number.isFinite(n)) ? n : 0; }
+    const warnBox = document.getElementById("warn");
+    function warn(msg){
+      warnBox.style.display = "block";
+      warnBox.textContent = msg;
+    }
 
-    // alias pour eviter les mismatches
+    // alias (tu peux en ajouter si besoin)
     const alias = {
       "talk":"talktakashi",
+      "talktakashi":"talktakashi",
+      "talktakashi":"talktakashi",
+      "talktakashi":"talktakashi",
+      "talktakashi":"talktakashi",
       "talktakashi":"talktakashi",
       "talk takashi":"talktakashi",
 
@@ -149,9 +157,12 @@
       "josue455":"josue455",
       "josué455":"josue455",
 
-      "thegladiator":"thegladiator",
-      "ko0pa":"ko0pa",
-      "alexis279":"alexis279"
+      "alex":"alexc2109",
+      "alexc":"alexc2109",
+      "alex.c":"alexc2109",
+      "alexc2109":"alexc2109",
+
+      "thegladiator":"thegladiator"
     };
     function keyOf(name){
       const s = slugify(name);
@@ -160,64 +171,70 @@
 
     async function loadTop50(){
       const res = await fetch("data/snokido_top50.json", { cache:"no-store" });
-      if(!res.ok) throw new Error("HTTP "+res.status);
+      if(!res.ok) throw new Error("HTTP " + res.status);
       const arr = await res.json();
       if(!Array.isArray(arr)) throw new Error("JSON invalide");
       return arr;
     }
 
-    window.addEventListener("DOMContentLoaded", async () => {
+    (async () => {
       const tbody = document.getElementById("tbody");
 
-      if(!Array.isArray(window.gangsData)){
-        warn("Erreur : gangsData introuvable (gangdata.js pas chargé).");
+      // robust: gangsData peut être window.gangsData ou gangsData
+      const base = (window.gangsData || window.gangsData || (typeof gangsData !== "undefined" ? gangsData : null));
+      const gangsDataLocal = Array.isArray(window.gangsData) ? window.gangsData
+                         : (Array.isArray(base) ? base : null);
+
+      if(!gangsDataLocal){
+        warn("Erreur : gangsData introuvable. gangdata.js ne s'est pas chargé (ou erreur dedans).");
         return;
       }
 
-      // Top50 map (nom -> player)
+      // top50 map
       const topMap = new Map();
       try{
         const top50 = await loadTop50();
         top50.forEach(p => topMap.set(keyOf(p.nom), p));
-      }catch(e){
-        warn("Impossible de charger data/snokido_top50.json → XP Top50 = 0 ("+e.message+")");
+      } catch(e){
+        warn("Impossible de charger data/snokido_top50.json (XP Top50 = 0) : " + e.message);
       }
 
-      // calc gangs (Top50 auto, sinon manuel, sinon 0)
-      const gangs = window.gangsData.map(g => {
-        const membersResolved = (g.members || []).map(m => {
-          const k = keyOf(m.nom || "");
-          const top = topMap.get(k);
+      function resolveMember(m){
+        const k = keyOf(m.nom || "");
+        const top = topMap.get(k);
 
-          const xp =
-            (typeof m.xp === "number") ? m.xp :
-            (top?.xp != null ? Number(top.xp) : 0);
+        // XP: priorité manuel, sinon top50, sinon 0
+        const xp = (typeof m.xp === "number") ? m.xp : (top?.xp != null ? Number(top.xp) : 0);
 
-          // Ton scrap ne donne pas les Karas => Top50 = 0, hors top50 = manuel si tu as mis karas
-          const karas =
-            (typeof m.karas === "number") ? m.karas :
-            0;
+        // Kara: priorité manuel, sinon 0 (ton scrap ne donne pas kara)
+        const karas = (typeof m.karas === "number") ? m.karas : 0;
 
-          const avatar = m.avatar || top?.avatar || "avatar/1.jpg";
-          return { ...m, slug:k, xp:safeNum(xp), karas:safeNum(karas), avatar };
-        });
+        const avatar = m.avatar || top?.avatar || "avatar/1.jpg";
+        return { ...m, slug:k, xp, karas, avatar };
+      }
 
-        const totalXp = membersResolved.reduce((s,x)=> s + safeNum(x.xp), 0);
-        const totalKaras = membersResolved.reduce((s,x)=> s + safeNum(x.karas), 0);
-
+      const gangs = gangsDataLocal.map(g => {
+        const membersResolved = (g.members || []).map(resolveMember);
+        const totalXp = membersResolved.reduce((s,x)=> s + (x.xp||0), 0);
+        const totalKaras = membersResolved.reduce((s,x)=> s + (x.karas||0), 0);
         return { ...g, membersResolved, totalXp, totalKaras, count: membersResolved.length };
       });
 
+      // tri
       gangs.sort((a,b)=> b.totalXp - a.totalXp);
+
+      // classement (rang)
       gangs.forEach((g,i)=> g.classement = i+1);
 
+      // stock pour gang_profil
       localStorage.setItem("gangsResolved", JSON.stringify(gangs));
 
+      // render
       tbody.innerHTML = "";
       gangs.forEach((g,i)=>{
         const gSlug = slugify(g.name);
         const xpStr = (g.totalXp||0).toLocaleString("fr-FR") + " xp";
-        const karaStr = (g.totalKaras||0) ? (g.totalKaras.toLocaleString("fr-FR")+" Kara") : "";
+        const karaStr = (g.totalKaras||0) ? (g.totalKaras.toLocaleString("fr-FR") + " Kara") : "";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -239,7 +256,7 @@
         `;
         tbody.appendChild(tr);
       });
-    });
+    })();
   </script>
 </body>
 </html>
