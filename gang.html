@@ -1,89 +1,81 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>Classement des gangs</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Classement des gangs</title>
 
-<link rel="stylesheet" href="style.css">
-<script src="header.js"></script>
-<script src="gangdata.js"></script>
-
-<style>
-body{
-  margin:0;
-  font-family: Arial, sans-serif;
-  background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
-}
-.wrap{max-width:1180px;margin:26px auto;padding:0 12px;}
-.panel{
-  background:#fff;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 12px 30px rgba(0,0,0,.28);
-}
-.titlebar{
-  background:#3b3b3b;
-  color:#fff;
-  padding:14px 16px;
-  font-size:22px;
-  font-weight:900;
-}
-table{width:100%;border-collapse:collapse;}
-th,td{padding:14px;border-bottom:1px solid #ccc;}
-.rank{text-align:center;font-weight:900;font-size:22px;}
-.name a{color:#2c6fb7;font-weight:900;text-decoration:none;}
-</style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+  <script src="header.js"></script>
 
-<main class="wrap">
-<section class="panel">
-<div class="titlebar">Classement des gangs</div>
+  <main style="max-width:1180px;margin:26px auto 40px;padding:0 12px;">
+    <section style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.28);border:1px solid rgba(0,0,0,.10);">
+      <div style="background:#3b3b3b;color:#fff;padding:14px 16px;font-size:22px;font-weight:900;">
+        Classement des gangs
+      </div>
 
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Nom du gang</th>
-<th>Membres</th>
-<th>XP totale</th>
-<th>Kara totale</th>
-<th>Profil</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
+      <div id="status" style="padding:12px 16px;font-weight:900;display:none;"></div>
 
-</section>
-</main>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="padding:12px;border-bottom:1px solid #ccc;">#</th>
+            <th style="padding:12px;border-bottom:1px solid #ccc;">Nom</th>
+            <th style="padding:12px;border-bottom:1px solid #ccc;">Membres</th>
+            <th style="padding:12px;border-bottom:1px solid #ccc;">Profil</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="4" style="padding:16px;font-weight:900">Chargement...</td></tr>
+        </tbody>
+      </table>
 
-<script>
-function slugify(name){
-  return name.normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"")
-    .replace(/[^a-zA-Z0-9]/g,"")
-    .toLowerCase();
-}
+    </section>
+  </main>
 
-const tbody = document.getElementById("tbody");
+  <script src="gangdata.js"></script>
 
-gangsData.forEach((g,i)=>{
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td class="rank">${i+1}</td>
-    <td class="name">
-      <a href="gang_profil.html?g=${slugify(g.name)}">${g.name}</a>
-    </td>
-    <td>${g.members.length}</td>
-    <td>${g.xp.toLocaleString("fr-FR")} xp</td>
-    <td>${g.kara.toLocaleString("fr-FR")} Kara</td>
-    <td><a href="gang_profil.html?g=${slugify(g.name)}">Ouvrir</a></td>
-  `;
-  tbody.appendChild(tr);
-});
-</script>
+  <script>
+    function slugify(s){
+      return (s||"")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+        .replace(/[^a-zA-Z0-9]/g,"")
+        .toLowerCase();
+    }
 
+    window.addEventListener("DOMContentLoaded", () => {
+      const tbody = document.getElementById("tbody");
+      const status = document.getElementById("status");
+
+      const data = window.gangsData;
+
+      if(!Array.isArray(data)){
+        tbody.innerHTML = `<tr><td colspan="4" style="padding:16px;font-weight:900">
+          ERREUR: window.gangsData introuvable. (gangdata.js charge mais n'exporte pas window.gangsData)
+        </td></tr>`;
+        status.style.display = "block";
+        status.textContent = "Fix: dans gangdata.js, utilise window.gangsData = [...]";
+        return;
+      }
+
+      tbody.innerHTML = "";
+      data.forEach((g,i)=>{
+        const gSlug = slugify(g.name);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="padding:12px;border-bottom:1px solid #eee;font-weight:900">${i+1}</td>
+          <td style="padding:12px;border-bottom:1px solid #eee;font-weight:900">${g.name}</td>
+          <td style="padding:12px;border-bottom:1px solid #eee;">${(g.members||[]).length} / 50</td>
+          <td style="padding:12px;border-bottom:1px solid #eee;">
+            <a href="gang_profil.html?g=${encodeURIComponent(gSlug)}">Ouvrir</a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  </script>
 </body>
 </html>
