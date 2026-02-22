@@ -1,5 +1,5 @@
 import fs from "fs";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio"; // ✅ PAS "default"
 
 // -------- Utils --------
 function clean(s) {
@@ -15,16 +15,16 @@ function toInt(s) {
 function parsePlayers(html) {
   const $ = cheerio.load(html);
 
-  // Choisir la bonne table = celle qui contient "Nom du joueur", "Exp" et "Date"
+  // Table qui contient les bons mots clés
   const table = $("table")
     .filter((i, el) => {
       const t = clean($(el).text()).toLowerCase();
-      return t.includes("nom du joueur") && t.includes("exp") && t.includes("date");
+      return t.includes("nom") && t.includes("xp") && t.includes("date");
     })
     .first();
 
-  if (!table || table.length === 0) {
-    return { players: [], debug: { reason: "table_not_found" } };
+  if (!table.length) {
+    return { players: [], reason: "table_not_found" };
   }
 
   const rows = table.find("tr");
@@ -32,10 +32,8 @@ function parsePlayers(html) {
 
   rows.each((i, tr) => {
     const tds = $(tr).find("td");
-    if (tds.length < 5) return; // ignore header / lignes bizarres
+    if (tds.length < 5) return;
 
-    // Snokido (généralement) :
-    // [0]=rang, [1]=avatar, [2]=nom, [3]=niveau, [4]=xp, [5]=date d'inscription
     const rank = toInt($(tds[0]).text());
 
     const nameA = $(tds[2]).find("a").first();
@@ -46,11 +44,9 @@ function parsePlayers(html) {
     const xp = toInt($(tds[4]).text());
     const inscription = clean($(tds[5]).text() || "");
 
-    // avatar
     const img = $(tds[1]).find("img").first();
     const avatar = img.attr("src") || img.attr("data-src") || "";
 
-    // si pas de pseudo ou pas de xp -> on ignore la ligne
     if (!nom || xp == null) return;
 
     players.push({
@@ -64,14 +60,12 @@ function parsePlayers(html) {
     });
   });
 
-  return { players, debug: { rows: rows.length } };
+  return { players, reason: "ok" };
 }
 
-// -------- MAIN (fonction principale) --------
+// -------- MAIN --------
 async function main() {
   const url = "https://www.snokido.fr/players";
-
-  // créer le dossier data si absent
   fs.mkdirSync("data", { recursive: true });
 
   console.log("🌐 Fetch:", url);
@@ -86,36 +80,27 @@ async function main() {
 
   const html = await res.text();
 
-  // petit debug simple
+  // debug rapide
   const $ = cheerio.load(html);
-  const title = clean($("title").text());
-  const h1 = clean($("h1").first().text());
-  console.log("TITLE:", title);
-  console.log("H1:", h1);
+  console.log("TITLE:", clean($("title").text()));
+  console.log("H1:", clean($("h1").first().text()));
   console.log("tables:", $("table").length);
 
-  const { players } = parsePlayers(html);
+  const { players, reason } = parsePlayers(html);
 
-  if (players.length === 0) {
-    // sauvegarde le HTML pour que tu regardes ce que GH Actions reçoit
+  if (!players.length) {
     fs.writeFileSync("data/debug_players.html", html, "utf8");
-    console.error("❌ 0 joueurs trouvés. HTML sauvegardé dans data/debug_players.html");
+    console.error(`❌ 0 joueurs trouvés. reason=${reason}. debug -> data/debug_players.html`);
     process.exit(1);
   }
 
-  // garder top 50
   const top50 = players.slice(0, 50);
 
-  fs.writeFileSync(
-    "data/snokido_top50.json",
-    JSON.stringify(top50, null, 2),
-    "utf8"
-  );
-
+  fs.writeFileSync("data/snokido_top50.json", JSON.stringify(top50, null, 2), "utf8");
   console.log(`✅ ${top50.length} joueurs exportés -> data/snokido_top50.json`);
 }
 
 main().catch((err) => {
-  console.error("❌ Erreur main():", err);
+  console.error("❌ Erreur:", err);
   process.exit(1);
 });
