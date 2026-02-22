@@ -11,9 +11,12 @@ permissions:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -26,13 +29,42 @@ jobs:
           npm i cheerio
 
       - name: Run scraper
-        run: node scripts/scrape_snokido_top50.mjs
+        run: |
+          node scripts/scrape_snokido_top50.mjs
 
-      - name: Commit updated JSON (and debug if any)
-        if: always()
+      - name: Validate output file
+        run: |
+          echo "=== LIST data/ ==="
+          ls -la data || true
+
+          echo "=== CHECK JSON EXISTS ==="
+          test -f data/snokido_top50.json
+
+          echo "=== FILE SIZE ==="
+          wc -c data/snokido_top50.json
+
+          echo "=== FIRST 40 LINES ==="
+          sed -n '1,40p' data/snokido_top50.json
+
+          echo "=== VALID JSON (node parse) ==="
+          node -e "const fs=require('fs'); const j=JSON.parse(fs.readFileSync('data/snokido_top50.json','utf8')); const arr=Array.isArray(j)?j:(j.top50||[]); if(arr.length===0){console.error('❌ JSON OK but EMPTY'); process.exit(2);} console.log('✅ JSON OK, players=',arr.length);"
+
+      - name: Commit and push if changed
         run: |
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
+
+          git status
+
           git add data/snokido_top50.json data/debug_players.html || true
-          git commit -m "Update Snokido top50" || echo "No changes"
-          git push || true
+
+          # Si aucun changement, on arrête proprement
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update Snokido top50"
+
+          echo "Pushing..."
+          git push
