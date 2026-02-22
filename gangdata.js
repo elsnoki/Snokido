@@ -8,7 +8,7 @@ window.gangsData = [
     rang: "—",
     chefLabel: "Chef du gang",
     chefValue: "Talk Takashi",
-    recrutement: "—",
+    recrutement: "Sur Postulation.",
     trophees: "—",
     members: [
       { nom: "Talk Takashi" },
@@ -28,8 +28,8 @@ window.gangsData = [
     creation: "23-01-2026",
     rang: "—",
     chefLabel: "Chef du gang",
-    chefValue: "—",
-    recrutement: "—",
+    chefValue: "alex.c2109",
+    recrutement: "Sur Postulation.",
     trophees: "—",
     members: [
       
@@ -51,7 +51,7 @@ window.gangsData = [
     rang: "—",
     chefLabel: "Chef du gang",
     chefValue: "Esdras950",
-    recrutement: "—",
+    recrutement: "Ouvert. Reservé aux noobs bannis ailleurs ou aux bourges.",
     trophees: "—",
     members: [
       { nom: "Esdras950" },
@@ -73,10 +73,10 @@ window.gangsData = [
     name: "x934 GANGGG",
     img: "avatar/gang2.png",
     creation: "09-04-2019",
-    rang: "—",
+    rang: "Pire ennemi des dieux",
     chefLabel: "Élite",
     chefValue: "x934, Wawan, Joqueur, nadal51",
-    recrutement: "—",
+    recrutement: "Fermé, on recrute pas les noobs ici",
     trophees: "—",
     members: [
       { nom: "x934", xp: 7464, karas: 3543, avatar: "avatar/105.jpg" },
@@ -98,7 +98,7 @@ window.gangsData = [
     name: "Team Power",
     img: "avatar/gang12.png",
     creation: "14-04-2020",
-    rang: "—",
+    rang: "-",
     chefLabel: "Chef du gang",
     chefValue: "—",
     recrutement: "—",
@@ -116,8 +116,8 @@ window.gangsData = [
     creation: "30-10-2018",
     rang: "—",
     chefLabel: "Chef du gang",
-    chefValue: "—",
-    recrutement: "—",
+    chefValue: "Esdras789",
+    recrutement: "Gang uniquement reservé aux joueurs de surviv.io",
     trophees: "—",
     members: [
       { nom: "esdrax789", xp: 1092, karas: 2031, avatar: "avatar/114.jpg" },
@@ -134,8 +134,8 @@ window.gangsData = [
     creation: "17-02-2019",
     rang: "—",
     chefLabel: "Chef du gang",
-    chefValue: "—",
-    recrutement: "—",
+    chefValue: "albanisuf1",
+    recrutement: "Gang uniquement reservé aux joueurs de surviv.io",
     trophees: "—",
     members: [
       { nom: "joann", xp: 7832, karas: 2111, avatar: "avatar/34.jpg" },
@@ -157,8 +157,8 @@ window.gangsData = [
     creation: "15-10-2024",
     rang: "—",
     chefLabel: "Chef du gang",
-    chefValue: "—",
-    recrutement: "—",
+    chefValue: "Brumaire",
+    recrutement: "Fermé. Ce gang a subi un coup d'état par le membre Brumaire",
     trophees: "—",
     members: [
       { nom: "Vendémiaire", xp: 8, karas: 8, avatar: "avatar/123.jpg" },
@@ -183,7 +183,7 @@ window.gangsData = [
     rang: "—",
     chefLabel: "Chef du gang",
     chefValue: "—",
-    recrutement: "—",
+    recrutement: "Fermé. Interdit d'accès, circulez.",
     trophees: "—",
     members: [
       { nom: "dude", xp: 100258, karas: 607188, avatar: "avatar/37.jpg" },
@@ -198,8 +198,8 @@ window.gangsData = [
     creation: "19-04-2014",
     rang: "—",
     chefLabel: "Chef du gang",
-    chefValue: "—",
-    recrutement: "—",
+    chefValue: "Largo672",
+    recrutement: "Fermé. Gang maintenant inactif depuis longtemps.",
     trophees: "—",
     members: [
       { nom: "Largo672" },
@@ -221,9 +221,8 @@ window.gangsData = [
       { nom: "cahincaha", xp: 42000, karas: 305789, avatar: "avatar/141.jpg" },
       { nom: "akaï", xp: 17138, karas: 5488, avatar: "avatar/103.jpg" },
 
-      // IMPORTANT: LargoJunior doit etre auto seulement si Top50.
-      // Tant qu'il n'est pas top50, et si tu ne mets pas xp ici -> il restera à 0.
-      { nom: "LargoJunior" }
+     
+      
     ],
   },
 
@@ -233,8 +232,8 @@ window.gangsData = [
     creation: "05-08-2022",
     rang: "—",
     chefLabel: "Chef du gang",
-    chefValue: "—",
-    recrutement: "—",
+    chefValue: "UY-Scuty",
+    recrutement: "40k minimum.",
     trophees: "—",
     members: [
       { nom: "cahincaha" },
@@ -254,3 +253,4 @@ window.gangsData = [
     ],
   },
 ];
+
