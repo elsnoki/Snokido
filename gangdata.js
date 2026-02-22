@@ -100,8 +100,8 @@ window.gangsData = [
     creation: "14-04-2020",
     rang: "-",
     chefLabel: "Chef du gang",
-    chefValue: "—",
-    recrutement: "—",
+    chefValue: "azedine1974",
+    recrutement: "Fermé. C'est désert ici.",
     trophees: "—",
     members: [
       { nom: "azedine1974", xp: 2592, karas: 55, avatar: "avatar/108.jpg" },
@@ -253,4 +253,5 @@ window.gangsData = [
     ],
   },
 ];
+
 
