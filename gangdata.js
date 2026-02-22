@@ -99,7 +99,7 @@ const gangsData = [
 
   {
     name: "Team Power",
-    img: "avatar/gang5.png",
+    img: "avatar/gang12.png",
     creation: "14-04-2020",
     rang: "—",
     roleLabel: "Chef du gang",
@@ -135,7 +135,7 @@ const gangsData = [
 
   {
     name: "Le gang des gangsters",
-    img: "avatar/gang8.jpg",
+    img: "avatar/gang5.png",
     creation: "17-02-2019",
     rang: "—",
     roleLabel: "Chef du gang",
@@ -239,7 +239,7 @@ const gangsData = [
 
   {
     name: "40k Gang",
-    img: "avatar/gang9.png",
+    img: "avatar/gang11.png",
     creation: "05-08-2022",
     rang: "—",
     roleLabel: "Chef du gang",
@@ -264,4 +264,5 @@ const gangsData = [
       { nom: "LargoJunior" },
     ],
   },
+
 ];
