@@ -44,7 +44,7 @@ const joueurs = [
   {
     nom:"LargoJunior", avatar:"avatar/35.jpg", gen:6, inscription:"10-02-2026",
     modes:{
-      nv100:{ jours:100, atteint_le:"20-05-2026", rang:"5/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
+      nv100:{ jours:?, atteint_le:"?", rang:"5/23", xp:, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
     }
   },
   {
@@ -226,4 +226,5 @@ const joueurs = [
       nv100:{ jours:1958, atteint_le:"~Août 2018", rang:"23/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
     }
   }
+
 ];
