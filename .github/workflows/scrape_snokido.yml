@@ -29,42 +29,34 @@ jobs:
           npm i cheerio
 
       - name: Run scraper
-        run: |
-          node scripts/scrape_snokido_top50.mjs
+        run: node scripts/scrape_snokido_top50.mjs
 
-      - name: Validate output file
+      - name: Validate output
         run: |
-          echo "=== LIST data/ ==="
+          echo "=== data/ ==="
           ls -la data || true
+          echo "=== first 20 lines ==="
+          sed -n '1,20p' data/snokido_top50.json
+          node -e "const fs=require('fs'); const j=JSON.parse(fs.readFileSync('data/snokido_top50.json','utf8')); const arr=Array.isArray(j)?j:(j.top50||[]); if(arr.length===0){console.error('❌ JSON EMPTY'); process.exit(2);} console.log('✅ players=',arr.length);"
 
-          echo "=== CHECK JSON EXISTS ==="
-          test -f data/snokido_top50.json
-
-          echo "=== FILE SIZE ==="
-          wc -c data/snokido_top50.json
-
-          echo "=== FIRST 40 LINES ==="
-          sed -n '1,40p' data/snokido_top50.json
-
-          echo "=== VALID JSON (node parse) ==="
-          node -e "const fs=require('fs'); const j=JSON.parse(fs.readFileSync('data/snokido_top50.json','utf8')); const arr=Array.isArray(j)?j:(j.top50||[]); if(arr.length===0){console.error('❌ JSON OK but EMPTY'); process.exit(2);} console.log('✅ JSON OK, players=',arr.length);"
-
-      - name: Commit and push if changed
+      - name: Commit and push
         run: |
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
 
-          git status
+          # 1) Toujours ajouter le JSON (il existe)
+          git add data/snokido_top50.json
 
-          git add data/snokido_top50.json data/debug_players.html || true
+          # 2) Ajouter debug_players.html seulement s'il existe
+          if [ -f data/debug_players.html ]; then
+            git add data/debug_players.html
+          fi
 
-          # Si aucun changement, on arrête proprement
+          # Si rien n'a changé, stop
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
 
           git commit -m "Update Snokido top50"
-
-          echo "Pushing..."
           git push
