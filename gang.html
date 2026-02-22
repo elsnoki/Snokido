@@ -8,93 +8,24 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    body{
-      margin:0;
-      font-family: Arial, sans-serif;
-      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
-    }
-    .wrap{ max-width:1180px; margin:26px auto 40px; padding:0 12px; }
-    .panel{
-      background:#fff;
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 12px 30px rgba(0,0,0,.28);
-      border:1px solid rgba(0,0,0,.10);
-    }
-    .titlebar{
-      background:#3b3b3b;
-      color:#fff;
-      padding:14px 16px;
-      font-size:22px;
-      font-weight:900;
-    }
-    table{ width:100%; border-collapse:separate; border-spacing:0; }
-    thead th{
-      background:#fff;
-      padding:14px 12px;
-      text-align:left;
-      font-size:15px;
-      font-weight:900;
-      border-bottom:1px solid #cfcfcf;
-    }
-    tbody td{
-      padding:18px 12px;
-      border-bottom:1px solid #cfcfcf;
-      vertical-align:middle;
-      font-size:16px;
-    }
-    tbody tr:nth-child(odd){ background:#f2f2f2; }
-    tbody tr:nth-child(even){ background:#fff; }
-
-    .rank{ width:70px; text-align:center; font-weight:900; font-size:26px; color:#444; }
-    .logoCell{ width:130px; }
-    .logoFrame{
-      width:96px; height:96px; margin:0 auto;
-      background:#e9e9e9; border:1px solid #bdbdbd; border-radius:16px;
-      display:flex; align-items:center; justify-content:center;
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,.6);
-    }
-    .logoFrame img{
-      width:86px; height:86px; object-fit:cover;
-      border:2px solid #8f8f8f; border-radius:16px; background:#ddd;
-      display:block;
-    }
-
-    .name a{
-      color:#2c6fb7;
-      font-weight:900;
-      text-decoration:none;
-      font-size:18px;
-    }
-    .name a:hover{ text-decoration:underline; }
-
-    .center{ text-align:center; white-space:nowrap; }
-
-    .xpTxt{ font-weight:900; }
-    .karaTxt{ color:#444; font-weight:700; font-size:14px; margin-top:4px; }
-
-    .btnOpen{
-      display:inline-block;
-      padding:10px 14px;
-      border-radius:12px;
-      background:#fff;
-      border:1px solid #cfcfcf;
-      text-decoration:none;
-      font-weight:900;
-      color:#333;
-      font-size:14px;
-    }
-    .btnOpen:hover{ background:#f3f3f3; }
-
-    .errorBox{
-      margin: 14px 0 0;
-      padding: 10px 12px;
-      background: rgba(255,255,255,.8);
-      border: 1px solid rgba(0,0,0,.12);
-      border-radius: 10px;
-      font-weight: 900;
-      color: #222;
-    }
+    body{margin:0;font-family:Arial,sans-serif;background:radial-gradient(1100px 600px at 25% 15%,#2a88ad 0%,#0b3551 60%,#062638 100%);}
+    .wrap{max-width:1180px;margin:26px auto 40px;padding:0 12px;}
+    .panel{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.28);border:1px solid rgba(0,0,0,.10);}
+    .titlebar{background:#3b3b3b;color:#fff;padding:14px 16px;font-size:22px;font-weight:900;}
+    .errorBox{margin:14px 16px 0;padding:10px 12px;background:#fff3cd;border:1px solid #ffe69c;border-radius:10px;font-weight:900;color:#664d03;display:none;}
+    table{width:100%;border-collapse:separate;border-spacing:0;}
+    thead th{background:#fff;padding:14px 12px;text-align:left;font-size:15px;font-weight:900;border-bottom:1px solid #cfcfcf;}
+    tbody td{padding:18px 12px;border-bottom:1px solid #cfcfcf;vertical-align:middle;font-size:16px;}
+    tbody tr:nth-child(odd){background:#f2f2f2;}
+    .rank{width:70px;text-align:center;font-weight:900;font-size:26px;color:#444;}
+    .logoCell{width:130px;}
+    .logoFrame{width:96px;height:96px;margin:0 auto;background:#e9e9e9;border:1px solid #bdbdbd;border-radius:16px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6);}
+    .logoFrame img{width:86px;height:86px;object-fit:cover;border:2px solid #8f8f8f;border-radius:16px;background:#ddd;display:block;}
+    .name a{color:#2c6fb7;font-weight:900;text-decoration:none;font-size:18px;}
+    .center{text-align:center;white-space:nowrap;}
+    .xpTxt{font-weight:900;}
+    .karaTxt{color:#444;font-weight:700;font-size:14px;margin-top:4px;}
+    .btnOpen{display:inline-block;padding:10px 14px;border-radius:12px;background:#fff;border:1px solid #cfcfcf;text-decoration:none;font-weight:900;color:#333;font-size:14px;}
   </style>
 </head>
 
@@ -104,8 +35,7 @@
   <main class="wrap">
     <section class="panel">
       <div class="titlebar">Classement des gangs</div>
-
-      <div id="err" class="errorBox" style="display:none;"></div>
+      <div id="err" class="errorBox"></div>
 
       <table>
         <thead>
@@ -118,7 +48,9 @@
             <th class="center">Profil</th>
           </tr>
         </thead>
-        <tbody id="tbody"></tbody>
+        <tbody id="tbody">
+          <tr><td colspan="6" style="padding:16px;font-weight:900">Chargement…</td></tr>
+        </tbody>
       </table>
     </section>
   </main>
@@ -133,142 +65,104 @@
         .replace(/[^a-zA-Z0-9]/g,"")
         .toLowerCase();
     }
-
     const errBox = document.getElementById("err");
-    function showErr(msg){
-      errBox.style.display = "block";
-      errBox.textContent = msg;
-    }
+    function showErr(msg){ errBox.style.display="block"; errBox.textContent=msg; }
 
-    // Alias de pseudos (si tu veux matcher des variations)
-    // ⚠️ IMPORTANT: ne JAMAIS faire alexis279 -> alexc2109
     const alias = {
-      "talk":"talktakashi",
-      "talktakashi":"talktakashi",
-
       "jordan.io":"jordanio",
-      "jordanio":"jordanio",
-
       "josué455":"josue455",
-      "josue455":"josue455",
-
+      "talk takashi":"talktakashi",
+      "talktakashi":"talktakashi",
       "thegladiator":"thegladiator",
-
-      // ko0pa vs ko0pa (OK)
       "ko0pa":"ko0pa",
-
-      // si un jour tu veux gérer des variantes
-      "alexis279":"alexis279"
+      "alexis279":"alexis279",
     };
-
     function resolveKey(name){
       const s = slugify(name);
       return alias[s] || s;
     }
 
     async function loadTop50(){
-      // Chemin relatif => fonctionne sur GitHub Pages
       const url = "data/snokido_top50.json";
       const res = await fetch(url, { cache: "no-store" });
-      if(!res.ok) throw new Error("HTTP " + res.status);
+      if(!res.ok) throw new Error("fetch "+url+" -> HTTP "+res.status);
       const arr = await res.json();
-      if(!Array.isArray(arr)) throw new Error("JSON not array");
+      if(!Array.isArray(arr)) throw new Error("JSON top50 invalide");
       return arr;
     }
 
-    function pickAvatar(member, top){
-      return member.avatar || top?.avatar || "avatar/1.jpg";
-    }
+    function safeNum(x){ return (typeof x === "number" && Number.isFinite(x)) ? x : 0; }
 
-    (async function main(){
-      let top50 = [];
-      let topMap = new Map();
+    async function main(){
+      const tbody = document.getElementById("tbody");
 
-      try{
-        top50 = await loadTop50();
-        top50.forEach(p => {
-          const key = resolveKey(p.nom);
-          topMap.set(key, p);
-        });
-      }catch(e){
-        showErr("Impossible de charger data/snokido_top50.json (XP/Kara Top50 = 0) — " + e.message);
+      // ✅ 1) gangsData doit exister
+      if(typeof window.gangsData === "undefined" || !Array.isArray(window.gangsData)){
+        tbody.innerHTML = `<tr><td colspan="6" style="padding:16px;font-weight:900">Erreur : gangsData introuvable. gangdata.js ne s'est pas chargé (ou a une erreur).</td></tr>`;
+        showErr("gangdata.js ne s'est pas chargé. Ouvre F12 → Console : tu verras l'erreur exacte.");
+        return;
       }
 
-      // Construire gangs résolus
-      const gangs = (window.gangsData || []).map(g => {
+      // ✅ 2) charge top50 (si erreur => continue avec 0)
+      let topMap = new Map();
+      try{
+        const top50 = await loadTop50();
+        top50.forEach(p => topMap.set(resolveKey(p.nom), p));
+      }catch(e){
+        showErr("Scrap Top50 non chargé, XP/Kara Top50 = 0. ("+e.message+")");
+      }
+
+      // ✅ 3) calc gangs
+      const gangs = window.gangsData.map(g => {
         const membersResolved = (g.members || []).map(m => {
-          const key = resolveKey(m.nom);
+          const key = resolveKey(m.nom || "");
           const top = topMap.get(key);
 
-          const xp =
-            (typeof m.xp === "number") ? m.xp :
-            (top?.xp != null ? Number(top.xp) : 0);
+          const xp = (typeof m.xp === "number") ? m.xp : (top?.xp != null ? Number(top.xp) : 0);
+          const karas = (typeof m.karas === "number") ? m.karas : (top?.karas != null ? Number(top.karas) : 0);
 
-          const karas =
-            (typeof m.karas === "number") ? m.karas :
-            (top?.karas != null ? Number(top.karas) : 0);
+          const finalXp = (m.noFallback && !top) ? 0 : safeNum(xp);
+          const finalKaras = (m.noFallback && !top) ? 0 : safeNum(karas);
 
-          // si tu veux éviter des XP "fake" (pas top50) : noFallback -> 0
-          const finalXp = (m.noFallback && !top) ? 0 : xp;
-          const finalKaras = (m.noFallback && !top) ? 0 : karas;
-
-          const avatar = pickAvatar(m, top);
-
-          return { ...m, slug: key, xp: finalXp, karas: finalKaras, avatar };
+          const avatar = m.avatar || top?.avatar || "avatar/1.jpg";
+          return { ...m, slug:key, xp:finalXp, karas:finalKaras, avatar };
         });
 
-        const totalXp = membersResolved.reduce((sum,x)=> sum + (x.xp||0), 0);
-        const totalKaras = membersResolved.reduce((sum,x)=> sum + (x.karas||0), 0);
+        const totalXp = membersResolved.reduce((s,x)=> s + safeNum(x.xp), 0);
+        const totalKaras = membersResolved.reduce((s,x)=> s + safeNum(x.karas), 0);
 
-        return {
-          ...g,
-          membersResolved,
-          totalXp,
-          totalKaras,
-          count: membersResolved.length
-        };
+        return { ...g, membersResolved, totalXp, totalKaras, count: membersResolved.length };
       });
 
-      // ✅ tri automatique par XP total (desc)
-      gangs.sort((a,b) => b.totalXp - a.totalXp);
+      gangs.sort((a,b)=> b.totalXp - a.totalXp);
+      gangs.forEach((g,i)=> g.classement = i+1);
 
-      // ✅ classement auto 1..n (stocké pour profil)
-      gangs.forEach((g, i) => g.classement = i + 1);
-
-      // stocke pour gang_profil.html
       localStorage.setItem("gangsResolved", JSON.stringify(gangs));
 
-      // Render
-      const tbody = document.getElementById("tbody");
+      // ✅ 4) render
       tbody.innerHTML = "";
-
       gangs.forEach((g,i)=>{
         const gSlug = slugify(g.name);
-        const xpStr = (g.totalXp||0).toLocaleString("fr-FR") + " xp";
-        const karaStr = (g.totalKaras||0) ? (g.totalKaras.toLocaleString("fr-FR") + " Kara") : "";
+        const xpStr = safeNum(g.totalXp).toLocaleString("fr-FR") + " xp";
+        const karaStr = safeNum(g.totalKaras) ? safeNum(g.totalKaras).toLocaleString("fr-FR") + " Kara" : "";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td class="rank">${i+1}</td>
-          <td class="logoCell">
-            <div class="logoFrame"><img src="${g.img}" alt="${g.name}"></div>
-          </td>
-          <td class="name">
-            <a target="_blank" rel="noopener" href="gang_profil.html?g=${encodeURIComponent(gSlug)}">${g.name}</a>
-          </td>
+          <td class="logoCell"><div class="logoFrame"><img src="${g.img}" alt="${g.name}"></div></td>
+          <td class="name"><a target="_blank" rel="noopener" href="gang_profil.html?g=${encodeURIComponent(gSlug)}">${g.name}</a></td>
           <td class="center">${g.count} / 50</td>
           <td>
             <div class="xpTxt">${xpStr}</div>
             ${karaStr ? `<div class="karaTxt">${karaStr}</div>` : ""}
           </td>
-          <td class="center">
-            <a class="btnOpen" target="_blank" rel="noopener" href="gang_profil.html?g=${encodeURIComponent(gSlug)}">Ouvrir</a>
-          </td>
+          <td class="center"><a class="btnOpen" target="_blank" rel="noopener" href="gang_profil.html?g=${encodeURIComponent(gSlug)}">Ouvrir</a></td>
         `;
         tbody.appendChild(tr);
       });
+    }
 
-    })();
+    main();
   </script>
 </body>
 </html>
