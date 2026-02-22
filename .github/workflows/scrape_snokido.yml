@@ -3,7 +3,7 @@ name: Update Snokido Top 50
 on:
   schedule:
     - cron: "0 3 1,16 * *"   # 03:00 UTC les 1 et 16 (≈ tous les 15 jours)
-  workflow_dispatch: {}      # bouton "Run workflow" manuel
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -25,8 +25,8 @@ jobs:
           npm init -y
           npm i cheerio
 
-            - name: Run scraper
-              run: node scripts/scrape_snokido_top50.mjs
+      - name: Run scraper
+        run: node scripts/scrape_snokido_top50.mjs
 
       - name: Commit updated JSON (and debug if any)
         if: always()
