@@ -1,4 +1,5 @@
-// gangdata.js (stable)
+// gangdata.js (COMPLET)
+// IMPORTANT: on met sur window pour éviter les bugs de scope
 window.gangsData = [
   {
     name: "Athèna Gangster",
@@ -9,15 +10,15 @@ window.gangsData = [
     chefValue: "Talk Takashi",
     recrutement: "—",
     trophees: "—",
-    kara: null,
     members: [
       { nom: "Talk Takashi" },
-      { nom: "Venom_", avatar: "avatar/21.jpg" },
+      { nom: "Ko0pa" }, 
+      { nom: "Alexis279" },
+      { nom: "Venom_"},
       { nom: "lumia" },
       { nom: "Unit" },
       { nom: "redbot" },
-      { nom: "Jordan.io" },
-      { nom: "Alexis279" }
+      { nom: "Jordan.io" }
     ],
   },
 
@@ -30,8 +31,9 @@ window.gangsData = [
     chefValue: "—",
     recrutement: "—",
     trophees: "—",
-    kara: null,
     members: [
+      
+      { nom: "alex.c2109" },
       { nom: "TheGladiator" },
       { nom: "Pingu" },
       { nom: "Abelard" },
@@ -40,5 +42,215 @@ window.gangsData = [
       { nom: "Golder" },
       { nom: "cirpacha" }
     ],
-  }
+  },
+
+  {
+    name: "Tribu Esdrasso",
+    img: "avatar/gang4.png",
+    creation: "16-05-2019",
+    rang: "—",
+    chefLabel: "Chef du gang",
+    chefValue: "Esdras950",
+    recrutement: "—",
+    trophees: "—",
+    members: [
+      { nom: "Esdras950" },
+      { nom: "ariel005", xp: 26844, karas: 128092, avatar: "avatar/140.jpg" },
+      { nom: "tidadouslip", xp: 26846, karas: 143834, avatar: "avatar/106.jpg" },
+      { nom: "Esdrasso", xp: 746, karas: 495, avatar: "avatar/104.jpg" },
+      { nom: "esdrasnoob", xp: 4, karas: 4, avatar: "avatar/111.jpg" },
+      { nom: "Esdras270", xp: 116, karas: 50, avatar: "avatar/120.jpg" },
+      { nom: "Esdras512", xp: 56, karas: 29, avatar: "avatar/121.jpg" },
+      { nom: "francoeur" },
+      { nom: "josué455" },
+      { nom: "djabrail" },
+      { nom: "multijoueur", xp: 6184, karas: 233, avatar: "avatar/124.jpg" },
+      { nom: "ESC2019", xp: 10386, karas: 19836, avatar: "avatar/82.jpg" }
+    ],
+  },
+
+  {
+    name: "x934 GANGGG",
+    img: "avatar/gang2.png",
+    creation: "09-04-2019",
+    rang: "—",
+    chefLabel: "Élite",
+    chefValue: "x934, Wawan, Joqueur, nadal51",
+    recrutement: "—",
+    trophees: "—",
+    members: [
+      { nom: "x934", xp: 7464, karas: 3543, avatar: "avatar/105.jpg" },
+      { nom: "wawan5871", xp: 350, karas: 413, avatar: "avatar/106.jpg" },
+      { nom: "x934-2", xp: 132, karas: 186, avatar: "avatar/123.jpg" },
+      { nom: "Joqueur", xp: 1372, karas: 416, avatar: "avatar/107.jpg" },
+      { nom: "nadal51", xp: 7900, karas: 17819, avatar: "avatar/103.jpg" },
+      { nom: "ronaldo.siuuu", xp: 14454, karas: 66408, avatar: "avatar/102.jpg" },
+      { nom: "altesse10", xp: 3150, karas: 914, avatar: "avatar/101.jpg" },
+      { nom: "shakadai", xp: 3678, karas: 10207, avatar: "avatar/100.jpg" },
+      { nom: "harris100", xp: 10008, karas: 1522, avatar: "avatar/108.jpg" },
+      { nom: "nadal50", xp: 6768, karas: 5982, avatar: "avatar/108.jpg" },
+      { nom: "m7ay", xp: 830, karas: 708, avatar: "avatar/107.jpg" },
+      { nom: "Claud3", xp: 82, karas: 11, avatar: "avatar/150.jpg" }
+    ],
+  },
+
+  {
+    name: "Team Power",
+    img: "avatar/gang12.png",
+    creation: "14-04-2020",
+    rang: "—",
+    chefLabel: "Chef du gang",
+    chefValue: "—",
+    recrutement: "—",
+    trophees: "—",
+    members: [
+      { nom: "azedine1974", xp: 2592, karas: 55, avatar: "avatar/108.jpg" },
+      { nom: "YTB", xp: 5162, karas: 41, avatar: "avatar/109.jpg" },
+      { nom: "HARSON", xp: 774, karas: 1303, avatar: "avatar/114.jpg" }
+    ],
+  },
+
+  {
+    name: "Team Esdrax",
+    img: "avatar/gang10.png",
+    creation: "30-10-2018",
+    rang: "—",
+    chefLabel: "Chef du gang",
+    chefValue: "—",
+    recrutement: "—",
+    trophees: "—",
+    members: [
+      { nom: "esdrax789", xp: 1092, karas: 2031, avatar: "avatar/114.jpg" },
+      { nom: "Esdraxkenny", xp: 192, karas: 282, avatar: "avatar/115.jpg" },
+      { nom: "Esdraxjosue", xp: 360, karas: 644, avatar: "avatar/116.jpg" },
+      { nom: "Zecrom.27", xp: 21672, karas: 11432, avatar: "avatar/118.jpg" },
+      { nom: "luanbau", xp: 25048, karas: 139783, avatar: "avatar/119.jpg" }
+    ],
+  },
+
+  {
+    name: "Le gang des gangsters",
+    img: "avatar/gang5.png",
+    creation: "17-02-2019",
+    rang: "—",
+    chefLabel: "Chef du gang",
+    chefValue: "—",
+    recrutement: "—",
+    trophees: "—",
+    members: [
+      { nom: "joann", xp: 7832, karas: 2111, avatar: "avatar/34.jpg" },
+      { nom: "albanisuf1", xp: 11850, karas: 4214, avatar: "avatar/108.jpg" },
+      { nom: "bojetoDU95", xp: 3120, karas: 894, avatar: "avatar/118.jpg" },
+      { nom: "ambdoul-lathuf", xp: 9456, karas: 22872, avatar: "avatar/40.jpg" },
+      { nom: "MASTERMAGIC91", xp: 2398, karas: 3292, avatar: "avatar/124.jpg" },
+      { nom: "MAGIC91", xp: 2832, karas: 891, avatar: "avatar/102.jpg" },
+      { nom: "Angel13", xp: 1970, karas: 379, avatar: "avatar/125.jpg" },
+      { nom: "akramnaji123", xp: 1234, karas: 1729, avatar: "avatar/126.jpg" },
+      { nom: "Xerocs77", xp: 3160, karas: 6684, avatar: "avatar/127.jpg" },
+      { nom: "Youyoudu71", xp: 1248, karas: 1803, avatar: "avatar/126.jpg" }
+    ],
+  },
+
+  {
+    name: "Mois Républicains",
+    img: "avatar/gang6.png",
+    creation: "15-10-2024",
+    rang: "—",
+    chefLabel: "Chef du gang",
+    chefValue: "—",
+    recrutement: "—",
+    trophees: "—",
+    members: [
+      { nom: "Vendémiaire", xp: 8, karas: 8, avatar: "avatar/123.jpg" },
+      { nom: "Pluviôse", xp: 8, karas: 8, avatar: "avatar/123.jpg" },
+      { nom: "Brumaire", xp: 8, karas: 8, avatar: "avatar/123.jpg" },
+      { nom: "Messidor", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
+      { nom: "Frimaire", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
+      { nom: "Ventôse", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
+      { nom: "Nivôse", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
+      { nom: "Germinal", xp: 8, karas: 8, avatar: "avatar/111.jpg" },
+      { nom: "Floréal", xp: 8, karas: 8, avatar: "avatar/111.jpg" },
+      { nom: "Prairial", xp: 8, karas: 8, avatar: "avatar/115.jpg" },
+      { nom: "Fructidor", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
+      { nom: "Thermidor", xp: 8, karas: 8, avatar: "avatar/115.jpg" }
+    ],
+  },
+
+  {
+    name: "Admin",
+    img: "avatar/gang7.jpg",
+    creation: "01-09-2013",
+    rang: "—",
+    chefLabel: "Chef du gang",
+    chefValue: "—",
+    recrutement: "—",
+    trophees: "—",
+    members: [
+      { nom: "dude", xp: 100258, karas: 607188, avatar: "avatar/37.jpg" },
+      { nom: "Korben", xp: 92406, karas: 406000, avatar: "avatar/38.jpg" },
+      { nom: "SnokiBot", xp: 0, karas: 0, avatar: "avatar/0.jpg" }
+    ],
+  },
+
+  {
+    name: "Legend",
+    img: "avatar/gang9.png",
+    creation: "19-04-2014",
+    rang: "—",
+    chefLabel: "Chef du gang",
+    chefValue: "—",
+    recrutement: "—",
+    trophees: "—",
+    members: [
+      { nom: "Largo672" },
+
+      { nom: "Largo675", xp: 0, karas: 0, avatar: "avatar/123.jpg" },
+      { nom: "largo678", xp: 50, karas: 24, avatar: "avatar/121.jpg" },
+      { nom: "largo679", xp: 0, karas: 0, avatar: "avatar/116.jpg" },
+      { nom: "Largo674", xp: 6, karas: 6, avatar: "avatar/111.jpg" },
+      { nom: "Largo673", xp: 562, karas: 1068, avatar: "avatar/111.jpg" },
+      { nom: "largo671", xp: 34, karas: 8, avatar: "avatar/132.jpg" },
+      { nom: "Largo670", xp: 1618, karas: 547, avatar: "avatar/133.jpg" },
+      { nom: "Largo1", xp: 102, karas: 156, avatar: "avatar/111.jpg" },
+      { nom: "largo", xp: 12, karas: 17, avatar: "avatar/115.jpg" },
+
+      { nom: "obito45", xp: 6532, karas: 7478, avatar: "avatar/153.jpg" },
+      { nom: "bob", xp: 14596, karas: 68551, avatar: "avatar/114.jpg" },
+      { nom: "seka" },
+      { nom: "marcosino" },
+      { nom: "cahincaha", xp: 42000, karas: 305789, avatar: "avatar/141.jpg" },
+      { nom: "akaï", xp: 17138, karas: 5488, avatar: "avatar/103.jpg" },
+
+      // IMPORTANT: LargoJunior doit etre auto seulement si Top50.
+      // Tant qu'il n'est pas top50, et si tu ne mets pas xp ici -> il restera à 0.
+      { nom: "LargoJunior" }
+    ],
+  },
+
+  {
+    name: "40k Gang",
+    img: "avatar/gang11.png",
+    creation: "05-08-2022",
+    rang: "—",
+    chefLabel: "Chef du gang",
+    chefValue: "—",
+    recrutement: "—",
+    trophees: "—",
+    members: [
+      { nom: "cahincaha" },
+      { nom: "Houka" },
+      { nom: "Justice-" },
+      { nom: "UY-Scuty" },
+      { nom: "Bételgeuse" },
+      { nom: "Aldébaran" },
+      { nom: "blackout" },
+      { nom: "Athèna" },
+      { nom: "acno" },
+      { nom: "Napoléon.1er" },
+      { nom: "venom2" },
+      { nom: "Clovis1er" },
+      { nom: "Polyy" },
+      { nom: "LargoJunior" }
+    ],
+  },
 ];
