@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Classement Mensuel — XP gagnée</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="header.js" defer></script>
+
+  <style>
+    body{ margin:0; font-family:Arial,sans-serif; background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%); }
+    .wrap{ max-width:1180px; margin:26px auto 40px; padding:0 12px; }
+    .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
+    .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
+    .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
+    .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
+    table{ width:100%; border-collapse:separate; border-spacing:0; }
+    thead th{ background:#fff; padding:14px 12px; text-align:left; font-size:15px; font-weight:900; border-bottom:1px solid #cfcfcf; }
+    tbody td{ padding:18px 12px; border-bottom:1px solid #cfcfcf; vertical-align:middle; font-size:16px; }
+    tbody tr:nth-child(odd){ background:#f2f2f2; }
+    .rank{ width:70px; text-align:center; font-weight:900; font-size:26px; color:#444; }
+    .avatarCell{ width:110px; text-align:center; }
+    .frame{ width:64px; height:64px; margin:0 auto; background:#e9e9e9; border:1px solid #bdbdbd; border-radius:10px; display:flex; align-items:center; justify-content:center; }
+    .frame img{ width:56px; height:56px; object-fit:cover; border:2px solid #8f8f8f; border-radius:10px; background:#ddd; display:block; }
+    .name a{ color:#2c6fb7; font-weight:900; text-decoration:none; font-size:18px; }
+    .center{ text-align:center; white-space:nowrap; font-weight:900; }
+    .small{ font-weight:700; font-size:13px; color:#666; }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <div class="titlebar">Classement Hebdo — XP gagnée</div>
+      <div class="sub" id="rangeTxt">Chargement…</div>
+      <div id="warn" class="warn"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th></th><th></th><th>Joueur</th>
+            <th class="center">Δ XP (7 jours)</th>
+            <th class="center">XP actuel</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </section>
+  </main>
+
+<script>
+  const PERIOD_DAYS = 30;
+
+  function warn(msg){
+    const w = document.getElementById("warn");
+    w.style.display = "block";
+    w.textContent = msg;
+  }
+
+  function slugify(name){
+    return String(name || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toLowerCase();
+  }
+
+  function parseDayFromFilename(f){
+    const m = String(f).match(/^(\d{4}-\d{2}-\d{2})\.json$/);
+    return m ? m[1] : null;
+  }
+
+  // Liste des fichiers d'historique via un index JSON simple (voir plus bas)
+  async function loadIndex(){
+    const res = await fetch("data/history_paris/index.json", { cache:"no-store" });
+    if(!res.ok) throw new Error("index.json introuvable");
+    const arr = await res.json();
+    if(!Array.isArray(arr)) throw new Error("index.json invalide");
+    return arr;
+  }
+
+  async function loadSnap(day){
+    const res = await fetch(`data/history_paris/${day}.json`, { cache:"no-store" });
+    if(!res.ok) return null;
+    const j = await res.json();
+    return Array.isArray(j) ? j : null;
+  }
+
+  function dayMinus(dayStr, delta){
+    // dayStr "YYYY-MM-DD"
+    const [y,m,d] = dayStr.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m-1, d));
+    dt.setUTCDate(dt.getUTCDate() - delta);
+    const yy = dt.getUTCFullYear();
+    const mm = String(dt.getUTCMonth()+1).padStart(2,"0");
+    const dd = String(dt.getUTCDate()).padStart(2,"0");
+    return `${yy}-${mm}-${dd}`;
+  }
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    const tbody = document.getElementById("tbody");
+    const rangeTxt = document.getElementById("rangeTxt");
+
+    let index;
+    try{
+      index = await loadIndex();
+    }catch(e){
+      warn("Impossible de charger data/history_paris/index.json. (voir étape index)");
+      return;
+    }
+
+    if(index.length < PERIOD_DAYS + 1){
+      warn("Pas assez d'historique pour calculer l'hebdo. Attends quelques jours.");
+      return;
+    }
+
+    const latestDay = index[index.length - 1];
+    const prevTarget = dayMinus(latestDay, PERIOD_DAYS);
+
+    // on cherche le plus proche <= prevTarget dans l'index
+    let prevDay = null;
+    for(let i = index.length - 1; i >= 0; i--){
+      if(index[i] <= prevTarget){ prevDay = index[i]; break; }
+    }
+    if(!prevDay){
+      warn("Snapshot de référence introuvable pour l'hebdo.");
+      return;
+    }
+
+    const nowArr = await loadSnap(latestDay);
+    const oldArr = await loadSnap(prevDay);
+
+    if(!nowArr || !oldArr){
+      warn("Impossible de charger les snapshots nécessaires.");
+      return;
+    }
+
+    rangeTxt.textContent = `Période : ${prevDay} → ${latestDay}`;
+
+    const nowMap = new Map(nowArr.map(p => [slugify(p.nom), p]));
+    const oldMap = new Map(oldArr.map(p => [slugify(p.nom), p]));
+
+    const rows = [];
+    for(const [k, cur] of nowMap){
+      const old = oldMap.get(k);
+      const curXp = Number(cur.xp||0);
+      const oldXp = Number(old?.xp||0);
+      rows.push({
+        nom: cur.nom,
+        avatar: cur.avatar,
+        xp: curXp,
+        dx: curXp - oldXp,
+      });
+    }
+
+    rows.sort((a,b)=> b.dx - a.dx);
+
+    tbody.innerHTML = "";
+    rows.forEach((r,i)=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="rank">${i+1}</td>
+        <td class="avatarCell"><div class="frame"><img src="${r.avatar || "avatar/1.jpg"}" alt="${r.nom}"></div></td>
+        <td class="name">
+          <a href="profil.html?mode=nv100&u=${encodeURIComponent(slugify(r.nom))}">${r.nom}</a>
+          <div class="small">${r.xp.toLocaleString("fr-FR")} XP</div>
+        </td>
+        <td class="center">${(r.dx>=0?"+":"") + r.dx.toLocaleString("fr-FR")}</td>
+        <td class="center">${r.xp.toLocaleString("fr-FR")}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+</script>
+</body>
+</html>
