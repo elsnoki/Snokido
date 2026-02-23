@@ -67,7 +67,7 @@ window.gangsData = [
       { nom: "multijoueur", xp: 6184, karas: 233, avatar: "avatar/124.jpg" },
       { nom: "ESC2019", xp: 10386, karas: 19836, avatar: "avatar/82.jpg" },
       { nom: "toutbloquer", xp: 778, karas: 1427, avatar: "avatar/116.jpg" },
-      { nom: "TADITONSLIP", xp: 10386, 20: 24, avatar: "avatar/115.jpg" }
+      { nom: "TADITONSLIP", xp: 20, 20: 24, avatar: "avatar/115.jpg" }
     ],
   },
 
@@ -255,6 +255,7 @@ window.gangsData = [
     ],
   },
 ];
+
 
 
 
