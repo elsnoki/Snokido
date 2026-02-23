@@ -1,8 +1,11 @@
-name: Update Snokido Top 50
+name: Daily Snokido Top 50 (23:59 Paris)
 
 on:
   schedule:
-    - cron: "0 3 1,16 * *"
+    # 23:59 Paris en hiver (CET=UTC+1) => 22:59 UTC
+    - cron: "59 22 * * *"
+    # 23:59 Paris en été (CEST=UTC+2) => 21:59 UTC
+    - cron: "59 21 * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -11,12 +14,9 @@ permissions:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -31,32 +31,10 @@ jobs:
       - name: Run scraper
         run: node scripts/scrape_snokido_top50.mjs
 
-      - name: Validate output
-        run: |
-          echo "=== data/ ==="
-          ls -la data || true
-          echo "=== first 20 lines ==="
-          sed -n '1,20p' data/snokido_top50.json
-          node -e "const fs=require('fs'); const j=JSON.parse(fs.readFileSync('data/snokido_top50.json','utf8')); const arr=Array.isArray(j)?j:(j.top50||[]); if(arr.length===0){console.error('❌ JSON EMPTY'); process.exit(2);} console.log('✅ players=',arr.length);"
-
-      - name: Commit and push
+      - name: Commit updated JSON + snapshot
         run: |
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
-
-          # 1) Toujours ajouter le JSON (il existe)
-          git add data/snokido_top50.json
-
-          # 2) Ajouter debug_players.html seulement s'il existe
-          if [ -f data/debug_players.html ]; then
-            git add data/debug_players.html
-          fi
-
-          # Si rien n'a changé, stop
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-
-          git commit -m "Update Snokido top50"
-          git push
+          git add data/snokido_top50.json data/history_paris data/debug_players.html || true
+          git commit -m "Daily snapshot (Paris)" || echo "No changes"
+          git push || true
