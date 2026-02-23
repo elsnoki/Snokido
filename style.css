@@ -160,3 +160,29 @@
   font-weight:700;
 
 }
+
+  .subnav{
+    display:flex;
+    gap:10px;
+    padding:12px 18px;
+    border-top:1px solid #e5e5e5;
+    border-bottom:1px solid #e5e5e5;
+    background:#fafafa;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+
+  .subnav-btn{
+    display:inline-block;
+    padding:8px 12px;
+    border-radius:10px;
+    font-weight:900;
+    text-decoration:none;
+    color:#2c6fb7;
+    background:#fff;
+    border:1px solid rgba(0,0,0,.12);
+  }
+
+  .subnav-btn:hover{
+    background:#f1f1f1;
+  }
