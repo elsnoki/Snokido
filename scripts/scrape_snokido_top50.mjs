@@ -1,36 +1,43 @@
 import fs from "fs";
 import * as cheerio from "cheerio";
 
-// ---------- Utils ----------
+// -------- Utils --------
 function clean(s) {
   return (s || "").replace(/\s+/g, " ").trim();
 }
-
 function toInt(s) {
   const n = clean(s).replace(/[^\d]/g, "");
   return n ? Number(n) : null;
 }
-
 function absUrl(url) {
   if (!url) return "";
   if (url.startsWith("http")) return url;
   return "https://www.snokido.fr" + url;
 }
-
 async function fetchWithUA(url) {
   const res = await fetch(url, {
     headers: {
       "User-Agent":
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
       "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
-      "Accept":
-        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     },
   });
   return res;
 }
 
-// ---------- Parse /players ----------
+// Date "YYYY-MM-DD" en timezone Europe/Paris
+function parisDayString(date = new Date()) {
+  const fmt = new Intl.DateTimeFormat("fr-CA", {
+    timeZone: "Europe/Paris",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return fmt.format(date); // "YYYY-MM-DD"
+}
+
+// -------- Parse HTML -> players[] --------
 function parsePlayers(html) {
   const $ = cheerio.load(html);
 
@@ -41,9 +48,7 @@ function parsePlayers(html) {
     })
     .first();
 
-  if (!table.length) {
-    return { players: [], reason: "table_not_found" };
-  }
+  if (!table.length) return { players: [], reason: "table_not_found" };
 
   const players = [];
   table.find("tr").each((i, tr) => {
@@ -73,74 +78,66 @@ function parsePlayers(html) {
       inscription,
       avatar,
       profileHref,
-      karas: null, // rempli ensuite
+      karas: null,
     });
   });
 
   return { players, reason: "ok" };
 }
 
-// ---------- Parse Karas depuis page profil ----------
+// -------- Kara depuis profil --------
 function parseKarasFromProfile(html) {
   const $ = cheerio.load(html);
+  const text = clean($("body").text());
 
-  // 1) On tente des zones "probables" (plus fiable que body entier)
-  const candidates = [
-    clean($("main").text()),
-    clean($(".profile").text()),
-    clean($(".stats").text()),
-    clean($(".content").text()),
-    clean($("body").text()),
-  ].filter(Boolean);
-
-  // Cherche "Kara" proche d'un nombre (tolérant aux espaces)
-  // ex: "Kara 123 456" ou "123 456 Kara"
-  for (const text of candidates) {
-    let m = text.match(/Kara\s*([\d\s]+)/i);
-    if (m) {
-      const v = toInt(m[1]);
-      if (v != null) return v;
-    }
-    m = text.match(/([\d\s]+)\s*Kara/i);
-    if (m) {
-      const v = toInt(m[1]);
-      if (v != null) return v;
-    }
+  let m = text.match(/Kara\s*([\d\s]+)/i);
+  if (m) {
+    const v = toInt(m[1]);
+    if (v != null) return v;
   }
-
+  m = text.match(/([\d\s]+)\s*Kara/i);
+  if (m) {
+    const v = toInt(m[1]);
+    if (v != null) return v;
+  }
   return null;
 }
 
-// ---------- Concurrency limiter ----------
+// -------- Concurrency limiter --------
 async function mapLimit(list, limit, fn) {
   const ret = new Array(list.length);
   let idx = 0;
-
   const workers = Array.from({ length: limit }, async () => {
     while (idx < list.length) {
       const i = idx++;
       ret[i] = await fn(list[i], i);
     }
   });
-
   await Promise.all(workers);
   return ret;
 }
 
-// ---------- MAIN ----------
+// -------- index.json builder --------
+function rebuildIndexJson() {
+  const dir = "data/history_paris";
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .map((f) => f.replace(".json", ""))
+    .sort();
+  fs.writeFileSync(`${dir}/index.json`, JSON.stringify(files, null, 2), "utf8");
+  console.log(`✅ index -> ${dir}/index.json (${files.length} snapshots)`);
+}
+
+// -------- MAIN --------
 async function main() {
   const url = "https://www.snokido.fr/players";
   fs.mkdirSync("data", { recursive: true });
+  fs.mkdirSync("data/history_paris", { recursive: true });
 
   console.log("🌐 Fetch:", url);
   const res = await fetchWithUA(url);
   const html = await res.text();
-
-  // debug rapide
-  const $ = cheerio.load(html);
-  console.log("TITLE:", clean($("title").text()));
-  console.log("H1:", clean($("h1").first().text()));
-  console.log("tables:", $("table").length);
 
   const { players, reason } = parsePlayers(html);
   if (!players.length) {
@@ -153,37 +150,35 @@ async function main() {
 
   const top50 = players.slice(0, 50);
 
-  console.log("🔎 Fetch profils pour Kara (Top50) ...");
-  await mapLimit(top50, 6, async (p, i) => {
+  console.log("🔎 Fetch profils pour Kara (Top50)...");
+  await mapLimit(top50, 6, async (p) => {
     try {
-      if (!p.profileHref) return p;
-
       const r = await fetchWithUA(p.profileHref);
       const h = await r.text();
-
-      const k = parseKarasFromProfile(h);
-      p.karas = k; // peut rester null
-
-      console.log(
-        `  [${i + 1}/50] ${p.nom} -> Kara: ${k == null ? "?" : k}`
-      );
-    } catch (e) {
+      p.karas = parseKarasFromProfile(h);
+    } catch {
       p.karas = null;
-      console.log(`  [${i + 1}/50] ${p.nom} -> Kara: ? (error)`);
     }
     return p;
   });
 
-  fs.writeFileSync(
-    "data/snokido_top50.json",
-    JSON.stringify(top50, null, 2),
-    "utf8"
-  );
+  // dernier top50
+  fs.writeFileSync("data/snokido_top50.json", JSON.stringify(top50, null, 2), "utf8");
+  console.log("✅ top50 -> data/snokido_top50.json");
 
-  const okCount = top50.filter((p) => typeof p.karas === "number").length;
-  console.log(
-    `✅ ${top50.length} joueurs exportés -> data/snokido_top50.json (Kara trouvés: ${okCount}/50)`
-  );
+  // snapshot du jour (Paris)
+  const dayParis = parisDayString(new Date());
+  const snapPath = `data/history_paris/${dayParis}.json`;
+
+  if (fs.existsSync(snapPath)) {
+    console.log(`ℹ️ Snapshot déjà présent pour ${dayParis} -> ${snapPath} (pas de duplication)`);
+  } else {
+    fs.writeFileSync(snapPath, JSON.stringify(top50, null, 2), "utf8");
+    console.log(`✅ snapshot Paris -> ${snapPath}`);
+  }
+
+  // rebuild index
+  rebuildIndexJson();
 }
 
 main().catch((err) => {
