@@ -12,12 +12,18 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: snokido-scrape
+  cancel-in-progress: false
+
 jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -26,16 +32,29 @@ jobs:
 
       - name: Install deps
         run: |
-          npm init -y
-          npm i cheerio
+          npm i cheerio --no-package-lock
 
       - name: Run scraper
         run: node scripts/scrape_snokido_top50.mjs
 
-      - name: Commit updated JSON + snapshot + index
+      - name: Commit & push (only if changes)
         run: |
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
-          git add data/snokido_top50.json data/history_paris data/debug_players.html || true
-          git commit -m "Weekly snapshot (Paris)" || echo "No changes"
-          git push || true
+
+          # Add files that should always be versioned
+          git add data/snokido_top50.json data/history_paris
+
+          # Add debug file only if it exists
+          if [ -f data/debug_players.html ]; then
+            git add data/debug_players.html
+          fi
+
+          # If nothing staged, do nothing
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Weekly snapshot (Paris)"
+          git push
