@@ -152,7 +152,7 @@
   <div class="title">
     <div>
       Niveau théorique — Top 50 (Snokido)
-      <div class="subtitle">Le niveau continue après 100 selon ton modèle</div>
+      <div class="subtitle">Progression après 100 (modèle %)</div>
     </div>
     <div class="pill" id="modelInfo">Modèle…</div>
   </div>
@@ -174,38 +174,33 @@
   </table>
 
   <div class="hint">
-    <b>Hypothèses du modèle :</b><br>
-    • Niveau 100 = <b>49&nbsp;500 XP</b> (comme sur ton site NV100).<br>
-    • Passer de 99 → 100 coûte <b>1&nbsp;290 XP</b>.<br>
-    • De 100 → 1000, l'XP par niveau augmente légèrement (progression) pour que le total fasse environ <b>1&nbsp;600&nbsp;000 XP</b>.<br>
-    <br>
-    Si tu veux un modèle différent (linéaire fixe, exponentiel, etc.), dis-moi et je l’ajuste.
+    <b>Modèle 3 :</b><br>
+    • Niveau 100 = <b>49&nbsp;500 XP</b>.<br>
+    • Le premier niveau après 100 coûte <b>1&nbsp;290 XP</b>.<br>
+    • Ensuite, le coût augmente de <b>+0,0679%</b> par niveau (progression géométrique).<br>
+    • Réglé pour faire environ <b>1&nbsp;600&nbsp;000 XP</b> de 100 → 1000.
   </div>
 </div>
 
 <script>
   // -----------------------
-  //  CONFIG DU MODÈLE
+  //  CONFIG DU MODÈLE 3
   // -----------------------
-  // XP total au niveau 100 (référence)
   const XP_AT_100 = 49500;
-
-  // coût 99 -> 100 (et base pour les niveaux après 100)
   const A1 = 1290;
 
-  // objectif : 100 -> 1000 coûte ~1 600 000 xp
+  // Objectif de calibration (100 -> 1000)
   const TARGET_XP_100_TO_1000 = 1600000;
+  const N_TARGET = 900; // 100 -> 1000 = 900 niveaux
 
-  // nombre de "pas" de niveau entre 100 et 1000
-  const N_TARGET = 1000 - 100; // 900
+  // r calculé pour satisfaire :
+  // A1 * ((1+r)^N - 1) / r = TARGET
+  // => r ≈ 0.000679229...
+  const R = 0.0006792294619366293;
 
-  // On calcule un incrément d (peut être décimal) pour une progression arithmétique :
-  // sum(n) = n/2 * (2*A1 + (n-1)*d)
-  // => d = (2*TARGET/n - 2*A1) / (n-1)
-  const D = ( (2 * TARGET_XP_100_TO_1000 / N_TARGET) - 2 * A1 ) / (N_TARGET - 1);
-
+  // Affichage modèle
   document.getElementById("modelInfo").textContent =
-    `L100=${XP_AT_100.toLocaleString("fr-FR")} | +100: a1=${A1} d≈${D.toFixed(3)} | 100→1000≈${TARGET_XP_100_TO_1000.toLocaleString("fr-FR")} XP`;
+    `L100=${XP_AT_100.toLocaleString("fr-FR")} | a1=${A1} | r=${(R*100).toFixed(4)}% | 100→1000≈${TARGET_XP_100_TO_1000.toLocaleString("fr-FR")} XP`;
 
   function warn(msg){
     const w = document.getElementById("warn");
@@ -213,50 +208,32 @@
     w.textContent = msg;
   }
 
-  function slugify(name){
-    return String(name || "")
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9]/g, "")
-      .toLowerCase();
-  }
-
-  // somme d'une progression arithmétique de n termes
+  // Somme géométrique sur n niveaux après 100 :
+  // sum(n) = A1 * ((1+r)^n - 1) / r
   function sumAfter100(n){
     if(n <= 0) return 0;
-    return (n/2) * (2*A1 + (n-1)*D);
+    return A1 * (Math.pow(1 + R, n) - 1) / R;
   }
 
-  // solve n for sumAfter100(n) <= xpExtra (quadratic)
+  // Inverse : trouver n tel que sumAfter100(n) <= xpExtra
+  // n = floor( log( xpExtra*r/A1 + 1 ) / log(1+r) )
   function levelsBeyond100FromXp(xpExtra){
     if(xpExtra <= 0) return 0;
-
-    // sum(n) = n/2 * (2A1 + (n-1)D)
-    // = (D/2)n^2 + (A1 - D/2)n
-    const a = D/2;
-    const b = A1 - D/2;
-    const c = -xpExtra;
-
-    // si D ~ 0, fallback linéaire
-    if(Math.abs(a) < 1e-9){
-      return Math.floor(xpExtra / A1);
-    }
-
-    const disc = b*b - 4*a*c;
-    if(disc <= 0) return 0;
-
-    const n = (-b + Math.sqrt(disc)) / (2*a);
+    const x = (xpExtra * R / A1) + 1;
+    if(x <= 1) return 0;
+    const n = Math.log(x) / Math.log(1 + R);
     return Math.max(0, Math.floor(n));
   }
 
-  // niveau théorique à partir de l'xp total
+  // XP -> niveau théorique (continue après 100)
   function xpToTheoreticalLevel(xp, fallbackLevel){
     const xpNum = Number(xp || 0);
 
-    // si déjà < 100, on garde le niveau de snokido (si présent)
+    // si < niveau 100, on garde le niveau officiel scrapé si dispo
     if(xpNum <= XP_AT_100){
       return (typeof fallbackLevel === "number" && fallbackLevel > 0)
         ? fallbackLevel
-        : 100; // au pire
+        : 100;
     }
 
     const extra = xpNum - XP_AT_100;
@@ -284,7 +261,7 @@
       return;
     }
 
-    // On tri par XP (desc) — comme ton top50 affiché
+    // Tri par XP desc
     top50.sort((a,b) => (Number(b.xp)||0) - (Number(a.xp)||0));
 
     tbody.innerHTML = "";
