@@ -85,6 +85,7 @@
         <th></th>
         <th>Nom du joueur</th>
         <th class="center">100K en</th>
+        <th class="center">Date d'arrivée</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -107,13 +108,13 @@
     const tbody = document.querySelector("#leaderboard tbody");
 
     if(typeof joueurs === "undefined" || !Array.isArray(joueurs)){
-      tbody.innerHTML = `<tr><td colspan="4" style="padding:16px;font-weight:900">Erreur : data.js ne s'est pas chargé.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:16px;font-weight:900">Erreur : data.js ne s'est pas chargé.</td></tr>`;
       return;
     }
 
     const list = joueurs
       .map(p => ({ p, s: p.modes?.["100k"] || null }))
-      .filter(x => x.s); // seulement ceux qui ont 100k
+      .filter(x => x.s);
 
     list.sort((a,b) => {
       const ax = (a.s.jours == null) ? Infinity : a.s.jours;
@@ -137,6 +138,7 @@
           <a href="profil.html?mode=100k&u=${encodeURIComponent(slugify2(p.nom))}">${p.nom}</a>
         </td>
         <td class="center">${s.jours == null ? "?" : (s.jours + " jours")}</td>
+        <td class="center">${s.atteint_le ?? "—"}</td>
       `;
       tbody.appendChild(tr);
     });
