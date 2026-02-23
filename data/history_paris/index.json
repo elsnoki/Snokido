@@ -1,0 +1,8 @@
+// Re-génère index.json (liste triée)
+const dir = "data/history_paris";
+const files = fs.readdirSync(dir)
+  .filter(f => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+  .map(f => f.replace(".json",""))
+  .sort();
+fs.writeFileSync(`${dir}/index.json`, JSON.stringify(files, null, 2), "utf8");
+console.log(`✅ index -> ${dir}/index.json (${files.length} jours)`);
