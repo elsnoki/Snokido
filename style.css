@@ -74,6 +74,7 @@
 .nav a.tab-frise{
   box-shadow: inset 0 -3px 0 #00ffaa;
 }
+.nav a.tab-niveau{ box-shadow: inset 0 -3px 0 #ffd44d; }
 
 /* ================= TIMELINE / EFFET 1ER ================= */
 
@@ -157,4 +158,5 @@
 .name span{
   color:#2c6fb7;
   font-weight:700;
+
 }
