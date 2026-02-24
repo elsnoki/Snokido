@@ -242,22 +242,26 @@
 
 .xpRow{
   display:grid;
-  grid-template-columns: 26px 28px 1fr 66px 46px 52px;
+  grid-template-columns: 26px 1fr 66px 66px 52px;
   gap:8px;
   align-items:center;
   padding:6px 4px;
   border-bottom:1px solid #eee;
   font-size:12px;
 }
-.xpRow:last-child{ border-bottom:none; }
-
-.xpRk{ font-weight:900; text-align:center; color:#444; }
+.xpWho{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
 .xpAv{
   width:26px; height:26px;
   border-radius:8px;
   object-fit:cover;
   border:1px solid #bbb;
   background:#ddd;
+  flex:0 0 auto;
 }
 .xpName{
   font-weight:900;
@@ -266,8 +270,7 @@
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-
-.xpDx, .xpLv{ text-align:right; font-weight:900; color:#111; }
+.xpDx, .xpKara{ text-align:right; font-weight:900; color:#111; }
 .xpMv{ text-align:right; }
 
 .xpMove{ font-weight:900; }
@@ -289,3 +292,4 @@
 @media (max-width: 1100px){
   .xpSide{ display:none; }
 }
+
