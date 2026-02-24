@@ -1,8 +1,9 @@
-name: Update Snokido (Top50 + period)
+name: Update Snokido Top50 + Period
 
 on:
   schedule:
-    - cron: "59 22 * * *"   # 23:59 Europe/Paris ≈ 22:59 UTC (attention été/hiver)
+    - cron: "5 23 * * 0"   # Baseline weekly (≈ lundi 00:05 Paris en hiver)
+    - cron: "59 22 * * 0"  # Update (≈ dimanche 23:59 Paris en hiver)
   workflow_dispatch: {}
 
 permissions:
@@ -28,20 +29,18 @@ jobs:
       - name: Run scraper
         run: node scripts/scrape_snokido_top50.mjs
 
-      - name: Validate output files
+      - name: Validate outputs
         run: |
-          echo "=== LIST data ==="
+          echo "=== data ==="
           ls -la data || true
-          echo "=== LIST data/period ==="
+          echo "=== data/period ==="
           ls -la data/period || true
-          echo "=== LIST data/history_paris ==="
+          echo "=== data/history_paris ==="
           ls -la data/history_paris || true
-          echo "=== CHECK weekly ==="
-          test -f data/period/weekly_current.json && head -n 20 data/period/weekly_current.json || (echo "missing weekly_current.json" && exit 1)
-          echo "=== CHECK monthly ==="
-          test -f data/period/monthly_current.json && head -n 20 data/period/monthly_current.json || (echo "missing monthly_current.json" && exit 1)
-          echo "=== CHECK index ==="
-          test -f data/history_paris/index.json && head -n 20 data/history_paris/index.json || (echo "missing index.json" && exit 1)
+          test -f data/snokido_top50.json
+          test -f data/period/weekly_current.json
+          test -f data/period/monthly_current.json
+          test -f data/history_paris/index.json
 
       - name: Commit and push if changed
         run: |
@@ -50,10 +49,9 @@ jobs:
 
           git add \
             data/snokido_top50.json \
+            data/period/*.json \
             data/history_paris/index.json \
             data/history_paris/*.json \
-            data/period/weekly_current.json \
-            data/period/monthly_current.json \
             data/debug_players.html \
             package.json package-lock.json || true
 
