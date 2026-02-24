@@ -1,20 +1,23 @@
-name: Weekly Snokido Top 50 (Sunday 23:59 Paris)
+name: Snokido Snapshots (Paris calendar)
 
 on:
   schedule:
-    # Dimanche uniquement
-    # 23:59 Paris en hiver (CET=UTC+1) => 22:59 UTC
-    - cron: "59 22 * * 0"
-    # 23:59 Paris en été (CEST=UTC+2) => 21:59 UTC
-    - cron: "59 21 * * 0"
+    # ===== Dimanche 23:59 Paris (fin de semaine) =====
+    - cron: "59 22 * * 0"  # hiver
+    - cron: "59 21 * * 0"  # été
+
+    # ===== Lundi 00:01 Paris (début de semaine) =====
+    - cron: "1 23 * * 0"   # hiver (dim 23:01 UTC = lun 00:01 Paris)
+    - cron: "1 22 * * 0"   # été   (dim 22:01 UTC = lun 00:01 Paris)
+
+    # ===== 1er du mois 00:01 Paris (début de mois) =====
+    - cron: "1 23 1 * *"   # hiver
+    - cron: "1 22 1 * *"   # été
+
   workflow_dispatch: {}
 
 permissions:
   contents: write
-
-concurrency:
-  group: snokido-scrape
-  cancel-in-progress: false
 
 jobs:
   scrape:
@@ -22,8 +25,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -32,29 +33,16 @@ jobs:
 
       - name: Install deps
         run: |
-          npm i cheerio --no-package-lock
+          npm init -y
+          npm i cheerio
 
       - name: Run scraper
         run: node scripts/scrape_snokido_top50.mjs
 
-      - name: Commit & push (only if changes)
+      - name: Commit updated JSON + snapshots + leaderboard caches
         run: |
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
-
-          # Add files that should always be versioned
-          git add data/snokido_top50.json data/history_paris
-
-          # Add debug file only if it exists
-          if [ -f data/debug_players.html ]; then
-            git add data/debug_players.html
-          fi
-
-          # If nothing staged, do nothing
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
-
-          git commit -m "Weekly snapshot (Paris)"
-          git push
+          git add data/snokido_top50.json data/history_paris data/period data/debug_players.html || true
+          git commit -m "Snapshot (Paris) + period caches" || echo "No changes"
+          git push || true
