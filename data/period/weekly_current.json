@@ -1,6 +1,52 @@
 {
   "type": "weekly",
   "baselineDate": "2026-02-24",
-  "asOfDate": "2026-02-24",
-  "rows": []
+  "asOfDate": "2026-02-25",
+  "rows": [
+    {
+      "nom": "Ko0pa",
+      "avatar": "https://www.snokido.fr/images/snoki/medium/120.jpg",
+      "dxp": 308,
+      "dLvl": 0,
+      "profileHref": "https://www.snokido.fr/player/ko0pa",
+      "rank": 1,
+      "dPlace": 0
+    },
+    {
+      "nom": "alex.c2109",
+      "avatar": "https://www.snokido.fr/images/snoki/medium/53.jpg",
+      "dxp": 204,
+      "dLvl": 0,
+      "profileHref": "https://www.snokido.fr/player/alexc2109",
+      "rank": 2,
+      "dPlace": 0
+    },
+    {
+      "nom": "TheGladiator",
+      "avatar": "https://www.snokido.fr/images/snoki/medium/1.jpg",
+      "dxp": 172,
+      "dLvl": 0,
+      "profileHref": "https://www.snokido.fr/player/thegladiator",
+      "rank": 3,
+      "dPlace": 0
+    },
+    {
+      "nom": "Unit",
+      "avatar": "https://www.snokido.fr/images/snoki/medium/133.jpg",
+      "dxp": 168,
+      "dLvl": 0,
+      "profileHref": "https://www.snokido.fr/player/unit",
+      "rank": 4,
+      "dPlace": 0
+    },
+    {
+      "nom": "lumia",
+      "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
+      "dxp": 160,
+      "dLvl": 0,
+      "profileHref": "https://www.snokido.fr/player/lumia",
+      "rank": 5,
+      "dPlace": 0
+    }
+  ]
 }
