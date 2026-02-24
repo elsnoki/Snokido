@@ -1,7 +1,6 @@
 // xp_widget.js — Hebdo/Mensuel depuis data/history_paris/
 // Fonctionne même avec seulement 2 snapshots (période partielle).
-// Hebdo: utilise le snapshot le plus ancien trouvé <= 7 jours
-// Mensuel: snapshot le plus ancien trouvé <= 30 jours
+// Affiche pseudo + avatar + ΔXP.
 
 (function () {
   const STORAGE_KEY = "xpWidgetMode"; // "hebdo" | "mensuel"
@@ -27,13 +26,8 @@
   async function loadSnapshot(day) {
     const snap = await fetchJson(`data/history_paris/${day}.json`);
     if (!snap) return null;
-
-    // support 2 formats:
-    // (A) ancien: [ {nom,xp,...}, ... ]
-    // (B) nouveau: { date, generatedAtParis, players:[...] }
     if (Array.isArray(snap)) return snap;
     if (Array.isArray(snap.players)) return snap.players;
-
     return null;
   }
 
@@ -59,6 +53,7 @@
     const box = document.createElement("aside");
     box.id = "xpSide";
     box.className = "xpSide";
+
     box.innerHTML = `
       <div class="xpSideHead">
         <div class="xpSideTitle" id="xpSideTitle">Hebdo</div>
@@ -69,7 +64,23 @@
         <div class="xpSideLoading">Chargement…</div>
       </div>
     `;
+
     document.body.appendChild(box);
+
+    // mini style de secours au cas où style.css n'a pas les classes
+    if (!document.getElementById("xpWidgetFallbackStyle")) {
+      const st = document.createElement("style");
+      st.id = "xpWidgetFallbackStyle";
+      st.textContent = `
+        .xpRow{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-top:1px solid rgba(255,255,255,.08); }
+        .xpRk{ width:18px; font-weight:900; opacity:.95; }
+        .xpWho{ display:flex; align-items:center; gap:10px; min-width:0; flex:1; }
+        .xpAv{ width:28px; height:28px; border-radius:8px; object-fit:cover; background:#ddd; flex:0 0 auto; }
+        .xpName{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:900; }
+        .xpDx{ font-weight:900; white-space:nowrap; }
+      `;
+      document.head.appendChild(st);
+    }
   }
 
   function renderEmpty(msg) {
@@ -78,51 +89,42 @@
   }
 
   function pickBaselineDay(index, latestDay, maxDaysBack) {
-    // index est trié chronologiquement (normalement)
-    // on veut le snapshot le plus ancien mais pas plus vieux que maxDaysBack
     const latestIdx = index.indexOf(latestDay);
     if (latestIdx <= 0) return null;
 
-    // On parcourt vers l'arrière, tant que c'est <= maxDaysBack
     let chosen = null;
     for (let i = latestIdx - 1; i >= 0; i--) {
       const d = index[i];
       const delta = daysBetween(d, latestDay);
-      if (delta <= maxDaysBack) {
-        chosen = d; // on continue pour trouver le plus ancien possible dans la fenêtre
-      } else {
-        break;
-      }
+      if (delta <= maxDaysBack) chosen = d;
+      else break;
     }
 
-    // Si on n'a rien trouvé dans la fenêtre, on prend le précédent tout court (période partielle)
     if (!chosen) chosen = index[latestIdx - 1];
-
     return chosen;
   }
 
   function computeDelta(current, past) {
     const pastMap = new Map();
-    past.forEach(p => {
-      pastMap.set(slugify(p.nom), Number(p.xp || 0));
-    });
+    past.forEach(p => pastMap.set(slugify(p.nom), Number(p.xp || 0)));
 
     const rows = [];
     current.forEach(p => {
       const key = slugify(p.nom);
       const oldXp = pastMap.get(key);
-      if (oldXp == null) return; // pas comparable
+      if (oldXp == null) return;
+
       const curXp = Number(p.xp || 0);
       const dx = curXp - oldXp;
 
       rows.push({
-        nom: p.nom,
-        avatar: p.avatar,
+        nom: p.nom || "—",
+        avatar: p.avatar || null,
         dx
       });
     });
 
-    // garder même si dx=0 ? (tu veux cumuler: on peut afficher seulement >0)
+    // on cache les 0 (tu peux enlever si tu veux)
     const filtered = rows.filter(r => r.dx !== 0);
 
     filtered.sort((a,b) => b.dx - a.dx);
@@ -169,7 +171,7 @@
 
     body.innerHTML = rows.map((r, i) => `
       <div class="xpRow">
-        <div class="xpRk">${i+1}</div>
+        <div class="xpRk">${i + 1}</div>
         <div class="xpWho">
           <img class="xpAv" src="${r.avatar || "avatar/1.jpg"}" alt="${r.nom}">
           <div class="xpName" title="${r.nom}">${r.nom}</div>
