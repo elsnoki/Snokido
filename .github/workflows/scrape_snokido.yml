@@ -1,10 +1,9 @@
-name: Update Snokido Top50 + Period + Pages
+name: Update Snokido Top50 + Period
 
 on:
   workflow_dispatch: {}
   schedule:
-    # 1 run par jour (UTC). Important pour poser le baseline du lundi.
-    - cron: "10 0 * * *"
+    - cron: "10 0 * * *" # 1 fois/jour (UTC)
 
 permissions:
   contents: write
@@ -29,8 +28,6 @@ jobs:
           set -e
           if [ -f package-lock.json ]; then
             npm ci
-          elif [ -f package.json ]; then
-            npm i
           else
             npm init -y
             npm i cheerio
@@ -41,46 +38,23 @@ jobs:
           set -e
           node scripts/scrape_snokido_top50.mjs
 
-      - name: Debug outputs
+      - name: Debug files + git
         run: |
           set -e
-          echo "=== date ==="
-          date -u
-          echo "=== files ==="
-          ls -la data || true
-          ls -la data/period || true
-          ls -la data/history_paris || true
-          echo "=== sha ==="
-          sha256sum data/snokido_top50.json || true
-          sha256sum data/period/weekly_current.json || true
-          sha256sum data/period/monthly_current.json || true
-          sha256sum data/last_run.json || true
+          echo "=== data tree ==="
+          find data -maxdepth 3 -type f -print || true
+          echo "=== last_run.json ==="
+          cat data/last_run.json || true
           echo "=== git status ==="
           git status --porcelain=v1 || true
-          echo "=== git diff stat ==="
-          git diff --stat || true
-
-      # Si tu as déjà ajouté update_pages.mjs et que tu veux mettre à jour du HTML, décommente:
-      # - name: Update pages
-      #   run: |
-      #     set -e
-      #     node scripts/update_pages.mjs
 
       - name: Commit & push (if changed)
         run: |
           set -e
-
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
 
-          git add \
-            data/snokido_top50.json \
-            data/period/*.json \
-            data/history_paris/index.json \
-            data/history_paris/*.json \
-            data/last_run.json \
-            data/debug_players.html \
-            package.json package-lock.json || true
+          git add -A
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
@@ -88,5 +62,4 @@ jobs:
           fi
 
           git commit -m "Update Snokido top50 + period"
-          echo "Pushing to branch: $GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
