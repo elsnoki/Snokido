@@ -51,9 +51,8 @@
             <th class="center">Δ Rang</th>
             <th></th>
             <th>Joueur</th>
-            <th class="center">Δ XP (7 jours)</th>
+            <th class="center">Δ XP</th>
             <th class="center">Δ Niveaux (théorique)</th>
-            <th class="center">XP actuel</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -62,234 +61,69 @@
   </main>
 
 <script>
-  const PERIOD_DAYS = 7;
-
-  // --- Modèle niveau théorique (identique à niveau.html) ---
-  const XP_AT_100 = 49500;
-  const A1 = 1290;
-  const R = 0.0006792294619366293;
-
-  function levelsBeyond100FromXp(xpExtra){
-    if(xpExtra <= 0) return 0;
-    const x = (xpExtra * R / A1) + 1;
-    if(x <= 1) return 0;
-    const n = Math.log(x) / Math.log(1 + R);
-    return Math.max(0, Math.floor(n));
-  }
-  function xpToTheoreticalLevel(xp, fallbackLevel){
-    const xpNum = Number(xp || 0);
-    if(xpNum <= XP_AT_100){
-      return (typeof fallbackLevel === "number" && fallbackLevel > 0) ? fallbackLevel : 100;
-    }
-    const extra = xpNum - XP_AT_100;
-    const n = levelsBeyond100FromXp(extra);
-    return 100 + n;
-  }
-
   function warn(msg){
     const w = document.getElementById("warn");
     w.style.display = "block";
     w.textContent = msg;
   }
 
-  function slugify(name){
-    return String(name || "")
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9]/g, "")
-      .toLowerCase();
+  function fmt(n){ return Number(n||0).toLocaleString("fr-FR"); }
+  function fmtSigned(n){
+    const v = Number(n || 0);
+    return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
-  async function loadIndex(){
-    const res = await fetch("data/history_paris/index.json", { cache:"no-store" });
-    if(!res.ok) throw new Error("index.json introuvable");
-    const arr = await res.json();
-    if(!Array.isArray(arr)) throw new Error("index.json invalide");
-    return arr;
-  }
-
-  async function loadSnap(day){
-    const res = await fetch(`data/history_paris/${day}.json`, { cache:"no-store" });
-    if(!res.ok) return null;
-    const j = await res.json();
-    return Array.isArray(j) ? j : null;
-  }
-
-  function dayMinus(dayStr, delta){
-    const [y,m,d] = dayStr.split("-").map(Number);
-    const dt = new Date(Date.UTC(y, m-1, d));
-    dt.setUTCDate(dt.getUTCDate() - delta);
-    const yy = dt.getUTCFullYear();
-    const mm = String(dt.getUTCMonth()+1).padStart(2,"0");
-    const dd = String(dt.getUTCDate()).padStart(2,"0");
-    return `${yy}-${mm}-${dd}`;
-  }
-
-  function findClosestLE(index, targetDay){
-    for(let i = index.length - 1; i >= 0; i--){
-      if(index[i] <= targetDay) return index[i];
-    }
-    return null;
-  }
-
-  // ---- règle anti-égalité ΔXP (sauf Betelgeuse/Aldebaran) ----
-  function applyDxTieBreak(rows){
-    // group by dx (exact)
-    const byDx = new Map();
-    for(const r of rows){
-      const k = String(r.dx);
-      if(!byDx.has(k)) byDx.set(k, []);
-      byDx.get(k).push(r);
-    }
-
-    for(const [dxKey, group] of byDx){
-      if(group.length <= 1) continue;
-
-      // exception : uniquement Betelgeuse + Aldebaran (peu importe l'ordre)
-      const names = group.map(x => slugify(x.nom));
-      const onlySpecialPair =
-        group.length === 2 &&
-        names.includes("betelgeuse") &&
-        names.includes("aldebaran");
-
-      if(onlySpecialPair){
-        // on laisse dxAdj = dx pour les deux
-        group.forEach(r => r.dxAdj = r.dx);
-        continue;
-      }
-
-      // sinon : on garde le 1er, puis -78, -156, ...
-      group
-        .slice()
-        .sort((a,b)=> slugify(a.nom).localeCompare(slugify(b.nom))) // stable + déterministe
-        .forEach((r, idx) => {
-          r.dxAdj = r.dx - (idx * 78);
-        });
-    }
-
-    // ceux qui n'étaient pas en égalité
-    for(const r of rows){
-      if(typeof r.dxAdj !== "number") r.dxAdj = r.dx;
-    }
-  }
-
-  function buildArrowCell(delta){
-    if(delta == null) return `<span class="arrowFlat">—</span>`;
-    if(delta > 0) return `<span class="arrowUp">▲ ${delta}</span>`;
-    if(delta < 0) return `<span class="arrowDown">▼ ${Math.abs(delta)}</span>`;
+  function arrow(dPlace){
+    // Ton scraper met: dPlace = oldRank - nowRank => + = monte, - = descend
+    if (typeof dPlace !== "number") return `<span class="arrowFlat">—</span>`;
+    if (dPlace > 0) return `<span class="arrowUp">▲ ${dPlace}</span>`;
+    if (dPlace < 0) return `<span class="arrowDown">▼ ${Math.abs(dPlace)}</span>`;
     return `<span class="arrowFlat">=</span>`;
+  }
+
+  async function loadWeekly(){
+    const res = await fetch("data/period/weekly_current.json", { cache:"no-store" });
+    if(!res.ok) throw new Error("weekly_current.json introuvable");
+    return await res.json();
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
     const tbody = document.getElementById("tbody");
     const rangeTxt = document.getElementById("rangeTxt");
 
-    let index;
+    let data;
     try{
-      index = await loadIndex();
+      data = await loadWeekly();
     }catch(e){
-      warn("Impossible de charger data/history_paris/index.json.");
+      warn("Impossible de charger data/period/weekly_current.json. Lance le workflow.");
       return;
     }
 
-    if(index.length < PERIOD_DAYS + 1){
-      warn("Pas assez d'historique pour calculer l'hebdo.");
+    rangeTxt.textContent = `Période : ${data.baselineDate || "—"} → ${data.asOfDate || "—"}`;
+
+    if(!data || !Array.isArray(data.rows) || !data.rows.length){
+      tbody.innerHTML = `<tr><td colspan="6" style="padding:16px;font-weight:900">Aucune donnée.</td></tr>`;
       return;
     }
 
-    const latestDay = index[index.length - 1];
-    const prevTarget = dayMinus(latestDay, PERIOD_DAYS);
-    const prevDay = findClosestLE(index, prevTarget);
-    if(!prevDay){
-      warn("Snapshot de référence introuvable pour l'hebdo.");
-      return;
-    }
-
-    // pour Δrang : on a besoin de la période précédente aussi
-    const prevPrevTarget = dayMinus(prevDay, PERIOD_DAYS);
-    const prevPrevDay = findClosestLE(index, prevPrevTarget);
-
-    const nowArr = await loadSnap(latestDay);
-    const oldArr = await loadSnap(prevDay);
-    const olderArr = prevPrevDay ? await loadSnap(prevPrevDay) : null;
-
-    if(!nowArr || !oldArr){
-      warn("Impossible de charger les snapshots nécessaires.");
-      return;
-    }
-
-    rangeTxt.textContent = `Période : ${prevDay} → ${latestDay}`;
-
-    const nowMap = new Map(nowArr.map(p => [slugify(p.nom), p]));
-    const oldMap = new Map(oldArr.map(p => [slugify(p.nom), p]));
-    const olderMap = olderArr ? new Map(olderArr.map(p => [slugify(p.nom), p])) : null;
-
-    // rows current period
-    const rows = [];
-    for(const [k, cur] of nowMap){
-      const old = oldMap.get(k);
-      const curXp = Number(cur.xp||0);
-      const oldXp = Number(old?.xp||0);
-
-      const lvlNow = xpToTheoreticalLevel(curXp, (typeof cur.niveau === "number" ? cur.niveau : null));
-      const lvlOld = xpToTheoreticalLevel(oldXp, (typeof old?.niveau === "number" ? old.niveau : null));
-      const dLvl = lvlNow - lvlOld;
-
-      rows.push({
-        nom: cur.nom,
-        avatar: cur.avatar,
-        xp: curXp,
-        dx: curXp - oldXp,
-        dxAdj: null,
-        dLvl,
-      });
-    }
-
-    // tie-break ΔXP
-    applyDxTieBreak(rows);
-
-    // sort by adjusted ΔXP
-    rows.sort((a,b)=> b.dxAdj - a.dxAdj);
-
-    // Δrang: compare with previous leaderboard (prevDay vs prevPrevDay)
-    let prevRankMap = null;
-    if(olderMap){
-      const prevRows = [];
-      for(const [k, mid] of oldMap){
-        const older = olderMap.get(k);
-        const midXp = Number(mid?.xp||0);
-        const olderXp = Number(older?.xp||0);
-        prevRows.push({
-          nom: mid.nom,
-          dx: midXp - olderXp,
-          dxAdj: null
-        });
-      }
-      applyDxTieBreak(prevRows);
-      prevRows.sort((a,b)=> b.dxAdj - a.dxAdj);
-      prevRankMap = new Map(prevRows.map((r, i)=> [slugify(r.nom), i+1]));
-    }
-
-    // render
     tbody.innerHTML = "";
-    rows.forEach((r,i)=>{
-      const curRank = i+1;
-      const prevRank = prevRankMap ? prevRankMap.get(slugify(r.nom)) : null;
-
-      // delta >0 = monte (ex: passe de 10 à 6 => +4)
-      const deltaRank = (prevRank != null) ? (prevRank - curRank) : null;
+    data.rows.forEach((r, i) => {
+      const curRank = r.rank ?? (i+1);
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td class="rank">${curRank}</td>
-        <td class="deltaRank">${buildArrowCell(deltaRank)}</td>
-        <td class="avatarCell"><div class="frame"><img src="${r.avatar || "avatar/1.jpg"}" alt="${r.nom}"></div></td>
+        <td class="deltaRank">${arrow(r.dPlace)}</td>
+        <td class="avatarCell"><div class="frame"><img src="${r.avatar || "avatar/1.jpg"}" alt="${r.nom || ""}"></div></td>
         <td class="name">
-          <a href="profil.html?mode=nv100&u=${encodeURIComponent(slugify(r.nom))}">${r.nom}</a>
-          <div class="small">${r.xp.toLocaleString("fr-FR")} XP</div>
+          ${r.profileHref
+            ? `<a target="_blank" rel="noopener" href="${r.profileHref}">${r.nom || "—"}</a>`
+            : `<span style="font-weight:900">${r.nom || "—"}</span>`
+          }
+          <div class="small">Classement hebdo</div>
         </td>
-        <td class="center">${(r.dxAdj>=0?"+":"") + r.dxAdj.toLocaleString("fr-FR")}</td>
-        <td class="center">${(r.dLvl>=0?"+":"") + r.dLvl.toLocaleString("fr-FR")}</td>
-        <td class="center">${r.xp.toLocaleString("fr-FR")}</td>
+        <td class="center">${fmtSigned(r.dxp)}</td>
+        <td class="center">${fmtSigned(r.dLvl)}</td>
       `;
       tbody.appendChild(tr);
     });
