@@ -186,3 +186,106 @@
   .subnav-btn:hover{
     background:#f1f1f1;
   }
+
+/* ===== Mini classement Hebdo/Mensuel (gauche) ===== */
+.xpSide{
+  position: fixed;
+  left: 12px;
+  top: 88px;               /* en dessous de la topbar */
+  width: 270px;
+  background:#ffffff;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow: 0 12px 30px rgba(0,0,0,.28);
+  border:1px solid rgba(0,0,0,.10);
+  z-index: 9998;
+}
+
+.xpSideHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 12px;
+  background:#3b3b3b;
+  color:#fff;
+  font-weight:900;
+}
+
+.xpSideToggle{
+  border:0;
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  font-weight:900;
+  border-radius:10px;
+  padding:6px 10px;
+  cursor:pointer;
+}
+.xpSideToggle:hover{ background: rgba(255,255,255,.18); }
+
+.xpSideSub{
+  padding:8px 12px;
+  font-size:12px;
+  font-weight:900;
+  color:#444;
+  border-bottom:1px solid #e6e6e6;
+  background:#fafafa;
+}
+
+.xpSideBody{ padding:8px 10px; }
+
+.xpSideLoading, .xpSideEmpty{
+  padding:10px 6px;
+  font-weight:900;
+  color:#666;
+  font-size:13px;
+}
+
+.xpRow{
+  display:grid;
+  grid-template-columns: 26px 28px 1fr 66px 46px 52px;
+  gap:8px;
+  align-items:center;
+  padding:6px 4px;
+  border-bottom:1px solid #eee;
+  font-size:12px;
+}
+.xpRow:last-child{ border-bottom:none; }
+
+.xpRk{ font-weight:900; text-align:center; color:#444; }
+.xpAv{
+  width:26px; height:26px;
+  border-radius:8px;
+  object-fit:cover;
+  border:1px solid #bbb;
+  background:#ddd;
+}
+.xpName{
+  font-weight:900;
+  color:#222;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.xpDx, .xpLv{ text-align:right; font-weight:900; color:#111; }
+.xpMv{ text-align:right; }
+
+.xpMove{ font-weight:900; }
+.xpMove.up{ color:#1a8f3a; }
+.xpMove.down{ color:#c0392b; }
+.xpMove.same{ color:#777; }
+
+.xpSideFoot{
+  display:flex;
+  justify-content:flex-end;
+  gap:18px;
+  padding:6px 6px 2px;
+  font-size:11px;
+  color:#666;
+  font-weight:900;
+}
+
+/* Sur mobile : on cache */
+@media (max-width: 1100px){
+  .xpSide{ display:none; }
+}
