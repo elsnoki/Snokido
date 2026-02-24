@@ -1,10 +1,10 @@
-name: Update Snokido Top50 + Period
+name: Update Snokido Top50 + Period + Pages
 
 on:
-  schedule:
-    - cron: "5 23 * * 0"   # Baseline weekly (≈ lundi 00:05 Paris en hiver)
-    - cron: "59 22 * * 0"  # Update (≈ dimanche 23:59 Paris en hiver)
   workflow_dispatch: {}
+  schedule:
+    # 1 run par jour (UTC). Important pour poser le baseline du lundi.
+    - cron: "10 0 * * *"
 
 permissions:
   contents: write
@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -23,27 +26,50 @@ jobs:
 
       - name: Install deps
         run: |
-          npm init -y
-          npm i cheerio
+          set -e
+          if [ -f package-lock.json ]; then
+            npm ci
+          elif [ -f package.json ]; then
+            npm i
+          else
+            npm init -y
+            npm i cheerio
+          fi
 
       - name: Run scraper
-        run: node scripts/scrape_snokido_top50.mjs
-
-      - name: Validate outputs
         run: |
-          echo "=== data ==="
+          set -e
+          node scripts/scrape_snokido_top50.mjs
+
+      - name: Debug outputs
+        run: |
+          set -e
+          echo "=== date ==="
+          date -u
+          echo "=== files ==="
           ls -la data || true
-          echo "=== data/period ==="
           ls -la data/period || true
-          echo "=== data/history_paris ==="
           ls -la data/history_paris || true
-          test -f data/snokido_top50.json
-          test -f data/period/weekly_current.json
-          test -f data/period/monthly_current.json
-          test -f data/history_paris/index.json
+          echo "=== sha ==="
+          sha256sum data/snokido_top50.json || true
+          sha256sum data/period/weekly_current.json || true
+          sha256sum data/period/monthly_current.json || true
+          sha256sum data/last_run.json || true
+          echo "=== git status ==="
+          git status --porcelain=v1 || true
+          echo "=== git diff stat ==="
+          git diff --stat || true
 
-      - name: Commit and push if changed
+      # Si tu as déjà ajouté update_pages.mjs et que tu veux mettre à jour du HTML, décommente:
+      # - name: Update pages
+      #   run: |
+      #     set -e
+      #     node scripts/update_pages.mjs
+
+      - name: Commit & push (if changed)
         run: |
+          set -e
+
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
 
@@ -52,8 +78,15 @@ jobs:
             data/period/*.json \
             data/history_paris/index.json \
             data/history_paris/*.json \
+            data/last_run.json \
             data/debug_players.html \
             package.json package-lock.json || true
 
-          git commit -m "Update Snokido top50 + period" || echo "No changes"
-          git push
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update Snokido top50 + period"
+          echo "Pushing to branch: $GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
