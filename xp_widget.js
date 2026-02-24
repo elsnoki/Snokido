@@ -1,10 +1,9 @@
 // xp_widget.js
-// Calcule XP hebdo (7 jours) et mensuel (30 jours)
-// à partir de data/history_paris/*.json
+// Version corrigée - delta XP réel
 
 (function () {
 
-  const STORAGE_KEY = "xpWidgetMode"; // hebdo | mensuel
+  const STORAGE_KEY = "xpWidgetMode";
 
   function slugify(name) {
     return String(name || "")
@@ -25,7 +24,13 @@
 
   async function loadSnapshot(day) {
     const snap = await fetchJson(`data/history_paris/${day}.json`);
-    return snap?.players || [];
+    if (!snap) return null;
+
+    // Supporte les deux formats possibles
+    if (Array.isArray(snap)) return snap;
+    if (Array.isArray(snap.players)) return snap.players;
+
+    return null;
   }
 
   function format(n) {
@@ -49,23 +54,36 @@
   }
 
   function computeDelta(current, past) {
-    const pastMap = new Map(past.map(p => [slugify(p.nom), p]));
 
-    const rows = current.map(p => {
-      const old = pastMap.get(slugify(p.nom));
-      const dx = (p.xp || 0) - (old?.xp || 0);
-      return {
+    const pastMap = new Map();
+    past.forEach(p => {
+      pastMap.set(slugify(p.nom), Number(p.xp || 0));
+    });
+
+    const rows = [];
+
+    current.forEach(p => {
+      const curXp = Number(p.xp || 0);
+      const oldXp = pastMap.get(slugify(p.nom));
+
+      if (oldXp == null) return; // ignore si pas présent avant
+
+      const dx = curXp - oldXp;
+
+      rows.push({
         nom: p.nom,
         avatar: p.avatar,
         dx
-      };
+      });
     });
 
     rows.sort((a,b) => b.dx - a.dx);
+
     return rows.slice(0, 10);
   }
 
   async function refresh(mode) {
+
     ensureWidget();
 
     const body = document.getElementById("xpSideBody");
@@ -75,6 +93,7 @@
     body.innerHTML = "Chargement…";
 
     const index = await loadIndex();
+
     if (!index || index.length < 2) {
       body.innerHTML = "Pas assez d'historique.";
       return;
@@ -83,14 +102,19 @@
     const latestDay = index[index.length - 1];
 
     const daysBack = mode === "mensuel" ? 30 : 7;
-    const targetIndex = Math.max(0, index.length - 1 - daysBack);
-    const pastDay = index[targetIndex];
+
+    if (index.length <= daysBack) {
+      body.innerHTML = "Pas assez de jours enregistrés.";
+      return;
+    }
+
+    const pastDay = index[index.length - 1 - daysBack];
 
     const current = await loadSnapshot(latestDay);
     const past = await loadSnapshot(pastDay);
 
     if (!current || !past) {
-      body.innerHTML = "Erreur chargement.";
+      body.innerHTML = "Erreur chargement snapshots.";
       return;
     }
 
