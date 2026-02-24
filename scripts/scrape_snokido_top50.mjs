@@ -27,6 +27,11 @@ function readJsonIfExists(path, fallback){
 function writeJson(path, obj){
   fs.writeFileSync(path, JSON.stringify(obj, null, 2), "utf8");
 }
+function absUrl(url){
+  if(!url) return "";
+  if(url.startsWith("http")) return url;
+  return "https://www.snokido.fr" + url;
+}
 
 // ---------- Time (Paris) ----------
 function parisNowParts(){
@@ -49,10 +54,8 @@ function parisNowParts(){
 
 // lundi=1 ... dimanche=7
 function weekdayParis(){
-  // Trick: get weekday in Paris
   const dtf = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "short" });
   const w = dtf.format(new Date()).toLowerCase();
-  // lun., mar., mer., jeu., ven., sam., dim.
   if(w.startsWith("lun")) return 1;
   if(w.startsWith("mar")) return 2;
   if(w.startsWith("mer")) return 3;
@@ -62,18 +65,60 @@ function weekdayParis(){
   return 7;
 }
 
+// ---------- HTTP ----------
+async function fetchWithUA(url){
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
+      "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    },
+  });
+  return res;
+}
+
+async function mapLimit(list, limit, fn){
+  const ret = new Array(list.length);
+  let idx = 0;
+  const workers = Array.from({ length: limit }, async () => {
+    while(idx < list.length){
+      const i = idx++;
+      ret[i] = await fn(list[i], i);
+    }
+  });
+  await Promise.all(workers);
+  return ret;
+}
+
 // ---------- Snokido parsing ----------
+function findPlayersTable($){
+  // 1) Prefer table with <th> headers containing "nom" and ("xp" or "exp") and ("date" or "inscription")
+  const t1 = $("table").filter((i, el) => {
+    const headers = $(el).find("th").map((_, th) => clean($(th).text()).toLowerCase()).get();
+    if (!headers.length) return false;
+    const hasName = headers.some(h => h.includes("nom"));
+    const hasXp = headers.some(h => h.includes("xp") || h.includes("exp"));
+    const hasDate = headers.some(h => h.includes("date") || h.includes("inscription"));
+    return hasName && hasXp && hasDate;
+  }).first();
+  if(t1.length) return t1;
+
+  // 2) Fallback: first table that has many rows and at least 5 columns
+  const t2 = $("table").filter((i, el) => {
+    const rows = $(el).find("tr");
+    if(rows.length < 20) return false;
+    const firstTdCount = rows.eq(1).find("td").length;
+    return firstTdCount >= 5;
+  }).first();
+  if(t2.length) return t2;
+
+  return null;
+}
+
 function parsePlayers(html){
   const $ = cheerio.load(html);
-
-  const table = $("table")
-    .filter((i, el) => {
-      const t = clean($(el).text()).toLowerCase();
-      return t.includes("nom") && t.includes("xp") && t.includes("date");
-    })
-    .first();
-
-  if(!table.length) return { players: [], reason: "table_not_found" };
+  const table = findPlayersTable($);
+  if(!table || !table.length) return { players: [], reason: "table_not_found" };
 
   const players = [];
   table.find("tr").each((i, tr) => {
@@ -81,12 +126,13 @@ function parsePlayers(html){
     if(tds.length < 5) return;
 
     const rank = toInt($(tds[0]).text());
+
     const img = $(tds[1]).find("img").first();
-    const avatar = img.attr("src") || img.attr("data-src") || "";
+    const avatar = absUrl(img.attr("src") || img.attr("data-src") || "");
 
     const nameA = $(tds[2]).find("a").first();
     const nom = clean(nameA.text());
-    const profileHref = nameA.attr("href") || "";
+    const profileHref = absUrl(nameA.attr("href") || "");
 
     const niveau = toInt($(tds[3]).text());
     const xp = toInt($(tds[4]).text());
@@ -94,22 +140,14 @@ function parsePlayers(html){
 
     if(!nom || xp == null) return;
 
-    const profileUrl = profileHref.startsWith("http")
-      ? profileHref
-      : ("https://www.snokido.fr" + profileHref);
-
-    const avatarUrl = avatar
-      ? (avatar.startsWith("http") ? avatar : ("https://www.snokido.fr" + avatar))
-      : null;
-
     players.push({
       rank: rank ?? players.length + 1,
       nom,
       niveau,
       xp,
       inscription,
-      avatar: avatarUrl,
-      profileHref: profileUrl,
+      avatar,
+      profileHref,
       karas: null
     });
   });
@@ -121,38 +159,13 @@ function parseKarasFromProfile(html){
   const $ = cheerio.load(html);
   const fullText = clean($("body").text());
 
-  // Kara 123 456
   let m = fullText.match(/Kara\s*([\d\s]+)/i);
   if(m && toInt(m[1]) != null) return toInt(m[1]);
 
-  // 123 456 Kara
   m = fullText.match(/([\d\s]+)\s*Kara/i);
   if(m && toInt(m[1]) != null) return toInt(m[1]);
 
   return null;
-}
-
-async function fetchWithUA(url){
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
-      "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
-    },
-  });
-  return res;
-}
-
-async function mapLimit(list, limit, fn){
-  const ret = [];
-  let idx = 0;
-  const workers = Array.from({ length: limit }, async () => {
-    while(idx < list.length){
-      const i = idx++;
-      ret[i] = await fn(list[i], i);
-    }
-  });
-  await Promise.all(workers);
-  return ret;
 }
 
 // ---------- Theoretical level model (same as niveau.html) ----------
@@ -184,10 +197,8 @@ function buildMapBySlug(list){
   return m;
 }
 
-// Tie-break: if same dxp, put -78 on one of them,
-// EXCEPT Betelgeuse & Aldébaran can stay equal.
+// Tie-break: if same dxp, put -78 on 2nd/3rd... except Betelgeuse/Aldébaran stay equal
 function applyTieBreak(rows){
-  // group by dxp
   const groups = new Map();
   rows.forEach(r => {
     const k = r.dxp;
@@ -201,13 +212,9 @@ function applyTieBreak(rows){
     const names = arr.map(x => slugify(x.nom));
     const hasBetel = names.includes("betelgeuse");
     const hasAlde  = names.includes("aldebaran");
-
-    // If the tie is exactly between Betelgeuse and Aldébaran only -> allow
     const onlyThoseTwo = arr.length === 2 && hasBetel && hasAlde;
     if(onlyThoseTwo) continue;
 
-    // Otherwise: adjust the 2nd, 3rd, ... to avoid equality
-    // (simple & stable)
     for(let i=1;i<arr.length;i++){
       arr[i].dxp = arr[i].dxp - 78;
     }
@@ -225,7 +232,7 @@ function computePeriod({ current, baseline, prevPeriodRows }){
     if(!b) continue;
 
     const dxpRaw = (Number(p.xp)||0) - (Number(b.xp)||0);
-    if(dxpRaw === 0) continue; // ✅ hide 0 exp
+    if(dxpRaw === 0) continue;
 
     const curLvl = xpToTheoLevel(p.xp, p.niveau);
     const baseLvl = xpToTheoLevel(b.xp, b.niveau);
@@ -240,16 +247,10 @@ function computePeriod({ current, baseline, prevPeriodRows }){
     });
   }
 
-  // sort by dxp desc
   rows.sort((a,b)=> b.dxp - a.dxp);
-
-  // tie-break rule
   applyTieBreak(rows);
-
-  // re-sort after tie-break
   rows.sort((a,b)=> b.dxp - a.dxp);
 
-  // dPlace vs previous rows (if exists)
   const prevRank = new Map();
   if(Array.isArray(prevPeriodRows)){
     prevPeriodRows.forEach((r, i) => prevRank.set(slugify(r.nom), i+1));
@@ -259,7 +260,7 @@ function computePeriod({ current, baseline, prevPeriodRows }){
     const nowRank = i+1;
     const oldRank = prevRank.get(slugify(r.nom));
     r.rank = nowRank;
-    r.dPlace = oldRank ? (oldRank - nowRank) : 0; // + = gagne des places
+    r.dPlace = oldRank ? (oldRank - nowRank) : 0;
   });
 
   return rows;
@@ -283,15 +284,13 @@ async function main(){
 
   const { players, reason } = parsePlayers(html);
   if(!players.length){
-    writeJson("data/debug_players.html", html);
-    console.error(`❌ 0 joueurs trouvés. reason=${reason}`);
+    fs.writeFileSync("data/debug_players.html", html, "utf8");
+    console.error(`❌ 0 joueurs trouvés. reason=${reason}. debug -> data/debug_players.html`);
     process.exit(1);
   }
 
-  // top50
   const top50 = players.slice(0, 50);
 
-  // fetch profiles for karas
   console.log("🔎 Fetch profils (Kara) Top50...");
   await mapLimit(top50, 6, async (p) => {
     try{
@@ -304,59 +303,7 @@ async function main(){
     return p;
   });
 
-  // extras outside top50
-  const extras = ["napoleon1er", "largojunior", "clovis1er", "polyy"];
-  console.log("➕ Extras:", extras.join(", "));
-
-  for(const slug of extras){
-    const profileUrl = `https://www.snokido.fr/player/${slug}`;
-    try{
-      const r = await fetchWithUA(profileUrl);
-      const h = await r.text();
-      const $$ = cheerio.load(h);
-
-      const h1 = clean($$("h1").first().text()) || slug;
-      const karas = parseKarasFromProfile(h);
-
-      // XP from text (best-effort)
-      const txt = clean($$("body").text());
-      let xp = null;
-      let m = txt.match(/XP\s*([\d\s]+)/i);
-      if(m) xp = toInt(m[1]);
-      if(xp == null){
-        m = txt.match(/([\d\s]+)\s*xp/i);
-        if(m) xp = toInt(m[1]);
-      }
-
-      // avatar best-effort
-      let avatar = null;
-      const img = $$("img").filter((i, el) => {
-        const src = $$(el).attr("src") || "";
-        return src.includes("/images/snoki/");
-      }).first();
-      if(img.length){
-        const src = img.attr("src");
-        avatar = src.startsWith("http") ? src : ("https://www.snokido.fr" + src);
-      }
-
-      top50.push({
-        rank: null,
-        nom: h1,
-        niveau: null,
-        xp: xp ?? null,
-        inscription: null,
-        avatar,
-        profileHref: profileUrl,
-        karas: karas ?? null
-      });
-
-      console.log("✅ Extra ajouté:", h1);
-    }catch{
-      console.log("⚠️ Extra failed:", slug);
-    }
-  }
-
-  // write top50 (+extras) json
+  // write top50 json (ARRAY)
   writeJson("data/snokido_top50.json", top50);
   console.log(`✅ ${top50.length} joueurs exportés -> data/snokido_top50.json`);
 
@@ -385,11 +332,10 @@ async function main(){
   const exists = Array.isArray(index) && index.includes(now.dateKey);
   const nextIndex = Array.isArray(index) ? index.slice() : [];
   if(!exists) nextIndex.push(now.dateKey);
-  nextIndex.sort(); // oldest->newest
+  nextIndex.sort();
   writeJson(indexPath, nextIndex);
 
   // ---------- baseline logic ----------
-  // weekly baseline must be captured on Monday
   const wd = weekdayParis();
   const weekBasePath = "data/period/weekly_baseline.json";
   const monthBasePath = "data/period/monthly_baseline.json";
@@ -422,7 +368,6 @@ async function main(){
     prevPeriodRows: prevMonthly?.rows
   });
 
-  // period files
   writeJson("data/period/weekly_current.json", {
     type: "weekly",
     note: "lundi→dimanche (baseline posé le lundi)",
@@ -439,7 +384,14 @@ async function main(){
     rows: monthlyRows
   });
 
-  console.log("✅ period files written -> data/period/weekly_current.json + monthly_current.json");
+  // HEARTBEAT: prouve que le workflow a tourné même si top50 identique
+  writeJson("data/last_run.json", {
+    generatedAtParis: snapshot.generatedAtParis,
+    date: snapshot.date,
+    tablesDetected: $("table").length
+  });
+
+  console.log("✅ period files written + last_run.json");
 }
 
 main().catch((err) => {
