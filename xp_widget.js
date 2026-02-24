@@ -72,7 +72,7 @@
     }
 
     // Ton scraper enlève déjà dxp=0, mais on refiltre au cas où
-    let rows = period.rows.filter(r => Number(r.dxp || 0) !== 0);
+    let rows = period.rows.slice();
 
     if (!rows.length) {
       body.innerHTML = `<div class="xpSideEmpty">Personne n’a gagné d’XP sur la période.</div>`;
