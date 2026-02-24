@@ -1,6 +1,6 @@
-// xp_widget.js — Widget Hebdo/Mensuel depuis data/history_paris/
-// Compatible avec ton style.css (grille 5 colonnes)
-// Affiche: Rang, Avatar+Pseudo, ΔXP, (ΔKara placeholder), (ΔPlace placeholder)
+// xp_widget.js — Hebdo/Mensuel depuis data/history_paris/
+// Compatible avec ton CSS (xpRow en 5 colonnes)
+// Détecte automatiquement le bon champ "nom" dans les snapshots
 
 (function () {
   const STORAGE_KEY = "xpWidgetMode"; // "hebdo" | "mensuel"
@@ -10,6 +10,34 @@
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-zA-Z0-9]/g, "")
       .toLowerCase();
+  }
+
+  function getName(p) {
+    // Supporte plusieurs formats possibles
+    return (
+      p?.nom ??
+      p?.name ??
+      p?.pseudo ??
+      p?.username ??
+      p?.player ??
+      "—"
+    );
+  }
+
+  function getAvatar(p) {
+    return p?.avatar ?? p?.img ?? p?.image ?? null;
+  }
+
+  function getXp(p) {
+    // Supporte xp / exp
+    const v = (p?.xp != null) ? p.xp : p?.exp;
+    return Number(v || 0);
+  }
+
+  function getKaras(p) {
+    // Supporte karas / kara
+    const v = (p?.karas != null) ? p.karas : p?.kara;
+    return (v == null) ? null : Number(v || 0);
   }
 
   async function fetchJson(path) {
@@ -26,10 +54,6 @@
   async function loadSnapshot(day) {
     const snap = await fetchJson(`data/history_paris/${day}.json`);
     if (!snap) return null;
-
-    // Supporte 2 formats:
-    // A) ancien: [ {nom,xp,avatar,...}, ... ]
-    // B) nouveau: { date, generatedAtParis, players:[...] }
     if (Array.isArray(snap)) return snap;
     if (Array.isArray(snap.players)) return snap.players;
     return null;
@@ -41,9 +65,7 @@
   }
 
   function daysBetween(aStr, bStr) {
-    const a = toUTCDate(aStr);
-    const b = toUTCDate(bStr);
-    return Math.floor((b - a) / (24 * 3600 * 1000));
+    return Math.floor((toUTCDate(bStr) - toUTCDate(aStr)) / (24 * 3600 * 1000));
   }
 
   function fmtSigned(n) {
@@ -71,15 +93,14 @@
   }
 
   function renderEmpty(msg) {
-    const body = document.getElementById("xpSideBody");
-    body.innerHTML = `<div class="xpSideEmpty">${msg}</div>`;
+    document.getElementById("xpSideBody").innerHTML =
+      `<div class="xpSideEmpty">${msg}</div>`;
   }
 
   function pickBaselineDay(index, latestDay, maxDaysBack) {
     const latestIdx = index.indexOf(latestDay);
     if (latestIdx <= 0) return null;
 
-    // On prend le plus ancien snapshot disponible dans la fenêtre (<= maxDaysBack).
     let chosen = null;
     for (let i = latestIdx - 1; i >= 0; i--) {
       const d = index[i];
@@ -87,8 +108,6 @@
       if (delta <= maxDaysBack) chosen = d;
       else break;
     }
-
-    // si aucun dans la fenêtre, on prend juste le précédent (période partielle)
     if (!chosen) chosen = index[latestIdx - 1];
     return chosen;
   }
@@ -96,34 +115,36 @@
   function computeDeltaRows(current, past) {
     const pastMap = new Map();
     past.forEach(p => {
-      pastMap.set(slugify(p.nom), {
-        xp: Number(p.xp || 0),
-        karas: Number(p.karas || 0) // si jamais présent, sinon 0
+      const name = getName(p);
+      pastMap.set(slugify(name), {
+        xp: getXp(p),
+        karas: getKaras(p)
       });
     });
 
     const rows = [];
     current.forEach(p => {
-      const key = slugify(p.nom);
+      const name = getName(p);
+      const key = slugify(name);
       const old = pastMap.get(key);
       if (!old) return;
 
-      const curXp = Number(p.xp || 0);
-      const dxp = curXp - old.xp;
+      const dxp = getXp(p) - old.xp;
 
-      // optional kara delta (si tes snapshots ont karas)
-      const curKaras = Number(p.karas || 0);
-      const dkara = curKaras - old.karas;
+      // kara optionnel
+      const curK = getKaras(p);
+      const dkara =
+        (curK == null || old.karas == null) ? null : (curK - old.karas);
 
       rows.push({
-        nom: p.nom || "—",
-        avatar: p.avatar || null,
+        nom: name,
+        avatar: getAvatar(p),
         dxp,
         dkara
       });
     });
 
-    // cache ceux à 0 XP (tu peux enlever si tu veux)
+    // Cache ceux à 0 XP
     const filtered = rows.filter(r => r.dxp !== 0);
 
     filtered.sort((a, b) => b.dxp - a.dxp);
@@ -151,7 +172,6 @@
 
     const latestDay = index[index.length - 1];
     const baselineDay = pickBaselineDay(index, latestDay, maxDaysBack);
-
     sub.textContent = `${baselineDay} → ${latestDay}`;
 
     const current = await loadSnapshot(latestDay);
@@ -169,6 +189,9 @@
       return;
     }
 
+    // détecte si on a au moins un dkara réel
+    const hasKara = rows.some(r => typeof r.dkara === "number");
+
     body.innerHTML = rows.map((r, i) => `
       <div class="xpRow">
         <div class="xpRk">${i + 1}</div>
@@ -177,7 +200,7 @@
           <div class="xpName" title="${r.nom}">${r.nom}</div>
         </div>
         <div class="xpDx">${fmtSigned(r.dxp)}</div>
-        <div class="xpKara">${Number.isFinite(r.dkara) ? fmtSigned(r.dkara) : "—"}</div>
+        <div class="xpKara">${hasKara ? (r.dkara == null ? "—" : fmtSigned(r.dkara)) : "—"}</div>
         <div class="xpMv"><span class="xpMove same">—</span></div>
       </div>
     `).join("");
@@ -187,6 +210,9 @@
         <span>ΔXP</span><span>ΔKara</span><span>ΔPlace</span>
       </div>
     `);
+
+    // Si tu veux vraiment cacher la colonne Kara quand absente,
+    // dis-le et je te donne une version qui change la grille via JS.
 
     toggle.onclick = () => {
       const newMode = (mode === "mensuel") ? "hebdo" : "mensuel";
