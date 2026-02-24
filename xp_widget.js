@@ -1,19 +1,10 @@
-// xp_widget.js — Mini classement Hebdo/Mensuel (calendrier Paris)
-// Source: data/period/weekly_current.json + data/period/monthly_current.json
-// - Pseudos affichés à côté de l’avatar
-// - Cache ceux à ΔXP = 0
-// - Flèches ▲▼ si rank prev fourni (optionnel futur)
-// - Ne dépend PAS de data.js
+// xp_widget.js — Mini classement Hebdo/Mensuel (Paris)
+// Lit: data/period/weekly_current.json + data/period/monthly_current.json
+// Structure attendue (depuis ton scraper):
+// { baselineDate, asOfDate, rows:[{ nom, avatar, dxp, dLvl, rank, dPlace, profileHref }] }
 
 (function () {
   const STORAGE_KEY = "xpWidgetMode"; // "hebdo" | "mensuel"
-
-  function slugify(name) {
-    return String(name || "")
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9]/g, "")
-      .toLowerCase();
-  }
 
   async function fetchJson(path) {
     const res = await fetch(path, { cache: "no-store" });
@@ -21,7 +12,11 @@
     try { return await res.json(); } catch { return null; }
   }
 
-  function formatSigned(n) {
+  function fmt(n) {
+    return Number(n || 0).toLocaleString("fr-FR");
+  }
+
+  function fmtSigned(n) {
     const v = Number(n || 0);
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
@@ -46,74 +41,76 @@
   }
 
   function renderEmpty(msg) {
-    const title = document.getElementById("xpSideTitle");
     const sub = document.getElementById("xpSideSub");
     const body = document.getElementById("xpSideBody");
-    title.textContent = title.textContent || "Hebdo";
     sub.textContent = "—";
     body.innerHTML = `<div class="xpSideEmpty">${msg}</div>`;
   }
 
-  // Optionnel si tu veux des flèches plus tard
-  function moveBadge(curRank, prevRank) {
-    if (!prevRank) return `<span class="xpMove same">—</span>`;
-    const diff = prevRank - curRank;
-    if (diff > 0) return `<span class="xpMove up">▲${diff}</span>`;
-    if (diff < 0) return `<span class="xpMove down">▼${Math.abs(diff)}</span>`;
-    return `<span class="xpMove same">•0</span>`;
+  function moveBadge(dPlace) {
+    // Ton scraper met: dPlace = oldRank - nowRank, donc + = gagne des places
+    if (typeof dPlace !== "number") return `<span class="xpMove same">—</span>`;
+    if (dPlace > 0) return `<span class="xpMove up">▲${dPlace}</span>`;
+    if (dPlace < 0) return `<span class="xpMove down">▼${Math.abs(dPlace)}</span>`;
+    return `<span class="xpMove same">=</span>`;
   }
 
-  function render(data, mode) {
+  function render(period, mode) {
     const title = document.getElementById("xpSideTitle");
     const sub = document.getElementById("xpSideSub");
     const body = document.getElementById("xpSideBody");
 
     title.textContent = (mode === "mensuel") ? "Mensuel" : "Hebdo";
 
-    const cur = data?.curDay || "—";
-    const start = data?.startDay || data?.targetStart || "—";
+    const start = period?.baselineDate || "—";
+    const cur = period?.asOfDate || "—";
     sub.textContent = `${start} → ${cur}`;
 
-    if (!data || !Array.isArray(data.rows)) {
+    if (!period || !Array.isArray(period.rows)) {
       body.innerHTML = `<div class="xpSideEmpty">Données indisponibles.</div>`;
       return;
     }
 
-    // Filtre : pas de 0 exp
-    let rows = data.rows.filter(r => Number(r.dx || 0) !== 0);
+    // Ton scraper enlève déjà dxp=0, mais on refiltre au cas où
+    let rows = period.rows.filter(r => Number(r.dxp || 0) !== 0);
 
     if (!rows.length) {
       body.innerHTML = `<div class="xpSideEmpty">Personne n’a gagné d’XP sur la période.</div>`;
       return;
     }
 
-    // Top 10
     rows = rows.slice(0, 10);
 
     body.innerHTML = rows.map((r, i) => {
-      const curRank = i + 1;
-      const prevRank = null; // pas fourni dans tes caches pour l’instant
-
+      const rk = r.rank ?? (i + 1);
       const name = r.nom || "—";
       const av = r.avatar || "avatar/1.jpg";
+      const dxp = Number(r.dxp || 0);
+      const dLvl = Number(r.dLvl || 0);
+      const href = r.profileHref || null;
+
+      const nameHtml = href
+        ? `<a href="${href}" target="_blank" rel="noopener">${name}</a>`
+        : `<span>${name}</span>`;
 
       return `
         <div class="xpRow">
-          <div class="xpRk">${curRank}</div>
+          <div class="xpRk">${rk}</div>
           <div class="xpWho">
             <img class="xpAv" src="${av}" alt="${name}">
-            <div class="xpName" title="${name}">${name}</div>
+            <div class="xpName" title="${name}">${nameHtml}</div>
           </div>
-          <div class="xpDx">${formatSigned(r.dx)}</div>
-          <div class="xpKara">${r.dkara != null ? formatSigned(r.dkara) : "—"}</div>
-          <div class="xpMv">${moveBadge(curRank, prevRank)}</div>
+          <div class="xpDx">${fmtSigned(dxp)}</div>
+          <div class="xpKara">${fmtSigned(dLvl)}</div>
+          <div class="xpMv">${moveBadge(r.dPlace)}</div>
         </div>
       `;
     }).join("");
 
+    // Lignes du footer (labels)
     body.insertAdjacentHTML("beforeend", `
       <div class="xpSideFoot">
-        <span>ΔXP</span><span>ΔKara</span><span>ΔPlace</span>
+        <span>ΔXP</span><span>ΔNiv</span><span>ΔPlace</span>
       </div>
     `);
   }
@@ -129,12 +126,12 @@
       ? "data/period/monthly_current.json"
       : "data/period/weekly_current.json";
 
-    const data = await fetchJson(path);
+    const period = await fetchJson(path);
 
-    if (!data) {
+    if (!period) {
       renderEmpty("Fichier period introuvable. Lance le workflow au moins une fois.");
     } else {
-      render(data, mode);
+      render(period, mode);
     }
 
     toggle.onclick = () => {
@@ -145,7 +142,6 @@
   }
 
   window.addEventListener("DOMContentLoaded", () => {
-    // option : ne pas afficher sur les pages gang
     const p = (location.pathname || "").toLowerCase();
     if (p.includes("gang")) return;
 
