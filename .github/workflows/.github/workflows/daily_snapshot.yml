@@ -2,8 +2,13 @@ name: Daily Snokido Snapshot (23h59 Paris)
 
 on:
   workflow_dispatch:
+
   schedule:
-    - cron: "59 22 * * *"   # 22h59 UTC ≈ 23h59 Paris (hiver)
+    # Heure d'hiver (UTC+1)
+    - cron: "59 22 * 1,2,11,12 *"
+
+    # Heure d'été (UTC+2)
+    - cron: "59 21 * 3-10 *"
 
 permissions:
   contents: write
@@ -13,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -41,5 +46,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Daily snapshot (Paris)"
+          git commit -m "Daily snapshot (23h59 Paris)"
           git push
