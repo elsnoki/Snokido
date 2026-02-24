@@ -1,0 +1,45 @@
+name: Daily Snokido Snapshot (23h59 Paris)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "59 22 * * *"   # 22h59 UTC ≈ 23h59 Paris (hiver)
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install cheerio
+        run: npm install cheerio
+
+      - name: Run scraper
+        run: node scripts/scrape_snokido_top50.mjs
+
+      - name: Commit changes
+        run: |
+          git config user.name "snokiki-bot"
+          git config user.email "snokiki-bot@users.noreply.github.com"
+
+          git add data/history_paris/*.json
+          git add data/history_paris/index.json
+          git add data/snokido_top50.json
+
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+
+          git commit -m "Daily snapshot (Paris)"
+          git push
