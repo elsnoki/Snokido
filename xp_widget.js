@@ -1,6 +1,6 @@
-// xp_widget.js — Hebdo/Mensuel depuis data/history_paris/
-// Fonctionne même avec seulement 2 snapshots (période partielle).
-// Affiche pseudo + avatar + ΔXP.
+// xp_widget.js — Widget Hebdo/Mensuel depuis data/history_paris/
+// Compatible avec ton style.css (grille 5 colonnes)
+// Affiche: Rang, Avatar+Pseudo, ΔXP, (ΔKara placeholder), (ΔPlace placeholder)
 
 (function () {
   const STORAGE_KEY = "xpWidgetMode"; // "hebdo" | "mensuel"
@@ -26,25 +26,29 @@
   async function loadSnapshot(day) {
     const snap = await fetchJson(`data/history_paris/${day}.json`);
     if (!snap) return null;
+
+    // Supporte 2 formats:
+    // A) ancien: [ {nom,xp,avatar,...}, ... ]
+    // B) nouveau: { date, generatedAtParis, players:[...] }
     if (Array.isArray(snap)) return snap;
     if (Array.isArray(snap.players)) return snap.players;
     return null;
   }
 
   function toUTCDate(dayStr) {
-    const [y,m,d] = dayStr.split("-").map(Number);
-    return new Date(Date.UTC(y, m-1, d));
+    const [y, m, d] = dayStr.split("-").map(Number);
+    return new Date(Date.UTC(y, m - 1, d));
   }
 
   function daysBetween(aStr, bStr) {
     const a = toUTCDate(aStr);
     const b = toUTCDate(bStr);
-    const ms = b - a;
-    return Math.floor(ms / (24 * 3600 * 1000));
+    return Math.floor((b - a) / (24 * 3600 * 1000));
   }
 
-  function format(n) {
-    return Number(n || 0).toLocaleString("fr-FR");
+  function fmtSigned(n) {
+    const v = Number(n || 0);
+    return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
   function ensureWidget() {
@@ -53,45 +57,29 @@
     const box = document.createElement("aside");
     box.id = "xpSide";
     box.className = "xpSide";
-
     box.innerHTML = `
       <div class="xpSideHead">
         <div class="xpSideTitle" id="xpSideTitle">Hebdo</div>
         <button class="xpSideToggle" id="xpSideToggle" title="Basculer Hebdo/Mensuel">▸</button>
       </div>
-      <div class="xpSideSub" id="xpSideSub">—</div>
+      <div class="xpSideSub" id="xpSideSub">Chargement…</div>
       <div class="xpSideBody" id="xpSideBody">
         <div class="xpSideLoading">Chargement…</div>
       </div>
     `;
-
     document.body.appendChild(box);
-
-    // mini style de secours au cas où style.css n'a pas les classes
-    if (!document.getElementById("xpWidgetFallbackStyle")) {
-      const st = document.createElement("style");
-      st.id = "xpWidgetFallbackStyle";
-      st.textContent = `
-        .xpRow{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-top:1px solid rgba(255,255,255,.08); }
-        .xpRk{ width:18px; font-weight:900; opacity:.95; }
-        .xpWho{ display:flex; align-items:center; gap:10px; min-width:0; flex:1; }
-        .xpAv{ width:28px; height:28px; border-radius:8px; object-fit:cover; background:#ddd; flex:0 0 auto; }
-        .xpName{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:900; }
-        .xpDx{ font-weight:900; white-space:nowrap; }
-      `;
-      document.head.appendChild(st);
-    }
   }
 
   function renderEmpty(msg) {
-    document.getElementById("xpSideBody").innerHTML =
-      `<div class="xpSideEmpty">${msg}</div>`;
+    const body = document.getElementById("xpSideBody");
+    body.innerHTML = `<div class="xpSideEmpty">${msg}</div>`;
   }
 
   function pickBaselineDay(index, latestDay, maxDaysBack) {
     const latestIdx = index.indexOf(latestDay);
     if (latestIdx <= 0) return null;
 
+    // On prend le plus ancien snapshot disponible dans la fenêtre (<= maxDaysBack).
     let chosen = null;
     for (let i = latestIdx - 1; i >= 0; i--) {
       const d = index[i];
@@ -100,34 +88,45 @@
       else break;
     }
 
+    // si aucun dans la fenêtre, on prend juste le précédent (période partielle)
     if (!chosen) chosen = index[latestIdx - 1];
     return chosen;
   }
 
-  function computeDelta(current, past) {
+  function computeDeltaRows(current, past) {
     const pastMap = new Map();
-    past.forEach(p => pastMap.set(slugify(p.nom), Number(p.xp || 0)));
+    past.forEach(p => {
+      pastMap.set(slugify(p.nom), {
+        xp: Number(p.xp || 0),
+        karas: Number(p.karas || 0) // si jamais présent, sinon 0
+      });
+    });
 
     const rows = [];
     current.forEach(p => {
       const key = slugify(p.nom);
-      const oldXp = pastMap.get(key);
-      if (oldXp == null) return;
+      const old = pastMap.get(key);
+      if (!old) return;
 
       const curXp = Number(p.xp || 0);
-      const dx = curXp - oldXp;
+      const dxp = curXp - old.xp;
+
+      // optional kara delta (si tes snapshots ont karas)
+      const curKaras = Number(p.karas || 0);
+      const dkara = curKaras - old.karas;
 
       rows.push({
         nom: p.nom || "—",
         avatar: p.avatar || null,
-        dx
+        dxp,
+        dkara
       });
     });
 
-    // on cache les 0 (tu peux enlever si tu veux)
-    const filtered = rows.filter(r => r.dx !== 0);
+    // cache ceux à 0 XP (tu peux enlever si tu veux)
+    const filtered = rows.filter(r => r.dxp !== 0);
 
-    filtered.sort((a,b) => b.dx - a.dx);
+    filtered.sort((a, b) => b.dxp - a.dxp);
     return filtered.slice(0, 10);
   }
 
@@ -137,7 +136,9 @@
     const title = document.getElementById("xpSideTitle");
     const sub = document.getElementById("xpSideSub");
     const body = document.getElementById("xpSideBody");
+    const toggle = document.getElementById("xpSideToggle");
 
+    const maxDaysBack = (mode === "mensuel") ? 30 : 7;
     title.textContent = (mode === "mensuel") ? "Mensuel" : "Hebdo";
     body.innerHTML = `<div class="xpSideLoading">Chargement…</div>`;
 
@@ -149,7 +150,6 @@
     }
 
     const latestDay = index[index.length - 1];
-    const maxDaysBack = (mode === "mensuel") ? 30 : 7;
     const baselineDay = pickBaselineDay(index, latestDay, maxDaysBack);
 
     sub.textContent = `${baselineDay} → ${latestDay}`;
@@ -162,7 +162,7 @@
       return;
     }
 
-    const rows = computeDelta(current, past);
+    const rows = computeDeltaRows(current, past);
 
     if (!rows.length) {
       renderEmpty("Personne n’a gagné d’XP sur la période.");
@@ -176,11 +176,19 @@
           <img class="xpAv" src="${r.avatar || "avatar/1.jpg"}" alt="${r.nom}">
           <div class="xpName" title="${r.nom}">${r.nom}</div>
         </div>
-        <div class="xpDx">+${format(r.dx)}</div>
+        <div class="xpDx">${fmtSigned(r.dxp)}</div>
+        <div class="xpKara">${Number.isFinite(r.dkara) ? fmtSigned(r.dkara) : "—"}</div>
+        <div class="xpMv"><span class="xpMove same">—</span></div>
       </div>
     `).join("");
 
-    document.getElementById("xpSideToggle").onclick = () => {
+    body.insertAdjacentHTML("beforeend", `
+      <div class="xpSideFoot">
+        <span>ΔXP</span><span>ΔKara</span><span>ΔPlace</span>
+      </div>
+    `);
+
+    toggle.onclick = () => {
       const newMode = (mode === "mensuel") ? "hebdo" : "mensuel";
       localStorage.setItem(STORAGE_KEY, newMode);
       refresh(newMode);
