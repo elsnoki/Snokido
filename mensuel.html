@@ -78,13 +78,10 @@
 
   async function loadCurrentPlayers(){
     const big = await fetchJson("data/players_pages.json");
-    if(Array.isArray(big) && big.length >= 200) return big;
+    if(Array.isArray(big)) return big;
 
     const top = await fetchJson("data/snokido_top50.json");
-    if(Array.isArray(top)){
-      warn("players_pages.json introuvable → le workflow day_updates ne l'a pas publié. Résultat limité au Top50.");
-      return top; // ou return null pour bloquer
-    }
+    if(Array.isArray(top)) return top;
 
     return null;
   }
@@ -124,6 +121,7 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
+  // ✅ Tie-break +12 uniquement si dx >= 500
   function applyDxTieBreakPlus12Over500(rows){
     const byDx = new Map();
     for(const r of rows){
@@ -133,6 +131,7 @@
     }
 
     for(const [dxKey, group] of byDx){
+      // 1 seul = ok
       if(group.length <= 1){
         group[0].dxAdj = group[0].dx;
         continue;
@@ -140,11 +139,13 @@
 
       const dxVal = Number(group[0].dx || 0);
 
+      // ⛔ en dessous de 500 : on ne touche pas (égalité conservée)
       if(dxVal < 500){
         group.forEach(r => r.dxAdj = r.dx);
         continue;
       }
 
+      // exception optionnelle : Betelgeuse/Aldebaran restent égaux
       const names = group.map(x => slugify(x.nom));
       const onlySpecialPair =
         group.length === 2 &&
@@ -156,6 +157,8 @@
         continue;
       }
 
+      // départage déterministe par slug :
+      // le 1er +12*(n-1), ..., dernier +0
       const sorted = group.slice().sort((a,b)=> slugify(a.nom).localeCompare(slugify(b.nom)));
       const n = sorted.length;
       for(let i=0;i<n;i++){
@@ -164,6 +167,7 @@
       }
     }
 
+    // sécurité
     for(const r of rows){
       if(typeof r.dxAdj !== "number") r.dxAdj = r.dx;
     }
@@ -175,7 +179,7 @@
 
     const current = await loadCurrentPlayers();
     if(!current){
-      warn("Impossible de charger data/players_pages.json (requis) ou data/snokido_top50.json.");
+      warn("Impossible de charger data/players_pages.json ou data/snokido_top50.json.");
       return;
     }
 
@@ -225,10 +229,13 @@
       });
     }
 
+    // ✅ supprimer ceux à 0 XP
     rows = rows.filter(r => Number(r.dx) !== 0);
 
+    // tie-break conditionnel
     applyDxTieBreakPlus12Over500(rows);
 
+    // tri par dxAdj (affichage = dx)
     rows.sort((a,b)=> b.dxAdj - a.dxAdj);
 
     tbody.innerHTML = "";
