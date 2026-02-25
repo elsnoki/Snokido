@@ -97,10 +97,15 @@
 
   async function loadCurrentPlayers(){
     const big = await fetchJson("data/players_pages.json");
-    if(Array.isArray(big)) return big;
+    if(Array.isArray(big) && big.length > 200) return big;
 
+    //  on ne veut PAS calculer un "classement jour" sur un dataset top50
+    // sinon ça donne l'impression que le scrape est cassé
     const top = await fetchJson("data/snokido_top50.json");
-    if(Array.isArray(top)) return top;
+    if(Array.isArray(top)){
+      warn("players_pages.json introuvable → le workflow day_updates ne l'a pas publié. Résultat limité au Top50.");
+      return top; // si tu veux carrément bloquer, remplace par: return null;
+    }
 
     return null;
   }
