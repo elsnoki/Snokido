@@ -1,10 +1,11 @@
-// xp_widget.js — Widget Jour/Hebdo/Mensuel basé sur:
-// CURRENT = data/players_pages.json (si existe) sinon data/snokido_top50.json
-// BASELINE = snapshots officiels data/history_paris/YYYY-MM-DD.json
-// => Le widget se met à jour à chaque workflow (08h/16h/manual) car CURRENT change.
+// xp_widget.js — Widget Jour/Hebdo/Mensuel (incassable)
+// Navigation: ◂ et ▸, et reset auto si valeur invalide
 
 (function () {
-  const STORAGE_KEY = "xpWidgetMode"; // "jour" | "hebdo" | "mensuel"
+  const STORAGE_KEY = "xpWidgetMode";
+  const MODES = ["jour", "hebdo", "mensuel"];
+
+  function safeMode(m){ return MODES.includes(m) ? m : "jour"; }
 
   function slugify(name) {
     return String(name || "")
@@ -25,11 +26,9 @@
   }
 
   async function loadCurrentPlayers(){
-    // 1) préférer le gros fichier (50 pages)
     const big = await fetchJson("data/players_pages.json");
     if(Array.isArray(big)) return big;
 
-    // 2) fallback top50
     const top = await fetchJson("data/snokido_top50.json");
     if(Array.isArray(top)) return top;
 
@@ -70,7 +69,7 @@
   }
   function mondayOfWeek(dayStr){
     const d = toUTCDate(dayStr);
-    const wd = d.getUTCDay() || 7; // dim=7
+    const wd = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() - (wd - 1));
     return fromUTCDate(d);
   }
@@ -100,7 +99,10 @@
     box.innerHTML = `
       <div class="xpSideHead">
         <div class="xpSideTitle" id="xpSideTitle">Jour</div>
-        <button class="xpSideToggle" id="xpSideToggle" title="Basculer Jour/Hebdo/Mensuel">▸</button>
+        <div style="display:flex;gap:6px;">
+          <button class="xpSideToggle" id="xpSidePrev" title="Précédent">◂</button>
+          <button class="xpSideToggle" id="xpSideNext" title="Suivant">▸</button>
+        </div>
       </div>
       <div class="xpSideSub" id="xpSideSub">Chargement…</div>
       <div class="xpSideBody" id="xpSideBody">
@@ -117,10 +119,7 @@
   function computeDeltaRows(currentPlayers, baselinePlayers){
     const baseMap = new Map();
     baselinePlayers.forEach(p => {
-      baseMap.set(slugify(getName(p)), {
-        xp: getXp(p),
-        kara: getKara(p),
-      });
+      baseMap.set(slugify(getName(p)), { xp: getXp(p), kara: getKara(p) });
     });
 
     const rows = [];
@@ -130,35 +129,33 @@
       const base = baseMap.get(key);
       if(!base) return;
 
-      const curXp = getXp(p);
-      const dx = curXp - base.xp;
-
+      const dx = getXp(p) - base.xp;
       if(dx === 0) return;
 
       const curK = getKara(p);
       const dkara = (curK == null || base.kara == null) ? null : (curK - base.kara);
 
-      rows.push({
-        nom: name,
-        avatar: getAvatar(p),
-        dx,
-        dkara
-      });
+      rows.push({ nom: name, avatar: getAvatar(p), dx, dkara });
     });
 
     rows.sort((a,b)=> b.dx - a.dx);
     return rows.slice(0, 10);
   }
 
-  async function refresh(mode){
-    ensureWidget();
-
+  function setTitle(mode){
     const title = document.getElementById("xpSideTitle");
+    title.textContent = mode === "mensuel" ? "Mensuel" : (mode === "hebdo" ? "Hebdo" : "Jour");
+  }
+
+  async function refresh(mode){
+    mode = safeMode(mode);
+    localStorage.setItem(STORAGE_KEY, mode);
+
+    ensureWidget();
+    setTitle(mode);
+
     const sub = document.getElementById("xpSideSub");
     const body = document.getElementById("xpSideBody");
-    const toggle = document.getElementById("xpSideToggle");
-
-    title.textContent = mode === "mensuel" ? "Mensuel" : (mode === "hebdo" ? "Hebdo" : "Jour");
     body.innerHTML = `<div class="xpSideLoading">Chargement…</div>`;
 
     const current = await loadCurrentPlayers();
@@ -198,7 +195,6 @@
     }
 
     const rows = computeDeltaRows(current, baseline);
-
     if(!rows.length){
       renderEmpty("Personne n’a gagné d’XP sur la période.");
       return;
@@ -222,12 +218,18 @@
         <span>ΔXP</span><span>ΔKara</span><span>ΔPlace</span>
       </div>
     `);
+  }
 
-    toggle.onclick = () => {
-      const modes = ["jour","hebdo","mensuel"];
-      const next = modes[(modes.indexOf(mode)+1) % modes.length];
-      localStorage.setItem(STORAGE_KEY, next);
-      refresh(next);
+  function wireButtons(){
+    document.getElementById("xpSidePrev").onclick = () => {
+      const cur = safeMode(localStorage.getItem(STORAGE_KEY));
+      const i = MODES.indexOf(cur);
+      refresh(MODES[(i - 1 + MODES.length) % MODES.length]);
+    };
+    document.getElementById("xpSideNext").onclick = () => {
+      const cur = safeMode(localStorage.getItem(STORAGE_KEY));
+      const i = MODES.indexOf(cur);
+      refresh(MODES[(i + 1) % MODES.length]);
     };
   }
 
@@ -235,8 +237,11 @@
     const p = (location.pathname || "").toLowerCase();
     if (p.includes("gang")) return;
 
-    const saved = localStorage.getItem(STORAGE_KEY);
-    const mode = (saved === "hebdo" || saved === "mensuel" || saved === "jour") ? saved : "jour";
+    ensureWidget();
+    wireButtons();
+
+    // reset si valeur cassée
+    const mode = safeMode(localStorage.getItem(STORAGE_KEY));
     refresh(mode);
   });
 })();
