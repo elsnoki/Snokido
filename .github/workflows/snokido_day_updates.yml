@@ -4,11 +4,7 @@ on:
   workflow_dispatch: {}
 
   schedule:
-    # GitHub Actions = UTC
-    # 07:00 UTC = 08:00 Paris (hiver) / 09:00 Paris (été)
     - cron: "0 7 * * *"
-
-    # 15:00 UTC = 16:00 Paris (hiver) / 17:00 Paris (été)
     - cron: "0 15 * * *"
 
 permissions:
@@ -26,9 +22,10 @@ jobs:
         with:
           node-version: 20
 
+      # ✅ plus propre: npm init -y seulement si pas de package.json
       - name: Install deps
         run: |
-          npm init -y
+          if [ ! -f package.json ]; then npm init -y; fi
           npm i cheerio
 
       - name: Run scraper (no history)
@@ -38,13 +35,20 @@ jobs:
         run: |
           ls -la data || true
           test -f data/snokido_top50.json
+          test -f data/players_pages.json
 
       - name: Commit & push if changed
         run: |
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
 
-          git add data/snokido_top50.json package.json package-lock.json || true
+          # ✅ IMPORTANT: commit players_pages.json
+          git add data/snokido_top50.json data/players_pages.json package.json package-lock.json || true
 
-          git commit -m "Snokido update (no history)" || echo "No changes"
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+
+          git commit -m "Snokido update (no history)"
           git push
