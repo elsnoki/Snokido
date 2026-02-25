@@ -80,14 +80,12 @@
     }
   }
 
-  // ✅ clé unique : id profil (évite mohamed-dz vs mohameddz-3)
   function playerKey(p){
     const id = profileIdFromHref(p && p.profileHref);
     if(id) return "id:" + id;
     return "name:" + slugify(p && p.nom);
   }
 
-  // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache: "no-store" });
@@ -95,35 +93,58 @@
     try { return await res.json(); } catch { return null; }
   }
 
+  // ✅ essaie les deux emplacements (data/ et data/period/)
   async function loadCurrentPlayers(){
-    // ✅ Jour doit se baser sur le BIG classement (50 pages)
-    const big = await fetchJson("data/players_pages.json");
-    if(Array.isArray(big) && big.length >= 200) return big;
+    const big1 = await fetchJson("data/players_pages.json");
+    if(Array.isArray(big1) && big1.length >= 200) return big1;
 
-    // fallback : on affiche un warning clair
-    const top = await fetchJson("data/snokido_top50.json");
-    if(Array.isArray(top)){
-      warn("players_pages.json introuvable → le workflow day_updates ne l'a pas publié. Résultat limité au Top50.");
-      return top; // si tu veux BLOQUER: remplace par "return null;"
+    const big2 = await fetchJson("data/period/players_pages.json");
+    if(Array.isArray(big2) && big2.length >= 200) return big2;
+
+    const top1 = await fetchJson("data/snokido_top50.json");
+    if(Array.isArray(top1)) {
+      warn("players_pages.json introuvable (data/ ou data/period/) → résultat limité au Top50.");
+      return top1;
+    }
+
+    const top2 = await fetchJson("data/period/snokido_top50.json");
+    if(Array.isArray(top2)) {
+      warn("players_pages.json introuvable (data/ ou data/period/) → résultat limité au Top50.");
+      return top2;
     }
 
     return null;
   }
 
   async function loadIndex(){
-    const idx = await fetchJson("data/history_paris/index.json");
-    if(!Array.isArray(idx)) return null;
-    return idx
+    const idx1 = await fetchJson("data/history_paris/index.json");
+    if(Array.isArray(idx1)) return idx1
       .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
       .filter(d => d !== "YYYY-MM-DD")
       .sort();
+
+    const idx2 = await fetchJson("data/period/history_paris/index.json");
+    if(Array.isArray(idx2)) return idx2
+      .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
+      .filter(d => d !== "YYYY-MM-DD")
+      .sort();
+
+    return null;
   }
 
   async function loadSnapPlayers(day){
-    const snap = await fetchJson("data/history_paris/" + day + ".json");
-    if(!snap) return null;
-    if(Array.isArray(snap)) return snap;
-    if(Array.isArray(snap.players)) return snap.players;
+    const snap1 = await fetchJson("data/history_paris/" + day + ".json");
+    if(snap1){
+      if(Array.isArray(snap1)) return snap1;
+      if(Array.isArray(snap1.players)) return snap1.players;
+    }
+
+    const snap2 = await fetchJson("data/period/history_paris/" + day + ".json");
+    if(snap2){
+      if(Array.isArray(snap2)) return snap2;
+      if(Array.isArray(snap2.players)) return snap2.players;
+    }
+
     return null;
   }
 
@@ -138,7 +159,7 @@
 
     const current = await loadCurrentPlayers();
     if(!current){
-      warn("Impossible de charger data/players_pages.json (requis) ou data/snokido_top50.json.");
+      warn("Impossible de charger players_pages.json (data/ ou data/period/) ni snokido_top50.json.");
       return;
     }
 
@@ -148,17 +169,17 @@
       return;
     }
 
-    // ✅ JOUR = baseline = dernier snapshot (même date)
     const latestDay = index[index.length - 1];
     const baseDay = latestDay;
+
+    // ✅ Affichage EXACT comme tu veux
+    rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
 
     const baseline = await loadSnapPlayers(baseDay);
     if(!baseline){
       warn("Snapshot du jour introuvable : " + baseDay);
       return;
     }
-
-    rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
 
     const baseMap = new Map();
     for(const p of baseline){
@@ -174,18 +195,10 @@
       const curXp = Number(p.xp || 0);
       const dx = curXp - bXp;
 
-      rows.push({
-        nom: p.nom,
-        avatar: p.avatar,
-        xp: curXp,
-        dx: dx
-      });
+      rows.push({ nom: p.nom, avatar: p.avatar, xp: curXp, dx });
     }
 
-    // ✅ enlever dx=0
     rows = rows.filter(r => Number(r.dx) !== 0);
-
-    // tri simple
     rows.sort((a,b)=> b.dx - a.dx);
 
     tbody.innerHTML = "";
