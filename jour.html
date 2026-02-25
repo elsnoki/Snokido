@@ -80,12 +80,14 @@
     }
   }
 
+  // ✅ clé unique : id profil (évite mohamed-dz vs mohameddz-3)
   function playerKey(p){
     const id = profileIdFromHref(p && p.profileHref);
     if(id) return "id:" + id;
     return "name:" + slugify(p && p.nom);
   }
 
+  // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache: "no-store" });
@@ -120,28 +122,6 @@
     return null;
   }
 
-  function toUTCDate(dayStr){
-    const [y,m,d] = dayStr.split("-").map(Number);
-    return new Date(Date.UTC(y, m-1, d));
-  }
-  function fromUTCDate(dt){
-    const yy = dt.getUTCFullYear();
-    const mm = String(dt.getUTCMonth()+1).padStart(2,"0");
-    const dd = String(dt.getUTCDate()).padStart(2,"0");
-    return `${yy}-${mm}-${dd}`;
-  }
-  function dayMinus(dayStr, delta){
-    const d = toUTCDate(dayStr);
-    d.setUTCDate(d.getUTCDate() - delta);
-    return fromUTCDate(d);
-  }
-  function findClosestLE(index, targetDay){
-    for(let i = index.length - 1; i >= 0; i--){
-      if(index[i] <= targetDay) return index[i];
-    }
-    return null;
-  }
-
   function formatSigned(n){
     const v = Number(n || 0);
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
@@ -158,22 +138,18 @@
     }
 
     const index = await loadIndex();
-    if(!index || index.length < 2){
-      warn("Pas assez d'historique (history_paris).");
+    if(!index || index.length < 1){
+      warn("history_paris/index.json introuvable ou vide.");
       return;
     }
 
+    // ✅ JOUR = baseline = dernier snapshot (même date)
     const latestDay = index[index.length - 1];
-    const targetPrev = dayMinus(latestDay, 1);
-    const baseDay = findClosestLE(index, targetPrev);
-    if(!baseDay){
-      warn("Baseline jour introuvable. Attends au moins 2 jours dans history_paris.");
-      return;
-    }
+    const baseDay = latestDay;
 
     const baseline = await loadSnapPlayers(baseDay);
     if(!baseline){
-      warn("Snapshot baseline introuvable : " + baseDay);
+      warn("Snapshot du jour introuvable : " + baseDay);
       return;
     }
 
@@ -201,10 +177,10 @@
       });
     }
 
-    // ✅ remove dx=0
+    // ✅ enlever dx=0
     rows = rows.filter(r => Number(r.dx) !== 0);
 
-    // tri simple (pas de tie-break sur jour)
+    // tri simple
     rows.sort((a,b)=> b.dx - a.dx);
 
     tbody.innerHTML = "";
