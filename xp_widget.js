@@ -1,11 +1,10 @@
-// xp_widget.js — Jour/Hebdo/Mensuel basés sur dates Paris (minuit)
-// Jour: (dernier snapshot <= aujourd'hui) vs (dernier snapshot <= hier)
-// Hebdo: (<= aujourd'hui) vs (<= lundi)
-// Mensuel: (<= aujourd'hui) vs (<= 1er du mois)
-// Ignore YYYY-MM-DD.json
+// xp_widget.js — version stable avec 3 boutons fixes
 
 (function () {
-  const STORAGE_KEY = "xpWidgetMode"; // "jour" | "hebdo" | "mensuel"
+
+  const STORAGE_KEY = "xpWidgetMode";
+
+  const MODES = ["jour", "hebdo", "mensuel"];
 
   function slugify(name) {
     return String(name || "")
@@ -14,197 +13,174 @@
       .toLowerCase();
   }
 
-  function getName(p){ return p?.nom ?? p?.name ?? p?.username ?? p?.pseudo ?? "—"; }
+  function getName(p){ return p?.nom ?? p?.name ?? p?.username ?? "—"; }
   function getAvatar(p){ return p?.avatar ?? null; }
   function getXp(p){ return Number(p?.xp ?? p?.exp ?? 0); }
 
   async function fetchJson(path){
-    const res = await fetch(path, { cache: "no-store" });
-    if(!res.ok) return null;
-    try { return await res.json(); } catch { return null; }
+    const r = await fetch(path, { cache:"no-store" });
+    if(!r.ok) return null;
+    return await r.json();
   }
 
   async function loadIndex(){
     const idx = await fetchJson("data/history_paris/index.json");
     if(!Array.isArray(idx)) return null;
-    // filtre le template
-    return idx.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d) && d !== "YYYY-MM-DD");
+    return idx.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d));
   }
 
   async function loadSnap(day){
-    const snap = await fetchJson(`data/history_paris/${day}.json`);
-    if(!snap) return null;
-    if(Array.isArray(snap)) return snap;
-    if(Array.isArray(snap.players)) return snap.players;
+    const s = await fetchJson(`data/history_paris/${day}.json`);
+    if(!s) return null;
+    if(Array.isArray(s)) return s;
+    if(Array.isArray(s.players)) return s.players;
     return null;
   }
 
-  function toUTCDate(dayStr){
-    const [y,m,d] = dayStr.split("-").map(Number);
-    return new Date(Date.UTC(y, m-1, d));
+  function toDate(str){
+    const [y,m,d] = str.split("-").map(Number);
+    return new Date(Date.UTC(y,m-1,d));
   }
 
-  function fromUTCDate(dt){
-    const yy = dt.getUTCFullYear();
-    const mm = String(dt.getUTCMonth()+1).padStart(2,"0");
-    const dd = String(dt.getUTCDate()).padStart(2,"0");
-    return `${yy}-${mm}-${dd}`;
+  function formatDate(d){
+    return d.toISOString().slice(0,10);
   }
 
-  function dayMinus(dayStr, delta){
-    const d = toUTCDate(dayStr);
-    d.setUTCDate(d.getUTCDate() - delta);
-    return fromUTCDate(d);
+  function minusDays(str,n){
+    const d = toDate(str);
+    d.setUTCDate(d.getUTCDate()-n);
+    return formatDate(d);
   }
 
-  // lundi ISO (lun=1)
-  function mondayOfWeek(dayStr){
-    const d = toUTCDate(dayStr);
-    const wd = d.getUTCDay() || 7; // dim=7
-    d.setUTCDate(d.getUTCDate() - (wd - 1));
-    return fromUTCDate(d);
+  function mondayOf(str){
+    const d = toDate(str);
+    const wd = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate()-(wd-1));
+    return formatDate(d);
   }
 
-  function firstOfMonth(dayStr){
-    const d = toUTCDate(dayStr);
+  function firstOfMonth(str){
+    const d = toDate(str);
     d.setUTCDate(1);
-    return fromUTCDate(d);
+    return formatDate(d);
   }
 
-  function fmtSigned(n){
-    const v = Number(n || 0);
-    return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
+  function findClosestLE(index,target){
+    for(let i=index.length-1;i>=0;i--){
+      if(index[i] <= target) return index[i];
+    }
+    return null;
+  }
+
+  function fmt(n){
+    return (n>=0?"+":"") + n.toLocaleString("fr-FR");
   }
 
   function ensureWidget(){
     if(document.getElementById("xpSide")) return;
 
     const box = document.createElement("aside");
-    box.id = "xpSide";
-    box.className = "xpSide";
+    box.id="xpSide";
+    box.className="xpSide";
     box.innerHTML = `
       <div class="xpSideHead">
-        <div class="xpSideTitle" id="xpSideTitle">Jour</div>
-        <button class="xpSideToggle" id="xpSideToggle" title="Basculer Jour/Hebdo/Mensuel">▸</button>
+        <div>
+          <button class="xpBtn" data-mode="jour">Jour</button>
+          <button class="xpBtn" data-mode="hebdo">Hebdo</button>
+          <button class="xpBtn" data-mode="mensuel">Mensuel</button>
+        </div>
       </div>
-      <div class="xpSideSub" id="xpSideSub">—</div>
-      <div class="xpSideBody" id="xpSideBody">
-        <div class="xpSideLoading">Chargement…</div>
-      </div>
+      <div class="xpSideSub" id="xpRange">—</div>
+      <div class="xpSideBody" id="xpBody">Chargement…</div>
     `;
     document.body.appendChild(box);
   }
 
-  function renderEmpty(msg){
-    document.getElementById("xpSideBody").innerHTML = `<div class="xpSideEmpty">${msg}</div>`;
+  function setActive(mode){
+    document.querySelectorAll(".xpBtn").forEach(b=>{
+      b.style.opacity = (b.dataset.mode===mode) ? "1" : "0.5";
+    });
   }
 
-  // trouve dans index le plus récent <= targetDay
-  function findClosestLE(index, targetDay){
-    for(let i=index.length-1;i>=0;i--){
-      if(index[i] <= targetDay) return index[i];
-    }
-    return null;
-  }
+  function computeDelta(cur,base){
+    const map = new Map();
+    base.forEach(p=> map.set(slugify(getName(p)), getXp(p)));
 
-  function computeDeltaRows(cur, base){
-    const baseMap = new Map();
-    base.forEach(p => baseMap.set(slugify(getName(p)), getXp(p)));
-
-    const rows = [];
-    cur.forEach(p => {
-      const name = getName(p);
-      const key = slugify(name);
-      if(!baseMap.has(key)) return;
-      const dx = getXp(p) - baseMap.get(key);
-      if(dx === 0) return;
-      rows.push({ nom: name, avatar: getAvatar(p), dx });
+    const rows=[];
+    cur.forEach(p=>{
+      const name=getName(p);
+      const old=map.get(slugify(name));
+      if(old==null) return;
+      const dx=getXp(p)-old;
+      if(dx===0) return;
+      rows.push({nom:name,avatar:getAvatar(p),dx});
     });
 
-    rows.sort((a,b)=> b.dx - a.dx);
-    return rows.slice(0, 10);
+    rows.sort((a,b)=>b.dx-a.dx);
+    return rows.slice(0,10);
   }
 
   async function refresh(mode){
-    ensureWidget();
 
-    const title = document.getElementById("xpSideTitle");
-    const sub = document.getElementById("xpSideSub");
-    const body = document.getElementById("xpSideBody");
-    const toggle = document.getElementById("xpSideToggle");
+    localStorage.setItem(STORAGE_KEY,mode);
+    setActive(mode);
 
-    title.textContent = mode === "mensuel" ? "Mensuel" : (mode === "hebdo" ? "Hebdo" : "Jour");
-    body.innerHTML = `<div class="xpSideLoading">Chargement…</div>`;
-
-    const index = await loadIndex();
-    if(!index || index.length < 2){
-      sub.textContent = "—";
-      renderEmpty("Pas assez d'historique.");
+    const index=await loadIndex();
+    if(!index || index.length<2){
+      document.getElementById("xpBody").innerHTML="Pas assez d'historique.";
       return;
     }
 
-    const today = index[index.length - 1]; // dernier jour dispo
-    const todaySnapDay = findClosestLE(index, today);
-
+    const today=index[index.length-1];
     let baseTarget;
-    if(mode === "jour") baseTarget = dayMinus(today, 1);
-    else if(mode === "hebdo") baseTarget = mondayOfWeek(today);
-    else baseTarget = firstOfMonth(today);
 
-    const baseSnapDay = findClosestLE(index, baseTarget);
+    if(mode==="jour") baseTarget=minusDays(today,1);
+    if(mode==="hebdo") baseTarget=mondayOf(today);
+    if(mode==="mensuel") baseTarget=firstOfMonth(today);
 
-    if(!todaySnapDay || !baseSnapDay){
-      sub.textContent = "—";
-      renderEmpty("Baseline introuvable.");
-      return;
-    }
+    const baseDay=findClosestLE(index,baseTarget);
+    const todayDay=findClosestLE(index,today);
 
-    sub.textContent = `${baseSnapDay} → ${todaySnapDay}`;
+    document.getElementById("xpRange").textContent =
+      `${baseDay} → ${todayDay}`;
 
-    const cur = await loadSnap(todaySnapDay);
-    const base = await loadSnap(baseSnapDay);
+    const cur=await loadSnap(todayDay);
+    const base=await loadSnap(baseDay);
 
-    if(!cur || !base){
-      renderEmpty("Erreur chargement snapshots.");
-      return;
-    }
+    const rows=computeDelta(cur,base);
 
-    const rows = computeDeltaRows(cur, base);
+    const body=document.getElementById("xpBody");
+
     if(!rows.length){
-      renderEmpty("Personne n’a gagné d’XP sur la période.");
+      body.innerHTML="Personne n’a gagné d’XP.";
       return;
     }
 
-    // Compatible avec ton CSS (5 colonnes)
-    body.innerHTML = rows.map((r,i)=>`
+    body.innerHTML=rows.map((r,i)=>`
       <div class="xpRow">
         <div class="xpRk">${i+1}</div>
         <div class="xpWho">
-          <img class="xpAv" src="${r.avatar || "avatar/1.jpg"}" alt="${r.nom}">
-          <div class="xpName" title="${r.nom}">${r.nom}</div>
+          <img class="xpAv" src="${r.avatar||"avatar/1.jpg"}">
+          <div class="xpName">${r.nom}</div>
         </div>
-        <div class="xpDx">${fmtSigned(r.dx)}</div>
-        <div class="xpKara">—</div>
-        <div class="xpMv"><span class="xpMove same">—</span></div>
+        <div class="xpDx">${fmt(r.dx)}</div>
+        <div></div>
+        <div></div>
       </div>
     `).join("");
-
-    body.insertAdjacentHTML("beforeend", `
-      <div class="xpSideFoot">
-        <span>ΔXP</span><span>ΔKara</span><span>ΔPlace</span>
-      </div>
-    `);
-
-    toggle.onclick = () => {
-      const modes = ["jour","hebdo","mensuel"];
-      const next = modes[(modes.indexOf(mode)+1) % modes.length];
-      localStorage.setItem(STORAGE_KEY, next);
-      refresh(next);
-    };
   }
 
-  window.addEventListener("DOMContentLoaded", ()=>{
-    const mode = localStorage.getItem(STORAGE_KEY) || "jour";
-    refresh(mode);
+  window.addEventListener("DOMContentLoaded",()=>{
+    ensureWidget();
+
+    const saved=localStorage.getItem(STORAGE_KEY);
+    const start = MODES.includes(saved) ? saved : "jour";
+
+    document.querySelectorAll(".xpBtn").forEach(btn=>{
+      btn.onclick=()=> refresh(btn.dataset.mode);
+    });
+
+    refresh(start);
   });
+
 })();
