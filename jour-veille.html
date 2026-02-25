@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jour d’avant — Gains XP</title>
+<title>Gains XP (24h) — Dernier jour</title>
 
 <link rel="stylesheet" href="style.css">
 <script src="header.js" defer></script>
@@ -139,11 +139,8 @@
   .gain{
     font-weight:900;
     font-size:16px;
+    color:#0a7a2f;
   }
-
-  .pos{ color:#0a7a2f; }
-  .zero{ color:#666; }
-  .neg{ color:#b02a37; }
 
   .hint{
     padding: 10px 18px;
@@ -161,10 +158,10 @@
 <div class="box">
   <div class="title">
     <div>
-      Classement gains XP — Jour d’avant
+      Classement gains XP — 24h
       <div class="subtitle" id="rangeInfo">Chargement…</div>
     </div>
-    <div class="pill" id="modelInfo">Δ XP</div>
+    <div class="pill" id="infoPill">Δ XP</div>
   </div>
 
   <div class="subnav">
@@ -182,7 +179,7 @@
         <th></th>
         <th></th>
         <th>Nom du joueur</th>
-        <th class="center">Gain XP</th>
+        <th class="center">Gain XP (24h)</th>
         <th class="center">XP (fin)</th>
         <th class="center">Kara</th>
       </tr>
@@ -191,7 +188,10 @@
   </table>
 
   <div class="hint">
-    Calcul : <b>gain = XP(D) − XP(D−1)</b>, avec <b>D</b> = “jour d’avant” (avant-dernière date dans <code>data/history_paris/index.json</code>).
+    Comparaison automatique entre les <b>2 derniers scrapes</b> dans
+    <code>data/history_paris/index.json</code> (ex: 25/02 → 26/02).
+    <br>
+    Les joueurs absents la veille sont <b>ignorés</b> (pas de “Nouveau” qui fausse le résultat).
   </div>
 </div>
 
@@ -212,13 +212,8 @@
     return /^\d{4}-\d{2}-\d{2}$/.test(String(s));
   }
 
-  // ✅ Normalise un snapshot en tableau de joueurs
-  // Accepte:
-  // - [ ... ] (tableau direct)
-  // - { players:[...] } / { top50:[...] } / { data:[...] }
   function normalizeSnapshot(snapshot){
     if(Array.isArray(snapshot)) return snapshot;
-
     if(snapshot && typeof snapshot === "object"){
       if(Array.isArray(snapshot.players)) return snapshot.players;
       if(Array.isArray(snapshot.top50)) return snapshot.top50;
@@ -227,16 +222,9 @@
     return null;
   }
 
-  function keyOfPlayer(p){
-    if(p && p.profileHref) return "href:" + String(p.profileHref);
-    if(p && p.nom) return "nom:" + String(p.nom).toLowerCase().trim();
-    return null;
-  }
-
-  function gainClass(g){
-    if(g > 0) return "pos";
-    if(g < 0) return "neg";
-    return "zero";
+  // ✅ Matching stable : NOM (c’est le plus fiable chez toi)
+  function nameKey(p){
+    return String(p?.nom || "").toLowerCase().trim();
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
@@ -248,90 +236,91 @@
       index = await fetchJson("data/history_paris/index.json");
     }catch(e){
       warn("Impossible de charger data/history_paris/index.json : " + e.message);
-      tbody.innerHTML = "";
       rangeInfo.textContent = "Erreur index.";
       return;
     }
 
     if(!Array.isArray(index)){
-      warn("index.json doit être un tableau de dates (ex: [\"2026-02-24\", \"2026-02-25\"]).");
-      tbody.innerHTML = "";
+      warn("index.json doit être un tableau de dates, ex: [\"2026-02-25\",\"2026-02-26\"].");
       rangeInfo.textContent = "Index invalide.";
       return;
     }
 
     const dates = index.filter(isDateString).sort();
-    if(dates.length < 3){
-      warn("Il faut au moins 3 dates dans index.json (pour calculer D et D-1).");
-      tbody.innerHTML = "";
+    if(dates.length < 2){
+      warn("Il faut au moins 2 dates dans index.json.");
       rangeInfo.textContent = "Données insuffisantes.";
       return;
     }
 
-    const dateD = dates[dates.length - 2];     // jour d’avant
-    const datePrev = dates[dates.length - 3];  // veille du jour d’avant
+    // ✅ 24h : on compare les 2 DERNIERS scrapes
+    const dateEnd = dates[dates.length - 1];
+    const dateStart = dates[dates.length - 2];
+    rangeInfo.textContent = `Période : ${dateStart} → ${dateEnd}`;
 
-    rangeInfo.textContent = `Période : ${datePrev} → ${dateD}`;
+    const urlStart = `data/history_paris/${dateStart}.json`;
+    const urlEnd = `data/history_paris/${dateEnd}.json`;
 
-    const urlPrev = `data/history_paris/${datePrev}.json`;
-    const urlD = `data/history_paris/${dateD}.json`;
-
-    let rawPrev, rawD;
+    let rawStart, rawEnd;
     try{
-      rawPrev = await fetchJson(urlPrev);
-      rawD = await fetchJson(urlD);
+      rawStart = await fetchJson(urlStart);
+      rawEnd = await fetchJson(urlEnd);
     }catch(e){
       warn("Impossible de charger les snapshots : " + e.message);
-      tbody.innerHTML = "";
       return;
     }
 
-    const snapPrev = normalizeSnapshot(rawPrev);
-    const snapD = normalizeSnapshot(rawD);
+    const snapStart = normalizeSnapshot(rawStart);
+    const snapEnd = normalizeSnapshot(rawEnd);
 
-    if(!snapPrev || !snapD){
-      warn("Snapshots invalides : attend un tableau ([]) ou un objet {players:[]}/{top50:[]}. Vérifie tes fichiers dans data/history_paris/.");
-      tbody.innerHTML = "";
+    if(!snapStart || !snapEnd){
+      warn("Snapshots invalides : attend un tableau ([]) ou un objet {players:[]}/{top50:[]}.");
       return;
     }
 
-    // XP veille
-    const prevMap = new Map();
-    snapPrev.forEach(p => {
-      const k = keyOfPlayer(p);
+    // Map XP au début (veille)
+    const startMap = new Map();
+    snapStart.forEach(p => {
+      const k = nameKey(p);
       if(!k) return;
-      prevMap.set(k, Number(p.xp) || 0);
+      startMap.set(k, Number(p.xp) || 0);
     });
 
-    // Gains sur D
+    // Gains sur 24h (on IGNORE ceux absents au début)
     const rows = [];
-    snapD.forEach(p => {
-      const k = keyOfPlayer(p);
+    snapEnd.forEach(p => {
+      const k = nameKey(p);
       if(!k) return;
 
-      const xpD = Number(p.xp) || 0;
-      const xpBefore = prevMap.has(k) ? prevMap.get(k) : 0;
-      const gain = xpD - xpBefore;
+      if(!startMap.has(k)) return; // ✅ ignore les "nouveaux" pour éviter gain=XP total
+
+      const xpEnd = Number(p.xp) || 0;
+      const xpStart = startMap.get(k) || 0;
+      const gain = xpEnd - xpStart;
 
       rows.push({
         nom: p.nom || "—",
         profileHref: p.profileHref || "#",
         avatar: p.avatar || "avatar/1.jpg",
         karas: (p.karas == null) ? 0 : Number(p.karas),
-        xpD,
-        gain,
-        isNew: !prevMap.has(k)
+        xpEnd,
+        gain
       });
     });
 
-    // Tri gain desc puis xpD desc
-    rows.sort((a,b) => (b.gain - a.gain) || (b.xpD - a.xpD));
+    // Tri gain desc puis xp fin desc
+    rows.sort((a,b) => (b.gain - a.gain) || (b.xpEnd - a.xpEnd));
 
     tbody.innerHTML = "";
+
+    if(rows.length === 0){
+      warn("Aucun joueur commun entre les 2 jours (ou matching nom impossible).");
+      return;
+    }
+
     rows.forEach((p, i) => {
       const tr = document.createElement("tr");
       const gainTxt = (p.gain > 0 ? "+" : "") + p.gain.toLocaleString("fr-FR");
-      const gainBadge = p.isNew ? ' <span class="pill">Nouveau</span>' : "";
 
       tr.innerHTML = `
         <td class="rank">${i+1}</td>
@@ -343,8 +332,8 @@
         <td class="name">
           <a target="_blank" rel="noopener" href="${p.profileHref}">${p.nom}</a>
         </td>
-        <td class="center gain ${gainClass(p.gain)}">${gainTxt} XP${gainBadge}</td>
-        <td class="center">${p.xpD.toLocaleString("fr-FR")}</td>
+        <td class="center gain">${gainTxt} XP</td>
+        <td class="center">${p.xpEnd.toLocaleString("fr-FR")}</td>
         <td class="center">${(p.karas||0).toLocaleString("fr-FR")}</td>
       `;
       tbody.appendChild(tr);
