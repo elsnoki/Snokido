@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Classement — Gains d’XP (Jour)</title>
+  <title>Classement — Hier</title>
 
   <link rel="stylesheet" href="style.css">
   <script src="header.js" defer></script>
@@ -87,26 +87,6 @@
       display:none;
     }
 
-    .stats{
-      display:flex;
-      gap:12px;
-      padding:12px 18px;
-      border-bottom:1px solid #e5e5e5;
-      background:#ffffff;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .stat{
-      padding:10px 12px;
-      border:1px solid rgba(0,0,0,.12);
-      border-radius:12px;
-      background:#fafafa;
-      font-weight:900;
-      font-size:13px;
-      color:#222;
-    }
-    .stat b{ font-size:16px; }
-
     table{
       width:100%;
       border-collapse:separate;
@@ -176,20 +156,6 @@
     .name a:hover{ text-decoration:underline; }
 
     .center{ text-align:center; white-space:nowrap; }
-
-    .gain{
-      font-weight:900;
-      font-size:16px;
-    }
-
-    .hint{
-      padding: 10px 18px;
-      font-size: 13px;
-      color:#555;
-      border-top: 1px solid #e5e5e5;
-      background:#fafafa;
-      line-height:1.35;
-    }
   </style>
 </head>
 
@@ -197,27 +163,19 @@
   <div class="box">
     <div class="title">
       <div>
-        Classement — Gains d’XP (Jour)
-        <div class="subtitle" id="rangeText">Comparaison…</div>
+        Classement — Hier (snapshot)
+        <div class="subtitle" id="subText">Chargement…</div>
       </div>
-      <div class="pill" id="pillInfo">…</div>
+      <div class="pill" id="pillDate">…</div>
     </div>
 
     <div class="subnav">
       <a class="subnav-btn" href="jour.html">🕛 Jour</a>
-      <a class="subnav-btn" href="jour-veille.html">📈 Gains (2 derniers jours)</a>
-      <a class="subnav-btn" href="hebdo.html">📅 Hebdo</a>
-      <a class="subnav-btn" href="mensuel.html">🗓️ Mensuel</a>
+      <a class="subnav-btn" href="jour-veille.html">⏪ Hier</a>
       <a class="subnav-btn" href="niveauhtml">📊 Niveau théorique</a>
     </div>
 
     <div id="warn" class="warn"></div>
-
-    <div class="stats">
-      <div class="stat">Période : <b id="statPeriod">—</b></div>
-      <div class="stat">Gain total : <b id="statTotal">—</b></div>
-      <div class="stat">Joueurs classés : <b id="statCount">—</b></div>
-    </div>
 
     <table id="leaderboard">
       <thead>
@@ -225,18 +183,13 @@
           <th></th>
           <th></th>
           <th>Nom du joueur</th>
-          <th class="center">Gain XP</th>
-          <th class="center">XP (jour 2)</th>
-          <th class="center">XP (jour 1)</th>
+          <th class="center">XP</th>
+          <th class="center">Kara</th>
+          <th class="center">Niveau</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-
-    <div class="hint">
-      Cette page compare automatiquement les <b>2 dernières dates</b> présentes dans
-      <code>data/history_paris/index.json</code> et classe les joueurs selon <b>XP(jour2) − XP(jour1)</b>.
-    </div>
   </div>
 
 <script>
@@ -256,139 +209,102 @@
     return /^\d{4}-\d{2}-\d{2}$/.test(String(s));
   }
 
-  function keyOfPlayer(p){
-    // clé la plus stable : profileHref si dispo, sinon nom
-    const href = (p && typeof p.profileHref === "string") ? p.profileHref.trim() : "";
-    if(href) return "href:" + href;
-    const nom = (p && typeof p.nom === "string") ? p.nom.trim() : "";
-    return "nom:" + nom.toLowerCase();
-  }
+  // Accepte: array direct OU objet {players:[...]} / {top50:[...]} / {data:[...]}
+  function extractPlayers(snapshot){
+    if(Array.isArray(snapshot)) return snapshot;
 
-  function normalizePlayer(p){
-    return {
-      nom: p?.nom || "—",
-      avatar: p?.avatar || "avatar/1.jpg",
-      profileHref: p?.profileHref || "#",
-      xp: Number(p?.xp) || 0
-    };
+    const arr =
+      (Array.isArray(snapshot?.players) && snapshot.players) ||
+      (Array.isArray(snapshot?.top50) && snapshot.top50) ||
+      (Array.isArray(snapshot?.data) && snapshot.data) ||
+      null;
+
+    return arr || null;
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
     const tbody = document.querySelector("#leaderboard tbody");
-    const rangeText = document.getElementById("rangeText");
-    const pillInfo = document.getElementById("pillInfo");
-
-    const statPeriod = document.getElementById("statPeriod");
-    const statTotal  = document.getElementById("statTotal");
-    const statCount  = document.getElementById("statCount");
+    const subText = document.getElementById("subText");
+    const pillDate = document.getElementById("pillDate");
 
     tbody.innerHTML = "";
 
+    // 1) index.json (liste de dates)
     let index;
     try{
       index = await fetchJson("data/history_paris/index.json");
     }catch(e){
       warn("Impossible de charger data/history_paris/index.json : " + e.message);
+      subText.textContent = "Erreur.";
       return;
     }
 
     if(!Array.isArray(index)){
       warn("index.json n'est pas un tableau de dates.");
+      subText.textContent = "Format index invalide.";
       return;
     }
 
     const dates = index.filter(isDateString).sort();
     if(dates.length < 2){
       warn("Pas assez de dates dans index.json (il en faut au moins 2).");
+      subText.textContent = "Données insuffisantes.";
       return;
     }
 
-    const day1 = dates[dates.length - 2];
-    const day2 = dates[dates.length - 1];
+    // 2) hier = avant-dernier snapshot (par rapport au dernier)
+    const day = dates[dates.length - 2];
+    const url = `data/history_paris/${day}.json`;
 
-    rangeText.textContent = `Du ${day1} au ${day2}`;
-    pillInfo.textContent = `${day1} → ${day2}`;
-    statPeriod.textContent = `${day1} → ${day2}`;
+    subText.textContent = `Snapshot du ${day}`;
+    pillDate.textContent = day;
 
-    const url1 = `data/history_paris/${day1}.json`;
-    const url2 = `data/history_paris/${day2}.json`;
-
-    let snap1, snap2;
+    // 3) charger snapshot
+    let snap;
     try{
-      snap1 = await fetchJson(url1);
+      snap = await fetchJson(url);
     }catch(e){
-      warn("Impossible de charger " + url1 + " : " + e.message);
-      return;
-    }
-    try{
-      snap2 = await fetchJson(url2);
-    }catch(e){
-      warn("Impossible de charger " + url2 + " : " + e.message);
+      warn("Impossible de charger " + url + " : " + e.message);
+      subText.textContent = "Erreur snapshot.";
       return;
     }
 
-    if(!Array.isArray(snap1) || !Array.isArray(snap2)){
-      warn("Snapshots invalides : ils doivent être des tableaux (array) de joueurs.");
+    const players = extractPlayers(snap);
+    if(!players){
+      warn("Snapshot invalide : attendu un tableau de joueurs (ou {players:[...]}).");
+      subText.textContent = "Snapshot invalide.";
       return;
     }
 
-    // map jour1
-    const map1 = new Map();
-    snap1.forEach(p => {
-      const pp = normalizePlayer(p);
-      const k = keyOfPlayer(p);
-      if(k) map1.set(k, pp);
-    });
+    // 4) tri XP desc
+    const rows = players.map(p => ({
+      nom: p?.nom || "—",
+      avatar: p?.avatar || "avatar/1.jpg",
+      profileHref: p?.profileHref || "#",
+      xp: Number(p?.xp) || 0,
+      karas: (p?.karas == null) ? 0 : Number(p?.karas) || 0,
+      niveau: (p?.niveau == null) ? null : Number(p?.niveau)
+    }));
 
-    // calc gains (on classe les joueurs présents au jour2)
-    const rows = [];
-    snap2.forEach(p => {
-      const p2 = normalizePlayer(p);
-      const k = keyOfPlayer(p);
-      const p1 = map1.get(k);
-      const xp1 = p1 ? p1.xp : 0;
-      const gain = p2.xp - xp1;
+    rows.sort((a,b) => (b.xp - a.xp));
 
-      rows.push({
-        nom: p2.nom,
-        avatar: p2.avatar,
-        profileHref: p2.profileHref,
-        xp2: p2.xp,
-        xp1,
-        gain
-      });
-    });
-
-    // tri : gain desc, puis xp2 desc
-    rows.sort((a,b) => (b.gain - a.gain) || (b.xp2 - a.xp2));
-
-    // total gain
-    const totalGain = rows.reduce((acc, r) => acc + (Number(r.gain) || 0), 0);
-
-    statTotal.textContent = totalGain.toLocaleString("fr-FR") + " XP";
-    statCount.textContent = rows.length.toLocaleString("fr-FR");
-
-    // render
+    // 5) render
     tbody.innerHTML = "";
     rows.forEach((r, i) => {
       const tr = document.createElement("tr");
-
-      // signe + pour lisibilité
-      const gainTxt = (r.gain >= 0 ? "+" : "") + r.gain.toLocaleString("fr-FR");
-
       tr.innerHTML = `
         <td class="rank">${i+1}</td>
         <td class="avatar">
           <div class="frame">
-            <img src="${r.avatar || "avatar/1.jpg"}" alt="${r.nom || ""}">
+            <img src="${r.avatar}" alt="${r.nom}">
           </div>
         </td>
         <td class="name">
-          <a target="_blank" rel="noopener" href="${r.profileHref || "#"}">${r.nom || "—"}</a>
+          <a target="_blank" rel="noopener" href="${r.profileHref}">${r.nom}</a>
         </td>
-        <td class="center gain">${gainTxt}</td>
-        <td class="center">${r.xp2.toLocaleString("fr-FR")}</td>
-        <td class="center">${r.xp1.toLocaleString("fr-FR")}</td>
+        <td class="center">${r.xp.toLocaleString("fr-FR")}</td>
+        <td class="center">${r.karas.toLocaleString("fr-FR")}</td>
+        <td class="center">${(r.niveau == null ? "—" : r.niveau.toLocaleString("fr-FR"))}</td>
       `;
       tbody.appendChild(tr);
     });
