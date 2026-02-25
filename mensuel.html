@@ -77,14 +77,17 @@
   }
 
   async function loadCurrentPlayers(){
-    const big = await fetchJson("data/players_pages.json");
-    if(Array.isArray(big)) return big;
+  const big = await fetchJson("data/players_pages.json");
+  if(Array.isArray(big) && big.length > 200) return big;
 
-    const top = await fetchJson("data/snokido_top50.json");
-    if(Array.isArray(top)) return top;
-
-    return null;
+  const top = await fetchJson("data/snokido_top50.json");
+  if(Array.isArray(top)){
+    warn("players_pages.json introuvable → le workflow day_updates ne l'a pas publié. Résultat limité au Top50.");
+    return top; // ou return null si tu veux bloquer
   }
+
+  return null;
+}
 
   async function loadIndex(){
     const idx = await fetchJson("data/history_paris/index.json");
