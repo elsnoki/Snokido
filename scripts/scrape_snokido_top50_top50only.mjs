@@ -1,6 +1,7 @@
 import fs from "fs";
 import * as cheerio from "cheerio";
 
+// ---------- Utils ----------
 function clean(s){ return (s || "").replace(/\s+/g, " ").trim(); }
 function toInt(s){
   const n = clean(s).replace(/[^\d]/g, "");
@@ -11,6 +12,12 @@ function absUrl(url){
   if(url.startsWith("http")) return url;
   return "https://www.snokido.fr" + url;
 }
+function slugify(s){
+  return String(s || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toLowerCase();
+}
 async function fetchWithUA(url){
   return await fetch(url, {
     headers: {
@@ -20,7 +27,23 @@ async function fetchWithUA(url){
     }
   });
 }
+async function mapLimit(list, limit, fn){
+  const ret = new Array(list.length);
+  let idx = 0;
+  const workers = Array.from({ length: limit }, async () => {
+    while(idx < list.length){
+      const i = idx++;
+      ret[i] = await fn(list[i], i);
+    }
+  });
+  await Promise.all(workers);
+  return ret;
+}
+function writeJson(path, obj){
+  fs.writeFileSync(path, JSON.stringify(obj, null, 2), "utf8");
+}
 
+// ---------- Parse HTML -> players[] ----------
 function parsePlayers(html){
   const $ = cheerio.load(html);
 
@@ -56,6 +79,7 @@ function parsePlayers(html){
     players.push({
       rank: rank ?? players.length + 1,
       nom,
+      slug: slugify(nom),
       niveau,
       xp,
       inscription,
@@ -68,6 +92,7 @@ function parsePlayers(html){
   return { players, reason: "ok" };
 }
 
+// ---------- Kara depuis profil ----------
 function parseKarasFromProfile(html){
   const $ = cheerio.load(html);
   const text = clean($("body").text());
@@ -85,36 +110,51 @@ function parseKarasFromProfile(html){
   return null;
 }
 
-async function mapLimit(list, limit, fn){
-  const ret = new Array(list.length);
-  let idx = 0;
-  const workers = Array.from({ length: limit }, async () => {
-    while(idx < list.length){
-      const i = idx++;
-      ret[i] = await fn(list[i], i);
+// ---------- Fetch pages 1..N : /players, /players-2, ... ----------
+async function fetchAllPages(maxPages){
+  const all = [];
+  for(let page = 1; page <= maxPages; page++){
+    const url = page === 1
+      ? "https://www.snokido.fr/players"
+      : `https://www.snokido.fr/players-${page}`;
+
+    console.log("🌐 Fetch:", url);
+    const res = await fetchWithUA(url);
+    const html = await res.text();
+
+    const { players } = parsePlayers(html);
+    if(!players.length){
+      console.log("⛔ Stop: aucune ligne trouvée page", page);
+      break;
     }
-  });
-  await Promise.all(workers);
-  return ret;
+
+    all.push(...players);
+
+    // petite pause
+    await new Promise(r => setTimeout(r, 150));
+  }
+  return all;
 }
 
+// ---------- MAIN ----------
 async function main(){
   fs.mkdirSync("data", { recursive: true });
 
-  const url = "https://www.snokido.fr/players";
-  const res = await fetchWithUA(url);
-  const html = await res.text();
+  const MAX_PAGES = 50;
 
-  const { players, reason } = parsePlayers(html);
+  // 1) scrape 50 pages (pour ton site, sans history)
+  const players = await fetchAllPages(MAX_PAGES);
   if(!players.length){
-    fs.writeFileSync("data/debug_players.html", html, "utf8");
-    console.error(`❌ 0 joueurs trouvés. reason=${reason}`);
+    console.error("❌ 0 joueurs trouvés.");
     process.exit(1);
   }
+  console.log(`✅ Total joueurs récupérés (pages): ${players.length}`);
 
+  // 2) top50 = page 1
   const top50 = players.slice(0, 50);
 
-  // Profils seulement page 1 (Top50)
+  // 3) Kara seulement top50
+  console.log("🔎 Fetch profils Kara (Top50 seulement)...");
   await mapLimit(top50, 6, async (p) => {
     try{
       const r = await fetchWithUA(p.profileHref);
@@ -126,8 +166,13 @@ async function main(){
     return p;
   });
 
-  fs.writeFileSync("data/snokido_top50.json", JSON.stringify(top50, null, 2), "utf8");
-  console.log("✅ top50 updated (no history)");
+  // 4) fichiers du site (PAS d'history_paris ici)
+  writeJson("data/snokido_top50.json", top50);
+
+  // optionnel : gros classement (50 pages) pour tes pages
+  writeJson("data/players_pages.json", players);
+
+  console.log("✅ top50 updated (no history) + players_pages.json");
 }
 
 main().catch(err => {
