@@ -1,0 +1,49 @@
+name: Snokido Update (08h & 16h Paris) - Top50 only
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # Hiver (UTC+1): 08:00->07:00 UTC, 16:00->15:00 UTC
+    - cron: "0 7 * 1,2,11,12 *"
+    - cron: "0 15 * 1,2,11,12 *"
+
+    # Été (UTC+2): 08:00->06:00 UTC, 16:00->14:00 UTC
+    - cron: "0 6 * 3-10 *"
+    - cron: "0 14 * 3-10 *"
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install cheerio
+        run: npm install cheerio
+
+      - name: Run scraper (top50 only)
+        run: node scripts/scrape_snokido_top50_top50only.mjs
+
+      - name: Commit top50
+        run: |
+          git config user.name "snokiki-bot"
+          git config user.email "snokiki-bot@users.noreply.github.com"
+
+          git add data/snokido_top50.json
+
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+
+          git commit -m "Snokido top50 update"
+          git push
