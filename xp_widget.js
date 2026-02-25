@@ -1,3 +1,6 @@
+// xp_widget.js — Widget Jour/Hebdo/Mensuel (incassable)
+// Navigation: ◂ et ▸, et reset auto si valeur invalide
+
 (function () {
   const STORAGE_KEY = "xpWidgetMode";
   const MODES = ["jour", "hebdo", "mensuel"];
@@ -165,54 +168,30 @@
     const index = await loadIndex();
     if(!index || index.length < 2){
       sub.textContent = "—";
-      renderEmpty("Pas assez d'historique (history_paris).");
+      renderEmpty("Pas assez d'historique (history_paris). Attends le snapshot 23h59.");
       return;
     }
 
     const today = index[index.length - 1];
 
-    // --- Choix baseline normal ---
     let baseTarget;
     if(mode === "jour") baseTarget = dayMinus(today, 1);
     else if(mode === "hebdo") baseTarget = mondayOfWeek(today);
     else baseTarget = firstOfMonth(today);
 
-    let baseDay = findClosestLE(index, baseTarget);
+    const baseDay = findClosestLE(index, baseTarget);
     if(!baseDay){
       sub.textContent = "—";
       renderEmpty("Baseline introuvable.");
       return;
     }
 
-    // charge baseline
-    let baseline = await loadSnap(baseDay);
+    sub.textContent = `${baseDay} → ${today}`;
+
+    const baseline = await loadSnap(baseDay);
     if(!baseline){
       renderEmpty("Snapshot baseline introuvable.");
       return;
-    }
-
-    // ✅ Fallback spécial pour JOUR :
-    // si la baseline a trop peu de joueurs (ex: Top50 only)
-    // on bascule en "intra-day" : baseline = snapshot du jour
-    if(mode === "jour"){
-      const baseCount = baseline.length;
-      const curCount = current.length;
-
-      // Heuristique: si baseline < 200 et current beaucoup plus grand, c’est probablement Top50-only
-      if(baseCount < 200 && curCount > 300){
-        const todaySnap = await loadSnap(today);
-        if(todaySnap && todaySnap.length >= 200){
-          baseDay = today;
-          baseline = todaySnap;
-          sub.textContent = `${today} (snapshot) → live`;
-        } else {
-          sub.textContent = `${baseDay} → ${today}`;
-        }
-      } else {
-        sub.textContent = `${baseDay} → ${today}`;
-      }
-    } else {
-      sub.textContent = `${baseDay} → ${today}`;
     }
 
     const rows = computeDeltaRows(current, baseline);
@@ -261,6 +240,7 @@
     ensureWidget();
     wireButtons();
 
+    // reset si valeur cassée
     const mode = safeMode(localStorage.getItem(STORAGE_KEY));
     refresh(mode);
   });
