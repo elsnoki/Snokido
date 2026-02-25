@@ -1,4 +1,4 @@
-name: Snokido Update (08h & 16h Paris) - Top50 only
+name: Snokido Update (08h & 16h Paris) - No history
 
 on:
   workflow_dispatch:
@@ -30,20 +30,20 @@ jobs:
       - name: Install cheerio
         run: npm install cheerio
 
-      - name: Run scraper (top50 only)
+      - name: Run scraper (Top50 + 50 pages, no history)
         run: node scripts/scrape_snokido_top50_top50only.mjs
 
-      - name: Commit top50
+      - name: Commit top50 + pages
         run: |
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
 
-          git add data/snokido_top50.json
+          git add data/snokido_top50.json data/players_pages.json
 
           if git diff --cached --quiet; then
             echo "No changes"
             exit 0
           fi
 
-          git commit -m "Snokido top50 update"
+          git commit -m "Snokido update (08h/16h)"
           git push
