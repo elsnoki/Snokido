@@ -6,7 +6,7 @@
     {
       "nom": "Ko0pa",
       "avatar": "https://www.snokido.fr/images/snoki/medium/120.jpg",
-      "dxp": 308,
+      "dxp": 428,
       "dLvl": 0,
       "profileHref": "https://www.snokido.fr/player/ko0pa",
       "rank": 1,
@@ -15,7 +15,7 @@
     {
       "nom": "alex.c2109",
       "avatar": "https://www.snokido.fr/images/snoki/medium/53.jpg",
-      "dxp": 204,
+      "dxp": 300,
       "dLvl": 0,
       "profileHref": "https://www.snokido.fr/player/alexc2109",
       "rank": 2,
@@ -24,29 +24,29 @@
     {
       "nom": "TheGladiator",
       "avatar": "https://www.snokido.fr/images/snoki/medium/1.jpg",
-      "dxp": 172,
+      "dxp": 212,
       "dLvl": 0,
       "profileHref": "https://www.snokido.fr/player/thegladiator",
       "rank": 3,
       "dPlace": 0
     },
     {
-      "nom": "Unit",
-      "avatar": "https://www.snokido.fr/images/snoki/medium/133.jpg",
-      "dxp": 168,
-      "dLvl": 0,
-      "profileHref": "https://www.snokido.fr/player/unit",
-      "rank": 4,
-      "dPlace": 0
-    },
-    {
       "nom": "lumia",
       "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
-      "dxp": 160,
+      "dxp": 204,
       "dLvl": 0,
       "profileHref": "https://www.snokido.fr/player/lumia",
+      "rank": 4,
+      "dPlace": 1
+    },
+    {
+      "nom": "Unit",
+      "avatar": "https://www.snokido.fr/images/snoki/medium/133.jpg",
+      "dxp": 134,
+      "dLvl": 0,
+      "profileHref": "https://www.snokido.fr/player/unit",
       "rank": 5,
-      "dPlace": 0
+      "dPlace": -1
     }
   ]
 }
