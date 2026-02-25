@@ -1,6 +1,7 @@
 import fs from "fs";
 import * as cheerio from "cheerio";
 
+// ---------- Utils ----------
 function clean(s){ return (s || "").replace(/\s+/g, " ").trim(); }
 function toInt(s){
   const n = clean(s).replace(/[^\d]/g, "");
@@ -11,6 +12,12 @@ function absUrl(url){
   if(url.startsWith("http")) return url;
   return "https://www.snokido.fr" + url;
 }
+function slugify(s){
+  return String(s || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toLowerCase();
+}
 async function fetchWithUA(url){
   return await fetch(url, {
     headers: {
@@ -20,12 +27,28 @@ async function fetchWithUA(url){
     }
   });
 }
-
-function slugify(s){
-  return String(s || "")
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .toLowerCase();
+async function mapLimit(list, limit, fn){
+  const ret = new Array(list.length);
+  let idx = 0;
+  const workers = Array.from({ length: limit }, async () => {
+    while(idx < list.length){
+      const i = idx++;
+      ret[i] = await fn(list[i], i);
+    }
+  });
+  await Promise.all(workers);
+  return ret;
+}
+function readJsonIfExists(path, fallback){
+  try{
+    if(!fs.existsSync(path)) return fallback;
+    return JSON.parse(fs.readFileSync(path, "utf8"));
+  }catch{
+    return fallback;
+  }
+}
+function writeJson(path, obj){
+  fs.writeFileSync(path, JSON.stringify(obj, null, 2), "utf8");
 }
 
 // Date "YYYY-MM-DD" en timezone Europe/Paris
@@ -39,6 +62,7 @@ function parisDayString(date = new Date()){
   return fmt.format(date);
 }
 
+// ---------- Parse HTML -> players[] ----------
 function parsePlayers(html){
   const $ = cheerio.load(html);
 
@@ -87,6 +111,7 @@ function parsePlayers(html){
   return { players, reason: "ok" };
 }
 
+// ---------- Kara depuis profil ----------
 function parseKarasFromProfile(html){
   const $ = cheerio.load(html);
   const text = clean($("body").text());
@@ -104,31 +129,22 @@ function parseKarasFromProfile(html){
   return null;
 }
 
-async function mapLimit(list, limit, fn){
-  const ret = new Array(list.length);
-  let idx = 0;
-  const workers = Array.from({ length: limit }, async () => {
-    while(idx < list.length){
-      const i = idx++;
-      ret[i] = await fn(list[i], i);
-    }
-  });
-  await Promise.all(workers);
-  return ret;
-}
-
+// ---------- Fetch pages 1..N (format Snokido: /players-2, /players-3 ...) ----------
 async function fetchAllPages(maxPages){
   const all = [];
-  for(let page=1; page<=maxPages; page++){
+
+  for(let page = 1; page <= maxPages; page++){
     const url = page === 1
       ? "https://www.snokido.fr/players"
-      : `https://www.snokido.fr/players?page=${page}`;
+      : `https://www.snokido.fr/players-${page}`;
 
     console.log("🌐 Fetch:", url);
+
     const res = await fetchWithUA(url);
     const html = await res.text();
 
     const { players } = parsePlayers(html);
+
     if(!players.length){
       console.log("⛔ Stop: aucune ligne trouvée page", page);
       break;
@@ -136,30 +152,21 @@ async function fetchAllPages(maxPages){
 
     all.push(...players);
 
-    // pause légère (respect)
+    // pause légère (respect serveur)
     await new Promise(r => setTimeout(r, 150));
   }
+
   return all;
 }
 
-function readJsonIfExists(path, fallback){
-  try{
-    if(!fs.existsSync(path)) return fallback;
-    return JSON.parse(fs.readFileSync(path, "utf8"));
-  }catch{
-    return fallback;
-  }
-}
-function writeJson(path, obj){
-  fs.writeFileSync(path, JSON.stringify(obj, null, 2), "utf8");
-}
-
+// ---------- MAIN ----------
 async function main(){
   fs.mkdirSync("data", { recursive: true });
   fs.mkdirSync("data/history_paris", { recursive: true });
 
   const MAX_PAGES = 50;
 
+  // 1) scrape pages
   const players = await fetchAllPages(MAX_PAGES);
   if(!players.length){
     console.error("❌ 0 joueurs trouvés sur toutes les pages.");
@@ -167,10 +174,10 @@ async function main(){
   }
   console.log(`✅ Total joueurs récupérés (pages): ${players.length}`);
 
-  // Page 1 = Top50
+  // 2) page 1 = Top50 (pour ton site)
   const top50 = players.slice(0, 50);
 
-  // Profils seulement Top50
+  // 3) profils seulement pour Top50 (Kara)
   console.log("🔎 Fetch profils Kara (page 1 seulement)...");
   await mapLimit(top50, 6, async (p) => {
     try{
@@ -183,16 +190,17 @@ async function main(){
     return p;
   });
 
-  // ✅ Fichier du site (niveau.html etc.)
+  // 4) écrit data/snokido_top50.json (utilisé par niveau.html)
   writeJson("data/snokido_top50.json", top50);
 
-  // ✅ Snapshot du jour (Paris)
+  // 5) snapshot officiel du jour (Paris) pour daily/hebdo/mensuel
   const dayParis = parisDayString(new Date());
   const snapPath = `data/history_paris/${dayParis}.json`;
   const indexPath = `data/history_paris/index.json`;
 
-  // On écrit le snapshot du jour (snapshot officiel)
-  // (Si tu veux “ne jamais écraser”, remplace par un if exists)
+  // map des karas pour ceux du top50
+  const karaBySlug = new Map(top50.map(p => [p.slug, p.karas]));
+
   const snapshot = {
     date: dayParis,
     generatedAtParis: new Intl.DateTimeFormat("fr-FR", {
@@ -208,17 +216,14 @@ async function main(){
       niveau: (typeof p.niveau === "number") ? p.niveau : null,
       avatar: p.avatar || null,
       profileHref: p.profileHref || null,
-      // karas seulement si Top50 a été enrichi
-      karas: (() => {
-        const t = top50.find(x => x.slug === p.slug);
-        return t?.karas ?? null;
-      })()
+      // karas uniquement si présent dans top50
+      karas: karaBySlug.has(p.slug) ? (karaBySlug.get(p.slug) ?? null) : null
     }))
   };
 
   writeJson(snapPath, snapshot);
 
-  // index.json (jours existants)
+  // index.json
   const index = readJsonIfExists(indexPath, []);
   const next = Array.isArray(index) ? index.slice() : [];
   if(!next.includes(dayParis)) next.push(dayParis);
