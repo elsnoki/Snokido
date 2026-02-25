@@ -1,16 +1,15 @@
 name: Snokido Update (08h & 16h Paris) - No history
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 
   schedule:
-    # Hiver (UTC+1): 08:00->07:00 UTC, 16:00->15:00 UTC
-    - cron: "0 7 * 1,2,11,12 *"
-    - cron: "0 15 * 1,2,11,12 *"
+    # GitHub Actions = UTC
+    # 07:00 UTC = 08:00 Paris (hiver) / 09:00 Paris (été)
+    - cron: "0 7 * * *"
 
-    # Été (UTC+2): 08:00->06:00 UTC, 16:00->14:00 UTC
-    - cron: "0 6 * 3-10 *"
-    - cron: "0 14 * 3-10 *"
+    # 15:00 UTC = 16:00 Paris (hiver) / 17:00 Paris (été)
+    - cron: "0 15 * * *"
 
 permissions:
   contents: write
@@ -27,23 +26,25 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install cheerio
-        run: npm install cheerio
+      - name: Install deps
+        run: |
+          npm init -y
+          npm i cheerio
 
-      - name: Run scraper (Top50 + 50 pages, no history)
+      - name: Run scraper (no history)
         run: node scripts/scrape_snokido_top50_top50only.mjs
 
-      - name: Commit top50 + pages
+      - name: Validate outputs
+        run: |
+          ls -la data || true
+          test -f data/snokido_top50.json
+
+      - name: Commit & push if changed
         run: |
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
 
-          git add data/snokido_top50.json data/players_pages.json
+          git add data/snokido_top50.json package.json package-lock.json || true
 
-          if git diff --cached --quiet; then
-            echo "No changes"
-            exit 0
-          fi
-
-          git commit -m "Snokido update (08h/16h)"
+          git commit -m "Snokido update (no history)" || echo "No changes"
           git push
