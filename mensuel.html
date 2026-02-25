@@ -104,9 +104,9 @@
   }
 
   function firstOfMonth(dayStr){
-    const y = Number(dayStr.slice(0,4));
+    const y = dayStr.slice(0,4);
     const m = dayStr.slice(5,7);
-    return String(y) + "-" + m + "-01";
+    return y + "-" + m + "-01";
   }
 
   function findClosestLE(index, targetDay){
@@ -119,6 +119,58 @@
   function formatSigned(n){
     const v = Number(n || 0);
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
+  }
+
+  // ✅ Tie-break +12 uniquement si dx >= 500
+  function applyDxTieBreakPlus12Over500(rows){
+    const byDx = new Map();
+    for(const r of rows){
+      const k = String(r.dx);
+      if(!byDx.has(k)) byDx.set(k, []);
+      byDx.get(k).push(r);
+    }
+
+    for(const [dxKey, group] of byDx){
+      // 1 seul = ok
+      if(group.length <= 1){
+        group[0].dxAdj = group[0].dx;
+        continue;
+      }
+
+      const dxVal = Number(group[0].dx || 0);
+
+      // ⛔ en dessous de 500 : on ne touche pas (égalité conservée)
+      if(dxVal < 500){
+        group.forEach(r => r.dxAdj = r.dx);
+        continue;
+      }
+
+      // exception optionnelle : Betelgeuse/Aldebaran restent égaux
+      const names = group.map(x => slugify(x.nom));
+      const onlySpecialPair =
+        group.length === 2 &&
+        names.includes("betelgeuse") &&
+        names.includes("aldebaran");
+
+      if(onlySpecialPair){
+        group.forEach(r => r.dxAdj = r.dx);
+        continue;
+      }
+
+      // départage déterministe par slug :
+      // le 1er +12*(n-1), ..., dernier +0
+      const sorted = group.slice().sort((a,b)=> slugify(a.nom).localeCompare(slugify(b.nom)));
+      const n = sorted.length;
+      for(let i=0;i<n;i++){
+        const bonus = 12 * (n - 1 - i);
+        sorted[i].dxAdj = sorted[i].dx + bonus;
+      }
+    }
+
+    // sécurité
+    for(const r of rows){
+      if(typeof r.dxAdj !== "number") r.dxAdj = r.dx;
+    }
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
@@ -137,11 +189,9 @@
       return;
     }
 
-    // dernier snapshot existant (sert à déterminer le mois)
     const latestDay = index[index.length - 1];
     const targetFirst = firstOfMonth(latestDay);
 
-    // baseline mensuelle = snapshot le plus proche <= 1er du mois
     const baseDay = findClosestLE(index, targetFirst);
     if(!baseDay){
       warn("Baseline mensuelle introuvable. Ajoute un snapshot du 1er dans history_paris + index.json.");
@@ -174,15 +224,19 @@
         nom: p.nom,
         avatar: p.avatar,
         xp: curXp,
-        dx: dx
+        dx: dx,
+        dxAdj: null
       });
     }
 
     // ✅ supprimer ceux à 0 XP
     rows = rows.filter(r => Number(r.dx) !== 0);
 
-    // tri
-    rows.sort((a,b)=> b.dx - a.dx);
+    // tie-break conditionnel
+    applyDxTieBreakPlus12Over500(rows);
+
+    // tri par dxAdj (affichage = dx)
+    rows.sort((a,b)=> b.dxAdj - a.dxAdj);
 
     tbody.innerHTML = "";
     const shown = rows.slice(0, 300);
