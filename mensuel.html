@@ -280,8 +280,8 @@
       });
     }
 
-    applyDxTieBreak(rows);
     rows = rows.filter(r => Number(r.dx) !== 0);
+    applyDxTieBreak(rows);
     rows.sort((a,b)=> b.dxAdj - a.dxAdj);
 
     tbody.innerHTML = "";
