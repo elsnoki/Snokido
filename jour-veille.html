@@ -114,10 +114,11 @@
     </div>
 
     <div class="subnav">
-      <a class="subnav-btn" href="jour.html">🕛 Jour (delta)</a>
-      <a class="subnav-btn" href="jour-veille.html">⏪ Jour d’avant (total)</a>
+      <a class="subnav-btn" href="jour.html">🕛 Jour</a>
+      <a class="subnav-btn" href="jour-veille.html">⏪ Jour d’avant</a>
       <a class="subnav-btn" href="hebdo.html">📅 Hebdo</a>
       <a class="subnav-btn" href="mensuel.html">🗓️ Mensuel</a>
+      <a class="subnav-btn" href="niveauhtml">📊 Niveau théorique</a>
     </div>
 
     <div id="warn" class="warn"></div>
@@ -126,112 +127,97 @@
       <div class="meta" id="meta">Chargement…</div>
       <div class="big" id="xpTotal">—</div>
       <div class="small">
-        Astuce : cette page prend l’<b>avant-dernier</b> fichier listé dans
-        <code>data/history_paris/index.json</code> (donc “le jour d’avant” par rapport au dernier snapshot dispo).
+        Cette page utilise l’avant-dernière date listée dans
+        <code>data/history_paris/index.json</code>.
       </div>
     </div>
   </div>
 
-  <script>
-    function warn(msg){
-      const w = document.getElementById("warn");
-      w.style.display = "block";
-      w.textContent = msg;
+<script>
+  function warn(msg){
+    const w = document.getElementById("warn");
+    w.style.display = "block";
+    w.textContent = msg;
+  }
+
+  async function fetchJson(url){
+    const res = await fetch(url, { cache: "no-store" });
+    if(!res.ok) throw new Error(url + " HTTP " + res.status);
+    return res.json();
+  }
+
+  function isDateString(s){
+    return /^\d{4}-\d{2}-\d{2}$/.test(String(s));
+  }
+
+  function sumXpFromSnapshot(data){
+    if(Array.isArray(data)){
+      return data.reduce((acc, p) => acc + (Number(p?.xp) || 0), 0);
     }
 
-    function extractDateFromFilename(s){
-      // attend un truc du style "2026-02-25.json" ou "history_paris/2026-02-25.json"
-      const m = String(s).match(/(\d{4}-\d{2}-\d{2})\.json$/);
-      return m ? m[1] : null;
+    const arr =
+      (Array.isArray(data?.players) && data.players) ||
+      (Array.isArray(data?.top50) && data.top50) ||
+      (Array.isArray(data?.data) && data.data) ||
+      null;
+
+    if(arr){
+      return arr.reduce((acc, p) => acc + (Number(p?.xp) || 0), 0);
     }
 
-    async function fetchJson(url){
-      const res = await fetch(url, { cache: "no-store" });
-      if(!res.ok) throw new Error(url + " HTTP " + res.status);
-      return res.json();
+    return 0;
+  }
+
+  async function main(){
+    const xpEl = document.getElementById("xpTotal");
+    const metaEl = document.getElementById("meta");
+    const pillEl = document.getElementById("datePill");
+
+    let index;
+    try{
+      index = await fetchJson("data/history_paris/index.json");
+    }catch(e){
+      warn("Impossible de charger index.json : " + e.message);
+      metaEl.textContent = "Erreur.";
+      return;
     }
 
-    function sumXpFromSnapshot(data){
-      // Cas 1: snapshot = array de joueurs [{xp:...}, ...]
-      if(Array.isArray(data)){
-        return data.reduce((acc, p) => acc + (Number(p?.xp) || 0), 0);
-      }
-
-      // Cas 2: snapshot = objet avec une liste dedans (ex: { players: [...] } ou { top50: [...] } )
-      const arr =
-        (Array.isArray(data?.players) && data.players) ||
-        (Array.isArray(data?.top50) && data.top50) ||
-        (Array.isArray(data?.data) && data.data) ||
-        null;
-
-      if(arr) return arr.reduce((acc, p) => acc + (Number(p?.xp) || 0), 0);
-
-      return 0;
+    if(!Array.isArray(index)){
+      warn("index.json n'est pas un tableau.");
+      metaEl.textContent = "Format invalide.";
+      return;
     }
 
-    async function main(){
-      const xpEl = document.getElementById("xpTotal");
-      const metaEl = document.getElementById("meta");
-      const pillEl = document.getElementById("datePill");
+    const dates = index.filter(isDateString).sort();
 
-      let index;
-      try{
-        index = await fetchJson("data/history_paris/index.json");
-      }catch(e){
-        warn("Impossible de charger data/history_paris/index.json : " + e.message);
-        metaEl.textContent = "Erreur.";
-        return;
-      }
-
-      // index.json peut être:
-      // - un tableau ["2026-02-24.json", ...]
-      // - ou un objet { files:[...]} / { snapshots:[...]} etc.
-      const files =
-        Array.isArray(index) ? index :
-        (Array.isArray(index?.files) ? index.files :
-        (Array.isArray(index?.snapshots) ? index.snapshots : null));
-
-      if(!files || files.length < 2){
-        warn("index.json ne contient pas assez de snapshots (il en faut au moins 2).");
-        metaEl.textContent = "Données insuffisantes.";
-        return;
-      }
-
-      // On garde uniquement les noms qui ressemblent à YYYY-MM-DD.json puis tri par date
-      const dated = files
-        .map(f => ({ raw: f, date: extractDateFromFilename(f) }))
-        .filter(x => x.date)
-        .sort((a,b) => a.date.localeCompare(b.date)); // YYYY-MM-DD => tri lexical OK
-
-      if(dated.length < 2){
-        warn("Aucun (ou pas assez de) fichier YYYY-MM-DD.json détecté dans index.json.");
-        metaEl.textContent = "Données insuffisantes.";
-        return;
-      }
-
-      const previous = dated[dated.length - 2]; // jour d’avant (par rapport au dernier)
-      const prevUrl = previous.raw.startsWith("data/")
-        ? previous.raw
-        : ("data/history_paris/" + previous.raw.replace(/^\/+/, ""));
-
-      pillEl.textContent = previous.date;
-
-      let snapshot;
-      try{
-        snapshot = await fetchJson(prevUrl);
-      }catch(e){
-        warn("Impossible de charger " + prevUrl + " : " + e.message);
-        metaEl.textContent = "Erreur de chargement snapshot.";
-        return;
-      }
-
-      const totalXp = sumXpFromSnapshot(snapshot);
-
-      metaEl.textContent = "Snapshot (jour d’avant) : " + previous.date;
-      xpEl.textContent = totalXp.toLocaleString("fr-FR") + " XP";
+    if(dates.length < 2){
+      warn("Pas assez de dates dans index.json.");
+      metaEl.textContent = "Données insuffisantes.";
+      return;
     }
 
-    window.addEventListener("DOMContentLoaded", main);
-  </script>
+    const prevDate = dates[dates.length - 2];
+    const prevUrl = `data/history_paris/${prevDate}.json`;
+
+    pillEl.textContent = prevDate;
+
+    let snapshot;
+    try{
+      snapshot = await fetchJson(prevUrl);
+    }catch(e){
+      warn("Impossible de charger " + prevUrl + " : " + e.message);
+      metaEl.textContent = "Erreur snapshot.";
+      return;
+    }
+
+    const totalXp = sumXpFromSnapshot(snapshot);
+
+    metaEl.textContent = "Snapshot : " + prevDate;
+    xpEl.textContent = totalXp.toLocaleString("fr-FR") + " XP";
+  }
+
+  window.addEventListener("DOMContentLoaded", main);
+</script>
+
 </body>
 </html>
