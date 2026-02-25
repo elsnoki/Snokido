@@ -183,7 +183,7 @@
         <th></th>
         <th>Nom du joueur</th>
         <th class="center">Gain XP</th>
-        <th class="center">XP (fin de journée)</th>
+        <th class="center">XP (fin)</th>
         <th class="center">Kara</th>
       </tr>
     </thead>
@@ -191,8 +191,7 @@
   </table>
 
   <div class="hint">
-    Cette page calcule <b>gain = XP(D) − XP(D−1)</b> où <b>D</b> est la date “jour d’avant”
-    (avant-dernière date dans <code>data/history_paris/index.json</code>).
+    Calcul : <b>gain = XP(D) − XP(D−1)</b>, avec <b>D</b> = “jour d’avant” (avant-dernière date dans <code>data/history_paris/index.json</code>).
   </div>
 </div>
 
@@ -213,8 +212,22 @@
     return /^\d{4}-\d{2}-\d{2}$/.test(String(s));
   }
 
+  // ✅ Normalise un snapshot en tableau de joueurs
+  // Accepte:
+  // - [ ... ] (tableau direct)
+  // - { players:[...] } / { top50:[...] } / { data:[...] }
+  function normalizeSnapshot(snapshot){
+    if(Array.isArray(snapshot)) return snapshot;
+
+    if(snapshot && typeof snapshot === "object"){
+      if(Array.isArray(snapshot.players)) return snapshot.players;
+      if(Array.isArray(snapshot.top50)) return snapshot.top50;
+      if(Array.isArray(snapshot.data)) return snapshot.data;
+    }
+    return null;
+  }
+
   function keyOfPlayer(p){
-    // le plus stable si présent : profileHref
     if(p && p.profileHref) return "href:" + String(p.profileHref);
     if(p && p.nom) return "nom:" + String(p.nom).toLowerCase().trim();
     return null;
@@ -249,40 +262,40 @@
 
     const dates = index.filter(isDateString).sort();
     if(dates.length < 3){
-      warn("Il faut au moins 3 dates dans index.json pour calculer le 'jour d’avant' (D) et sa veille (D-1).");
+      warn("Il faut au moins 3 dates dans index.json (pour calculer D et D-1).");
       tbody.innerHTML = "";
       rangeInfo.textContent = "Données insuffisantes.";
       return;
     }
 
-    // Dernière date = aujourd'hui (dernier snapshot dispo)
-    // Jour d’avant = avant-dernière
-    // Veille du jour d’avant = celle juste avant
-    const dateD = dates[dates.length - 2];
-    const datePrev = dates[dates.length - 3];
+    const dateD = dates[dates.length - 2];     // jour d’avant
+    const datePrev = dates[dates.length - 3];  // veille du jour d’avant
 
     rangeInfo.textContent = `Période : ${datePrev} → ${dateD}`;
 
     const urlPrev = `data/history_paris/${datePrev}.json`;
     const urlD = `data/history_paris/${dateD}.json`;
 
-    let snapPrev, snapD;
+    let rawPrev, rawD;
     try{
-      snapPrev = await fetchJson(urlPrev);
-      snapD = await fetchJson(urlD);
+      rawPrev = await fetchJson(urlPrev);
+      rawD = await fetchJson(urlD);
     }catch(e){
       warn("Impossible de charger les snapshots : " + e.message);
       tbody.innerHTML = "";
       return;
     }
 
-    if(!Array.isArray(snapPrev) || !Array.isArray(snapD)){
-      warn("Snapshots invalides : les fichiers doivent être des tableaux (top50) comme data/snokido_top50.json.");
+    const snapPrev = normalizeSnapshot(rawPrev);
+    const snapD = normalizeSnapshot(rawD);
+
+    if(!snapPrev || !snapD){
+      warn("Snapshots invalides : attend un tableau ([]) ou un objet {players:[]}/{top50:[]}. Vérifie tes fichiers dans data/history_paris/.");
       tbody.innerHTML = "";
       return;
     }
 
-    // Map XP veille
+    // XP veille
     const prevMap = new Map();
     snapPrev.forEach(p => {
       const k = keyOfPlayer(p);
@@ -290,7 +303,7 @@
       prevMap.set(k, Number(p.xp) || 0);
     });
 
-    // Construire liste gains pour les joueurs présents le jour D
+    // Gains sur D
     const rows = [];
     snapD.forEach(p => {
       const k = keyOfPlayer(p);
@@ -311,15 +324,14 @@
       });
     });
 
-    // Tri par gain desc, puis xpD desc
+    // Tri gain desc puis xpD desc
     rows.sort((a,b) => (b.gain - a.gain) || (b.xpD - a.xpD));
 
     tbody.innerHTML = "";
     rows.forEach((p, i) => {
       const tr = document.createElement("tr");
-
       const gainTxt = (p.gain > 0 ? "+" : "") + p.gain.toLocaleString("fr-FR");
-      const gainBadge = p.isNew ? " <span class=\"pill\">Nouveau</span>" : "";
+      const gainBadge = p.isNew ? ' <span class="pill">Nouveau</span>' : "";
 
       tr.innerHTML = `
         <td class="rank">${i+1}</td>
