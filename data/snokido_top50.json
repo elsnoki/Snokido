@@ -2,6 +2,7 @@
   {
     "rank": 1,
     "nom": "Talk Takashi",
+    "slug": "talktakashi",
     "niveau": 100,
     "xp": 1225000,
     "inscription": "13-04-2014",
@@ -12,6 +13,7 @@
   {
     "rank": 2,
     "nom": "alex.c2109",
+    "slug": "alexc2109",
     "niveau": 100,
     "xp": 821520,
     "inscription": "24-06-2017",
@@ -22,6 +24,7 @@
   {
     "rank": 3,
     "nom": "francoeur",
+    "slug": "francoeur",
     "niveau": 100,
     "xp": 443222,
     "inscription": "18-12-2015",
@@ -32,16 +35,18 @@
   {
     "rank": 4,
     "nom": "TheGladiator",
+    "slug": "thegladiator",
     "niveau": 100,
-    "xp": 396242,
+    "xp": 396254,
     "inscription": "23-05-2020",
     "avatar": "https://www.snokido.fr/images/snoki/medium/1.jpg",
     "profileHref": "https://www.snokido.fr/player/thegladiator",
-    "karas": 734591
+    "karas": 734603
   },
   {
     "rank": 5,
     "nom": "Abelard",
+    "slug": "abelard",
     "niveau": 100,
     "xp": 201568,
     "inscription": "27-02-2016",
@@ -52,6 +57,7 @@
   {
     "rank": 6,
     "nom": "Jordan.io",
+    "slug": "jordanio",
     "niveau": 100,
     "xp": 200000,
     "inscription": "16-03-2019",
@@ -62,6 +68,7 @@
   {
     "rank": 7,
     "nom": "hoopa",
+    "slug": "hoopa",
     "niveau": 100,
     "xp": 175000,
     "inscription": "19-11-2015",
@@ -72,6 +79,7 @@
   {
     "rank": 8,
     "nom": "josué455",
+    "slug": "josue455",
     "niveau": 100,
     "xp": 159480,
     "inscription": "15-08-2014",
@@ -82,6 +90,7 @@
   {
     "rank": 9,
     "nom": "Alexis279",
+    "slug": "alexis279",
     "niveau": 100,
     "xp": 157282,
     "inscription": "07-10-2018",
@@ -92,16 +101,18 @@
   {
     "rank": 10,
     "nom": "lumia",
+    "slug": "lumia",
     "niveau": 100,
-    "xp": 116898,
+    "xp": 116906,
     "inscription": "01-01-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
     "profileHref": "https://www.snokido.fr/player/lumia",
-    "karas": 449247
+    "karas": 449255
   },
   {
     "rank": 11,
     "nom": "cirpacha",
+    "slug": "cirpacha",
     "niveau": 100,
     "xp": 102876,
     "inscription": "03-02-2020",
@@ -112,6 +123,7 @@
   {
     "rank": 12,
     "nom": "Esdras950",
+    "slug": "esdras950",
     "niveau": 100,
     "xp": 100000,
     "inscription": "01-05-2018",
@@ -122,6 +134,7 @@
   {
     "rank": 13,
     "nom": "Golder",
+    "slug": "golder",
     "niveau": 100,
     "xp": 66666,
     "inscription": "24-07-2017",
@@ -132,26 +145,29 @@
   {
     "rank": 14,
     "nom": "Ko0pa",
+    "slug": "ko0pa",
     "niveau": 100,
-    "xp": 64324,
+    "xp": 64344,
     "inscription": "24-01-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/120.jpg",
     "profileHref": "https://www.snokido.fr/player/ko0pa",
-    "karas": 395873
+    "karas": 395897
   },
   {
     "rank": 15,
     "nom": "Unit",
+    "slug": "unit",
     "niveau": 100,
-    "xp": 63736,
+    "xp": 63744,
     "inscription": "13-07-2018",
     "avatar": "https://www.snokido.fr/images/snoki/medium/133.jpg",
     "profileHref": "https://www.snokido.fr/player/unit",
-    "karas": 389285
+    "karas": 389293
   },
   {
     "rank": 16,
     "nom": "Largo672",
+    "slug": "largo672",
     "niveau": 100,
     "xp": 57836,
     "inscription": "10-02-2014",
@@ -162,6 +178,7 @@
   {
     "rank": 17,
     "nom": "djabrail",
+    "slug": "djabrail",
     "niveau": 100,
     "xp": 57054,
     "inscription": "07-08-2014",
@@ -172,6 +189,7 @@
   {
     "rank": 18,
     "nom": "Tellor",
+    "slug": "tellor",
     "niveau": 100,
     "xp": 51014,
     "inscription": "10-04-2020",
@@ -182,6 +200,7 @@
   {
     "rank": 19,
     "nom": "Pingu",
+    "slug": "pingu",
     "niveau": 100,
     "xp": 50000,
     "inscription": "12-05-2019",
@@ -192,6 +211,7 @@
   {
     "rank": 20,
     "nom": "redbot",
+    "slug": "redbot",
     "niveau": 100,
     "xp": 49500,
     "inscription": "07-08-2022",
@@ -202,6 +222,7 @@
   {
     "rank": 21,
     "nom": "Venom_",
+    "slug": "venom",
     "niveau": 98,
     "xp": 48108,
     "inscription": "09-05-2021",
@@ -212,6 +233,7 @@
   {
     "rank": 22,
     "nom": "marcosino",
+    "slug": "marcosino",
     "niveau": 95,
     "xp": 45216,
     "inscription": "14-04-2019",
@@ -222,6 +244,7 @@
   {
     "rank": 23,
     "nom": "seka",
+    "slug": "seka",
     "niveau": 92,
     "xp": 42648,
     "inscription": "03-10-2014",
@@ -232,6 +255,7 @@
   {
     "rank": 24,
     "nom": "cahincaha",
+    "slug": "cahincaha",
     "niveau": 92,
     "xp": 42000,
     "inscription": "22-04-2023",
@@ -242,6 +266,7 @@
   {
     "rank": 25,
     "nom": "Houka",
+    "slug": "houka",
     "niveau": 91,
     "xp": 41000,
     "inscription": "18-11-2023",
@@ -252,6 +277,7 @@
   {
     "rank": 26,
     "nom": "Justice-",
+    "slug": "justice",
     "niveau": 90,
     "xp": 40268,
     "inscription": "29-02-2024",
@@ -262,6 +288,7 @@
   {
     "rank": 27,
     "nom": "UY-Scuty",
+    "slug": "uyscuty",
     "niveau": 89,
     "xp": 40000,
     "inscription": "03-06-2022",
@@ -272,6 +299,7 @@
   {
     "rank": 28,
     "nom": "Bételgeuse",
+    "slug": "betelgeuse",
     "niveau": 89,
     "xp": 40000,
     "inscription": "07-06-2020",
@@ -282,6 +310,7 @@
   {
     "rank": 29,
     "nom": "Aldébaran",
+    "slug": "aldebaran",
     "niveau": 89,
     "xp": 40000,
     "inscription": "07-06-2020",
@@ -292,6 +321,7 @@
   {
     "rank": 30,
     "nom": "blackout",
+    "slug": "blackout",
     "niveau": 89,
     "xp": 40000,
     "inscription": "16-05-2019",
@@ -302,6 +332,7 @@
   {
     "rank": 31,
     "nom": "Athèna",
+    "slug": "athena",
     "niveau": 89,
     "xp": 40000,
     "inscription": "30-03-2019",
@@ -312,6 +343,7 @@
   {
     "rank": 32,
     "nom": "acno",
+    "slug": "acno",
     "niveau": 89,
     "xp": 40000,
     "inscription": "23-03-2019",
@@ -322,6 +354,7 @@
   {
     "rank": 33,
     "nom": "souda999",
+    "slug": "souda999",
     "niveau": 89,
     "xp": 39826,
     "inscription": "27-08-2015",
@@ -332,6 +365,7 @@
   {
     "rank": 34,
     "nom": "roi1",
+    "slug": "roi1",
     "niveau": 88,
     "xp": 38736,
     "inscription": "03-12-2017",
@@ -342,6 +376,7 @@
   {
     "rank": 35,
     "nom": "chris05",
+    "slug": "chris05",
     "niveau": 85,
     "xp": 36062,
     "inscription": "18-07-2019",
@@ -352,6 +387,7 @@
   {
     "rank": 36,
     "nom": "mala49",
+    "slug": "mala49",
     "niveau": 80,
     "xp": 32264,
     "inscription": "29-05-2014",
@@ -362,6 +398,7 @@
   {
     "rank": 37,
     "nom": "anime123",
+    "slug": "anime123",
     "niveau": 79,
     "xp": 31364,
     "inscription": "29-06-2017",
@@ -372,6 +409,7 @@
   {
     "rank": 38,
     "nom": "BNDAZ205",
+    "slug": "bndaz205",
     "niveau": 78,
     "xp": 30152,
     "inscription": "07-04-2018",
@@ -382,6 +420,7 @@
   {
     "rank": 39,
     "nom": "Fifi75018",
+    "slug": "fifi75018",
     "niveau": 75,
     "xp": 28288,
     "inscription": "01-09-2016",
@@ -392,6 +431,7 @@
   {
     "rank": 40,
     "nom": "henoc77",
+    "slug": "henoc77",
     "niveau": 75,
     "xp": 28038,
     "inscription": "18-12-2014",
@@ -402,6 +442,7 @@
   {
     "rank": 41,
     "nom": "swaga976",
+    "slug": "swaga976",
     "niveau": 74,
     "xp": 27404,
     "inscription": "14-09-2014",
@@ -412,6 +453,7 @@
   {
     "rank": 42,
     "nom": "tidadouslip",
+    "slug": "tidadouslip",
     "niveau": 73,
     "xp": 26846,
     "inscription": "08-03-2020",
@@ -422,6 +464,7 @@
   {
     "rank": 43,
     "nom": "ariel005",
+    "slug": "ariel005",
     "niveau": 73,
     "xp": 26844,
     "inscription": "18-07-2017",
@@ -432,6 +475,7 @@
   {
     "rank": 44,
     "nom": "felipe23",
+    "slug": "felipe23",
     "niveau": 72,
     "xp": 25724,
     "inscription": "14-11-2019",
@@ -442,6 +486,7 @@
   {
     "rank": 45,
     "nom": "kevin1455",
+    "slug": "kevin1455",
     "niveau": 71,
     "xp": 25448,
     "inscription": "05-04-2015",
@@ -452,6 +497,7 @@
   {
     "rank": 46,
     "nom": "E1V2R3",
+    "slug": "e1v2r3",
     "niveau": 71,
     "xp": 25088,
     "inscription": "15-06-2021",
@@ -462,6 +508,7 @@
   {
     "rank": 47,
     "nom": "luanbau",
+    "slug": "luanbau",
     "niveau": 71,
     "xp": 25048,
     "inscription": "12-03-2016",
@@ -472,6 +519,7 @@
   {
     "rank": 48,
     "nom": "tarek26",
+    "slug": "tarek26",
     "niveau": 71,
     "xp": 25024,
     "inscription": "19-06-2014",
@@ -482,6 +530,7 @@
   {
     "rank": 49,
     "nom": "younouss",
+    "slug": "younouss",
     "niveau": 70,
     "xp": 24492,
     "inscription": "17-10-2015",
@@ -492,6 +541,7 @@
   {
     "rank": 50,
     "nom": "Halinor",
+    "slug": "halinor",
     "niveau": 68,
     "xp": 23304,
     "inscription": "10-06-2021",
