@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>XP total — Jour d’avant</title>
+  <title>Classement — Gains d’XP (Jour)</title>
 
   <link rel="stylesheet" href="style.css">
   <script src="header.js" defer></script>
@@ -14,18 +14,20 @@
       background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
       font-family: Arial, sans-serif;
     }
+
     .box{
-      width: 900px;
+      width: 1100px;
       max-width: calc(100% - 24px);
       margin: 40px auto;
-      background:#fff;
+      background:#ffffff;
       border-radius:8px;
       overflow:hidden;
       box-shadow: 0 8px 20px rgba(0,0,0,.25);
     }
+
     .title{
       background:#3a3a3a;
-      color:#fff;
+      color:white;
       padding:14px 18px;
       font-size:20px;
       font-weight:700;
@@ -35,11 +37,25 @@
       gap:10px;
       flex-wrap:wrap;
     }
+
     .subtitle{
       font-size:13px;
       font-weight:700;
       opacity:.9;
     }
+
+    .pill{
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      font-weight:900;
+      font-size:12px;
+      border:1px solid rgba(0,0,0,.12);
+      background:#f2f2f2;
+      color:#111;
+      white-space:nowrap;
+    }
+
     .subnav{
       display:flex;
       gap:10px;
@@ -59,6 +75,7 @@
       font-weight:700;
       font-size:13px;
     }
+
     .warn{
       margin:12px 18px 0;
       padding:10px 12px;
@@ -69,36 +86,109 @@
       color:#664d03;
       display:none;
     }
-    .content{
-      padding:22px 18px 26px;
+
+    .stats{
+      display:flex;
+      gap:12px;
+      padding:12px 18px;
+      border-bottom:1px solid #e5e5e5;
+      background:#ffffff;
+      flex-wrap:wrap;
+      align-items:center;
     }
-    .big{
-      font-size:44px;
-      font-weight:900;
-      letter-spacing:.2px;
-      color:#111;
-      margin: 10px 0 6px;
-    }
-    .meta{
-      color:#555;
-      font-size:14px;
-      font-weight:700;
-    }
-    .small{
-      margin-top:14px;
-      font-size:13px;
-      color:#666;
-      line-height:1.35;
-    }
-    .pill{
-      display:inline-block;
-      padding:4px 8px;
-      border-radius:999px;
-      font-weight:900;
-      font-size:12px;
+    .stat{
+      padding:10px 12px;
       border:1px solid rgba(0,0,0,.12);
-      background:#f2f2f2;
-      white-space:nowrap;
+      border-radius:12px;
+      background:#fafafa;
+      font-weight:900;
+      font-size:13px;
+      color:#222;
+    }
+    .stat b{ font-size:16px; }
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+    }
+
+    thead th{
+      background:#ffffff;
+      padding:12px 10px;
+      text-align:left;
+      font-size:13px;
+      font-weight:700;
+      border-bottom:1px solid #cfcfcf;
+    }
+
+    tbody td{
+      padding:16px 10px;
+      border-bottom:1px solid #cfcfcf;
+      vertical-align:middle;
+      font-size:14px;
+    }
+
+    tbody tr:nth-child(odd){ background:#f2f2f2; }
+    tbody tr:nth-child(even){ background:#ffffff; }
+
+    .rank{
+      font-weight:700;
+      font-size:22px;
+      width:60px;
+      text-align:center;
+      color:#444;
+    }
+
+    .avatar{
+      width:90px;
+      text-align:center;
+    }
+
+    .avatar .frame{
+      width:64px;
+      height:64px;
+      margin:0 auto;
+      background:#e9e9e9;
+      border:1px solid #bdbdbd;
+      border-radius:6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.6);
+    }
+
+    .avatar img{
+      width:56px;
+      height:56px;
+      object-fit:cover;
+      border:2px solid #8f8f8f;
+      border-radius:6px;
+      background:#ddd;
+      display:block;
+    }
+
+    .name a{
+      color:#2c6fb7;
+      font-weight:700;
+      text-decoration:none;
+    }
+    .name a:hover{ text-decoration:underline; }
+
+    .center{ text-align:center; white-space:nowrap; }
+
+    .gain{
+      font-weight:900;
+      font-size:16px;
+    }
+
+    .hint{
+      padding: 10px 18px;
+      font-size: 13px;
+      color:#555;
+      border-top: 1px solid #e5e5e5;
+      background:#fafafa;
+      line-height:1.35;
     }
   </style>
 </head>
@@ -107,15 +197,15 @@
   <div class="box">
     <div class="title">
       <div>
-        XP total — Jour d’avant
-        <div class="subtitle">Somme des XP du snapshot précédent</div>
+        Classement — Gains d’XP (Jour)
+        <div class="subtitle" id="rangeText">Comparaison…</div>
       </div>
-      <div class="pill" id="datePill">…</div>
+      <div class="pill" id="pillInfo">…</div>
     </div>
 
     <div class="subnav">
       <a class="subnav-btn" href="jour.html">🕛 Jour</a>
-      <a class="subnav-btn" href="jour-veille.html">⏪ Jour d’avant</a>
+      <a class="subnav-btn" href="jour-veille.html">📈 Gains (2 derniers jours)</a>
       <a class="subnav-btn" href="hebdo.html">📅 Hebdo</a>
       <a class="subnav-btn" href="mensuel.html">🗓️ Mensuel</a>
       <a class="subnav-btn" href="niveauhtml">📊 Niveau théorique</a>
@@ -123,13 +213,29 @@
 
     <div id="warn" class="warn"></div>
 
-    <div class="content">
-      <div class="meta" id="meta">Chargement…</div>
-      <div class="big" id="xpTotal">—</div>
-      <div class="small">
-        Cette page utilise l’avant-dernière date listée dans
-        <code>data/history_paris/index.json</code>.
-      </div>
+    <div class="stats">
+      <div class="stat">Période : <b id="statPeriod">—</b></div>
+      <div class="stat">Gain total : <b id="statTotal">—</b></div>
+      <div class="stat">Joueurs classés : <b id="statCount">—</b></div>
+    </div>
+
+    <table id="leaderboard">
+      <thead>
+        <tr>
+          <th></th>
+          <th></th>
+          <th>Nom du joueur</th>
+          <th class="center">Gain XP</th>
+          <th class="center">XP (jour 2)</th>
+          <th class="center">XP (jour 1)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="hint">
+      Cette page compare automatiquement les <b>2 dernières dates</b> présentes dans
+      <code>data/history_paris/index.json</code> et classe les joueurs selon <b>XP(jour2) − XP(jour1)</b>.
     </div>
   </div>
 
@@ -150,73 +256,143 @@
     return /^\d{4}-\d{2}-\d{2}$/.test(String(s));
   }
 
-  function sumXpFromSnapshot(data){
-    if(Array.isArray(data)){
-      return data.reduce((acc, p) => acc + (Number(p?.xp) || 0), 0);
-    }
-
-    const arr =
-      (Array.isArray(data?.players) && data.players) ||
-      (Array.isArray(data?.top50) && data.top50) ||
-      (Array.isArray(data?.data) && data.data) ||
-      null;
-
-    if(arr){
-      return arr.reduce((acc, p) => acc + (Number(p?.xp) || 0), 0);
-    }
-
-    return 0;
+  function keyOfPlayer(p){
+    // clé la plus stable : profileHref si dispo, sinon nom
+    const href = (p && typeof p.profileHref === "string") ? p.profileHref.trim() : "";
+    if(href) return "href:" + href;
+    const nom = (p && typeof p.nom === "string") ? p.nom.trim() : "";
+    return "nom:" + nom.toLowerCase();
   }
 
-  async function main(){
-    const xpEl = document.getElementById("xpTotal");
-    const metaEl = document.getElementById("meta");
-    const pillEl = document.getElementById("datePill");
+  function normalizePlayer(p){
+    return {
+      nom: p?.nom || "—",
+      avatar: p?.avatar || "avatar/1.jpg",
+      profileHref: p?.profileHref || "#",
+      xp: Number(p?.xp) || 0
+    };
+  }
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    const tbody = document.querySelector("#leaderboard tbody");
+    const rangeText = document.getElementById("rangeText");
+    const pillInfo = document.getElementById("pillInfo");
+
+    const statPeriod = document.getElementById("statPeriod");
+    const statTotal  = document.getElementById("statTotal");
+    const statCount  = document.getElementById("statCount");
+
+    tbody.innerHTML = "";
 
     let index;
     try{
       index = await fetchJson("data/history_paris/index.json");
     }catch(e){
-      warn("Impossible de charger index.json : " + e.message);
-      metaEl.textContent = "Erreur.";
+      warn("Impossible de charger data/history_paris/index.json : " + e.message);
       return;
     }
 
     if(!Array.isArray(index)){
-      warn("index.json n'est pas un tableau.");
-      metaEl.textContent = "Format invalide.";
+      warn("index.json n'est pas un tableau de dates.");
       return;
     }
 
     const dates = index.filter(isDateString).sort();
-
     if(dates.length < 2){
-      warn("Pas assez de dates dans index.json.");
-      metaEl.textContent = "Données insuffisantes.";
+      warn("Pas assez de dates dans index.json (il en faut au moins 2).");
       return;
     }
 
-    const prevDate = dates[dates.length - 2];
-    const prevUrl = `data/history_paris/${prevDate}.json`;
+    const day1 = dates[dates.length - 2];
+    const day2 = dates[dates.length - 1];
 
-    pillEl.textContent = prevDate;
+    rangeText.textContent = `Du ${day1} au ${day2}`;
+    pillInfo.textContent = `${day1} → ${day2}`;
+    statPeriod.textContent = `${day1} → ${day2}`;
 
-    let snapshot;
+    const url1 = `data/history_paris/${day1}.json`;
+    const url2 = `data/history_paris/${day2}.json`;
+
+    let snap1, snap2;
     try{
-      snapshot = await fetchJson(prevUrl);
+      snap1 = await fetchJson(url1);
     }catch(e){
-      warn("Impossible de charger " + prevUrl + " : " + e.message);
-      metaEl.textContent = "Erreur snapshot.";
+      warn("Impossible de charger " + url1 + " : " + e.message);
+      return;
+    }
+    try{
+      snap2 = await fetchJson(url2);
+    }catch(e){
+      warn("Impossible de charger " + url2 + " : " + e.message);
       return;
     }
 
-    const totalXp = sumXpFromSnapshot(snapshot);
+    if(!Array.isArray(snap1) || !Array.isArray(snap2)){
+      warn("Snapshots invalides : ils doivent être des tableaux (array) de joueurs.");
+      return;
+    }
 
-    metaEl.textContent = "Snapshot : " + prevDate;
-    xpEl.textContent = totalXp.toLocaleString("fr-FR") + " XP";
-  }
+    // map jour1
+    const map1 = new Map();
+    snap1.forEach(p => {
+      const pp = normalizePlayer(p);
+      const k = keyOfPlayer(p);
+      if(k) map1.set(k, pp);
+    });
 
-  window.addEventListener("DOMContentLoaded", main);
+    // calc gains (on classe les joueurs présents au jour2)
+    const rows = [];
+    snap2.forEach(p => {
+      const p2 = normalizePlayer(p);
+      const k = keyOfPlayer(p);
+      const p1 = map1.get(k);
+      const xp1 = p1 ? p1.xp : 0;
+      const gain = p2.xp - xp1;
+
+      rows.push({
+        nom: p2.nom,
+        avatar: p2.avatar,
+        profileHref: p2.profileHref,
+        xp2: p2.xp,
+        xp1,
+        gain
+      });
+    });
+
+    // tri : gain desc, puis xp2 desc
+    rows.sort((a,b) => (b.gain - a.gain) || (b.xp2 - a.xp2));
+
+    // total gain
+    const totalGain = rows.reduce((acc, r) => acc + (Number(r.gain) || 0), 0);
+
+    statTotal.textContent = totalGain.toLocaleString("fr-FR") + " XP";
+    statCount.textContent = rows.length.toLocaleString("fr-FR");
+
+    // render
+    tbody.innerHTML = "";
+    rows.forEach((r, i) => {
+      const tr = document.createElement("tr");
+
+      // signe + pour lisibilité
+      const gainTxt = (r.gain >= 0 ? "+" : "") + r.gain.toLocaleString("fr-FR");
+
+      tr.innerHTML = `
+        <td class="rank">${i+1}</td>
+        <td class="avatar">
+          <div class="frame">
+            <img src="${r.avatar || "avatar/1.jpg"}" alt="${r.nom || ""}">
+          </div>
+        </td>
+        <td class="name">
+          <a target="_blank" rel="noopener" href="${r.profileHref || "#"}">${r.nom || "—"}</a>
+        </td>
+        <td class="center gain">${gainTxt}</td>
+        <td class="center">${r.xp2.toLocaleString("fr-FR")}</td>
+        <td class="center">${r.xp1.toLocaleString("fr-FR")}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
 </script>
 
 </body>
