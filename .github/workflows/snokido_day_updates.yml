@@ -4,6 +4,7 @@ on:
   workflow_dispatch: {}
 
   schedule:
+    # GitHub Actions = UTC
     - cron: "0 7 * * *"
     - cron: "0 15 * * *"
 
@@ -22,7 +23,6 @@ jobs:
         with:
           node-version: 20
 
-      # ✅ plus propre: npm init -y seulement si pas de package.json
       - name: Install deps
         run: |
           if [ ! -f package.json ]; then npm init -y; fi
@@ -33,7 +33,9 @@ jobs:
 
       - name: Validate outputs
         run: |
+          echo "=== data dir ==="
           ls -la data || true
+          echo "=== required files ==="
           test -f data/snokido_top50.json
           test -f data/players_pages.json
 
@@ -42,7 +44,7 @@ jobs:
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
 
-          # ✅ IMPORTANT: commit players_pages.json
+          # ✅ IMPORTANT: on publie AUSSI players_pages.json
           git add data/snokido_top50.json data/players_pages.json package.json package-lock.json || true
 
           if git diff --cached --quiet; then
