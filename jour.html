@@ -14,7 +14,7 @@
     .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
     .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
     .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
-    .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; white-space:pre-wrap; }
+    .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
 
     table{ width:100%; border-collapse:separate; border-spacing:0; }
     thead th{ background:#fff; padding:14px 12px; text-align:left; font-size:15px; font-weight:900; border-bottom:1px solid #cfcfcf; }
@@ -80,109 +80,46 @@
     }
   }
 
+  // ✅ clé unique : id profil (évite mohamed-dz vs mohameddz-3)
   function playerKey(p){
     const id = profileIdFromHref(p && p.profileHref);
     if(id) return "id:" + id;
     return "name:" + slugify(p && p.nom);
   }
 
-  // ---- fetch robuste: lit en texte, JSON.parse, détecte HTML ----
-  async function fetchJsonRobust(relPath){
-    const url = relPath + (relPath.includes("?") ? "&" : "?") + "t=" + Date.now();
-    try{
-      const res = await fetch(url, { cache: "no-store" });
-      const ctype = (res.headers.get("content-type") || "").toLowerCase();
-      const text = await res.text();
-
-      // tentative JSON parse
-      let data = null;
-      let parseErr = null;
-      try{
-        data = JSON.parse(text);
-      }catch(e){
-        parseErr = e;
-      }
-
-      // si c'est du HTML, on le détecte
-      const looksHtml = /^\s*</.test(text);
-
-      return {
-        url: relPath,
-        status: res.status,
-        ok: res.ok,
-        ctype,
-        parseOk: data !== null && parseErr === null,
-        looksHtml,
-        sample: text.slice(0, 120),
-        data
-      };
-    }catch(e){
-      return { url: relPath, status: 0, ok: false, ctype: "", parseOk: false, looksHtml: false, sample: String(e), data: null };
-    }
+  // Anti-cache GH Pages
+  async function fetchJson(path){
+    const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
+    const res = await fetch(url, { cache: "no-store" });
+    if(!res.ok) return null;
+    try { return await res.json(); } catch { return null; }
   }
 
-  // accepte: [...] OU {players:[...]} OU {rows:[...]}
-  function extractArray(maybe){
-    if(Array.isArray(maybe)) return maybe;
-    if(maybe && Array.isArray(maybe.players)) return maybe.players;
-    if(maybe && Array.isArray(maybe.rows)) return maybe.rows;
+  async function loadCurrentPlayers(){
+    const big = await fetchJson("data/players_pages.json");
+    if(Array.isArray(big)) return big;
+
+    const top = await fetchJson("data/snokido_top50.json");
+    if(Array.isArray(top)) return top;
+
     return null;
   }
 
-  async function loadBigPlayers(){
-    // Chez toi, ça répond 200 sur data/players_pages.json, donc on commence par là.
-    const r = await fetchJsonRobust("data/players_pages.json");
-    const arr = extractArray(r.data);
-    if(r.ok && r.parseOk && Array.isArray(arr) && arr.length >= 200){
-      return { players: arr, dbg: r };
-    }
-
-    // fallback projet GH pages (si besoin)
-    const r2 = await fetchJsonRobust("/Snokido/data/players_pages.json");
-    const arr2 = extractArray(r2.data);
-    if(r2.ok && r2.parseOk && Array.isArray(arr2) && arr2.length >= 200){
-      return { players: arr2, dbg: r2 };
-    }
-
-    return { players: null, dbg: [r, r2] };
-  }
-
-  async function loadTop50(){
-    const r = await fetchJsonRobust("data/snokido_top50.json");
-    const arr = extractArray(r.data);
-    if(r.ok && r.parseOk && Array.isArray(arr) && arr.length){
-      return { players: arr, dbg: r };
-    }
-    const r2 = await fetchJsonRobust("/Snokido/data/snokido_top50.json");
-    const arr2 = extractArray(r2.data);
-    if(r2.ok && r2.parseOk && Array.isArray(arr2) && arr2.length){
-      return { players: arr2, dbg: r2 };
-    }
-    return { players: null, dbg: [r, r2] };
-  }
-
   async function loadIndex(){
-    const r = await fetchJsonRobust("data/history_paris/index.json");
-    const arr = extractArray(r.data) || (Array.isArray(r.data) ? r.data : null);
-    if(r.ok && r.parseOk && Array.isArray(arr)) return { index: arr, dbg: r };
-
-    const r2 = await fetchJsonRobust("/Snokido/data/history_paris/index.json");
-    const arr2 = extractArray(r2.data) || (Array.isArray(r2.data) ? r2.data : null);
-    if(r2.ok && r2.parseOk && Array.isArray(arr2)) return { index: arr2, dbg: r2 };
-
-    return { index: null, dbg: [r, r2] };
+    const idx = await fetchJson("data/history_paris/index.json");
+    if(!Array.isArray(idx)) return null;
+    return idx
+      .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
+      .filter(d => d !== "YYYY-MM-DD")
+      .sort();
   }
 
   async function loadSnapPlayers(day){
-    const r = await fetchJsonRobust("data/history_paris/" + day + ".json");
-    const arr = extractArray(r.data) || (Array.isArray(r.data) ? r.data : null);
-    if(r.ok && r.parseOk && Array.isArray(arr)) return { players: arr, dbg: r };
-
-    const r2 = await fetchJsonRobust("/Snokido/data/history_paris/" + day + ".json");
-    const arr2 = extractArray(r2.data) || (Array.isArray(r2.data) ? r2.data : null);
-    if(r2.ok && r2.parseOk && Array.isArray(arr2)) return { players: arr2, dbg: r2 };
-
-    return { players: null, dbg: [r, r2] };
+    const snap = await fetchJson("data/history_paris/" + day + ".json");
+    if(!snap) return null;
+    if(Array.isArray(snap)) return snap;
+    if(Array.isArray(snap.players)) return snap.players;
+    return null;
   }
 
   function formatSigned(n){
@@ -190,75 +127,33 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
-  function debugLine(r){
-    const c = r.ctype ? ` (${r.ctype})` : "";
-    const p = r.parseOk ? "JSON_OK" : "JSON_KO";
-    const h = r.looksHtml ? " HTML?" : "";
-    return `${r.status} ${r.url}${c} → ${p}${h} | sample: ${r.sample.replace(/\s+/g," ").slice(0,80)}`;
-  }
-
   window.addEventListener("DOMContentLoaded", async () => {
     const tbody = document.getElementById("tbody");
     const rangeTxt = document.getElementById("rangeTxt");
 
-    // 1) joueurs actuels : BIG sinon top50
-    const big = await loadBigPlayers();
-    let current = big.players;
-    let limited = false;
-
+    const current = await loadCurrentPlayers();
     if(!current){
-      const top = await loadTop50();
-      current = top.players;
-      limited = true;
-
-      if(!current){
-        const dbg = [].concat(big.dbg || [], top.dbg || []);
-        warn(
-          "Impossible de charger players_pages.json ni snokido_top50.json.\n\n" +
-          dbg.map(debugLine).join("\n")
-        );
-        return;
-      }
-
-      warn(
-        "players_pages.json non utilisable → résultat limité au Top50.\n\n" +
-        (big.dbg || []).map(debugLine).join("\n")
-      );
-    }
-
-    // 2) index history
-    const idx = await loadIndex();
-    if(!idx.index){
-      const dbg = idx.dbg || [];
-      warn("history_paris/index.json introuvable ou non-JSON.\n\n" + dbg.map(debugLine).join("\n"));
+      warn("Impossible de charger data/players_pages.json ou data/snokido_top50.json.");
       return;
     }
 
-    const index = idx.index
-      .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
-      .filter(d => d !== "YYYY-MM-DD")
-      .sort();
-
-    if(index.length < 1){
-      warn("history_paris/index.json est vide après filtrage.");
+    const index = await loadIndex();
+    if(!index || index.length < 1){
+      warn("history_paris/index.json introuvable ou vide.");
       return;
     }
 
+    // ✅ JOUR = baseline = dernier snapshot (même date)
     const latestDay = index[index.length - 1];
     const baseDay = latestDay;
 
-    // ✅ EXACT comme tu veux
-    rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
-
-    // 3) baseline snapshot
-    const snap = await loadSnapPlayers(baseDay);
-    if(!snap.players){
-      const dbg = snap.dbg || [];
-      warn("Snapshot introuvable/non-JSON : " + baseDay + "\n\n" + dbg.map(debugLine).join("\n"));
+    const baseline = await loadSnapPlayers(baseDay);
+    if(!baseline){
+      warn("Snapshot du jour introuvable : " + baseDay);
       return;
     }
 
-    const baseline = snap.players;
+    rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
 
     const baseMap = new Map();
     for(const p of baseline){
@@ -274,10 +169,18 @@
       const curXp = Number(p.xp || 0);
       const dx = curXp - bXp;
 
-      rows.push({ nom: p.nom, avatar: p.avatar, xp: curXp, dx });
+      rows.push({
+        nom: p.nom,
+        avatar: p.avatar,
+        xp: curXp,
+        dx: dx
+      });
     }
 
+    // ✅ enlever dx=0
     rows = rows.filter(r => Number(r.dx) !== 0);
+
+    // tri simple
     rows.sort((a,b)=> b.dx - a.dx);
 
     tbody.innerHTML = "";
