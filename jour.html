@@ -86,93 +86,103 @@
     return "name:" + slugify(p && p.nom);
   }
 
-  function repoBasePrefix(){
-    // GitHub Pages "project": /<repo>/...
-    // GitHub Pages "user/org": /...
-    // On tente de déduire /<repo> si présent.
-    const parts = location.pathname.split("/").filter(Boolean);
-    if(parts.length >= 2 && parts[0] !== "data"){
-      return "/" + parts[0];
-    }
-    return "";
-  }
+  // ---- fetch robuste: lit en texte, JSON.parse, détecte HTML ----
+  async function fetchJsonRobust(relPath){
+    const url = relPath + (relPath.includes("?") ? "&" : "?") + "t=" + Date.now();
+    try{
+      const res = await fetch(url, { cache: "no-store" });
+      const ctype = (res.headers.get("content-type") || "").toLowerCase();
+      const text = await res.text();
 
-  function buildCandidates(relPath){
-    const repo = repoBasePrefix();
-    const p = relPath.replace(/^\/+/, ""); // enlever leading /
-    const out = [
-      relPath,            // "data/..."
-      "./" + p,           // "./data/..."
-      "/" + p,            // "/data/..."
-    ];
-    if(repo){
-      out.push(repo + "/" + p); // "/repo/data/..."
-    }
-    // dédoublonnage
-    return Array.from(new Set(out));
-  }
-
-  async function fetchJsonAny(relPath){
-    const candidates = buildCandidates(relPath);
-    const tries = [];
-
-    for(const c of candidates){
-      const url = c + (c.includes("?") ? "&" : "?") + "t=" + Date.now();
+      // tentative JSON parse
+      let data = null;
+      let parseErr = null;
       try{
-        const res = await fetch(url, { cache: "no-store" });
-        tries.push(`${res.status} ${c}`);
-        if(!res.ok) continue;
-        const data = await res.json().catch(() => null);
-        if(data != null) return { data, okFrom: c, tries };
+        data = JSON.parse(text);
       }catch(e){
-        tries.push(`ERR ${c}`);
+        parseErr = e;
       }
+
+      // si c'est du HTML, on le détecte
+      const looksHtml = /^\s*</.test(text);
+
+      return {
+        url: relPath,
+        status: res.status,
+        ok: res.ok,
+        ctype,
+        parseOk: data !== null && parseErr === null,
+        looksHtml,
+        sample: text.slice(0, 120),
+        data
+      };
+    }catch(e){
+      return { url: relPath, status: 0, ok: false, ctype: "", parseOk: false, looksHtml: false, sample: String(e), data: null };
     }
-    return { data: null, okFrom: null, tries };
   }
 
-  async function loadCurrentPlayers(){
-    // ✅ on cherche players_pages en premier (50 pages)
-    const bigA = await fetchJsonAny("data/players_pages.json");
-    if(Array.isArray(bigA.data) && bigA.data.length >= 200) return { players: bigA.data, dbg: bigA };
+  // accepte: [...] OU {players:[...]} OU {rows:[...]}
+  function extractArray(maybe){
+    if(Array.isArray(maybe)) return maybe;
+    if(maybe && Array.isArray(maybe.players)) return maybe.players;
+    if(maybe && Array.isArray(maybe.rows)) return maybe.rows;
+    return null;
+  }
 
-    const bigB = await fetchJsonAny("data/period/players_pages.json");
-    if(Array.isArray(bigB.data) && bigB.data.length >= 200) return { players: bigB.data, dbg: bigB };
+  async function loadBigPlayers(){
+    // Chez toi, ça répond 200 sur data/players_pages.json, donc on commence par là.
+    const r = await fetchJsonRobust("data/players_pages.json");
+    const arr = extractArray(r.data);
+    if(r.ok && r.parseOk && Array.isArray(arr) && arr.length >= 200){
+      return { players: arr, dbg: r };
+    }
 
-    // fallback top50
-    const topA = await fetchJsonAny("data/snokido_top50.json");
-    if(Array.isArray(topA.data)) return { players: topA.data, dbg: topA, limitedTop50: true, bigTries: [...bigA.tries, ...bigB.tries] };
+    // fallback projet GH pages (si besoin)
+    const r2 = await fetchJsonRobust("/Snokido/data/players_pages.json");
+    const arr2 = extractArray(r2.data);
+    if(r2.ok && r2.parseOk && Array.isArray(arr2) && arr2.length >= 200){
+      return { players: arr2, dbg: r2 };
+    }
 
-    const topB = await fetchJsonAny("data/period/snokido_top50.json");
-    if(Array.isArray(topB.data)) return { players: topB.data, dbg: topB, limitedTop50: true, bigTries: [...bigA.tries, ...bigB.tries] };
+    return { players: null, dbg: [r, r2] };
+  }
 
-    return { players: null, dbg: { bigTries: [...bigA.tries, ...bigB.tries], topTries: [...topA.tries, ...topB.tries] } };
+  async function loadTop50(){
+    const r = await fetchJsonRobust("data/snokido_top50.json");
+    const arr = extractArray(r.data);
+    if(r.ok && r.parseOk && Array.isArray(arr) && arr.length){
+      return { players: arr, dbg: r };
+    }
+    const r2 = await fetchJsonRobust("/Snokido/data/snokido_top50.json");
+    const arr2 = extractArray(r2.data);
+    if(r2.ok && r2.parseOk && Array.isArray(arr2) && arr2.length){
+      return { players: arr2, dbg: r2 };
+    }
+    return { players: null, dbg: [r, r2] };
   }
 
   async function loadIndex(){
-    const a = await fetchJsonAny("data/history_paris/index.json");
-    if(Array.isArray(a.data)) return { index: a.data, dbg: a };
+    const r = await fetchJsonRobust("data/history_paris/index.json");
+    const arr = extractArray(r.data) || (Array.isArray(r.data) ? r.data : null);
+    if(r.ok && r.parseOk && Array.isArray(arr)) return { index: arr, dbg: r };
 
-    const b = await fetchJsonAny("data/period/history_paris/index.json");
-    if(Array.isArray(b.data)) return { index: b.data, dbg: b };
+    const r2 = await fetchJsonRobust("/Snokido/data/history_paris/index.json");
+    const arr2 = extractArray(r2.data) || (Array.isArray(r2.data) ? r2.data : null);
+    if(r2.ok && r2.parseOk && Array.isArray(arr2)) return { index: arr2, dbg: r2 };
 
-    return { index: null, dbg: { tries: [...a.tries, ...b.tries] } };
+    return { index: null, dbg: [r, r2] };
   }
 
   async function loadSnapPlayers(day){
-    const a = await fetchJsonAny("data/history_paris/" + day + ".json");
-    if(a.data){
-      if(Array.isArray(a.data)) return { players: a.data, dbg: a };
-      if(Array.isArray(a.data.players)) return { players: a.data.players, dbg: a };
-    }
+    const r = await fetchJsonRobust("data/history_paris/" + day + ".json");
+    const arr = extractArray(r.data) || (Array.isArray(r.data) ? r.data : null);
+    if(r.ok && r.parseOk && Array.isArray(arr)) return { players: arr, dbg: r };
 
-    const b = await fetchJsonAny("data/period/history_paris/" + day + ".json");
-    if(b.data){
-      if(Array.isArray(b.data)) return { players: b.data, dbg: b };
-      if(Array.isArray(b.data.players)) return { players: b.data.players, dbg: b };
-    }
+    const r2 = await fetchJsonRobust("/Snokido/data/history_paris/" + day + ".json");
+    const arr2 = extractArray(r2.data) || (Array.isArray(r2.data) ? r2.data : null);
+    if(r2.ok && r2.parseOk && Array.isArray(arr2)) return { players: arr2, dbg: r2 };
 
-    return { players: null, dbg: { tries: [...a.tries, ...b.tries] } };
+    return { players: null, dbg: [r, r2] };
   }
 
   function formatSigned(n){
@@ -180,30 +190,47 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
+  function debugLine(r){
+    const c = r.ctype ? ` (${r.ctype})` : "";
+    const p = r.parseOk ? "JSON_OK" : "JSON_KO";
+    const h = r.looksHtml ? " HTML?" : "";
+    return `${r.status} ${r.url}${c} → ${p}${h} | sample: ${r.sample.replace(/\s+/g," ").slice(0,80)}`;
+  }
+
   window.addEventListener("DOMContentLoaded", async () => {
     const tbody = document.getElementById("tbody");
     const rangeTxt = document.getElementById("rangeTxt");
 
-    const cur = await loadCurrentPlayers();
-    if(!cur.players){
+    // 1) joueurs actuels : BIG sinon top50
+    const big = await loadBigPlayers();
+    let current = big.players;
+    let limited = false;
+
+    if(!current){
+      const top = await loadTop50();
+      current = top.players;
+      limited = true;
+
+      if(!current){
+        const dbg = [].concat(big.dbg || [], top.dbg || []);
+        warn(
+          "Impossible de charger players_pages.json ni snokido_top50.json.\n\n" +
+          dbg.map(debugLine).join("\n")
+        );
+        return;
+      }
+
       warn(
-        "Impossible de charger players_pages.json ni snokido_top50.json.\n\n" +
-        "Essais players_pages:\n" + (cur.dbg.bigTries || []).join("\n") + "\n\n" +
-        "Essais top50:\n" + (cur.dbg.topTries || []).join("\n")
+        "players_pages.json non utilisable → résultat limité au Top50.\n\n" +
+        (big.dbg || []).map(debugLine).join("\n")
       );
-      return;
     }
 
-    if(cur.limitedTop50){
-      warn(
-        "players_pages.json introuvable → résultat limité au Top50.\n\n" +
-        "Essais players_pages:\n" + (cur.bigTries || []).join("\n")
-      );
-    }
-
+    // 2) index history
     const idx = await loadIndex();
     if(!idx.index){
-      warn("history_paris/index.json introuvable.\n\nEssais:\n" + (idx.dbg.tries || []).join("\n"));
+      const dbg = idx.dbg || [];
+      warn("history_paris/index.json introuvable ou non-JSON.\n\n" + dbg.map(debugLine).join("\n"));
       return;
     }
 
@@ -223,14 +250,15 @@
     // ✅ EXACT comme tu veux
     rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
 
+    // 3) baseline snapshot
     const snap = await loadSnapPlayers(baseDay);
     if(!snap.players){
-      warn("Snapshot du jour introuvable : " + baseDay + "\n\nEssais:\n" + (snap.dbg.tries || []).join("\n"));
+      const dbg = snap.dbg || [];
+      warn("Snapshot introuvable/non-JSON : " + baseDay + "\n\n" + dbg.map(debugLine).join("\n"));
       return;
     }
 
     const baseline = snap.players;
-    const current = cur.players;
 
     const baseMap = new Map();
     for(const p of baseline){
