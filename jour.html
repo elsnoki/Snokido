@@ -14,7 +14,7 @@
     .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
     .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
     .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
-    .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
+    .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; white-space:pre-wrap; }
 
     table{ width:100%; border-collapse:separate; border-spacing:0; }
     thead th{ background:#fff; padding:14px 12px; text-align:left; font-size:15px; font-weight:900; border-bottom:1px solid #cfcfcf; }
@@ -86,66 +86,93 @@
     return "name:" + slugify(p && p.nom);
   }
 
-  async function fetchJson(path){
-    const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
-    const res = await fetch(url, { cache: "no-store" });
-    if(!res.ok) return null;
-    try { return await res.json(); } catch { return null; }
+  function repoBasePrefix(){
+    // GitHub Pages "project": /<repo>/...
+    // GitHub Pages "user/org": /...
+    // On tente de déduire /<repo> si présent.
+    const parts = location.pathname.split("/").filter(Boolean);
+    if(parts.length >= 2 && parts[0] !== "data"){
+      return "/" + parts[0];
+    }
+    return "";
   }
 
-  // ✅ essaie les deux emplacements (data/ et data/period/)
+  function buildCandidates(relPath){
+    const repo = repoBasePrefix();
+    const p = relPath.replace(/^\/+/, ""); // enlever leading /
+    const out = [
+      relPath,            // "data/..."
+      "./" + p,           // "./data/..."
+      "/" + p,            // "/data/..."
+    ];
+    if(repo){
+      out.push(repo + "/" + p); // "/repo/data/..."
+    }
+    // dédoublonnage
+    return Array.from(new Set(out));
+  }
+
+  async function fetchJsonAny(relPath){
+    const candidates = buildCandidates(relPath);
+    const tries = [];
+
+    for(const c of candidates){
+      const url = c + (c.includes("?") ? "&" : "?") + "t=" + Date.now();
+      try{
+        const res = await fetch(url, { cache: "no-store" });
+        tries.push(`${res.status} ${c}`);
+        if(!res.ok) continue;
+        const data = await res.json().catch(() => null);
+        if(data != null) return { data, okFrom: c, tries };
+      }catch(e){
+        tries.push(`ERR ${c}`);
+      }
+    }
+    return { data: null, okFrom: null, tries };
+  }
+
   async function loadCurrentPlayers(){
-    const big1 = await fetchJson("data/players_pages.json");
-    if(Array.isArray(big1) && big1.length >= 200) return big1;
+    // ✅ on cherche players_pages en premier (50 pages)
+    const bigA = await fetchJsonAny("data/players_pages.json");
+    if(Array.isArray(bigA.data) && bigA.data.length >= 200) return { players: bigA.data, dbg: bigA };
 
-    const big2 = await fetchJson("data/period/players_pages.json");
-    if(Array.isArray(big2) && big2.length >= 200) return big2;
+    const bigB = await fetchJsonAny("data/period/players_pages.json");
+    if(Array.isArray(bigB.data) && bigB.data.length >= 200) return { players: bigB.data, dbg: bigB };
 
-    const top1 = await fetchJson("data/snokido_top50.json");
-    if(Array.isArray(top1)) {
-      warn("players_pages.json introuvable (data/ ou data/period/) → résultat limité au Top50.");
-      return top1;
-    }
+    // fallback top50
+    const topA = await fetchJsonAny("data/snokido_top50.json");
+    if(Array.isArray(topA.data)) return { players: topA.data, dbg: topA, limitedTop50: true, bigTries: [...bigA.tries, ...bigB.tries] };
 
-    const top2 = await fetchJson("data/period/snokido_top50.json");
-    if(Array.isArray(top2)) {
-      warn("players_pages.json introuvable (data/ ou data/period/) → résultat limité au Top50.");
-      return top2;
-    }
+    const topB = await fetchJsonAny("data/period/snokido_top50.json");
+    if(Array.isArray(topB.data)) return { players: topB.data, dbg: topB, limitedTop50: true, bigTries: [...bigA.tries, ...bigB.tries] };
 
-    return null;
+    return { players: null, dbg: { bigTries: [...bigA.tries, ...bigB.tries], topTries: [...topA.tries, ...topB.tries] } };
   }
 
   async function loadIndex(){
-    const idx1 = await fetchJson("data/history_paris/index.json");
-    if(Array.isArray(idx1)) return idx1
-      .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
-      .filter(d => d !== "YYYY-MM-DD")
-      .sort();
+    const a = await fetchJsonAny("data/history_paris/index.json");
+    if(Array.isArray(a.data)) return { index: a.data, dbg: a };
 
-    const idx2 = await fetchJson("data/period/history_paris/index.json");
-    if(Array.isArray(idx2)) return idx2
-      .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
-      .filter(d => d !== "YYYY-MM-DD")
-      .sort();
+    const b = await fetchJsonAny("data/period/history_paris/index.json");
+    if(Array.isArray(b.data)) return { index: b.data, dbg: b };
 
-    return null;
+    return { index: null, dbg: { tries: [...a.tries, ...b.tries] } };
   }
 
   async function loadSnapPlayers(day){
-    const snap1 = await fetchJson("data/history_paris/" + day + ".json");
-    if(snap1){
-      if(Array.isArray(snap1)) return snap1;
-      if(Array.isArray(snap1.players)) return snap1.players;
+    const a = await fetchJsonAny("data/history_paris/" + day + ".json");
+    if(a.data){
+      if(Array.isArray(a.data)) return { players: a.data, dbg: a };
+      if(Array.isArray(a.data.players)) return { players: a.data.players, dbg: a };
     }
 
-    const snap2 = await fetchJson("data/period/history_paris/" + day + ".json");
-    if(snap2){
-      if(Array.isArray(snap2)) return snap2;
-      if(Array.isArray(snap2.players)) return snap2.players;
+    const b = await fetchJsonAny("data/period/history_paris/" + day + ".json");
+    if(b.data){
+      if(Array.isArray(b.data)) return { players: b.data, dbg: b };
+      if(Array.isArray(b.data.players)) return { players: b.data.players, dbg: b };
     }
 
-    return null;
+    return { players: null, dbg: { tries: [...a.tries, ...b.tries] } };
   }
 
   function formatSigned(n){
@@ -157,29 +184,53 @@
     const tbody = document.getElementById("tbody");
     const rangeTxt = document.getElementById("rangeTxt");
 
-    const current = await loadCurrentPlayers();
-    if(!current){
-      warn("Impossible de charger players_pages.json (data/ ou data/period/) ni snokido_top50.json.");
+    const cur = await loadCurrentPlayers();
+    if(!cur.players){
+      warn(
+        "Impossible de charger players_pages.json ni snokido_top50.json.\n\n" +
+        "Essais players_pages:\n" + (cur.dbg.bigTries || []).join("\n") + "\n\n" +
+        "Essais top50:\n" + (cur.dbg.topTries || []).join("\n")
+      );
       return;
     }
 
-    const index = await loadIndex();
-    if(!index || index.length < 1){
-      warn("history_paris/index.json introuvable ou vide.");
+    if(cur.limitedTop50){
+      warn(
+        "players_pages.json introuvable → résultat limité au Top50.\n\n" +
+        "Essais players_pages:\n" + (cur.bigTries || []).join("\n")
+      );
+    }
+
+    const idx = await loadIndex();
+    if(!idx.index){
+      warn("history_paris/index.json introuvable.\n\nEssais:\n" + (idx.dbg.tries || []).join("\n"));
+      return;
+    }
+
+    const index = idx.index
+      .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
+      .filter(d => d !== "YYYY-MM-DD")
+      .sort();
+
+    if(index.length < 1){
+      warn("history_paris/index.json est vide après filtrage.");
       return;
     }
 
     const latestDay = index[index.length - 1];
     const baseDay = latestDay;
 
-    // ✅ Affichage EXACT comme tu veux
+    // ✅ EXACT comme tu veux
     rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
 
-    const baseline = await loadSnapPlayers(baseDay);
-    if(!baseline){
-      warn("Snapshot du jour introuvable : " + baseDay);
+    const snap = await loadSnapPlayers(baseDay);
+    if(!snap.players){
+      warn("Snapshot du jour introuvable : " + baseDay + "\n\nEssais:\n" + (snap.dbg.tries || []).join("\n"));
       return;
     }
+
+    const baseline = snap.players;
+    const current = cur.players;
 
     const baseMap = new Map();
     for(const p of baseline){
