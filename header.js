@@ -38,6 +38,7 @@ const headerHTML = `
         </div>
       </span>
 
+      <a class="tab tab-year" href="rankyear.html">Année</a>
       <a class="tab tab-chrono" href="timeline.html">Timeline</a>
 
     </nav>
@@ -90,3 +91,4 @@ document.addEventListener("keydown", (e) => {
   }
 
 });
+
