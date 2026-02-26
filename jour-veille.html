@@ -125,17 +125,6 @@
 
   .center{ text-align:center; white-space:nowrap; }
 
-  .pill{
-    display:inline-block;
-    padding:4px 8px;
-    border-radius:999px;
-    font-weight:900;
-    font-size:12px;
-    border:1px solid rgba(0,0,0,.12);
-    background:#f2f2f2;
-    white-space:nowrap;
-  }
-
   .gain{
     font-weight:900;
     font-size:16px;
@@ -191,7 +180,7 @@
     Comparaison automatique entre les <b>2 derniers scrapes</b> dans
     <code>data/history_paris/index.json</code> (ex: 25/02 → 26/02).
     <br>
-    Les joueurs absents la veille sont <b>ignorés</b> (pas de “Nouveau” qui fausse le résultat).
+    Les joueurs absents la veille sont ignorés. Les gains à <b>0</b> ne sont pas affichés.
   </div>
 </div>
 
@@ -222,7 +211,6 @@
     return null;
   }
 
-  // ✅ Matching stable : NOM (c’est le plus fiable chez toi)
   function nameKey(p){
     return String(p?.nom || "").toLowerCase().trim();
   }
@@ -253,7 +241,6 @@
       return;
     }
 
-    // ✅ 24h : on compare les 2 DERNIERS scrapes
     const dateEnd = dates[dates.length - 1];
     const dateStart = dates[dates.length - 2];
     rangeInfo.textContent = `Période : ${dateStart} → ${dateEnd}`;
@@ -278,7 +265,6 @@
       return;
     }
 
-    // Map XP au début (veille)
     const startMap = new Map();
     snapStart.forEach(p => {
       const k = nameKey(p);
@@ -286,17 +272,17 @@
       startMap.set(k, Number(p.xp) || 0);
     });
 
-    // Gains sur 24h (on IGNORE ceux absents au début)
     const rows = [];
     snapEnd.forEach(p => {
       const k = nameKey(p);
       if(!k) return;
-
-      if(!startMap.has(k)) return; // ✅ ignore les "nouveaux" pour éviter gain=XP total
+      if(!startMap.has(k)) return; // ignore nouveaux
 
       const xpEnd = Number(p.xp) || 0;
       const xpStart = startMap.get(k) || 0;
       const gain = xpEnd - xpStart;
+
+      if(gain <= 0) return; // ✅ n'affiche pas ceux à 0 (et pas ceux en négatif)
 
       rows.push({
         nom: p.nom || "—",
@@ -308,19 +294,18 @@
       });
     });
 
-    // Tri gain desc puis xp fin desc
     rows.sort((a,b) => (b.gain - a.gain) || (b.xpEnd - a.xpEnd));
 
     tbody.innerHTML = "";
 
     if(rows.length === 0){
-      warn("Aucun joueur commun entre les 2 jours (ou matching nom impossible).");
+      warn("Aucun joueur n'a gagné d'XP sur cette période (ou matching impossible).");
       return;
     }
 
     rows.forEach((p, i) => {
       const tr = document.createElement("tr");
-      const gainTxt = (p.gain > 0 ? "+" : "") + p.gain.toLocaleString("fr-FR");
+      const gainTxt = "+" + p.gain.toLocaleString("fr-FR");
 
       tr.innerHTML = `
         <td class="rank">${i+1}</td>
