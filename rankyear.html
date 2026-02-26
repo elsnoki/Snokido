@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Classement XP par année d'inscription</title>
+
+<link rel="stylesheet" href="style.css" />
+<script src="header.js" defer></script>
+<script src="data.js" defer></script>
+<script src="xp_widget.js" defer></script>
+
+<style>
+  body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+  }
+  .wrap{
+    width:1100px;
+    max-width: calc(100% - 40px);
+    margin:60px auto;
+  }
+  .box{
+    background:#fff;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,.35);
+    margin-bottom:16px;
+  }
+  .title{
+    background:#3a3a3a;
+    color:#fff;
+    padding:14px 16px;
+    font-size:20px;
+    font-weight:900;
+  }
+
+  .yearHead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 16px;
+    background:#f6f6f6;
+    border-top:1px solid #e2e2e2;
+    border-bottom:1px solid #e2e2e2;
+    cursor:pointer;
+    user-select:none;
+    font-weight:900;
+    color:#222;
+  }
+  .yearMeta{
+    font-weight:900;
+    color:#666;
+    font-size:12px;
+  }
+  .caret{
+    font-weight:900;
+    color:#333;
+    margin-left:10px;
+  }
+  .yearBody{
+    display:none;
+  }
+  .box.open .yearBody{
+    display:block;
+  }
+
+  table{ width:100%; border-collapse:separate; border-spacing:0; }
+  thead th{
+    background:#fff;
+    padding:12px 10px;
+    text-align:left;
+    font-size:13px;
+    font-weight:900;
+    border-bottom:1px solid #cfcfcf;
+  }
+  tbody td{
+    padding:14px 10px;
+    border-bottom:1px solid #cfcfcf;
+    vertical-align:middle;
+    font-size:14px;
+  }
+  tbody tr:nth-child(odd){ background:#f2f2f2; }
+
+  .rank{ font-weight:900; font-size:18px; width:60px; text-align:center; color:#444; }
+  .avatar{ width:70px; text-align:center; }
+  .avatar .frame{
+    width:44px; height:44px; margin:0 auto;
+    background:#e9e9e9; border:1px solid #bdbdbd; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .avatar img{
+    width:38px; height:38px; object-fit:cover;
+    border:2px solid #8f8f8f; border-radius:10px; background:#ddd; display:block;
+  }
+
+  .name a{ color:#2c6fb7; font-weight:900; text-decoration:none; }
+  .name a:hover{ text-decoration:underline; }
+
+  .center{ text-align:center; white-space:nowrap; }
+
+  .hint{
+    background:#ffffff;
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.20);
+    border:1px solid rgba(0,0,0,.10);
+    color:#222;
+    font-weight:900;
+  }
+  .hint small{ display:block; margin-top:4px; font-weight:900; color:#666; }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="hint">
+    Classement XP par <b>année d'inscription</b> (Top 10 max par année).
+    <small>Tri : XP décroissante. Les données viennent de <code>data.js</code> (scrap). Clique sur une année pour ouvrir/fermer.</small>
+  </div>
+
+  <div class="box">
+    <div class="title">Classement XP — par année d'inscription</div>
+    <div id="years"></div>
+  </div>
+</div>
+
+<script>
+  function slugify2(name){
+    return String(name || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toLowerCase();
+  }
+
+  function extractYear(inscription){
+    if(!inscription) return null;
+    const s = String(inscription);
+
+    // Cherche un "YYYY" plausible
+    const m = s.match(/(19\d{2}|20\d{2}|2100)/);
+    if(m) return Number(m[1]);
+
+    return null;
+  }
+
+  // Essaie de récupérer XP / niveau / rang même si le nom exact du champ varie
+  function getXP(p){
+    const candidates = [
+      p.xp,
+      p.xp_total,
+      p.xptotal,
+      p.total_xp,
+      p.totalXp,
+      p.stats?.xp,
+      p.stats?.total_xp,
+      p.stats?.totalXp,
+      p.global?.xp,
+      p.global?.total_xp,
+      p.modes?.xp,
+      p.modes?.global?.xp
+    ];
+    for(const v of candidates){
+      if(v == null) continue;
+      const n = Number(v);
+      if(Number.isFinite(n)) return n;
+    }
+    return null;
+  }
+
+  function getLevel(p){
+    const candidates = [
+      p.niveau,
+      p.level,
+      p.lvl,
+      p.stats?.niveau,
+      p.stats?.level,
+      p.global?.niveau,
+      p.global?.level
+    ];
+    for(const v of candidates){
+      if(v == null) continue;
+      const n = Number(v);
+      if(Number.isFinite(n)) return n;
+    }
+    return null;
+  }
+
+  function getGlobalRank(p){
+    const candidates = [
+      p.classement,
+      p.rank,
+      p.rang,
+      p.top2500,
+      p.stats?.classement,
+      p.stats?.rank,
+      p.global?.classement,
+      p.global?.rank
+    ];
+    for(const v of candidates){
+      if(v == null) continue;
+      const n = Number(v);
+      if(Number.isFinite(n)) return n;
+    }
+    return null;
+  }
+
+  function fmtInt(n){
+    if(n == null) return "—";
+    try { return new Intl.NumberFormat("fr-FR").format(n); }
+    catch(e){ return String(n); }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const host = document.getElementById("years");
+
+    if(typeof joueurs === "undefined" || !Array.isArray(joueurs)){
+      host.innerHTML = `<div style="padding:16px;font-weight:900">Erreur : data.js ne s'est pas chargé.</div>`;
+      return;
+    }
+
+    // Normalise + récupère data utile
+    const rows = joueurs.map(p => {
+      const year = extractYear(p.inscription);
+      return {
+        p,
+        year,
+        xp: getXP(p),
+        level: getLevel(p),
+        globalRank: getGlobalRank(p)
+      };
+    }).filter(x => x.year != null); // seulement ceux qui ont une année exploitable
+
+    // Groupe par année
+    const byYear = new Map();
+    for(const r of rows){
+      if(!byYear.has(r.year)) byYear.set(r.year, []);
+      byYear.get(r.year).push(r);
+    }
+
+    // Tri des années (récent -> ancien)
+    const years = Array.from(byYear.keys()).sort((a,b) => b - a);
+
+    if(years.length === 0){
+      host.innerHTML = `<div style="padding:16px;font-weight:900">Aucune date d'inscription exploitable dans data.js.</div>`;
+      return;
+    }
+
+    host.innerHTML = "";
+
+    years.forEach((year, idx) => {
+      const list = byYear.get(year) || [];
+
+      // Tri par XP desc (null -> tout en bas), puis nom
+      list.sort((a,b) => {
+        const ax = (a.xp == null) ? -Infinity : a.xp;
+        const bx = (b.xp == null) ? -Infinity : b.xp;
+        if(bx !== ax) return bx - ax;
+        return String(a.p.nom || "").localeCompare(String(b.p.nom || ""), "fr", { sensitivity:"base" });
+      });
+
+      const top = list.slice(0, 10);
+
+      const section = document.createElement("div");
+      section.className = "box" + (idx === 0 ? " open" : ""); // ouvre la plus récente par défaut
+
+      const total = list.length;
+      const head = document.createElement("div");
+      head.className = "yearHead";
+      head.innerHTML = `
+        <div>Année ${year} <span class="yearMeta">(${Math.min(10,total)}/${total} affichés)</span></div>
+        <div class="caret">${idx === 0 ? "▾" : "▸"}</div>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "yearBody";
+      body.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px;"></th>
+              <th style="width:70px;"></th>
+              <th>Nom du joueur</th>
+              <th class="center">XP</th>
+              <th class="center">Niveau</th>
+              <th class="center">Rang (Top 2500)</th>
+              <th class="center">Inscription</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      `;
+
+      const tbody = body.querySelector("tbody");
+      tbody.innerHTML = "";
+
+      top.forEach((x, i) => {
+        const p = x.p;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="rank">${i+1}</td>
+          <td class="avatar">
+            <div class="frame"><img src="${p.avatar || "avatar/1.jpg"}" alt="${p.nom || ""}"></div>
+          </td>
+          <td class="name">
+            <a href="profil.html?u=${encodeURIComponent(slugify2(p.nom))}">
+              ${p.nom ?? "—"}
+            </a>
+          </td>
+          <td class="center">${fmtInt(x.xp)}</td>
+          <td class="center">${x.level == null ? "—" : fmtInt(x.level)}</td>
+          <td class="center">${x.globalRank == null ? "—" : ("#" + fmtInt(x.globalRank))}</td>
+          <td class="center">${p.inscription ?? "—"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      head.addEventListener("click", () => {
+        const isOpen = section.classList.toggle("open");
+        head.querySelector(".caret").textContent = isOpen ? "▾" : "▸";
+      });
+
+      section.appendChild(document.createElement("div")).className = "title";
+      section.querySelector(".title").textContent = `Année ${year}`;
+      section.appendChild(head);
+      section.appendChild(body);
+
+      host.appendChild(section);
+    });
+
+    // Active l’onglet "Année" si présent dans le header
+    const t = document.querySelector(".tab-year");
+    if(t) t.classList.add("is-active");
+  });
+</script>
+
+</body>
+</html>
