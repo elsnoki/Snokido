@@ -1,6 +1,6 @@
 {
   "date": "2026-02-26",
-  "generatedAtParis": "26/02/2026 00:57:39",
+  "generatedAtParis": "26/02/2026 00:00:41",
   "players": [
     {
       "nom": "Talk Takashi",
@@ -14,11 +14,11 @@
     {
       "nom": "alex.c2109",
       "slug": "alexc2109",
-      "xp": 822388,
+      "xp": 822328,
       "niveau": 100,
       "avatar": "https://www.snokido.fr/images/snoki/medium/53.jpg",
       "profileHref": "https://www.snokido.fr/player/alexc2109",
-      "karas": 1135077
+      "karas": 1135017
     },
     {
       "nom": "francoeur",
@@ -32,11 +32,11 @@
     {
       "nom": "TheGladiator",
       "slug": "thegladiator",
-      "xp": 396746,
+      "xp": 396710,
       "niveau": 100,
       "avatar": "https://www.snokido.fr/images/snoki/medium/1.jpg",
       "profileHref": "https://www.snokido.fr/player/thegladiator",
-      "karas": 735095
+      "karas": 735059
     },
     {
       "nom": "Abelard",
@@ -86,11 +86,11 @@
     {
       "nom": "lumia",
       "slug": "lumia",
-      "xp": 117538,
+      "xp": 117462,
       "niveau": 100,
       "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
       "profileHref": "https://www.snokido.fr/player/lumia",
-      "karas": 449887
+      "karas": 449811
     },
     {
       "nom": "cirpacha",
@@ -122,20 +122,20 @@
     {
       "nom": "Ko0pa",
       "slug": "ko0pa",
-      "xp": 65898,
+      "xp": 65810,
       "niveau": 100,
       "avatar": "https://www.snokido.fr/images/snoki/medium/120.jpg",
       "profileHref": "https://www.snokido.fr/player/ko0pa",
-      "karas": 397447
+      "karas": 397359
     },
     {
       "nom": "Unit",
       "slug": "unit",
-      "xp": 64288,
+      "xp": 64248,
       "niveau": 100,
       "avatar": "https://www.snokido.fr/images/snoki/medium/133.jpg",
       "profileHref": "https://www.snokido.fr/player/unit",
-      "karas": 389837
+      "karas": 389797
     },
     {
       "nom": "Largo672",
@@ -939,21 +939,21 @@
       "karas": null
     },
     {
-      "nom": "LargoJunior",
-      "slug": "largojunior",
-      "xp": 16508,
-      "niveau": 57,
-      "avatar": "https://www.snokido.fr/images/snoki/medium/11.jpg",
-      "profileHref": "https://www.snokido.fr/player/largojunior",
-      "karas": null
-    },
-    {
       "nom": "Redboss3",
       "slug": "redboss3",
       "xp": 16502,
       "niveau": 57,
       "avatar": "https://www.snokido.fr/images/snoki/medium/151.jpg",
       "profileHref": "https://www.snokido.fr/player/redboss3",
+      "karas": null
+    },
+    {
+      "nom": "LargoJunior",
+      "slug": "largojunior",
+      "xp": 16448,
+      "niveau": 57,
+      "avatar": "https://www.snokido.fr/images/snoki/medium/11.jpg",
+      "profileHref": "https://www.snokido.fr/player/largojunior",
       "karas": null
     },
     {
@@ -984,21 +984,21 @@
       "karas": null
     },
     {
-      "nom": "Napoléon.1er",
-      "slug": "napoleon1er",
-      "xp": 15968,
-      "niveau": 57,
-      "avatar": "https://www.snokido.fr/images/snoki/medium/152.jpg",
-      "profileHref": "https://www.snokido.fr/player/napoleon1er",
-      "karas": null
-    },
-    {
       "nom": "yassini65",
       "slug": "yassini65",
       "xp": 15952,
       "niveau": 56,
       "avatar": "https://www.snokido.fr/images/snoki/medium/159.jpg",
       "profileHref": "https://www.snokido.fr/player/yassini65",
+      "karas": null
+    },
+    {
+      "nom": "Napoléon.1er",
+      "slug": "napoleon1er",
+      "xp": 15948,
+      "niveau": 56,
+      "avatar": "https://www.snokido.fr/images/snoki/medium/152.jpg",
+      "profileHref": "https://www.snokido.fr/player/napoleon1er",
       "karas": null
     },
     {
@@ -16932,15 +16932,6 @@
       "karas": null
     },
     {
-      "nom": "Polyy",
-      "slug": "polyy",
-      "xp": 4856,
-      "niveau": 31,
-      "avatar": "https://www.snokido.fr/images/snoki/medium/163.jpg",
-      "profileHref": "https://www.snokido.fr/player/polyy",
-      "karas": null
-    },
-    {
       "nom": "devis007",
       "slug": "devis007",
       "xp": 4856,
@@ -16983,6 +16974,15 @@
       "niveau": 31,
       "avatar": "https://www.snokido.fr/images/snoki/medium/2.jpg",
       "profileHref": "https://www.snokido.fr/player/zepeck",
+      "karas": null
+    },
+    {
+      "nom": "Polyy",
+      "slug": "polyy",
+      "xp": 4848,
+      "niveau": 31,
+      "avatar": "https://www.snokido.fr/images/snoki/medium/163.jpg",
+      "profileHref": "https://www.snokido.fr/player/polyy",
       "karas": null
     },
     {
