@@ -16,18 +16,21 @@
     font-family: Arial, sans-serif;
     background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
   }
+
   .wrap{
     width:1100px;
     max-width: calc(100% - 40px);
     margin:60px auto;
   }
-  .box{
+
+  .panel{
     background:#fff;
     border-radius:10px;
     overflow:hidden;
     box-shadow: 0 10px 25px rgba(0,0,0,.35);
     margin-bottom:16px;
   }
+
   .title{
     background:#3a3a3a;
     color:#fff;
@@ -36,35 +39,55 @@
     font-weight:900;
   }
 
+  .hint{
+    background:#ffffff;
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.20);
+    border:1px solid rgba(0,0,0,.10);
+    color:#222;
+    font-weight:900;
+  }
+  .hint small{ display:block; margin-top:4px; font-weight:900; color:#666; }
+
+  .yearBox{
+    background:#fff;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,.22);
+    border:1px solid rgba(0,0,0,.10);
+    margin-bottom:14px;
+  }
+
   .yearHead{
     display:flex;
     align-items:center;
     justify-content:space-between;
     padding:12px 16px;
     background:#f6f6f6;
-    border-top:1px solid #e2e2e2;
     border-bottom:1px solid #e2e2e2;
     cursor:pointer;
     user-select:none;
     font-weight:900;
     color:#222;
   }
+
   .yearMeta{
     font-weight:900;
     color:#666;
     font-size:12px;
+    margin-left:10px;
   }
+
   .caret{
     font-weight:900;
     color:#333;
     margin-left:10px;
   }
-  .yearBody{
-    display:none;
-  }
-  .box.open .yearBody{
-    display:block;
-  }
+
+  .yearBody{ display:none; }
+  .yearBox.open .yearBody{ display:block; }
 
   table{ width:100%; border-collapse:separate; border-spacing:0; }
   thead th{
@@ -99,32 +122,32 @@
   .name a:hover{ text-decoration:underline; }
 
   .center{ text-align:center; white-space:nowrap; }
-
-  .hint{
-    background:#ffffff;
-    border-radius:10px;
-    padding:12px 14px;
-    margin-bottom:14px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.20);
-    border:1px solid rgba(0,0,0,.10);
-    color:#222;
+  .modeBadge{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:999px;
     font-weight:900;
+    font-size:12px;
+    background:#efefef;
+    border:1px solid rgba(0,0,0,.10);
+    color:#333;
   }
-  .hint small{ display:block; margin-top:4px; font-weight:900; color:#666; }
 </style>
 </head>
 
 <body>
 <div class="wrap">
+
   <div class="hint">
     Classement XP par <b>année d'inscription</b> (Top 10 max par année).
-    <small>Tri : XP décroissante. Les données viennent de <code>data.js</code> (scrap). Clique sur une année pour ouvrir/fermer.</small>
+    <small>XP utilisée = <b>meilleure XP du joueur</b> (max des modes). Tri : XP décroissante.</small>
   </div>
 
-  <div class="box">
+  <div class="panel">
     <div class="title">Classement XP — par année d'inscription</div>
-    <div id="years"></div>
+    <div id="years" style="padding:14px;"></div>
   </div>
+
 </div>
 
 <script>
@@ -137,80 +160,42 @@
 
   function extractYear(inscription){
     if(!inscription) return null;
-    const s = String(inscription);
-
-    // Cherche un "YYYY" plausible
+    // format attendu: "24-01-2026"
+    const s = String(inscription).trim();
+    const parts = s.split("-");
+    if(parts.length === 3){
+      const y = Number(parts[2]);
+      return Number.isFinite(y) ? y : null;
+    }
+    // fallback regex "YYYY"
     const m = s.match(/(19\d{2}|20\d{2}|2100)/);
-    if(m) return Number(m[1]);
-
-    return null;
-  }
-
-  // Essaie de récupérer XP / niveau / rang même si le nom exact du champ varie
-  function getXP(p){
-    const candidates = [
-      p.xp,
-      p.xp_total,
-      p.xptotal,
-      p.total_xp,
-      p.totalXp,
-      p.stats?.xp,
-      p.stats?.total_xp,
-      p.stats?.totalXp,
-      p.global?.xp,
-      p.global?.total_xp,
-      p.modes?.xp,
-      p.modes?.global?.xp
-    ];
-    for(const v of candidates){
-      if(v == null) continue;
-      const n = Number(v);
-      if(Number.isFinite(n)) return n;
-    }
-    return null;
-  }
-
-  function getLevel(p){
-    const candidates = [
-      p.niveau,
-      p.level,
-      p.lvl,
-      p.stats?.niveau,
-      p.stats?.level,
-      p.global?.niveau,
-      p.global?.level
-    ];
-    for(const v of candidates){
-      if(v == null) continue;
-      const n = Number(v);
-      if(Number.isFinite(n)) return n;
-    }
-    return null;
-  }
-
-  function getGlobalRank(p){
-    const candidates = [
-      p.classement,
-      p.rank,
-      p.rang,
-      p.top2500,
-      p.stats?.classement,
-      p.stats?.rank,
-      p.global?.classement,
-      p.global?.rank
-    ];
-    for(const v of candidates){
-      if(v == null) continue;
-      const n = Number(v);
-      if(Number.isFinite(n)) return n;
-    }
-    return null;
+    return m ? Number(m[1]) : null;
   }
 
   function fmtInt(n){
     if(n == null) return "—";
     try { return new Intl.NumberFormat("fr-FR").format(n); }
     catch(e){ return String(n); }
+  }
+
+  // Prend la meilleure XP du joueur (max de tous ses modes)
+  function bestXPAndMode(p){
+    const modes = p?.modes && typeof p.modes === "object" ? p.modes : null;
+    if(!modes) return { xp:null, mode:null, rang:null };
+
+    let best = { xp: null, mode: null, rang: null };
+    for(const modeKey of Object.keys(modes)){
+      const m = modes[modeKey];
+      const xp = (m && typeof m.xp === "number") ? m.xp : null;
+      if(xp == null) continue;
+
+      if(best.xp == null || xp > best.xp){
+        best.xp = xp;
+        best.mode = modeKey;
+        best.rang = m.rang ?? null; // ex "1/23"
+      }
+    }
+    return best;
   }
 
   window.addEventListener("DOMContentLoaded", () => {
@@ -221,30 +206,31 @@
       return;
     }
 
-    // Normalise + récupère data utile
+    // construit rows
     const rows = joueurs.map(p => {
       const year = extractYear(p.inscription);
+      const best = bestXPAndMode(p);
       return {
         p,
         year,
-        xp: getXP(p),
-        level: getLevel(p),
-        globalRank: getGlobalRank(p)
+        xp: best.xp,
+        bestMode: best.mode,
+        rang: best.rang,
+        niveau: (typeof p.gen === "number") ? p.gen : null,
+        inscription: p.inscription ?? "—"
       };
-    }).filter(x => x.year != null); // seulement ceux qui ont une année exploitable
+    }).filter(r => r.year != null);
 
-    // Groupe par année
+    // group by year
     const byYear = new Map();
     for(const r of rows){
       if(!byYear.has(r.year)) byYear.set(r.year, []);
       byYear.get(r.year).push(r);
     }
 
-    // Tri des années (récent -> ancien)
     const years = Array.from(byYear.keys()).sort((a,b) => b - a);
-
     if(years.length === 0){
-      host.innerHTML = `<div style="padding:16px;font-weight:900">Aucune date d'inscription exploitable dans data.js.</div>`;
+      host.innerHTML = `<div style="padding:16px;font-weight:900">Aucune année d'inscription exploitable.</div>`;
       return;
     }
 
@@ -253,7 +239,7 @@
     years.forEach((year, idx) => {
       const list = byYear.get(year) || [];
 
-      // Tri par XP desc (null -> tout en bas), puis nom
+      // tri XP décroissant, null à la fin, puis nom
       list.sort((a,b) => {
         const ax = (a.xp == null) ? -Infinity : a.xp;
         const bx = (b.xp == null) ? -Infinity : b.xp;
@@ -263,14 +249,16 @@
 
       const top = list.slice(0, 10);
 
-      const section = document.createElement("div");
-      section.className = "box" + (idx === 0 ? " open" : ""); // ouvre la plus récente par défaut
+      const box = document.createElement("div");
+      box.className = "yearBox" + (idx === 0 ? " open" : "");
 
-      const total = list.length;
       const head = document.createElement("div");
       head.className = "yearHead";
       head.innerHTML = `
-        <div>Année ${year} <span class="yearMeta">(${Math.min(10,total)}/${total} affichés)</span></div>
+        <div>
+          Année ${year}
+          <span class="yearMeta">(${Math.min(10, list.length)}/${list.length} affichés)</span>
+        </div>
         <div class="caret">${idx === 0 ? "▾" : "▸"}</div>
       `;
 
@@ -284,6 +272,7 @@
               <th style="width:70px;"></th>
               <th>Nom du joueur</th>
               <th class="center">XP</th>
+              <th class="center">Meilleur mode</th>
               <th class="center">Niveau</th>
               <th class="center">Rang (Top 2500)</th>
               <th class="center">Inscription</th>
@@ -296,44 +285,44 @@
       const tbody = body.querySelector("tbody");
       tbody.innerHTML = "";
 
-      top.forEach((x, i) => {
-        const p = x.p;
+      top.forEach((r, i) => {
+        const p = r.p;
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="rank">${i+1}</td>
+          <td class="rank">${i + 1}</td>
           <td class="avatar">
-            <div class="frame"><img src="${p.avatar || "avatar/1.jpg"}" alt="${p.nom || ""}"></div>
+            <div class="frame">
+              <img src="${p.avatar || "avatar/1.jpg"}" alt="${p.nom || ""}">
+            </div>
           </td>
           <td class="name">
-            <a href="profil.html?u=${encodeURIComponent(slugify2(p.nom))}">
+            <a href="profil.html?mode=nv100&u=${encodeURIComponent(slugify2(p.nom))}">
               ${p.nom ?? "—"}
             </a>
           </td>
-          <td class="center">${fmtInt(x.xp)}</td>
-          <td class="center">${x.level == null ? "—" : fmtInt(x.level)}</td>
-          <td class="center">${x.globalRank == null ? "—" : ("#" + fmtInt(x.globalRank))}</td>
-          <td class="center">${p.inscription ?? "—"}</td>
+          <td class="center">${fmtInt(r.xp)}</td>
+          <td class="center">${r.bestMode ? `<span class="modeBadge">${r.bestMode}</span>` : "—"}</td>
+          <td class="center">${r.niveau == null ? "—" : fmtInt(r.niveau)}</td>
+          <td class="center">${r.rang ?? "—"}</td>
+          <td class="center">${r.inscription}</td>
         `;
         tbody.appendChild(tr);
       });
 
       head.addEventListener("click", () => {
-        const isOpen = section.classList.toggle("open");
+        const isOpen = box.classList.toggle("open");
         head.querySelector(".caret").textContent = isOpen ? "▾" : "▸";
       });
 
-      section.appendChild(document.createElement("div")).className = "title";
-      section.querySelector(".title").textContent = `Année ${year}`;
-      section.appendChild(head);
-      section.appendChild(body);
-
-      host.appendChild(section);
+      box.appendChild(head);
+      box.appendChild(body);
+      host.appendChild(box);
     });
 
-    // Active l’onglet "Année" si présent dans le header
-    const t = document.querySelector(".tab-year");
-    if(t) t.classList.add("is-active");
+    // (optionnel) marquer l'onglet actif si tu ajoutes tab-year dans header.js
+    const tab = document.querySelector(".tab-year");
+    if(tab) tab.classList.add("is-active");
   });
 </script>
 
