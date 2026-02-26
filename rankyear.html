@@ -33,6 +33,10 @@
     padding:14px 16px;
     font-size:20px;
     font-weight:900;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
   }
   .hint{
     background:#ffffff;
@@ -47,14 +51,14 @@
   .hint small{ display:block; margin-top:4px; font-weight:900; color:#666; }
   .pill{
     display:inline-block;
-    padding:2px 8px;
+    padding:2px 10px;
     border-radius:999px;
     font-weight:900;
     font-size:12px;
     background:#efefef;
     border:1px solid rgba(0,0,0,.10);
     color:#333;
-    margin-left:8px;
+    white-space:nowrap;
   }
 
   .yearBox{
@@ -129,6 +133,89 @@
     font-weight:900;
     color:#b00020;
   }
+
+  /* ===== Effet "Carte Pokémon" uniquement pour Niveau 100 ===== */
+  tr.lvl100 td{ position:relative; overflow:hidden; }
+
+  tr.lvl100{
+    position: relative;
+    background:
+      radial-gradient(900px 220px at 15% 30%, rgba(255,212,77,.22) 0%, rgba(255,255,255,0) 60%),
+      linear-gradient(90deg,
+        rgba(255, 90, 235, .14),
+        rgba( 90, 255, 255, .14),
+        rgba(255, 220,  90, .14),
+        rgba(120, 255, 120, .14)
+      );
+    border-left: 6px solid #ffd44d;
+  }
+
+  tr.lvl100::before{
+    content:"";
+    position:absolute;
+    inset:-60% -40%;
+    background:
+      linear-gradient(120deg,
+        rgba(255,255,255,0) 30%,
+        rgba(255,255,255,.30) 45%,
+        rgba(255,255,255,0) 60%
+      );
+    transform: rotate(8deg);
+    animation: holoSweep 3.6s linear infinite;
+    pointer-events:none;
+    mix-blend-mode: screen;
+    opacity: .65;
+  }
+
+  tr.lvl100::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.55) 0 1px, transparent 2px),
+      radial-gradient(circle at 70% 40%, rgba(255,255,255,.35) 0 1px, transparent 2px),
+      radial-gradient(circle at 35% 75%, rgba(255,255,255,.45) 0 1px, transparent 2px),
+      radial-gradient(circle at 85% 80%, rgba(255,255,255,.30) 0 1px, transparent 2px);
+    opacity:.35;
+    pointer-events:none;
+  }
+
+  tr.lvl100 td{
+    border-bottom: 1px solid rgba(0,0,0,.10) !important;
+  }
+  tr.lvl100:hover{
+    box-shadow: 0 12px 30px rgba(0,0,0,.18);
+    transform: translateY(-1px);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+
+  tr.lvl100 td.lvlCell{
+    font-weight: 900;
+    color:#111;
+  }
+  tr.lvl100 td.lvlCell .lvlBadge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 10px;
+    border-radius: 999px;
+    background: linear-gradient(#ffd44d,#f0b300);
+    border:1px solid rgba(0,0,0,.15);
+    box-shadow: 0 8px 16px rgba(0,0,0,.12);
+  }
+  tr.lvl100 td.lvlCell .lvlStar{
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  @keyframes holoSweep{
+    0%   { transform: translateX(-35%) rotate(8deg); }
+    100% { transform: translateX(35%)  rotate(8deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    tr.lvl100::before{ animation: none; }
+  }
 </style>
 </head>
 
@@ -136,14 +223,14 @@
 <div class="wrap">
   <div class="hint">
     Classement XP par <b>année d'inscription</b> (Top 10 max par année).
-    <small>
-      Données : <code>data/players_pages.json</code>.
-      Tri : XP décroissante (on prend la meilleure XP trouvée).
-    </small>
+    <small>Données : <code>data/players_pages.json</code>. Tri : XP décroissante (meilleure XP trouvée).</small>
   </div>
 
   <div class="panel">
-    <div class="title">Classement XP — par année d'inscription <span id="meta" class="pill">…</span></div>
+    <div class="title">
+      <span>Classement XP — par année d'inscription</span>
+      <span id="meta" class="pill">…</span>
+    </div>
     <div id="years" style="padding:14px;"></div>
   </div>
 </div>
@@ -180,7 +267,6 @@
     return Number.isFinite(n) ? n : null;
   }
 
-  // Trouve la première valeur (pas forcément numérique) pour un set de clés, en profondeur
   function deepFindValue(obj, keyNames, maxDepth = 7){
     const keysSet = new Set(keyNames.map(k => String(k).toLowerCase()));
     const seen = new Set();
@@ -211,8 +297,7 @@
 
   function deepFindNumber(obj, keyNames, maxDepth = 7){
     const v = deepFindValue(obj, keyNames, maxDepth);
-    const n = toNumber(v);
-    return n;
+    return toNumber(v);
   }
 
   function extractYear(inscription){
@@ -226,17 +311,11 @@
       return Number.isFinite(y) ? y : null;
     }
 
-    // "YYYY-MM-DD" ou autre
+    // fallback regex
     const m = s.match(/(19\d{2}|20\d{2}|2100)/);
     return m ? Number(m[1]) : null;
   }
 
-  // Supporte beaucoup de formats possibles:
-  // - [players]
-  // - {players:[...]}
-  // - {pages:[[...],[...]]}
-  // - {pages:[{players:[...]}, ...]}
-  // - {"page1":[...], "page2":[...]}
   function normalizePlayers(json){
     if(Array.isArray(json)) return json;
     if(json && Array.isArray(json.players)) return json.players;
@@ -272,33 +351,29 @@
     return list;
   }
 
-  // 1) Si "modes" existe: meilleur xp = max(modes[*].xp), rang = modes[*].rang
-  // 2) Sinon: XP via deepFindNumber("xp","exp","experience"...), rang via ("rank","rang","classement"...)
   function bestXP(player){
     // Cas data.js-like
     if(player && player.modes && typeof player.modes === "object"){
-      let best = { xp: null, mode: null, rang: null };
+      let best = { xp: null, rang: null };
       for(const modeKey of Object.keys(player.modes)){
         const m = player.modes[modeKey];
         const xp = (m && typeof m.xp === "number") ? m.xp : toNumber(m?.xp);
         if(xp == null) continue;
         if(best.xp == null || xp > best.xp){
           best.xp = xp;
-          best.mode = modeKey;
           best.rang = m?.rang ?? null;
         }
       }
       if(best.xp != null) return best;
     }
 
-    // Cas players_pages.json (structure différente)
+    // Cas players_pages.json
     const xp = deepFindNumber(player, [
       "xp","xptotal","xp_total","total_xp","totalxp",
       "experience","exp","points_xp","pointsxp"
     ]);
-    const mode = deepFindValue(player, ["mode","bestMode","best_mode","category","categorie"]);
     const rang = deepFindValue(player, ["rang","rank","classement","position","top2500","top_2500"]);
-    return { xp, mode, rang };
+    return { xp, rang };
   }
 
   function getName(player){
@@ -314,11 +389,8 @@
   }
 
   function getLevel(player){
-    // Ton data.js: gen
     const n1 = deepFindNumber(player, ["gen"]);
     if(n1 != null) return n1;
-
-    // Autres formats possibles
     const n2 = deepFindNumber(player, ["niveau","level","lvl","nv","tier"]);
     return n2;
   }
@@ -328,23 +400,22 @@
     const meta = document.getElementById("meta");
 
     const rows = players.map(pl => {
-      const name = getName(pl);
+      const nom = getName(pl);
       const avatar = getAvatar(pl);
-      const inscriptionRaw = getInscription(pl);
-      const year = extractYear(inscriptionRaw);
+      const inscription = getInscription(pl);
+      const year = extractYear(inscription);
       const best = bestXP(pl);
-      const level = getLevel(pl);
+      const niveau = getLevel(pl);
 
       return {
         raw: pl,
-        nom: name,
+        nom,
         avatar,
-        inscription: inscriptionRaw,
+        inscription,
         year,
         xp: best.xp,
-        bestMode: best.mode,
         rang: best.rang,
-        niveau: level
+        niveau
       };
     }).filter(r => r.year != null);
 
@@ -412,6 +483,10 @@
 
       top.forEach((r, i) => {
         const tr = document.createElement("tr");
+
+        // ✅ Effet "carte pokémon" uniquement pour Niveau 100
+        if(r.niveau === 100) tr.classList.add("lvl100");
+
         tr.innerHTML = `
           <td class="rank">${i+1}</td>
           <td class="avatar">
@@ -425,7 +500,16 @@
             </a>
           </td>
           <td class="center">${fmtInt(r.xp)}</td>
-          <td class="center">${r.niveau == null ? "—" : fmtInt(r.niveau)}</td>
+          <td class="center lvlCell">
+            ${
+              r.niveau == null
+                ? "—"
+                : (r.niveau === 100
+                    ? `<span class="lvlBadge"><span class="lvlStar">★</span> Niveau 100</span>`
+                    : fmtInt(r.niveau)
+                  )
+            }
+          </td>
           <td class="center">${r.rang ?? "—"}</td>
           <td class="center">${r.inscription ?? "—"}</td>
         `;
@@ -444,10 +528,6 @@
 
     const tab = document.querySelector(".tab-year");
     if(tab) tab.classList.add("is-active");
-
-    // Debug utile (tu peux supprimer après)
-    console.log("[rankyear] sample player raw:", players[0]);
-    console.log("[rankyear] parsed sample:", rows[0]);
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
@@ -458,11 +538,7 @@
       const players = await loadAllPlayers();
       renderByYear(players);
     }catch(e){
-      host.innerHTML = `
-        <div class="errorBox">
-          Impossible de charger <code>${DATA_URL}</code> : ${String(e.message || e)}
-        </div>
-      `;
+      host.innerHTML = `<div class="errorBox">Impossible de charger <code>${DATA_URL}</code> : ${String(e.message || e)}</div>`;
       console.error(e);
     }
   });
