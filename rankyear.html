@@ -15,11 +15,13 @@
     font-family: Arial, sans-serif;
     background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
   }
+
   .wrap{
     width:1100px;
     max-width: calc(100% - 40px);
     margin:60px auto;
   }
+
   .panel{
     background:#fff;
     border-radius:10px;
@@ -27,6 +29,7 @@
     box-shadow: 0 10px 25px rgba(0,0,0,.35);
     margin-bottom:16px;
   }
+
   .title{
     background:#3a3a3a;
     color:#fff;
@@ -34,6 +37,7 @@
     font-size:20px;
     font-weight:900;
   }
+
   .hint{
     background:#ffffff;
     border-radius:10px;
@@ -54,6 +58,7 @@
     border:1px solid rgba(0,0,0,.10);
     margin-bottom:14px;
   }
+
   .yearHead{
     display:flex;
     align-items:center;
@@ -66,17 +71,20 @@
     font-weight:900;
     color:#222;
   }
+
   .yearMeta{
     font-weight:900;
     color:#666;
     font-size:12px;
     margin-left:10px;
   }
+
   .caret{
     font-weight:900;
     color:#333;
     margin-left:10px;
   }
+
   .yearBody{ display:none; }
   .yearBox.open .yearBody{ display:block; }
 
@@ -113,6 +121,7 @@
   .name a:hover{ text-decoration:underline; }
 
   .center{ text-align:center; white-space:nowrap; }
+
   .modeBadge{
     display:inline-block;
     padding:4px 8px;
@@ -137,7 +146,7 @@
 
   <div class="hint">
     Classement XP par <b>année d'inscription</b> (Top 10 max par année).
-    <small>Données chargées depuis <code>players_pages.json</code>. Tri : XP décroissante (meilleure XP du joueur).</small>
+    <small>Données chargées depuis <code>data/players_pages.json</code>. Tri : XP décroissante (meilleure XP du joueur).</small>
   </div>
 
   <div class="panel">
@@ -148,7 +157,7 @@
 </div>
 
 <script>
-  const DATA_URL = "players_pages.json"; // adapte si besoin: "data/players_pages.json"
+  const DATA_URL = "data/players_pages.json"; // ✅ ton dossier data
 
   function slugify2(name){
     return String(name || "")
@@ -179,13 +188,12 @@
     catch(e){ return String(n); }
   }
 
-  // ✅ Ton schéma (data.js) : modes[mode].xp, modes[mode].rang ; niveau = gen
+  // XP max parmi tous les modes
   function bestXPAndMode(player){
     const modes = player?.modes && typeof player.modes === "object" ? player.modes : null;
     if(!modes) return { xp:null, mode:null, rang:null };
 
     let best = { xp: null, mode: null, rang: null };
-
     for(const modeKey of Object.keys(modes)){
       const m = modes[modeKey];
       const xp = (m && typeof m.xp === "number") ? m.xp : null;
@@ -194,22 +202,24 @@
       if(best.xp == null || xp > best.xp){
         best.xp = xp;
         best.mode = modeKey;
-        best.rang = m.rang ?? null;
+        best.rang = m.rang ?? null; // ex "1/23" ou "200/2500"
       }
     }
     return best;
   }
 
-  // ✅ Rend une liste de joueurs quel que soit le format de players_pages.json
+  // Supporte beaucoup de formats possibles:
+  // - [players]
+  // - {players:[...]}
+  // - {pages:[[...],[...]]}
+  // - {pages:[{players:[...]}, ...]}
+  // - {"page1":[...], "page2":[...]}
   function normalizePlayers(json){
-    // Cas 1: json = [ {joueur}, {joueur}, ... ]
     if(Array.isArray(json)) return json;
 
-    // Cas 2: json = { players: [...] }
-    if(Array.isArray(json.players)) return json.players;
+    if(json && Array.isArray(json.players)) return json.players;
 
-    // Cas 3: json = { pages: [ [..], [..] ] } ou { pages: [ {players:[..]}, ...] }
-    if(Array.isArray(json.pages)){
+    if(json && Array.isArray(json.pages)){
       const out = [];
       for(const p of json.pages){
         if(Array.isArray(p)) out.push(...p);
@@ -219,7 +229,6 @@
       return out;
     }
 
-    // Cas 4: json = { "page1":[..], "page2":[..] } (objet de tableaux)
     if(json && typeof json === "object"){
       const out = [];
       for(const k of Object.keys(json)){
@@ -232,21 +241,12 @@
   }
 
   async function loadAllPlayers(){
-    // 1) tente players_pages.json
-    try{
-      const res = await fetch(DATA_URL, { cache: "no-store" });
-      if(!res.ok) throw new Error("HTTP " + res.status);
-      const json = await res.json();
-      const list = normalizePlayers(json);
-      if(list.length) return list;
-      throw new Error("Format JSON non reconnu ou liste vide");
-    }catch(e){
-      // 2) fallback: data.js (si tu veux garder un secours)
-      if(typeof joueurs !== "undefined" && Array.isArray(joueurs) && joueurs.length){
-        return joueurs;
-      }
-      throw e;
-    }
+    const res = await fetch(DATA_URL, { cache: "no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
+    const list = normalizePlayers(json);
+    if(!list.length) throw new Error("Format JSON non reconnu ou liste vide");
+    return list;
   }
 
   function renderByYear(players){
@@ -328,6 +328,7 @@
       `;
 
       const tbody = body.querySelector("tbody");
+
       for(let i=0;i<top.length;i++){
         const r = top[i];
         const p = r.p;
@@ -376,7 +377,14 @@
       const players = await loadAllPlayers();
       renderByYear(players);
     }catch(e){
-      host.innerHTML = `<div class="errorBox">Impossible de charger <code>${DATA_URL}</code> : ${String(e.message || e)}</div>`;
+      host.innerHTML = `
+        <div class="errorBox">
+          Impossible de charger <code>${DATA_URL}</code> : ${String(e.message || e)}<br>
+          <span style="color:#444;font-weight:900;">
+            Vérifie le chemin et que GitHub Pages sert bien le JSON (et qu'il s'appelle exactement pareil).
+          </span>
+        </div>
+      `;
       console.error(e);
     }
   });
