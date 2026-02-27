@@ -235,6 +235,35 @@
   @media (prefers-reduced-motion: reduce){
     tr.nv100-row::before{ animation:none; }
   }
+  /* === HARD RESET TABLE (anti style.css qui casse les tables) === */
+table.lead{ display: table !important; }
+table.lead thead{ display: table-header-group !important; }
+table.lead tbody{ display: table-row-group !important; }
+table.lead tr{ display: table-row !important; }
+table.lead th, table.lead td{ display: table-cell !important; }
+
+table.lead{
+  width:100% !important;
+  border-collapse:collapse !important;
+  border-spacing:0 !important;
+  table-layout:fixed !important;
+}
+
+table.lead th, table.lead td{
+  box-sizing:border-box !important;
+  vertical-align:middle !important;
+}
+
+/* Largeurs garanties */
+table.lead col.col-rank  { width:60px !important; }
+table.lead col.col-av    { width:70px !important; }
+table.lead col.col-name  { width:auto !important; }
+table.lead col.col-xp    { width:130px !important; }
+table.lead col.col-niv   { width:110px !important; }
+table.lead col.col-rang  { width:170px !important; }
+table.lead col.col-insc  { width:160px !important; }
+
+.c{ text-align:center !important; white-space:nowrap !important; }
 </style>
 </head>
 
