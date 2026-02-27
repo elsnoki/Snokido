@@ -481,6 +481,10 @@
 
       top.forEach((r, i) => {
         const tr = document.createElement("tr");
+
+if (r.niveau === 100) {
+  tr.classList.add("nv100-row");
+}
         tr.innerHTML = `
           <td class="rank">${i+1}</td>
           <td class="avatar">
