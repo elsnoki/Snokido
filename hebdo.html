@@ -14,7 +14,6 @@
     .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
     .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
 
-    /* ✅ NAV */
     .nav{
       display:flex; gap:10px; flex-wrap:wrap;
       padding:12px 16px;
@@ -32,11 +31,7 @@
       border:1px solid rgba(255,255,255,.18);
     }
     .nav a:hover{ background:rgba(255,255,255,.18); }
-    .nav a.active{
-      background:#ffffff;
-      color:#111;
-      border-color:#ffffff;
-    }
+    .nav a.active{ background:#fff; color:#111; border-color:#fff; }
 
     .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
     .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
@@ -109,7 +104,6 @@
     try { return await res.json(); } catch { return null; }
   }
 
-  // ✅ robuste: accepte array ou {players:[...]}
   function extractPlayers(payload){
     if(!payload) return null;
     if(Array.isArray(payload)) return payload;
@@ -117,13 +111,21 @@
     return null;
   }
 
+  // ✅ essaie data/... puis fallback sans data/ (au cas où)
+  async function fetchJsonMulti(paths){
+    for(const p of paths){
+      const v = await fetchJson(p);
+      if(v != null) return v;
+    }
+    return null;
+  }
+
+  // ✅ top 2500 en priorité
   async function loadCurrentPlayers(){
-    // ✅ TOP 2500
     const bigRaw = await fetchJson("data/players_pages.json");
     const big = extractPlayers(bigRaw);
     if(big) return big;
 
-    // fallback top50
     const topRaw = await fetchJson("data/snokido_top50.json");
     const top = extractPlayers(topRaw);
     if(top) return top;
@@ -131,17 +133,43 @@
     return null;
   }
 
+  // ✅ index.json peut contenir "2026-02-28" OU "2026-02-28.json"
+  function normalizeDay(s){
+    if(!s) return null;
+    const str = String(s).trim();
+    if(str === "YYYY-MM-DD" || str === "YYYY-MM-DD.json") return null;
+
+    // accepte YYYY-MM-DD
+    if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+
+    // accepte YYYY-MM-DD.json
+    const m = str.match(/^(\d{4}-\d{2}-\d{2})\.json$/);
+    if(m) return m[1];
+
+    return null;
+  }
+
   async function loadIndex(){
-    const idx = await fetchJson("data/history_paris/index.json");
+    const idx = await fetchJsonMulti([
+      "data/history_paris/index.json",
+      "history_paris/index.json"
+    ]);
     if(!Array.isArray(idx)) return null;
-    return idx
-      .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
-      .filter(d => d !== "YYYY-MM-DD")
+
+    const days = idx
+      .map(normalizeDay)
+      .filter(Boolean)
       .sort();
+
+    return days;
   }
 
   async function loadSnapPlayers(day){
-    const snapRaw = await fetchJson("data/history_paris/" + day + ".json");
+    // day est normalisé "YYYY-MM-DD"
+    const snapRaw = await fetchJsonMulti([
+      "data/history_paris/" + day + ".json",
+      "history_paris/" + day + ".json"
+    ]);
     return extractPlayers(snapRaw);
   }
 
@@ -156,7 +184,7 @@
     return `${yy}-${mm}-${dd}`;
   }
 
-  // ✅ lundi de la semaine du latestDay (si latestDay=2026-02-28 => lundi=2026-02-23)
+  // ✅ lundi de la semaine du latestDay (ex: 2026-02-28 => 2026-02-23)
   function mondayOfWeek(dayStr){
     const d = toUTCDate(dayStr);
     const wd = d.getUTCDay() || 7; // 1..7
@@ -232,17 +260,16 @@
 
     const index = await loadIndex();
     if(!index || index.length < 2){
-      warn("Pas assez d'historique (history_paris).");
+      warn("Index introuvable ou invalide. Vérifie data/history_paris/index.json (liste des jours).");
       return;
     }
 
     const latestDay = index[index.length - 1];
 
-    // ✅ baseline = snapshot du lundi de la semaine (ou le plus proche <= lundi)
     const targetMonday = mondayOfWeek(latestDay);
     const baseDay = findClosestLE(index, targetMonday);
     if(!baseDay){
-      warn("Baseline hebdo introuvable (pas de snapshot du lundi).");
+      warn("Baseline hebdo introuvable (pas de snapshot <= lundi).");
       return;
     }
 
@@ -263,7 +290,7 @@
     for(const p of current){
       const key = slugify(p.nom);
       const bXp = baseMap.get(key);
-      if(bXp == null) continue;
+      if(bXp == null) continue; // si absent du baseline, impossible de calculer le delta proprement
 
       const curXp = Number(p.xp || 0);
       const dx = curXp - bXp;
@@ -277,18 +304,14 @@
       });
     }
 
-    // ✅ supprimer ceux à 0 XP
     rows = rows.filter(r => Number(r.dx) !== 0);
 
-    // tie-break +12 si dx >= 500
     applyDxTieBreakPlus12Over500(rows);
 
-    // tri sur dxAdj (affichage = dx)
     rows.sort((a,b)=> b.dxAdj - a.dxAdj);
 
     tbody.innerHTML = "";
 
-    // ✅ Afficher TOUS les joueurs (plus de slice 300)
     for(let i=0;i<rows.length;i++){
       const r = rows[i];
       const tr = document.createElement("tr");
