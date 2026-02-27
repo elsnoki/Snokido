@@ -1,14 +1,11 @@
-name: Snokido Daily Snapshot (23h59 Paris)
+name: Snokido Daily Snapshot (00:00 Paris - hiver)
 
 on:
   workflow_dispatch:
-
   schedule:
-    # Hiver (UTC+1): 23:59->22:59 UTC
-    - cron: "59 22 * 1,2,11,12 *"
-
-    # Été (UTC+2): 23:59->21:59 UTC
-    - cron: "59 21 * 3-10 *"
+    # Saison actuelle: Hiver (CET = UTC+1)
+    # 00:00 Paris = 23:00 UTC (la veille)
+    - cron: "0 23 * * *"
 
 permissions:
   contents: write
@@ -25,7 +22,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install cheerio
+      - name: Install dependencies
         run: npm install cheerio
 
       - name: Run scraper (snapshot)
@@ -45,5 +42,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Daily snapshot (Paris 23h59)"
+          git commit -m "Daily snapshot (Paris 00:00 - hiver)"
           git push
