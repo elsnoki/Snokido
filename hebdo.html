@@ -14,7 +14,7 @@
     .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
     .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
 
-    /* ✅ NAV BUTTONS */
+    /* ✅ NAV */
     .nav{
       display:flex; gap:10px; flex-wrap:wrap;
       padding:12px 16px;
@@ -62,10 +62,9 @@
     <section class="panel">
       <div class="titlebar">Classement Hebdo — XP gagnée</div>
 
-      <!-- ✅ Boutons navigation -->
       <div class="nav">
         <a href="jour.html">Jour</a>
-        <a href="jour-avant.html">Jour d’avant</a>
+        <a href="jour-veille.html">Hier</a>
         <a class="active" href="hebdo.html">Hebdo</a>
         <a href="mensuel.html">Mensuel</a>
       </div>
@@ -110,13 +109,24 @@
     try { return await res.json(); } catch { return null; }
   }
 
-  // ✅ identique à mensuel : on prend players_pages.json (top 2500) sinon fallback top50
-  async function loadCurrentPlayers(){
-    const big = await fetchJson("data/players_pages.json");
-    if(Array.isArray(big)) return big;
+  // ✅ robuste: accepte array ou {players:[...]}
+  function extractPlayers(payload){
+    if(!payload) return null;
+    if(Array.isArray(payload)) return payload;
+    if(Array.isArray(payload.players)) return payload.players;
+    return null;
+  }
 
-    const top = await fetchJson("data/snokido_top50.json");
-    if(Array.isArray(top)) return top;
+  async function loadCurrentPlayers(){
+    // ✅ TOP 2500
+    const bigRaw = await fetchJson("data/players_pages.json");
+    const big = extractPlayers(bigRaw);
+    if(big) return big;
+
+    // fallback top50
+    const topRaw = await fetchJson("data/snokido_top50.json");
+    const top = extractPlayers(topRaw);
+    if(top) return top;
 
     return null;
   }
@@ -131,11 +141,8 @@
   }
 
   async function loadSnapPlayers(day){
-    const snap = await fetchJson("data/history_paris/" + day + ".json");
-    if(!snap) return null;
-    if(Array.isArray(snap)) return snap;
-    if(Array.isArray(snap.players)) return snap.players;
-    return null;
+    const snapRaw = await fetchJson("data/history_paris/" + day + ".json");
+    return extractPlayers(snapRaw);
   }
 
   function toUTCDate(dayStr){
@@ -149,9 +156,10 @@
     return `${yy}-${mm}-${dd}`;
   }
 
+  // ✅ lundi de la semaine du latestDay (si latestDay=2026-02-28 => lundi=2026-02-23)
   function mondayOfWeek(dayStr){
     const d = toUTCDate(dayStr);
-    const wd = d.getUTCDay() || 7; // 1..7 (lun..dim)
+    const wd = d.getUTCDay() || 7; // 1..7
     d.setUTCDate(d.getUTCDate() - (wd - 1));
     return fromUTCDate(d);
   }
@@ -177,7 +185,7 @@
       byDx.get(k).push(r);
     }
 
-    for(const [dxKey, group] of byDx){
+    for(const [, group] of byDx){
       if(group.length <= 1){
         group[0].dxAdj = group[0].dx;
         continue;
@@ -194,7 +202,6 @@
         group.length === 2 &&
         names.includes("betelgeuse") &&
         names.includes("aldebaran");
-
       if(onlySpecialPair){
         group.forEach(r => r.dxAdj = r.dx);
         continue;
@@ -219,7 +226,7 @@
 
     const current = await loadCurrentPlayers();
     if(!current){
-      warn("Impossible de charger data/players_pages.json ou data/snokido_top50.json.");
+      warn("Impossible de charger data/players_pages.json (top 2500) ou data/snokido_top50.json.");
       return;
     }
 
@@ -231,6 +238,7 @@
 
     const latestDay = index[index.length - 1];
 
+    // ✅ baseline = snapshot du lundi de la semaine (ou le plus proche <= lundi)
     const targetMonday = mondayOfWeek(latestDay);
     const baseDay = findClosestLE(index, targetMonday);
     if(!baseDay){
@@ -244,7 +252,7 @@
       return;
     }
 
-    rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
+    rangeTxt.textContent = "Période : " + baseDay + " → " + latestDay + " (live)";
 
     const baseMap = new Map();
     for(const p of baseline){
@@ -269,17 +277,20 @@
       });
     }
 
+    // ✅ supprimer ceux à 0 XP
     rows = rows.filter(r => Number(r.dx) !== 0);
 
+    // tie-break +12 si dx >= 500
     applyDxTieBreakPlus12Over500(rows);
 
+    // tri sur dxAdj (affichage = dx)
     rows.sort((a,b)=> b.dxAdj - a.dxAdj);
 
     tbody.innerHTML = "";
-    const shown = rows.slice(0, 300);
 
-    for(let i=0;i<shown.length;i++){
-      const r = shown[i];
+    // ✅ Afficher TOUS les joueurs (plus de slice 300)
+    for(let i=0;i<rows.length;i++){
+      const r = rows[i];
       const tr = document.createElement("tr");
       tr.innerHTML =
         '<td class="rank">' + (i+1) + '</td>' +
@@ -291,7 +302,7 @@
       tbody.appendChild(tr);
     }
 
-    if(shown.length === 0){
+    if(rows.length === 0){
       tbody.innerHTML =
         '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
     }
