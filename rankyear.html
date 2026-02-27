@@ -42,6 +42,18 @@
     gap:10px;
   }
 
+  .pill{
+    display:inline-block;
+    padding:2px 10px;
+    border-radius:999px;
+    font-weight:900;
+    font-size:12px;
+    background:#efefef;
+    border:1px solid rgba(0,0,0,.10);
+    color:#333;
+    white-space:nowrap;
+  }
+
   .hint{
     background:#ffffff;
     border-radius:10px;
@@ -57,18 +69,6 @@
     margin-top:4px;
     font-weight:900;
     color:#666;
-  }
-
-  .pill{
-    display:inline-block;
-    padding:2px 10px;
-    border-radius:999px;
-    font-weight:900;
-    font-size:12px;
-    background:#efefef;
-    border:1px solid rgba(0,0,0,.10);
-    color:#333;
-    white-space:nowrap;
   }
 
   .yearBox{
@@ -109,55 +109,52 @@
   .yearBody{ display:none; }
   .yearBox.open .yearBody{ display:block; }
 
-  table{
-    width:100%;
-    border-collapse:collapse;   /* ✅ clé: pas "separate" -> plus aucun décalage */
-    border-spacing:0;
-    table-layout: fixed;        /* ✅ colonnes stables */
+  /* ===== TABLE : anti-décalage (colgroup + fixed) ===== */
+  table.lead{
+    width:100% !important;
+    border-collapse: collapse !important;
+    border-spacing:0 !important;
+    table-layout: fixed !important;
   }
 
-  thead th{
-    background:#fff;
-    padding:12px 10px;
-    text-align:left;
-    font-size:13px;
-    font-weight:900;
-    border-bottom:1px solid #cfcfcf;
+  table.lead thead th{
+    background:#fff !important;
+    padding:12px 10px !important;
+    text-align:left !important;
+    font-size:13px !important;
+    font-weight:900 !important;
+    border-bottom:1px solid #cfcfcf !important;
+    vertical-align:middle !important;
   }
 
-  tbody td{
-    padding:14px 10px;
-    border-bottom:1px solid #cfcfcf;
-    vertical-align:middle;
-    font-size:14px;
+  table.lead tbody td{
+    padding:14px 10px !important;
+    border-bottom:1px solid #cfcfcf !important;
+    vertical-align:middle !important;
+    font-size:14px !important;
   }
 
-  /* Zebra uniquement pour les lignes normales */
-  tbody tr:nth-child(odd):not(.nv100-row){ background:#f2f2f2; }
+  /* Zebra seulement sur lignes normales */
+  table.lead tbody tr:nth-child(odd):not(.nv100-row){
+    background:#f2f2f2 !important;
+  }
 
-  /* Largeurs fixes cohérentes */
-  th.col-rank, td.col-rank{ width:60px; text-align:center; }
-  th.col-avatar, td.col-avatar{ width:70px; text-align:center; }
-  th.col-name{ width:auto; }
-  th.col-xp, td.col-xp{ width:130px; text-align:center; }
-  th.col-niv, td.col-niv{ width:110px; text-align:center; }
-  th.col-rang, td.col-rang{ width:170px; text-align:center; }
-  th.col-insc, td.col-insc{ width:160px; text-align:center; }
-
+  /* Alignements */
+  .c{ text-align:center !important; white-space:nowrap !important; }
   .rank{
     font-weight:900;
     font-size:18px;
     color:#444;
   }
 
-  .avatar .frame{
+  .avatarCell{ text-align:center !important; }
+  .avatarFrame{
     width:44px; height:44px; margin:0 auto;
     background:#e9e9e9; border:1px solid #bdbdbd; border-radius:10px;
     display:flex; align-items:center; justify-content:center;
     overflow:hidden;
   }
-
-  .avatar img{
+  .avatarFrame img{
     width:38px; height:38px;
     object-fit:cover;
     border:2px solid #8f8f8f;
@@ -179,7 +176,7 @@
   tr.nv100-row{
     position:relative;
     background: linear-gradient(145deg, #0b0f16, #121a26) !important;
-    color:#e6edf3;
+    color:#e6edf3 !important;
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.06),
       inset 0 -1px 0 rgba(0,0,0,.55),
@@ -187,18 +184,17 @@
       inset 0 0 34px rgba(0,150,255,.08);
   }
 
-  /* texte AU-DESSUS des effets + pas de décalage */
   tr.nv100-row td{
     position:relative;
     z-index:2;
-    border-bottom:1px solid rgba(255,255,255,.06) !important;
-    color:#e6edf3;
     background: transparent !important;
+    border-bottom:1px solid rgba(255,255,255,.06) !important;
+    color:#e6edf3 !important;
   }
 
-  tr.nv100-row .rank{ color:rgba(230,237,243,.85); }
-  tr.nv100-row .name a{ color:#8fd8ff; }
-  tr.nv100-row .name a:hover{ color:#c8f0ff; }
+  tr.nv100-row .rank{ color:rgba(230,237,243,.85) !important; }
+  tr.nv100-row .name a{ color:#8fd8ff !important; }
+  tr.nv100-row .name a:hover{ color:#c8f0ff !important; }
 
   tr.nv100-row::before{
     content:"";
@@ -277,13 +273,10 @@
   function toNumber(v){
     if(v == null) return null;
     if(typeof v === "number" && Number.isFinite(v)) return v;
-
     const s = String(v).trim();
     if(!s) return null;
-
     const m = s.replace(/\u00A0/g, " ").match(/-?\d[\d\s]*/);
     if(!m) return null;
-
     const cleaned = m[0].replace(/\s/g, "");
     const n = Number(cleaned);
     return Number.isFinite(n) ? n : null;
@@ -334,51 +327,29 @@
   }
 
   function bestXP(player){
-    if(player && player.xp != null){
-      const xpRoot = toNumber(player.xp);
-      if(xpRoot != null){
-        return { xp: xpRoot, rang: player.rank ?? player.rang ?? null };
-      }
-    }
-    if(player && player.modes && typeof player.modes === "object"){
-      let best = { xp: null, rang: null };
-      for(const modeKey of Object.keys(player.modes)){
-        const m = player.modes[modeKey];
-        const xp = (m && typeof m.xp === "number") ? m.xp : toNumber(m?.xp);
-        if(xp == null) continue;
-        if(best.xp == null || xp > best.xp){
-          best.xp = xp;
-          best.rang = m?.rang ?? null;
-        }
-      }
-      if(best.xp != null) return best;
-    }
-    return { xp: null, rang: null };
+    // ✅ players_pages.json: xp à la racine
+    const xpRoot = toNumber(player?.xp);
+    return { xp: xpRoot, rang: player?.rank ?? player?.rang ?? null };
   }
-
-  function getName(p){ return p?.nom ?? "—"; }
-  function getAvatar(p){ return p?.avatar ?? "avatar/1.jpg"; }
-  function getInscription(p){ return p?.inscription ?? null; }
-  function getLevel(p){ return toNumber(p?.niveau); }
-  function getRang(p){ return p?.rank ?? p?.rang ?? null; }
 
   function renderByYear(players){
     const host = document.getElementById("years");
     const meta = document.getElementById("meta");
 
-    const rows = players.map(pl => {
-      const nom = getName(pl);
-      const avatar = getAvatar(pl);
-      const inscription = getInscription(pl);
+    const rows = players.map(p => {
+      const nom = p?.nom ?? "—";
+      const avatar = p?.avatar ?? "avatar/1.jpg";
+      const inscription = p?.inscription ?? null;
       const year = extractYear(inscription);
-      const best = bestXP(pl);
-      const niveau = getLevel(pl);
-      const rang = getRang(pl) ?? best.rang;
+      const niveau = toNumber(p?.niveau);
+      const rang = p?.rank ?? p?.rang ?? null;
+      const xp = bestXP(p).xp;
 
-      return { nom, avatar, inscription, year, xp: best.xp, niveau, rang };
+      return { nom, avatar, inscription, year, xp, niveau, rang };
     }).filter(r => r.year != null);
 
     meta.textContent = `${rows.length} joueurs`;
+
     const byYear = new Map();
     for(const r of rows){
       if(!byYear.has(r.year)) byYear.set(r.year, []);
@@ -386,12 +357,12 @@
     }
 
     const years = Array.from(byYear.keys()).sort((a,b) => b - a);
+    host.innerHTML = "";
+
     if(!years.length){
       host.innerHTML = `<div class="errorBox">Aucune année d'inscription exploitable.</div>`;
       return;
     }
-
-    host.innerHTML = "";
 
     years.forEach((year, idx) => {
       const list = byYear.get(year) || [];
@@ -420,17 +391,28 @@
 
       const body = document.createElement("div");
       body.className = "yearBody";
+
+      // ✅ colgroup = plus aucun décalage possible
       body.innerHTML = `
-        <table>
+        <table class="lead">
+          <colgroup>
+            <col style="width:60px">
+            <col style="width:70px">
+            <col style="width:auto">
+            <col style="width:130px">
+            <col style="width:110px">
+            <col style="width:170px">
+            <col style="width:160px">
+          </colgroup>
           <thead>
             <tr>
-              <th class="col-rank"></th>
-              <th class="col-avatar"></th>
-              <th class="col-name">Nom du joueur</th>
-              <th class="col-xp">XP</th>
-              <th class="col-niv">Niveau</th>
-              <th class="col-rang">Rang (Top 2500)</th>
-              <th class="col-insc">Inscription</th>
+              <th class="c">#</th>
+              <th class="c"> </th>
+              <th>Nom du joueur</th>
+              <th class="c">XP</th>
+              <th class="c">Niveau</th>
+              <th class="c">Rang (Top 2500)</th>
+              <th class="c">Inscription</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -444,17 +426,17 @@
         if(r.niveau === 100) tr.classList.add("nv100-row");
 
         tr.innerHTML = `
-          <td class="col-rank"><span class="rank">${i+1}</span></td>
-          <td class="col-avatar avatar">
-            <div class="frame"><img src="${r.avatar}" alt="${r.nom}"></div>
+          <td class="c"><span class="rank">${i+1}</span></td>
+          <td class="avatarCell">
+            <div class="avatarFrame"><img src="${r.avatar}" alt="${r.nom}"></div>
           </td>
-          <td class="col-name name">
+          <td class="name">
             <a href="profil.html?u=${encodeURIComponent(slugify2(r.nom))}">${r.nom}</a>
           </td>
-          <td class="col-xp">${fmtInt(r.xp)}</td>
-          <td class="col-niv">${r.niveau == null ? "—" : fmtInt(r.niveau)}</td>
-          <td class="col-rang">${r.rang ?? "—"}</td>
-          <td class="col-insc">${r.inscription ?? "—"}</td>
+          <td class="c">${fmtInt(r.xp)}</td>
+          <td class="c">${r.niveau == null ? "—" : fmtInt(r.niveau)}</td>
+          <td class="c">${r.rang ?? "—"}</td>
+          <td class="c">${r.inscription ?? "—"}</td>
         `;
         tbody.appendChild(tr);
       });
