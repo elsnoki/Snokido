@@ -1,11 +1,7 @@
-name: Snokido Daily Snapshot (00:00 Paris - hiver)
+name: Snokido Daily Snapshot (manuel)
 
 on:
   workflow_dispatch:
-  schedule:
-    # Saison actuelle: Hiver (CET = UTC+1)
-    # 00:00 Paris = 23:00 UTC (la veille)
-    - cron: "0 23 * * *"
 
 permissions:
   contents: write
@@ -42,5 +38,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Daily snapshot (Paris 00:00 - hiver)"
+          git commit -m "Daily snapshot (manuel)"
           git push
