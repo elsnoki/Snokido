@@ -13,6 +13,31 @@
     .wrap{ max-width:1180px; margin:26px auto 40px; padding:0 12px; }
     .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
     .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
+
+    /* ✅ NAV BUTTONS */
+    .nav{
+      display:flex; gap:10px; flex-wrap:wrap;
+      padding:12px 16px;
+      background:#101827;
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    .nav a{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:10px 12px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:900;
+      color:#fff;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .nav a:hover{ background:rgba(255,255,255,.18); }
+    .nav a.active{
+      background:#ffffff;
+      color:#111;
+      border-color:#ffffff;
+    }
+
     .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
     .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
 
@@ -36,6 +61,15 @@
   <main class="wrap">
     <section class="panel">
       <div class="titlebar">Classement Mensuel — XP gagnée</div>
+
+      <!-- ✅ Boutons navigation -->
+      <div class="nav">
+        <a href="jour.html">Jour</a>
+        <a href="jour-veille.html">Hier</a>
+        <a href="hebdo.html">Hebdo</a>
+        <a class="active" href="mensuel.html">Mensuel</a>
+      </div>
+
       <div class="sub" id="rangeTxt">Chargement…</div>
       <div id="warn" class="warn"></div>
 
@@ -121,7 +155,6 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
-  // ✅ Tie-break +12 uniquement si dx >= 500
   function applyDxTieBreakPlus12Over500(rows){
     const byDx = new Map();
     for(const r of rows){
@@ -131,7 +164,6 @@
     }
 
     for(const [dxKey, group] of byDx){
-      // 1 seul = ok
       if(group.length <= 1){
         group[0].dxAdj = group[0].dx;
         continue;
@@ -139,13 +171,11 @@
 
       const dxVal = Number(group[0].dx || 0);
 
-      // ⛔ en dessous de 500 : on ne touche pas (égalité conservée)
       if(dxVal < 500){
         group.forEach(r => r.dxAdj = r.dx);
         continue;
       }
 
-      // exception optionnelle : Betelgeuse/Aldebaran restent égaux
       const names = group.map(x => slugify(x.nom));
       const onlySpecialPair =
         group.length === 2 &&
@@ -157,8 +187,6 @@
         continue;
       }
 
-      // départage déterministe par slug :
-      // le 1er +12*(n-1), ..., dernier +0
       const sorted = group.slice().sort((a,b)=> slugify(a.nom).localeCompare(slugify(b.nom)));
       const n = sorted.length;
       for(let i=0;i<n;i++){
@@ -167,7 +195,6 @@
       }
     }
 
-    // sécurité
     for(const r of rows){
       if(typeof r.dxAdj !== "number") r.dxAdj = r.dx;
     }
@@ -229,13 +256,10 @@
       });
     }
 
-    // ✅ supprimer ceux à 0 XP
     rows = rows.filter(r => Number(r.dx) !== 0);
 
-    // tie-break conditionnel
     applyDxTieBreakPlus12Over500(rows);
 
-    // tri par dxAdj (affichage = dx)
     rows.sort((a,b)=> b.dxAdj - a.dxAdj);
 
     tbody.innerHTML = "";
