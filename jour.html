@@ -10,9 +10,34 @@
 
   <style>
     body{ margin:0; font-family:Arial,sans-serif; background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%); }
-    .wrap{ max-width:1180px; margin:26px auto 40px; padding:0 12px; }
+    .wrap{ max-width:1280px; margin:26px auto 40px; padding:0 12px; }
     .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
     .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
+
+    /* ✅ NAVIGATION */
+    .nav{
+      display:flex; gap:10px; flex-wrap:wrap;
+      padding:12px 16px;
+      background:#101827;
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    .nav a{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:10px 12px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:900;
+      color:#fff;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .nav a:hover{ background:rgba(255,255,255,.18); }
+    .nav a.active{
+      background:#ffffff;
+      color:#111;
+      border-color:#ffffff;
+    }
+
     .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
     .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
 
@@ -36,6 +61,15 @@
   <main class="wrap">
     <section class="panel">
       <div class="titlebar">Classement Jour — XP gagnée</div>
+
+      <!-- ✅ BARRE NAV -->
+      <div class="nav">
+        <a class="active" href="jour.html">Jour</a>
+        <a href="jour-veille.html">Hier</a>
+        <a href="hebdo.html">Hebdo</a>
+        <a href="mensuel.html">Mensuel</a>
+      </div>
+
       <div class="sub" id="rangeTxt">Chargement…</div>
       <div id="warn" class="warn"></div>
 
@@ -47,6 +81,7 @@
             <th>Joueur</th>
             <th class="center">Δ XP (jour)</th>
             <th class="center">XP actuel</th>
+            <th class="center">Inscription</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -80,14 +115,12 @@
     }
   }
 
-  // ✅ clé unique : id profil (évite mohamed-dz vs mohameddz-3)
   function playerKey(p){
     const id = profileIdFromHref(p && p.profileHref);
     if(id) return "id:" + id;
     return "name:" + slugify(p && p.nom);
   }
 
-  // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache: "no-store" });
@@ -127,6 +160,17 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
+  function formatDate(d){
+    if(!d) return "—";
+    try{
+      const dt = new Date(d);
+      if(isNaN(dt)) return d;
+      return dt.toLocaleDateString("fr-FR");
+    }catch{
+      return d;
+    }
+  }
+
   window.addEventListener("DOMContentLoaded", async () => {
     const tbody = document.getElementById("tbody");
     const rangeTxt = document.getElementById("rangeTxt");
@@ -143,17 +187,14 @@
       return;
     }
 
-    // ✅ JOUR = baseline = dernier snapshot (même date)
     const latestDay = index[index.length - 1];
-    const baseDay = latestDay;
-
-    const baseline = await loadSnapPlayers(baseDay);
+    const baseline = await loadSnapPlayers(latestDay);
     if(!baseline){
-      warn("Snapshot du jour introuvable : " + baseDay);
+      warn("Snapshot du jour introuvable : " + latestDay);
       return;
     }
 
-    rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
+    rangeTxt.textContent = "Période : " + latestDay + " → live";
 
     const baseMap = new Map();
     for(const p of baseline){
@@ -173,21 +214,18 @@
         nom: p.nom,
         avatar: p.avatar,
         xp: curXp,
-        dx: dx
+        dx: dx,
+        inscription: p.dateInscription || p.registered || p.createdAt || null
       });
     }
 
-    // ✅ enlever dx=0
     rows = rows.filter(r => Number(r.dx) !== 0);
-
-    // tri simple
     rows.sort((a,b)=> b.dx - a.dx);
 
     tbody.innerHTML = "";
-    const shown = rows.slice(0, 300);
 
-    for(let i=0;i<shown.length;i++){
-      const r = shown[i];
+    for(let i=0;i<rows.length;i++){
+      const r = rows[i];
       const tr = document.createElement("tr");
       tr.innerHTML =
         '<td class="rank">' + (i+1) + '</td>' +
@@ -195,13 +233,15 @@
         '<td class="name"><a href="profil.html?mode=nv100&u=' + encodeURIComponent(slugify(r.nom)) + '">' + r.nom + '</a>' +
         '<div class="small">' + r.xp.toLocaleString("fr-FR") + ' XP</div></td>' +
         '<td class="center">' + formatSigned(r.dx) + '</td>' +
-        '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>';
+        '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>' +
+        '<td class="center">' + formatDate(r.inscription) + '</td>';
+
       tbody.appendChild(tr);
     }
 
-    if(shown.length === 0){
+    if(rows.length === 0){
       tbody.innerHTML =
-        '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
+        '<tr><td colspan="6" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
     }
   });
 </script>
