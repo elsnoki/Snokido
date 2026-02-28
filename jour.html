@@ -115,12 +115,14 @@
     }
   }
 
+  // ✅ clé unique : id profil (évite mohamed-dz vs mohameddz-3)
   function playerKey(p){
     const id = profileIdFromHref(p && p.profileHref);
     if(id) return "id:" + id;
     return "name:" + slugify(p && p.nom);
   }
 
+  // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache: "no-store" });
@@ -128,12 +130,22 @@
     try { return await res.json(); } catch { return null; }
   }
 
-  async function loadCurrentPlayers(){
-    const big = await fetchJson("data/players_pages.json");
-    if(Array.isArray(big)) return big;
+  // ✅ accepte array ou {players:[...]}
+  function extractPlayers(payload){
+    if(!payload) return null;
+    if(Array.isArray(payload)) return payload;
+    if(Array.isArray(payload.players)) return payload.players;
+    return null;
+  }
 
-    const top = await fetchJson("data/snokido_top50.json");
-    if(Array.isArray(top)) return top;
+  async function loadCurrentPlayers(){
+    const bigRaw = await fetchJson("data/players_pages.json");
+    const big = extractPlayers(bigRaw);
+    if(big) return big;
+
+    const topRaw = await fetchJson("data/snokido_top50.json");
+    const top = extractPlayers(topRaw);
+    if(top) return top;
 
     return null;
   }
@@ -141,18 +153,24 @@
   async function loadIndex(){
     const idx = await fetchJson("data/history_paris/index.json");
     if(!Array.isArray(idx)) return null;
+
+    // accepte "YYYY-MM-DD" ou "YYYY-MM-DD.json"
     return idx
-      .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
-      .filter(d => d !== "YYYY-MM-DD")
+      .map(s => {
+        if(!s) return null;
+        const str = String(s).trim();
+        if(str === "YYYY-MM-DD" || str === "YYYY-MM-DD.json") return null;
+        if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+        const m = str.match(/^(\d{4}-\d{2}-\d{2})\.json$/);
+        return m ? m[1] : null;
+      })
+      .filter(Boolean)
       .sort();
   }
 
   async function loadSnapPlayers(day){
-    const snap = await fetchJson("data/history_paris/" + day + ".json");
-    if(!snap) return null;
-    if(Array.isArray(snap)) return snap;
-    if(Array.isArray(snap.players)) return snap.players;
-    return null;
+    const snapRaw = await fetchJson("data/history_paris/" + day + ".json");
+    return extractPlayers(snapRaw);
   }
 
   function formatSigned(n){
@@ -160,15 +178,12 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
-  function formatDate(d){
+  // ✅ "13-04-2014" -> "13/04/2014"
+  function formatInscription(d){
     if(!d) return "—";
-    try{
-      const dt = new Date(d);
-      if(isNaN(dt)) return d;
-      return dt.toLocaleDateString("fr-FR");
-    }catch{
-      return d;
-    }
+    const m = String(d).match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if(m) return `${m[1]}/${m[2]}/${m[3]}`;
+    return String(d);
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
@@ -187,14 +202,16 @@
       return;
     }
 
+    // ✅ JOUR = baseline = dernier snapshot (même date)
     const latestDay = index[index.length - 1];
+
     const baseline = await loadSnapPlayers(latestDay);
     if(!baseline){
       warn("Snapshot du jour introuvable : " + latestDay);
       return;
     }
 
-    rangeTxt.textContent = "Période : " + latestDay + " → live";
+    rangeTxt.textContent = "Période : " + latestDay + " → live (MAJ à chaque workflow)";
 
     const baseMap = new Map();
     for(const p of baseline){
@@ -215,15 +232,19 @@
         avatar: p.avatar,
         xp: curXp,
         dx: dx,
-        inscription: p.dateInscription || p.registered || p.createdAt || null
+        inscription: p.inscription || null
       });
     }
 
+    // ✅ enlever dx=0
     rows = rows.filter(r => Number(r.dx) !== 0);
+
+    // tri simple
     rows.sort((a,b)=> b.dx - a.dx);
 
     tbody.innerHTML = "";
 
+    // ✅ afficher TOUS (plus de slice 300)
     for(let i=0;i<rows.length;i++){
       const r = rows[i];
       const tr = document.createElement("tr");
@@ -234,8 +255,7 @@
         '<div class="small">' + r.xp.toLocaleString("fr-FR") + ' XP</div></td>' +
         '<td class="center">' + formatSigned(r.dx) + '</td>' +
         '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>' +
-        '<td class="center">' + formatDate(r.inscription) + '</td>';
-
+        '<td class="center">' + formatInscription(r.inscription) + '</td>';
       tbody.appendChild(tr);
     }
 
