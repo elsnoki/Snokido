@@ -97,7 +97,24 @@
       .toLowerCase();
   }
 
-  // Anti-cache GH Pages
+  function profileIdFromHref(href){
+    if(!href) return null;
+    try{
+      const u = new URL(href, location.origin);
+      const m = u.pathname.match(/\/player\/([^\/?#]+)/i);
+      return m ? m[1].toLowerCase() : null;
+    }catch{
+      const m = String(href).match(/\/player\/([^\/?#]+)/i);
+      return m ? m[1].toLowerCase() : null;
+    }
+  }
+
+  function playerKey(p){
+    const id = profileIdFromHref(p && p.profileHref);
+    if(id) return "id:" + id;
+    return "name:" + slugify(p && p.nom);
+  }
+
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache:"no-store" });
@@ -114,22 +131,28 @@
     return null;
   }
 
-  function normalizeDay(s){
-    const str = String(s||"").trim();
-    if(str === "YYYY-MM-DD" || str === "YYYY-MM-DD.json") return null;
-    const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
-    return m ? m[1] : null;
-  }
-
   async function loadIndex(){
     const idxRaw = await fetchJson("data/history_paris/index.json");
     if(!Array.isArray(idxRaw)) return null;
-    return idxRaw.map(normalizeDay).filter(Boolean).sort();
+    return idxRaw
+      .map(s => {
+        const str = String(s||"").trim();
+        const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+        return m ? m[1] : null;
+      })
+      .filter(Boolean)
+      .sort();
   }
 
   async function loadSnapPlayers(day){
     const raw = await fetchJson("data/history_paris/" + day + ".json");
     return extractPlayers(raw);
+  }
+
+  async function loadPlayersPages(){
+    const raw = await fetchJson("data/players_pages.json");
+    const arr = extractPlayers(raw);
+    return Array.isArray(arr) ? arr : null;
   }
 
   function formatSigned(n){
@@ -144,9 +167,7 @@
     return null;
   }
 
-  function firstOfMonth(dayStr){
-    return dayStr.slice(0,7) + "-01";
-  }
+  function firstOfMonth(dayStr){ return dayStr.slice(0,7) + "-01"; }
 
   function prevMonthFirstFrom(firstDay){
     const y = Number(firstDay.slice(0,4));
@@ -156,18 +177,16 @@
     return `${py}-${String(pm).padStart(2,"0")}-01`;
   }
 
-  // ✅ Remplace le texte "Mois-veille" par le nom du mois passé
-  function setPrevMonthNavLabelFromLatest(latestDay){
+  function setPrevMonthLabel(latestDay){
     const a = document.getElementById("btnPrevMonth");
     const title = document.getElementById("titleMonth");
     if(!a) return;
-
     const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
 
     const curFirst = firstOfMonth(latestDay);
     const prevFirst = prevMonthFirstFrom(curFirst);
 
-    const pm = Number(prevFirst.slice(5,7)); // 1..12
+    const pm = Number(prevFirst.slice(5,7));
     const py = Number(prevFirst.slice(0,4));
     const label = monthsFR[pm-1];
 
@@ -182,43 +201,32 @@
 
     const index = await loadIndex();
     if(!index || index.length < 2){
-      warn("Pas assez d'historique dans data/history_paris/index.json.");
+      warn("Pas assez d'historique dans index.json.");
       return;
     }
 
     const latestDay = index[index.length - 1];
+    const curFirst = firstOfMonth(latestDay);
+    const prevFirst = prevMonthFirstFrom(curFirst);
 
-    // ✅ 1er du mois courant (basé sur latestDay) / 1er du mois précédent
-    const curFirst = firstOfMonth(latestDay);       // ex: 2026-02-01
-    const prevFirst = prevMonthFirstFrom(curFirst); // ex: 2026-01-01
+    setPrevMonthLabel(latestDay);
 
-    // ✅ Nom du mois passé dans la nav / titre
-    setPrevMonthNavLabelFromLatest(latestDay);
-
-    // ✅ base = snapshot le plus proche <= 1er du mois passé
+    // ✅ compare 1er mois passé → 1er mois courant
     const baseDay = findClosestLE(index, prevFirst);
-    if(!baseDay){
-      warn("Baseline introuvable pour " + prevFirst);
+    const endDay  = findClosestLE(index, curFirst);
+
+    if(!baseDay || !endDay){
+      warn("Snapshots manquants pour " + prevFirst + " ou " + curFirst);
       return;
     }
-
-    // ✅ fin = snapshot le plus proche <= 1er du mois courant
-    const endDay = findClosestLE(index, curFirst);
-    if(!endDay){
-      warn("Snapshot de fin introuvable pour " + curFirst);
-      return;
-    }
-
-    // Si baseDay == endDay => tu n'as pas de snapshot en février (ou avant le 1er février)
     if(baseDay === endDay){
-      warn("Aucun snapshot trouvé avant/au " + curFirst + " (fin). Ajoute un fichier de début de mois courant (ex: " + curFirst + ").");
+      warn("Fin introuvable : ajoute un snapshot au début du mois courant (ex: " + curFirst + ").");
       rangeTxt.textContent = "Période : " + baseDay + " → " + endDay;
       return;
     }
 
     const baseSnap = await loadSnapPlayers(baseDay);
     const endSnap  = await loadSnapPlayers(endDay);
-
     if(!baseSnap || !endSnap){
       warn("Impossible de charger les snapshots : " + baseDay + " ou " + endDay);
       return;
@@ -226,27 +234,42 @@
 
     rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois passé)";
 
+    // ✅ infos skins depuis players_pages.json
+    const pages = await loadPlayersPages();
+    const infoMap = new Map();
+    if(pages){
+      for(const p of pages){
+        const k = playerKey(p);
+        if(!k) continue;
+        infoMap.set(k, { avatar:p.avatar, profileHref:p.profileHref, inscription:p.inscription });
+      }
+    }
+
     const baseMap = new Map();
     for(const p of baseSnap){
-      baseMap.set(slugify(p.nom), Number(p.xp || 0));
+      baseMap.set(playerKey(p), Number(p.xp || 0));
     }
 
     let rows = [];
     for(const p of endSnap){
-      const k = slugify(p.nom);
+      const k = playerKey(p);
       if(!k) continue;
-      if(!baseMap.has(k)) continue; // comme jour-veille : ignore nouveaux
+      if(!baseMap.has(k)) continue; // ignore nouveaux
 
       const xpEnd = Number(p.xp || 0);
       const xpStart = baseMap.get(k) || 0;
       const gain = xpEnd - xpStart;
       if(gain <= 0) continue;
 
+      const info = infoMap.get(k) || {};
+      const nom = p.nom || "—";
+
       rows.push({
-        nom: p.nom,
-        avatar: p.avatar,
-        xpEnd: xpEnd,
-        gain: gain
+        nom,
+        gain,
+        xpEnd,
+        avatar: info.avatar || p.avatar || "avatar/1.jpg",
+        profileHref: info.profileHref || p.profileHref || ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(nom)))
       });
     }
 
@@ -264,9 +287,9 @@
       const tr = document.createElement("tr");
       tr.innerHTML =
         '<td class="rank">' + (i+1) + '</td>' +
-        '<td class="avatarCell"><div class="frame"><img src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
-        '<td class="name"><a href="profil.html?mode=nv100&u=' + encodeURIComponent(slugify(r.nom)) + '">' + r.nom + '</a>' +
-        '<div class="small">' + r.xpEnd.toLocaleString("fr-FR") + ' XP</div></td>' +
+        '<td class="avatarCell"><div class="frame"><img src="' + r.avatar + '" alt="' + r.nom + '"></div></td>' +
+        '<td class="name"><a href="' + r.profileHref + '">' + r.nom + '</a>' +
+          '<div class="small">' + r.xpEnd.toLocaleString("fr-FR") + ' XP</div></td>' +
         '<td class="center">' + formatSigned(r.gain) + '</td>' +
         '<td class="center">' + r.xpEnd.toLocaleString("fr-FR") + '</td>';
       tbody.appendChild(tr);
