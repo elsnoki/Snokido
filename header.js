@@ -18,6 +18,7 @@ const headerHTML = `
       <a class="tab tab-400" href="400k.html">400K</a>
       <a class="tab tab-500" href="500k.html">500K et +</a>
       <a class="tab tab-niveau" href="niveau.html">Niveaux</a>
+      <a class="tab tab-kara" href="kara.html">Kara</a>
 
       <span class="tab-sep">|</span>
 
@@ -91,4 +92,5 @@ document.addEventListener("keydown", (e) => {
   }
 
 });
+
 
