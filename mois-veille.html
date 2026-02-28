@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Mois précédent — XP gagnée</title>
+  <title>Mois passé — XP gagnée</title>
 
   <link rel="stylesheet" href="style.css">
   <script src="header.js" defer></script>
@@ -55,7 +55,7 @@
 <body>
   <main class="wrap">
     <section class="panel">
-      <div class="titlebar" id="titleMonth">Mois précédent — XP gagnée</div>
+      <div class="titlebar" id="titleMonth">Mois passé — XP gagnée</div>
 
       <div class="nav">
         <a href="jour.html">Jour</a>
@@ -74,7 +74,7 @@
             <th></th>
             <th></th>
             <th>Joueur</th>
-            <th class="center">Δ XP (mois précédent)</th>
+            <th class="center">Δ XP (mois passé)</th>
             <th class="center">XP (fin)</th>
           </tr>
         </thead>
@@ -84,53 +84,6 @@
   </main>
 
 <script>
-  function setPrevMonthNavLabel(){
-    const a = document.getElementById("btnPrevMonth");
-    const title = document.getElementById("titleMonth");
-    if(!a) return;
-
-    const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
-
-    const fromIndex = async () => {
-      try{
-        const res = await fetch("data/history_paris/index.json?t=" + Date.now(), { cache:"no-store" });
-        if(!res.ok) throw new Error();
-        const idx = await res.json();
-        if(!Array.isArray(idx)) throw new Error();
-        const days = idx.map(x => {
-          const s = String(x||"").trim();
-          const m = s.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
-          return m ? m[1] : null;
-        }).filter(Boolean).sort();
-        if(days.length === 0) throw new Error();
-        return days[days.length-1];
-      }catch{
-        return null;
-      }
-    };
-
-    (async () => {
-      const latestDay = await fromIndex();
-      let y, m;
-      if(latestDay){
-        y = Number(latestDay.slice(0,4));
-        m = Number(latestDay.slice(5,7));
-      }else{
-        const now = new Date();
-        y = now.getFullYear();
-        m = now.getMonth() + 1;
-      }
-      m = m - 1;
-      if(m <= 0){ m = 12; y = y - 1; }
-
-      const label = monthsFR[m-1];
-      a.textContent = label;
-      a.title = "Classement du mois précédent (" + label + " " + y + ")";
-      if(title) title.textContent = label + " — XP gagnée (mois précédent)";
-    })();
-  }
-  document.addEventListener("DOMContentLoaded", setPrevMonthNavLabel);
-
   function warn(msg){
     const w = document.getElementById("warn");
     w.style.display = "block";
@@ -144,6 +97,7 @@
       .toLowerCase();
   }
 
+  // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache:"no-store" });
@@ -162,6 +116,7 @@
 
   function normalizeDay(s){
     const str = String(s||"").trim();
+    if(str === "YYYY-MM-DD" || str === "YYYY-MM-DD.json") return null;
     const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
     return m ? m[1] : null;
   }
@@ -182,21 +137,43 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
-  function prevMonthFirstFromLatest(latestDay){
-    let y = Number(latestDay.slice(0,4));
-    let m = Number(latestDay.slice(5,7));
-    m = m - 1;
-    if(m <= 0){ m = 12; y = y - 1; }
-    return `${y}-${String(m).padStart(2,"0")}-01`;
-  }
-
-  function monthKey(dayStr){ return dayStr.slice(0,7); }
-
   function findClosestLE(index, targetDay){
     for(let i=index.length-1;i>=0;i--){
       if(index[i] <= targetDay) return index[i];
     }
     return null;
+  }
+
+  function firstOfMonth(dayStr){
+    return dayStr.slice(0,7) + "-01";
+  }
+
+  function prevMonthFirstFrom(firstDay){
+    const y = Number(firstDay.slice(0,4));
+    const m = Number(firstDay.slice(5,7));
+    let py = y, pm = m - 1;
+    if(pm <= 0){ pm = 12; py = y - 1; }
+    return `${py}-${String(pm).padStart(2,"0")}-01`;
+  }
+
+  // ✅ Remplace le texte "Mois-veille" par le nom du mois passé
+  function setPrevMonthNavLabelFromLatest(latestDay){
+    const a = document.getElementById("btnPrevMonth");
+    const title = document.getElementById("titleMonth");
+    if(!a) return;
+
+    const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+
+    const curFirst = firstOfMonth(latestDay);
+    const prevFirst = prevMonthFirstFrom(curFirst);
+
+    const pm = Number(prevFirst.slice(5,7)); // 1..12
+    const py = Number(prevFirst.slice(0,4));
+    const label = monthsFR[pm-1];
+
+    a.textContent = label;
+    a.title = "Classement du mois passé (" + label + " " + py + ")";
+    if(title) title.textContent = label + " — XP gagnée (mois passé)";
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
@@ -210,21 +187,34 @@
     }
 
     const latestDay = index[index.length - 1];
-    const prevFirst = prevMonthFirstFromLatest(latestDay);
-    const prevMonth = monthKey(prevFirst);
 
+    // ✅ 1er du mois courant (basé sur latestDay) / 1er du mois précédent
+    const curFirst = firstOfMonth(latestDay);       // ex: 2026-02-01
+    const prevFirst = prevMonthFirstFrom(curFirst); // ex: 2026-01-01
+
+    // ✅ Nom du mois passé dans la nav / titre
+    setPrevMonthNavLabelFromLatest(latestDay);
+
+    // ✅ base = snapshot le plus proche <= 1er du mois passé
     const baseDay = findClosestLE(index, prevFirst);
     if(!baseDay){
-      warn("Baseline introuvable pour le mois précédent.");
+      warn("Baseline introuvable pour " + prevFirst);
       return;
     }
 
-    const endCandidates = index.filter(d => monthKey(d) === prevMonth);
-    if(endCandidates.length === 0){
-      warn("Aucun snapshot trouvé dans le mois précédent (" + prevMonth + ").");
+    // ✅ fin = snapshot le plus proche <= 1er du mois courant
+    const endDay = findClosestLE(index, curFirst);
+    if(!endDay){
+      warn("Snapshot de fin introuvable pour " + curFirst);
       return;
     }
-    const endDay = endCandidates[endCandidates.length - 1];
+
+    // Si baseDay == endDay => tu n'as pas de snapshot en février (ou avant le 1er février)
+    if(baseDay === endDay){
+      warn("Aucun snapshot trouvé avant/au " + curFirst + " (fin). Ajoute un fichier de début de mois courant (ex: " + curFirst + ").");
+      rangeTxt.textContent = "Période : " + baseDay + " → " + endDay;
+      return;
+    }
 
     const baseSnap = await loadSnapPlayers(baseDay);
     const endSnap  = await loadSnapPlayers(endDay);
@@ -234,7 +224,7 @@
       return;
     }
 
-    rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois précédent)";
+    rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois passé)";
 
     const baseMap = new Map();
     for(const p of baseSnap){
@@ -245,14 +235,19 @@
     for(const p of endSnap){
       const k = slugify(p.nom);
       if(!k) continue;
-      if(!baseMap.has(k)) continue;
+      if(!baseMap.has(k)) continue; // comme jour-veille : ignore nouveaux
 
       const xpEnd = Number(p.xp || 0);
       const xpStart = baseMap.get(k) || 0;
       const gain = xpEnd - xpStart;
       if(gain <= 0) continue;
 
-      rows.push({ nom:p.nom, avatar:p.avatar, xpEnd:xpEnd, gain:gain });
+      rows.push({
+        nom: p.nom,
+        avatar: p.avatar,
+        xpEnd: xpEnd,
+        gain: gain
+      });
     }
 
     rows.sort((a,b)=> (b.gain - a.gain) || (b.xpEnd - a.xpEnd));
@@ -260,7 +255,7 @@
     tbody.innerHTML = "";
     if(rows.length === 0){
       tbody.innerHTML =
-        '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Aucun joueur n’a gagné d’XP sur le mois précédent.</td></tr>';
+        '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Aucun joueur n’a gagné d’XP sur le mois passé.</td></tr>';
       return;
     }
 
