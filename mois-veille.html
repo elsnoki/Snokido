@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Mois-veille — XP gagnée (mois précédent)</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="header.js" defer></script>
+
+  <style>
+    body{ margin:0; font-family:Arial,sans-serif; background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%); }
+    .wrap{ max-width:1180px; margin:26px auto 40px; padding:0 12px; }
+    .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
+    .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
+
+    /* ✅ NAV (comme les autres) */
+    .nav{
+      display:flex; gap:10px; flex-wrap:wrap;
+      padding:12px 16px;
+      background:#101827;
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    .nav a{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:10px 12px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:900;
+      color:#fff;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .nav a:hover{ background:rgba(255,255,255,.18); }
+    .nav a.active{
+      background:#ffffff;
+      color:#111;
+      border-color:#ffffff;
+    }
+
+    .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
+    .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
+
+    table{ width:100%; border-collapse:separate; border-spacing:0; }
+    thead th{ background:#fff; padding:14px 12px; text-align:left; font-size:15px; font-weight:900; border-bottom:1px solid #cfcfcf; }
+    tbody td{ padding:18px 12px; border-bottom:1px solid #cfcfcf; vertical-align:middle; font-size:16px; }
+    tbody tr:nth-child(odd){ background:#f2f2f2; }
+
+    .rank{ width:70px; text-align:center; font-weight:900; font-size:26px; color:#444; }
+    .avatarCell{ width:110px; text-align:center; }
+    .frame{ width:64px; height:64px; margin:0 auto; background:#e9e9e9; border:1px solid #bdbdbd; border-radius:10px; display:flex; align-items:center; justify-content:center; }
+    .frame img{ width:56px; height:56px; object-fit:cover; border:2px solid #8f8f8f; border-radius:10px; background:#ddd; display:block; }
+
+    .name a{ color:#2c6fb7; font-weight:900; text-decoration:none; font-size:18px; }
+    .center{ text-align:center; white-space:nowrap; font-weight:900; }
+    .small{ font-weight:700; font-size:13px; color:#666; }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <div class="titlebar">Mois-veille — XP gagnée (mois précédent)</div>
+
+      <div class="nav">
+        <a href="jour.html">Jour</a>
+        <a href="jour-veille.html">Hier</a>
+        <a href="hebdo.html">Hebdo</a>
+        <a href="mensuel.html">Mensuel</a>
+        <a class="active" href="mois-veille.html">Mois-veille</a>
+      </div>
+
+      <div class="sub" id="rangeTxt">Chargement…</div>
+      <div id="warn" class="warn"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th>Joueur</th>
+            <th class="center">Δ XP (mois précédent)</th>
+            <th class="center">XP (fin)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </section>
+  </main>
+
+<script>
+  function warn(msg){
+    const w = document.getElementById("warn");
+    w.style.display = "block";
+    w.textContent = msg;
+  }
+
+  function slugify(name){
+    return String(name || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toLowerCase();
+  }
+
+  async function fetchJson(path){
+    const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
+    const res = await fetch(url, { cache:"no-store" });
+    if(!res.ok) return null;
+    try { return await res.json(); } catch { return null; }
+  }
+
+  function extractPlayers(payload){
+    if(!payload) return null;
+    if(Array.isArray(payload)) return payload;
+    if(Array.isArray(payload.players)) return payload.players;
+    if(Array.isArray(payload.top50)) return payload.top50;
+    if(Array.isArray(payload.data)) return payload.data;
+    return null;
+  }
+
+  function normalizeDay(s){
+    if(!s) return null;
+    const str = String(s).trim();
+    if(str === "YYYY-MM-DD" || str === "YYYY-MM-DD.json") return null;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+    const m = str.match(/^(\d{4}-\d{2}-\d{2})\.json$/);
+    return m ? m[1] : null;
+  }
+
+  async function loadIndex(){
+    const idxRaw = await fetchJson("data/history_paris/index.json");
+    if(!Array.isArray(idxRaw)) return null;
+    return idxRaw.map(normalizeDay).filter(Boolean).sort();
+  }
+
+  async function loadSnapPlayers(day){
+    const raw = await fetchJson("data/history_paris/" + day + ".json");
+    return extractPlayers(raw);
+  }
+
+  function formatSigned(n){
+    const v = Number(n || 0);
+    return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
+  }
+
+  function firstOfMonth(dayStr){
+    return dayStr.slice(0,7) + "-01";
+  }
+
+  function prevMonthFirstFromLatest(latestDay){
+    const y = Number(latestDay.slice(0,4));
+    const m = Number(latestDay.slice(5,7));
+    let py = y, pm = m - 1;
+    if(pm <= 0){ pm = 12; py = y - 1; }
+    const mm = String(pm).padStart(2,"0");
+    return `${py}-${mm}-01`;
+  }
+
+  function monthKey(dayStr){
+    return dayStr.slice(0,7); // YYYY-MM
+  }
+
+  function findClosestLE(index, targetDay){
+    for(let i=index.length-1;i>=0;i--){
+      if(index[i] <= targetDay) return index[i];
+    }
+    return null;
+  }
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    const tbody = document.getElementById("tbody");
+    const rangeTxt = document.getElementById("rangeTxt");
+
+    const index = await loadIndex();
+    if(!index || index.length < 2){
+      warn("Pas assez d'historique dans data/history_paris/index.json.");
+      return;
+    }
+
+    const latestDay = index[index.length - 1];
+
+    // ✅ mois précédent par rapport au latestDay
+    const prevFirst = prevMonthFirstFromLatest(latestDay);
+    const prevMonth = monthKey(prevFirst);
+
+    // ✅ baseline = snapshot le plus proche <= 1er du mois précédent
+    const baseDay = findClosestLE(index, prevFirst);
+    if(!baseDay){
+      warn("Baseline introuvable pour le mois précédent.");
+      return;
+    }
+
+    // ✅ fin = dernier snapshot du mois précédent
+    const endCandidates = index.filter(d => monthKey(d) === prevMonth);
+    if(endCandidates.length === 0){
+      warn("Aucun snapshot trouvé dans le mois précédent (" + prevMonth + ").");
+      return;
+    }
+    const endDay = endCandidates[endCandidates.length - 1];
+
+    const baseSnap = await loadSnapPlayers(baseDay);
+    const endSnap  = await loadSnapPlayers(endDay);
+
+    if(!baseSnap || !endSnap){
+      warn("Impossible de charger les snapshots : " + baseDay + " ou " + endDay);
+      return;
+    }
+
+    rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois précédent)";
+
+    const baseMap = new Map();
+    for(const p of baseSnap){
+      baseMap.set(slugify(p.nom), Number(p.xp || 0));
+    }
+
+    let rows = [];
+    for(const p of endSnap){
+      const k = slugify(p.nom);
+      if(!k) continue;
+      if(!baseMap.has(k)) continue; // comme jour-veille : ignore nouveaux
+
+      const xpEnd = Number(p.xp || 0);
+      const xpStart = baseMap.get(k) || 0;
+      const gain = xpEnd - xpStart;
+      if(gain <= 0) continue;
+
+      rows.push({
+        nom: p.nom,
+        avatar: p.avatar,
+        xpEnd: xpEnd,
+        gain: gain
+      });
+    }
+
+    rows.sort((a,b)=> (b.gain - a.gain) || (b.xpEnd - a.xpEnd));
+
+    tbody.innerHTML = "";
+    if(rows.length === 0){
+      tbody.innerHTML =
+        '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Aucun joueur n’a gagné d’XP sur le mois précédent.</td></tr>';
+      return;
+    }
+
+    for(let i=0;i<rows.length;i++){
+      const r = rows[i];
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td class="rank">' + (i+1) + '</td>' +
+        '<td class="avatarCell"><div class="frame"><img src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
+        '<td class="name"><a href="profil.html?mode=nv100&u=' + encodeURIComponent(slugify(r.nom)) + '">' + r.nom + '</a>' +
+        '<div class="small">' + r.xpEnd.toLocaleString("fr-FR") + ' XP</div></td>' +
+        '<td class="center">' + formatSigned(r.gain) + '</td>' +
+        '<td class="center">' + r.xpEnd.toLocaleString("fr-FR") + '</td>';
+      tbody.appendChild(tr);
+    }
+  });
+</script>
+</body>
+</html>
