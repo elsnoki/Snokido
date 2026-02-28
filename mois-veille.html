@@ -62,7 +62,7 @@
         <a href="jour-veille.html">Hier</a>
         <a href="hebdo.html">Hebdo</a>
         <a href="mensuel.html">Mensuel</a>
-        <a class="active" href="mois-veille.html" id="btnPrevMonth">Mois-veille</a>
+        <a class="active" href="mois-veille.html" id="btnPrevMonth">Mois passé</a>
       </div>
 
       <div class="sub" id="rangeTxt">Chargement…</div>
@@ -97,29 +97,10 @@
       .toLowerCase();
   }
 
-  function profileIdFromHref(href){
-    if(!href) return null;
-    try{
-      const u = new URL(href, location.origin);
-      const m = u.pathname.match(/\/player\/([^\/?#]+)/i);
-      return m ? m[1].toLowerCase() : null;
-    }catch{
-      const m = String(href).match(/\/player\/([^\/?#]+)/i);
-      return m ? m[1].toLowerCase() : null;
-    }
-  }
-
-  // ✅ Clé la plus robuste : id profil si dispo, sinon nom slug
-  function playerKey(p){
-    const id = profileIdFromHref(p && p.profileHref);
-    if(id) return "id:" + id;
-    return "name:" + slugify(p && p.nom);
-  }
-
   // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
-    const res = await fetch(url, { cache:"no-store" });
+    const res = await fetch(url, { cache: "no-store" });
     if(!res.ok) return null;
     try { return await res.json(); } catch { return null; }
   }
@@ -133,40 +114,28 @@
     return null;
   }
 
-  function normalizeDay(x){
-    const s = String(x||"").trim();
-    if(s === "YYYY-MM-DD" || s === "YYYY-MM-DD.json") return null;
-    const m = s.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
-    return m ? m[1] : null;
-  }
-
-  async function loadIndex(){
-    const idxRaw = await fetchJson("data/history_paris/index.json");
-    if(!Array.isArray(idxRaw)) return null;
-    return idxRaw.map(normalizeDay).filter(Boolean).sort();
-  }
-
-  async function loadSnapPlayers(day){
-    const raw = await fetchJson("data/history_paris/" + day + ".json");
-    return extractPlayers(raw);
-  }
-
   async function loadPlayersPages(){
     const raw = await fetchJson("data/players_pages.json");
     const arr = extractPlayers(raw);
     return Array.isArray(arr) ? arr : null;
   }
 
-  function formatSigned(n){
-    const v = Number(n || 0);
-    return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
+  async function loadIndex(){
+    const idx = await fetchJson("data/history_paris/index.json");
+    if(!Array.isArray(idx)) return null;
+    return idx
+      .map(s => {
+        const str = String(s||"").trim();
+        const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+        return m ? m[1] : null;
+      })
+      .filter(Boolean)
+      .sort();
   }
 
-  function findClosestLE(index, targetDay){
-    for(let i=index.length-1;i>=0;i--){
-      if(index[i] <= targetDay) return index[i];
-    }
-    return null;
+  async function loadSnapPlayers(day){
+    const snap = await fetchJson("data/history_paris/" + day + ".json");
+    return extractPlayers(snap);
   }
 
   function firstOfMonth(dayStr){
@@ -181,11 +150,21 @@
     return `${py}-${String(pm).padStart(2,"0")}-01`;
   }
 
+  function findClosestLE(index, targetDay){
+    for(let i = index.length - 1; i >= 0; i--){
+      if(index[i] <= targetDay) return index[i];
+    }
+    return null;
+  }
+
+  function formatSigned(n){
+    const v = Number(n || 0);
+    return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
+  }
+
   function setPrevMonthLabel(latestDay){
     const a = document.getElementById("btnPrevMonth");
     const title = document.getElementById("titleMonth");
-    if(!a) return;
-
     const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
 
     const curFirst = firstOfMonth(latestDay);
@@ -196,15 +175,14 @@
     const label = monthsFR[pm-1];
 
     a.textContent = label;
-    a.title = "Classement du mois passé (" + label + " " + py + ")";
-    if(title) title.textContent = label + " — XP gagnée (mois passé)";
+    a.title = "Mois passé : " + label + " " + py;
+    title.textContent = label + " — XP gagnée (mois passé)";
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
     const tbody = document.getElementById("tbody");
     const rangeTxt = document.getElementById("rangeTxt");
 
-    // 1) Index
     const index = await loadIndex();
     if(!index || index.length < 2){
       warn("Pas assez d'historique dans data/history_paris/index.json.");
@@ -212,15 +190,13 @@
     }
 
     const latestDay = index[index.length - 1];
-
-    // 2) Déterminer période : 1er mois passé -> 1er mois courant
     const curFirst = firstOfMonth(latestDay);       // ex: 2026-02-01
     const prevFirst = prevMonthFirstFrom(curFirst); // ex: 2026-01-01
 
     setPrevMonthLabel(latestDay);
 
-    const baseDay = findClosestLE(index, prevFirst); // ex: 2026-01-01
-    const endDay  = findClosestLE(index, curFirst);  // ex: 2026-02-01
+    const baseDay = findClosestLE(index, prevFirst);
+    const endDay  = findClosestLE(index, curFirst);
 
     if(!baseDay || !endDay){
       warn("Snapshots manquants pour " + prevFirst + " ou " + curFirst);
@@ -232,7 +208,6 @@
       return;
     }
 
-    // 3) Charger snapshots
     const baseSnap = await loadSnapPlayers(baseDay);
     const endSnap  = await loadSnapPlayers(endDay);
     if(!baseSnap || !endSnap){
@@ -242,32 +217,32 @@
 
     rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois passé)";
 
-    // 4) Charger la "base d'affichage" (skins) : players_pages.json
-    const pages = await loadPlayersPages();
-    const infoMap = new Map();
-    if(Array.isArray(pages)){
-      for(const p of pages){
-        const k = playerKey(p);
-        if(!k) continue;
-        infoMap.set(k, {
-          avatar: p.avatar,
-          profileHref: p.profileHref
-        });
-      }
-    }
-
-    // 5) Map XP début
+    // ✅ baseMap XP début (clé = slugify(nom) car snapshots ont surtout nom)
     const baseMap = new Map();
     for(const p of baseSnap){
-      const k = playerKey(p);
+      const k = slugify(p.nom);
       if(!k) continue;
       baseMap.set(k, Number(p.xp || 0));
     }
 
-    // 6) Calcul gains + enrichissement skins
+    // ✅ infoMap affichage depuis players_pages.json (clé = slug ou slugify(nom))
+    const pages = await loadPlayersPages();
+    const infoMap = new Map();
+    if(Array.isArray(pages)){
+      for(const p of pages){
+        const k = (p.slug && String(p.slug).toLowerCase().trim()) || slugify(p.nom);
+        if(!k) continue;
+        infoMap.set(k, {
+          avatar: p.avatar,
+          profileHref: p.profileHref,
+          nom: p.nom
+        });
+      }
+    }
+
     let rows = [];
     for(const p of endSnap){
-      const k = playerKey(p);
+      const k = slugify(p.nom);
       if(!k) continue;
       if(!baseMap.has(k)) continue; // ignore nouveaux
 
@@ -277,20 +252,18 @@
       if(gain <= 0) continue;
 
       const info = infoMap.get(k) || {};
-      const nom = p.nom || "—";
 
       rows.push({
-        nom,
+        nom: info.nom || p.nom,
+        avatar: info.avatar || "avatar/1.jpg",
+        profileHref: info.profileHref || ("profil.html?mode=nv100&u=" + encodeURIComponent(k)),
         gain,
-        xpEnd,
-        avatar: info.avatar || p.avatar || "avatar/1.jpg",
-        profileHref: info.profileHref || p.profileHref || ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(nom)))
+        xpEnd
       });
     }
 
     rows.sort((a,b)=> (b.gain - a.gain) || (b.xpEnd - a.xpEnd));
 
-    // 7) Render
     tbody.innerHTML = "";
     if(rows.length === 0){
       tbody.innerHTML =
@@ -304,7 +277,7 @@
       tr.innerHTML =
         '<td class="rank">' + (i+1) + '</td>' +
         '<td class="avatarCell"><div class="frame"><img src="' + r.avatar + '" alt="' + r.nom + '"></div></td>' +
-        '<td class="name"><a href="' + r.profileHref + '">' + r.nom + '</a>' +
+        '<td class="name"><a target="_blank" rel="noopener" href="' + r.profileHref + '">' + r.nom + '</a>' +
           '<div class="small">' + r.xpEnd.toLocaleString("fr-FR") + ' XP</div></td>' +
         '<td class="center">' + formatSigned(r.gain) + '</td>' +
         '<td class="center">' + r.xpEnd.toLocaleString("fr-FR") + '</td>';
