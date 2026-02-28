@@ -78,7 +78,7 @@ function parsePlayers(html){
   const players = [];
   table.find("tr").each((i, tr) => {
     const tds = $(tr).find("td");
-    if(tds.length < 5) return;
+    if(tds.length < 6) return;
 
     const rank = toInt($(tds[0]).text());
 
@@ -111,22 +111,75 @@ function parsePlayers(html){
   return { players, reason: "ok" };
 }
 
-// ---------- Kara depuis profil ----------
-function parseKarasFromProfile(html){
+// ---------- Parse profil -> {nom,slug,niveau,xp,inscription,avatar,profileHref,karas} ----------
+function parseProfile(html, url){
   const $ = cheerio.load(html);
+
+  // nom
+  const nom =
+    clean($("h1").first().text()) ||
+    clean($(".profile-name").first().text()) ||
+    clean($("title").text().replace("- Snokido", "")) ||
+    "—";
+
+  // avatar (essaye plusieurs endroits)
+  let avatar =
+    $(".profile-avatar img").attr("src") ||
+    $(".avatar img").attr("src") ||
+    $("img").filter((i,el)=> String($(el).attr("src")||"").includes("/images/snoki/")).first().attr("src") ||
+    null;
+
+  if(avatar && avatar.startsWith("/")) avatar = "https://www.snokido.fr" + avatar;
+
   const text = clean($("body").text());
 
-  let m = text.match(/Kara\s*([\d\s]+)/i);
-  if(m){
-    const v = toInt(m[1]);
-    if(v != null) return v;
-  }
-  m = text.match(/([\d\s]+)\s*Kara/i);
-  if(m){
-    const v = toInt(m[1]);
-    if(v != null) return v;
-  }
-  return null;
+  // niveau
+  const niveau = (() => {
+    const m = text.match(/Niveau\s*[:\-]?\s*(\d+)/i);
+    return m ? Number(m[1]) : null;
+  })();
+
+  // xp
+  const xp = (() => {
+    const m = text.match(/([\d\s\u00A0]+)\s*XP/i);
+    return m ? Number(m[1].replace(/[\s\u00A0]/g, "")) : null;
+  })();
+
+  // karas
+  const karas = (() => {
+    let m = text.match(/Kara\s*[:\-]?\s*([\d\s\u00A0]+)/i);
+    if(m){
+      const v = Number(String(m[1]).replace(/[\s\u00A0]/g,"").replace(/[^\d]/g,""));
+      if(!Number.isNaN(v)) return v;
+    }
+    m = text.match(/([\d\s\u00A0]+)\s*Kara/i);
+    if(m){
+      const v = Number(String(m[1]).replace(/[\s\u00A0]/g,"").replace(/[^\d]/g,""));
+      if(!Number.isNaN(v)) return v;
+    }
+    return null;
+  })();
+
+  // inscription DD-MM-YYYY
+  const inscription = (() => {
+    const m = text.match(/Inscription\s*[:\-]?\s*(\d{2}[-\/]\d{2}[-\/]\d{4})/i);
+    if(!m) return null;
+    return m[1].replace(/\//g,"-");
+  })();
+
+  const slug = url.split("/player/")[1].toLowerCase().trim();
+
+  return {
+    rank: null,
+    nom,
+    slug,
+    niveau,
+    xp,
+    inscription,
+    avatar: avatar || null,
+    profileHref: url,
+    karas
+  };
 }
 
 // ---------- Fetch pages 1..N : /players, /players-2, ... ----------
@@ -150,12 +203,44 @@ async function fetchAllPages(maxPages){
     }
 
     all.push(...players);
-
-    // petite pause
     await new Promise(r => setTimeout(r, 150));
   }
 
   return all;
+}
+
+// ---------- Inject 2 profils fixes (snokido + snokido-2) ----------
+async function injectFixedProfiles(players){
+  const extraUrls = [
+    "https://www.snokido.fr/player/snokido",
+    "https://www.snokido.fr/player/snokido-2",
+  ];
+
+  for(const url of extraUrls){
+    try{
+      console.log("🌐 Fetch fixed profile:", url);
+      const r = await fetchWithUA(url);
+      const h = await r.text();
+      const extra = parseProfile(h, url);
+
+      // si l’un des champs n’est pas trouvé, on garde quand même ce qu’on a
+      const idx = players.findIndex(p =>
+        (p.profileHref && p.profileHref.toLowerCase() === url.toLowerCase()) ||
+        (p.slug && extra.slug && p.slug.toLowerCase() === extra.slug.toLowerCase())
+      );
+
+      if(idx >= 0){
+        players[idx] = { ...players[idx], ...extra };
+      }else{
+        players.push(extra);
+      }
+
+      console.log("✅ fixed added:", extra.slug);
+      await new Promise(r => setTimeout(r, 150));
+    }catch(e){
+      console.warn("⚠️ fixed profile failed:", url, e.message);
+    }
+  }
 }
 
 // ---------- MAIN ----------
@@ -172,28 +257,51 @@ async function main(){
   }
   console.log(`✅ Total joueurs récupérés: ${players.length}`);
 
-  const top50 = players.slice(0, 50);
+  // ✅ ajoute snokido + snokido-2
+  await injectFixedProfiles(players);
 
-  console.log("🔎 Fetch profils Kara (Top50 seulement)...");
+  // ✅ Écrit aussi players_pages.json (top 2500-ish)
+  writeJson("data/players_pages.json", players);
+
+  // top50 pour le site
+  const top50 = players
+    .slice()
+    .sort((a,b)=> (a.rank ?? 999999) - (b.rank ?? 999999))
+    .slice(0, 50);
+
+  // ✅ Kara : pour TOP50 + pour les 2 profils fixes (déjà récupéré dans parseProfile)
+  console.log("🔎 Fetch profils Kara (Top50 + fixes)...");
+
+  // ids fixes pour être sûr
+  const fixedSlugs = new Set(["snokido","snokido-2"]);
+
   await mapLimit(top50, 6, async (p) => {
     try{
+      // si déjà connu (cas des fixes), ne re-fetch pas
+      if(fixedSlugs.has(p.slug) && p.karas != null) return p;
+
       const r = await fetchWithUA(p.profileHref);
       const h = await r.text();
-      p.karas = parseKarasFromProfile(h);
+      const prof = parseProfile(h, p.profileHref);
+
+      // on merge seulement karas (et éventuellement avatar/inscription si plus fiable)
+      p.karas = (prof.karas == null) ? p.karas : prof.karas;
+      if(!p.avatar && prof.avatar) p.avatar = prof.avatar;
+      if(!p.inscription && prof.inscription) p.inscription = prof.inscription;
     }catch{
-      p.karas = null;
+      // garde ce qu’on a
     }
     return p;
   });
 
-  // top50 pour le site
   writeJson("data/snokido_top50.json", top50);
 
-  // snapshot officiel du jour (Paris) : 50 pages
+  // snapshot officiel du jour (Paris)
   const dayParis = parisDayString(new Date());
   const snapPath = `data/history_paris/${dayParis}.json`;
   const indexPath = `data/history_paris/index.json`;
 
+  // map karas top50 (et fixes si dedans)
   const karaBySlug = new Map(top50.map(p => [p.slug, p.karas]));
 
   const snapshot = {
@@ -209,9 +317,10 @@ async function main(){
       slug: p.slug,
       xp: Number(p.xp) || 0,
       niveau: (typeof p.niveau === "number") ? p.niveau : null,
+      inscription: p.inscription || null,
       avatar: p.avatar || null,
       profileHref: p.profileHref || null,
-      karas: karaBySlug.has(p.slug) ? (karaBySlug.get(p.slug) ?? null) : null
+      karas: karaBySlug.has(p.slug) ? (karaBySlug.get(p.slug) ?? null) : (p.karas ?? null)
     }))
   };
 
@@ -223,6 +332,7 @@ async function main(){
   next.sort();
   writeJson(indexPath, next);
 
+  console.log(`✅ players_pages.json écrit`);
   console.log(`✅ Snapshot écrit: ${snapPath}`);
   console.log(`✅ Index maj: ${indexPath}`);
 }
