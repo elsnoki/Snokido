@@ -122,16 +122,17 @@ function parseProfile(html, url){
     return m ? Number(m[1].replace(/[\s\u00A0]/g, "")) : null;
   })();
 
+  // ✅ IMPORTANT : karas = null si pas trouvé (pas 0)
   const karas = (() => {
-    let m = text.match(/Kara\s*[:\-]?\s*([\d\s\u00A0]+)/i);
+    let m = text.match(/Karas?\s*[:\-]?\s*([\d\s\u00A0]+)/i);
     if(m){
       const v = Number(String(m[1]).replace(/[\s\u00A0]/g,"").replace(/[^\d]/g,""));
-      if(!Number.isNaN(v)) return v;
+      return Number.isNaN(v) ? null : v;
     }
-    m = text.match(/([\d\s\u00A0]+)\s*Kara/i);
+    m = text.match(/([\d\s\u00A0]+)\s*Karas?/i);
     if(m){
       const v = Number(String(m[1]).replace(/[\s\u00A0]/g,"").replace(/[^\d]/g,""));
-      if(!Number.isNaN(v)) return v;
+      return Number.isNaN(v) ? null : v;
     }
     return null;
   })();
@@ -181,34 +182,21 @@ async function fetchAllPages(maxPages){
   return all;
 }
 
-// ---------- Inject 2 profils fixes ----------
-async function injectFixedProfiles(players){
-  const extraUrls = [
-    "https://www.snokido.fr/player/snokido",
-    "https://www.snokido.fr/player/snokido-2",
-  ];
+// ---------- Fetch un profil + merge dans players ----------
+async function upsertProfile(players, url){
+  const r = await fetchWithUA(url);
+  const h = await r.text();
+  const extra = parseProfile(h, url);
 
-  for(const url of extraUrls){
-    try{
-      console.log("🌐 Fetch fixed profile:", url);
-      const r = await fetchWithUA(url);
-      const h = await r.text();
-      const extra = parseProfile(h, url);
+  const idx = players.findIndex(p =>
+    (p.profileHref && p.profileHref.toLowerCase() === url.toLowerCase()) ||
+    (p.slug && extra.slug && p.slug.toLowerCase() === extra.slug.toLowerCase())
+  );
 
-      const idx = players.findIndex(p =>
-        (p.profileHref && p.profileHref.toLowerCase() === url.toLowerCase()) ||
-        (p.slug && extra.slug && p.slug.toLowerCase() === extra.slug.toLowerCase())
-      );
+  if(idx >= 0) players[idx] = { ...players[idx], ...extra };
+  else players.push(extra);
 
-      if(idx >= 0) players[idx] = { ...players[idx], ...extra };
-      else players.push(extra);
-
-      console.log("✅ fixed added:", extra.slug);
-      await new Promise(r => setTimeout(r, 150));
-    }catch(e){
-      console.warn("⚠️ fixed profile failed:", url, e.message);
-    }
-  }
+  return extra.slug;
 }
 
 // ---------- MAIN ----------
@@ -217,7 +205,7 @@ async function main(){
 
   const MAX_PAGES = 50;
 
-  // 1) scrape 50 pages (pour ton site, sans history)
+  // 1) scrape 50 pages
   const players = await fetchAllPages(MAX_PAGES);
   if(!players.length){
     console.error("❌ 0 joueurs trouvés.");
@@ -225,41 +213,51 @@ async function main(){
   }
   console.log(`✅ Total joueurs récupérés (pages): ${players.length}`);
 
-  // ✅ ajoute snokido + snokido-2
-  await injectFixedProfiles(players);
+  // ✅ 2) inject snokido + snokido-2 (AVEC karas)
+  const fixedUrls = [
+    "https://www.snokido.fr/player/snokido",
+    "https://www.snokido.fr/player/snokido-2",
+  ];
 
-  // 2) top50 = page 1 (tri par rank)
+  for(const url of fixedUrls){
+    try{
+      console.log("🌐 Fetch fixed profile:", url);
+      const slug = await upsertProfile(players, url);
+      console.log("✅ fixed updated:", slug);
+      await new Promise(r => setTimeout(r, 150));
+    }catch(e){
+      console.warn("⚠️ fixed profile failed:", url, e.message);
+    }
+  }
+
+  // 3) top50 (tri par rank)
   const top50 = players
     .slice()
     .sort((a,b)=> (a.rank ?? 999999) - (b.rank ?? 999999))
     .slice(0, 50);
 
-  // 3) Kara seulement top50 (et fixes si dedans — sinon déjà récupérés)
+  // ✅ 4) Kara top50 (on garde parseProfile pour être robuste)
   console.log("🔎 Fetch profils Kara (Top50)...");
 
   await mapLimit(top50, 6, async (p) => {
     try{
-      // si déjà présent (ex: snokido) ne refetch pas
-      if((p.slug === "snokido" || p.slug === "snokido-2") && p.karas != null) return p;
-
       const r = await fetchWithUA(p.profileHref);
       const h = await r.text();
       const prof = parseProfile(h, p.profileHref);
-
       p.karas = (prof.karas == null) ? p.karas : prof.karas;
       if(!p.avatar && prof.avatar) p.avatar = prof.avatar;
       if(!p.inscription && prof.inscription) p.inscription = prof.inscription;
     }catch{
-      p.karas = p.karas ?? null;
+      // garde ce qu'on a
     }
     return p;
   });
 
-  // 4) fichiers du site (PAS d'history_paris ici)
+  // 5) fichiers du site (sans history)
   writeJson("data/snokido_top50.json", top50);
   writeJson("data/players_pages.json", players);
 
-  console.log("✅ top50 updated (no history) + players_pages.json (with snokido + snokido-2)");
+  console.log("✅ top50 + players_pages.json updated (snokido + snokido-2 inclus avec karas si trouvés)");
 }
 
 main().catch(err => {
