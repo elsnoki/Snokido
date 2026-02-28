@@ -3,10 +3,11 @@ import * as cheerio from "cheerio";
 
 // ---------- Utils ----------
 function clean(s){ return (s || "").replace(/\s+/g, " ").trim(); }
-function toInt(s){
-  const n = clean(s).replace(/[^\d]/g, "");
+function digitsToInt(s){
+  const n = String(s || "").replace(/[^\d]/g, "");
   return n ? Number(n) : null;
 }
+function toInt(s){ return digitsToInt(clean(s)); }
 function absUrl(url){
   if(!url) return "";
   if(url.startsWith("http")) return url;
@@ -27,6 +28,7 @@ async function fetchWithUA(url){
     }
   });
 }
+async function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 async function mapLimit(list, limit, fn){
   const ret = new Array(list.length);
   let idx = 0;
@@ -92,26 +94,49 @@ function parsePlayers(html){
   return { players, reason: "ok" };
 }
 
-// ✅ Kara depuis profil (version SAFE : jamais 0 si pas trouvé)
+// ✅ Kara depuis profil (TRÈS ROBUSTE + détecte blocage)
 function parseKarasFromProfile(html){
+  const lower = String(html || "").toLowerCase();
+
+  // heuristiques blocage / challenge
+  if(lower.includes("cloudflare") || lower.includes("attention required") || lower.includes("checking your browser")){
+    return null;
+  }
+
+  // 1) Essai sur le texte visible
   const $ = cheerio.load(html);
   const text = clean($("body").text());
 
-  // Cherche un nombre près de "Kara"
-  let m = text.match(/Kara[s]?\s*[:\-]?\s*([\d\s\u00A0]+)/i);
-  if(m){
-    const v = toInt(m[1]);
-    return v == null ? null : v;
+  // support espaces insécables & séparateurs
+  const rxText = [
+    /Karas?\s*[:\-]?\s*([\d\s\u00A0\u202F.,]+)/i,
+    /([\d\s\u00A0\u202F.,]+)\s*Karas?/i
+  ];
+  for(const rx of rxText){
+    const m = text.match(rx);
+    if(m){
+      const v = digitsToInt(m[1]);
+      if(v != null) return v;
+    }
   }
-  m = text.match(/([\d\s\u00A0]+)\s*Kara[s]?/i);
-  if(m){
-    const v = toInt(m[1]);
-    return v == null ? null : v;
+
+  // 2) Essai sur le HTML brut (parfois le texte est “cassé”)
+  const rxHtml = [
+    /Karas?[^0-9]{0,30}([\d][\d\s\u00A0\u202F.,]{0,30})/i,
+    /([\d][\d\s\u00A0\u202F.,]{0,30})[^A-Za-z0-9]{0,20}Karas?/i
+  ];
+  for(const rx of rxHtml){
+    const m = String(html).match(rx);
+    if(m){
+      const v = digitsToInt(m[1]);
+      if(v != null) return v;
+    }
   }
+
   return null;
 }
 
-// ✅ Parse profil (hors Karas) : nom / avatar / niveau / xp / inscription
+// ✅ Parse profil (infos générales)
 function parseProfileInfo(html, url){
   const $ = cheerio.load(html);
 
@@ -137,8 +162,8 @@ function parseProfileInfo(html, url){
   })();
 
   const xp = (() => {
-    const m = text.match(/([\d\s\u00A0]+)\s*XP/i);
-    return m ? Number(m[1].replace(/[\s\u00A0]/g, "")) : null;
+    const m = text.match(/([\d\s\u00A0\u202F]+)\s*XP/i);
+    return m ? Number(m[1].replace(/[\s\u00A0\u202F]/g, "")) : null;
   })();
 
   const inscription = (() => {
@@ -171,29 +196,29 @@ async function fetchAllPages(maxPages){
     }
 
     all.push(...players);
-    await new Promise(r => setTimeout(r, 150));
+    await sleep(150);
   }
   return all;
 }
 
-// ---------- Upsert profil fixe (avec Karas SAFE) ----------
+// ---------- Upsert profil fixe ----------
 async function upsertFixed(players, url){
-  const r = await fetchWithUA(url);
-  const h = await r.text();
+  const res = await fetchWithUA(url);
+  if(!res.ok){
+    console.warn("⚠️ fixed fetch not ok", res.status, url);
+    return null;
+  }
+  const h = await res.text();
 
   const info = parseProfileInfo(h, url);
-  const karas = parseKarasFromProfile(h); // ✅ SAFE
+  const karas = parseKarasFromProfile(h);
 
   const idx = players.findIndex(p =>
     (p.profileHref && p.profileHref.toLowerCase() === url.toLowerCase()) ||
     (p.slug && info.slug && p.slug.toLowerCase() === info.slug.toLowerCase())
   );
 
-  const merged = {
-    rank: null,
-    ...info,
-    karas: karas // null si pas trouvé
-  };
+  const merged = { rank: null, ...info, karas: karas };
 
   if(idx >= 0) players[idx] = { ...players[idx], ...merged };
   else players.push(merged);
@@ -207,7 +232,7 @@ async function main(){
 
   const MAX_PAGES = 50;
 
-  // 1) scrape 50 pages (sans history)
+  // 1) scrape 50 pages
   const players = await fetchAllPages(MAX_PAGES);
   if(!players.length){
     console.error("❌ 0 joueurs trouvés.");
@@ -225,7 +250,7 @@ async function main(){
       console.log("🌐 Fetch fixed profile:", url);
       const slug = await upsertFixed(players, url);
       console.log("✅ fixed updated:", slug);
-      await new Promise(r => setTimeout(r, 150));
+      await sleep(300);
     }catch(e){
       console.warn("⚠️ fixed profile failed:", url, e.message);
     }
@@ -237,26 +262,42 @@ async function main(){
     .sort((a,b)=> (a.rank ?? 999999) - (b.rank ?? 999999))
     .slice(0, 50);
 
-  // 4) Kara TOP50 (SAFE)
-  console.log("🔎 Fetch profils Kara (Top50)...");
+  // 4) Kara TOP50 : ⚠️ réduire concurrence pour éviter blocage
+  console.log("🔎 Fetch profils Kara (Top50, limit=2 + pauses)...");
 
-  await mapLimit(top50, 6, async (p) => {
+  await mapLimit(top50, 2, async (p, i) => {
     try{
-      const r = await fetchWithUA(p.profileHref);
-      const h = await r.text();
-      const k = parseKarasFromProfile(h); // ✅ SAFE
-      if(k != null) p.karas = k;          // ✅ n’écrase pas si null
-    }catch{
-      // garde ce qu'on a
+      const res = await fetchWithUA(p.profileHref);
+      if(!res.ok){
+        console.warn("⚠️ profile fetch not ok", res.status, p.profileHref);
+        return p;
+      }
+      const h = await res.text();
+
+      const k = parseKarasFromProfile(h);
+      if(k != null) p.karas = k;
+
+      // petite pause anti-blocage
+      await sleep(400);
+
+      // debug : si tout reste null, on log 1 fois un indicateur
+      if(i === 0 && k == null){
+        const low = h.toLowerCase();
+        if(low.includes("cloudflare") || low.includes("attention required") || low.includes("checking your browser")){
+          console.warn("⚠️ Looks like Snokido blocks profile fetch (cloudflare/challenge).");
+        }
+      }
+    }catch(e){
+      console.warn("⚠️ profile fetch error", p.profileHref, e.message);
     }
     return p;
   });
 
-  // 5) écrire JSON
+  // 5) write json
   writeJson("data/snokido_top50.json", top50);
   writeJson("data/players_pages.json", players);
 
-  console.log("✅ top50 + players_pages.json updated (Karas corrigés)");
+  console.log("✅ top50 + players_pages.json updated");
 }
 
 main().catch(err => {
