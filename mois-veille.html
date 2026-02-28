@@ -109,12 +109,14 @@
     }
   }
 
+  // ✅ Clé la plus robuste : id profil si dispo, sinon nom slug
   function playerKey(p){
     const id = profileIdFromHref(p && p.profileHref);
     if(id) return "id:" + id;
     return "name:" + slugify(p && p.nom);
   }
 
+  // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache:"no-store" });
@@ -131,17 +133,17 @@
     return null;
   }
 
+  function normalizeDay(x){
+    const s = String(x||"").trim();
+    if(s === "YYYY-MM-DD" || s === "YYYY-MM-DD.json") return null;
+    const m = s.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+    return m ? m[1] : null;
+  }
+
   async function loadIndex(){
     const idxRaw = await fetchJson("data/history_paris/index.json");
     if(!Array.isArray(idxRaw)) return null;
-    return idxRaw
-      .map(s => {
-        const str = String(s||"").trim();
-        const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
-        return m ? m[1] : null;
-      })
-      .filter(Boolean)
-      .sort();
+    return idxRaw.map(normalizeDay).filter(Boolean).sort();
   }
 
   async function loadSnapPlayers(day){
@@ -167,7 +169,9 @@
     return null;
   }
 
-  function firstOfMonth(dayStr){ return dayStr.slice(0,7) + "-01"; }
+  function firstOfMonth(dayStr){
+    return dayStr.slice(0,7) + "-01";
+  }
 
   function prevMonthFirstFrom(firstDay){
     const y = Number(firstDay.slice(0,4));
@@ -181,6 +185,7 @@
     const a = document.getElementById("btnPrevMonth");
     const title = document.getElementById("titleMonth");
     if(!a) return;
+
     const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
 
     const curFirst = firstOfMonth(latestDay);
@@ -199,21 +204,23 @@
     const tbody = document.getElementById("tbody");
     const rangeTxt = document.getElementById("rangeTxt");
 
+    // 1) Index
     const index = await loadIndex();
     if(!index || index.length < 2){
-      warn("Pas assez d'historique dans index.json.");
+      warn("Pas assez d'historique dans data/history_paris/index.json.");
       return;
     }
 
     const latestDay = index[index.length - 1];
-    const curFirst = firstOfMonth(latestDay);
-    const prevFirst = prevMonthFirstFrom(curFirst);
+
+    // 2) Déterminer période : 1er mois passé -> 1er mois courant
+    const curFirst = firstOfMonth(latestDay);       // ex: 2026-02-01
+    const prevFirst = prevMonthFirstFrom(curFirst); // ex: 2026-01-01
 
     setPrevMonthLabel(latestDay);
 
-    // ✅ compare 1er mois passé → 1er mois courant
-    const baseDay = findClosestLE(index, prevFirst);
-    const endDay  = findClosestLE(index, curFirst);
+    const baseDay = findClosestLE(index, prevFirst); // ex: 2026-01-01
+    const endDay  = findClosestLE(index, curFirst);  // ex: 2026-02-01
 
     if(!baseDay || !endDay){
       warn("Snapshots manquants pour " + prevFirst + " ou " + curFirst);
@@ -225,6 +232,7 @@
       return;
     }
 
+    // 3) Charger snapshots
     const baseSnap = await loadSnapPlayers(baseDay);
     const endSnap  = await loadSnapPlayers(endDay);
     if(!baseSnap || !endSnap){
@@ -234,22 +242,29 @@
 
     rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois passé)";
 
-    // ✅ infos skins depuis players_pages.json
+    // 4) Charger la "base d'affichage" (skins) : players_pages.json
     const pages = await loadPlayersPages();
     const infoMap = new Map();
-    if(pages){
+    if(Array.isArray(pages)){
       for(const p of pages){
         const k = playerKey(p);
         if(!k) continue;
-        infoMap.set(k, { avatar:p.avatar, profileHref:p.profileHref, inscription:p.inscription });
+        infoMap.set(k, {
+          avatar: p.avatar,
+          profileHref: p.profileHref
+        });
       }
     }
 
+    // 5) Map XP début
     const baseMap = new Map();
     for(const p of baseSnap){
-      baseMap.set(playerKey(p), Number(p.xp || 0));
+      const k = playerKey(p);
+      if(!k) continue;
+      baseMap.set(k, Number(p.xp || 0));
     }
 
+    // 6) Calcul gains + enrichissement skins
     let rows = [];
     for(const p of endSnap){
       const k = playerKey(p);
@@ -275,6 +290,7 @@
 
     rows.sort((a,b)=> (b.gain - a.gain) || (b.xpEnd - a.xpEnd));
 
+    // 7) Render
     tbody.innerHTML = "";
     if(rows.length === 0){
       tbody.innerHTML =
