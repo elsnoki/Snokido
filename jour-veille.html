@@ -44,6 +44,30 @@
     opacity:.9;
   }
 
+  /* ✅ NAV (même style que les autres pages) */
+  .nav{
+    display:flex; gap:10px; flex-wrap:wrap;
+    padding:12px 16px;
+    background:#101827;
+    border-bottom:1px solid rgba(255,255,255,.10);
+  }
+  .nav a{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:10px 12px;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:900;
+    color:#fff;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.18);
+  }
+  .nav a:hover{ background:rgba(255,255,255,.18); }
+  .nav a.active{
+    background:#ffffff;
+    color:#111;
+    border-color:#ffffff;
+  }
+
   .warn{
     margin:12px 18px 0;
     padding:10px 12px;
@@ -153,11 +177,12 @@
     <div class="pill" id="infoPill">Δ XP</div>
   </div>
 
-  <div class="subnav">
-    <a class="subnav-btn" href="jour.html">🕛 Jour</a>
-    <a class="subnav-btn" href="jour-veille.html">⏪ Jour d’avant</a>
-    <a class="subnav-btn" href="hebdo.html">📅 Hebdo</a>
-    <a class="subnav-btn" href="mensuel.html">🗓️ Mensuel</a>
+  <!-- ✅ Nouvelle barre identique + “Hier” -->
+  <div class="nav">
+    <a href="jour.html">Jour</a>
+    <a class="active" href="jour-veille.html">Hier</a>
+    <a href="hebdo.html">Hebdo</a>
+    <a href="mensuel.html">Mensuel</a>
   </div>
 
   <div id="warn" class="warn"></div>
@@ -276,13 +301,13 @@
     snapEnd.forEach(p => {
       const k = nameKey(p);
       if(!k) return;
-      if(!startMap.has(k)) return; // ignore nouveaux
+      if(!startMap.has(k)) return;
 
       const xpEnd = Number(p.xp) || 0;
       const xpStart = startMap.get(k) || 0;
       const gain = xpEnd - xpStart;
 
-      if(gain <= 0) return; // ✅ n'affiche pas ceux à 0 (et pas ceux en négatif)
+      if(gain <= 0) return;
 
       rows.push({
         nom: p.nom || "—",
