@@ -59,7 +59,7 @@ function parsePlayers(html){
   const players = [];
   table.find("tr").each((i, tr) => {
     const tds = $(tr).find("td");
-    if(tds.length < 5) return;
+    if(tds.length < 6) return;
 
     const rank = toInt($(tds[0]).text());
 
@@ -92,22 +92,69 @@ function parsePlayers(html){
   return { players, reason: "ok" };
 }
 
-// ---------- Kara depuis profil ----------
-function parseKarasFromProfile(html){
+// ---------- Parse profil -> {nom,slug,niveau,xp,inscription,avatar,profileHref,karas} ----------
+function parseProfile(html, url){
   const $ = cheerio.load(html);
+
+  const nom =
+    clean($("h1").first().text()) ||
+    clean($(".profile-name").first().text()) ||
+    clean($("title").text().replace("- Snokido", "")) ||
+    "—";
+
+  let avatar =
+    $(".profile-avatar img").attr("src") ||
+    $(".avatar img").attr("src") ||
+    $("img").filter((i,el)=> String($(el).attr("src")||"").includes("/images/snoki/")).first().attr("src") ||
+    null;
+
+  if(avatar && avatar.startsWith("/")) avatar = "https://www.snokido.fr" + avatar;
+
   const text = clean($("body").text());
 
-  let m = text.match(/Kara\s*([\d\s]+)/i);
-  if(m){
-    const v = toInt(m[1]);
-    if(v != null) return v;
-  }
-  m = text.match(/([\d\s]+)\s*Kara/i);
-  if(m){
-    const v = toInt(m[1]);
-    if(v != null) return v;
-  }
-  return null;
+  const niveau = (() => {
+    const m = text.match(/Niveau\s*[:\-]?\s*(\d+)/i);
+    return m ? Number(m[1]) : null;
+  })();
+
+  const xp = (() => {
+    const m = text.match(/([\d\s\u00A0]+)\s*XP/i);
+    return m ? Number(m[1].replace(/[\s\u00A0]/g, "")) : null;
+  })();
+
+  const karas = (() => {
+    let m = text.match(/Kara\s*[:\-]?\s*([\d\s\u00A0]+)/i);
+    if(m){
+      const v = Number(String(m[1]).replace(/[\s\u00A0]/g,"").replace(/[^\d]/g,""));
+      if(!Number.isNaN(v)) return v;
+    }
+    m = text.match(/([\d\s\u00A0]+)\s*Kara/i);
+    if(m){
+      const v = Number(String(m[1]).replace(/[\s\u00A0]/g,"").replace(/[^\d]/g,""));
+      if(!Number.isNaN(v)) return v;
+    }
+    return null;
+  })();
+
+  const inscription = (() => {
+    const m = text.match(/Inscription\s*[:\-]?\s*(\d{2}[-\/]\d{2}[-\/]\d{4})/i);
+    if(!m) return null;
+    return m[1].replace(/\//g,"-");
+  })();
+
+  const slug = url.split("/player/")[1].toLowerCase().trim();
+
+  return {
+    rank: null,
+    nom,
+    slug,
+    niveau,
+    xp,
+    inscription,
+    avatar: avatar || null,
+    profileHref: url,
+    karas
+  };
 }
 
 // ---------- Fetch pages 1..N : /players, /players-2, ... ----------
@@ -129,11 +176,39 @@ async function fetchAllPages(maxPages){
     }
 
     all.push(...players);
-
-    // petite pause
     await new Promise(r => setTimeout(r, 150));
   }
   return all;
+}
+
+// ---------- Inject 2 profils fixes ----------
+async function injectFixedProfiles(players){
+  const extraUrls = [
+    "https://www.snokido.fr/player/snokido",
+    "https://www.snokido.fr/player/snokido-2",
+  ];
+
+  for(const url of extraUrls){
+    try{
+      console.log("🌐 Fetch fixed profile:", url);
+      const r = await fetchWithUA(url);
+      const h = await r.text();
+      const extra = parseProfile(h, url);
+
+      const idx = players.findIndex(p =>
+        (p.profileHref && p.profileHref.toLowerCase() === url.toLowerCase()) ||
+        (p.slug && extra.slug && p.slug.toLowerCase() === extra.slug.toLowerCase())
+      );
+
+      if(idx >= 0) players[idx] = { ...players[idx], ...extra };
+      else players.push(extra);
+
+      console.log("✅ fixed added:", extra.slug);
+      await new Promise(r => setTimeout(r, 150));
+    }catch(e){
+      console.warn("⚠️ fixed profile failed:", url, e.message);
+    }
+  }
 }
 
 // ---------- MAIN ----------
@@ -150,29 +225,41 @@ async function main(){
   }
   console.log(`✅ Total joueurs récupérés (pages): ${players.length}`);
 
-  // 2) top50 = page 1
-  const top50 = players.slice(0, 50);
+  // ✅ ajoute snokido + snokido-2
+  await injectFixedProfiles(players);
 
-  // 3) Kara seulement top50
-  console.log("🔎 Fetch profils Kara (Top50 seulement)...");
+  // 2) top50 = page 1 (tri par rank)
+  const top50 = players
+    .slice()
+    .sort((a,b)=> (a.rank ?? 999999) - (b.rank ?? 999999))
+    .slice(0, 50);
+
+  // 3) Kara seulement top50 (et fixes si dedans — sinon déjà récupérés)
+  console.log("🔎 Fetch profils Kara (Top50)...");
+
   await mapLimit(top50, 6, async (p) => {
     try{
+      // si déjà présent (ex: snokido) ne refetch pas
+      if((p.slug === "snokido" || p.slug === "snokido-2") && p.karas != null) return p;
+
       const r = await fetchWithUA(p.profileHref);
       const h = await r.text();
-      p.karas = parseKarasFromProfile(h);
+      const prof = parseProfile(h, p.profileHref);
+
+      p.karas = (prof.karas == null) ? p.karas : prof.karas;
+      if(!p.avatar && prof.avatar) p.avatar = prof.avatar;
+      if(!p.inscription && prof.inscription) p.inscription = prof.inscription;
     }catch{
-      p.karas = null;
+      p.karas = p.karas ?? null;
     }
     return p;
   });
 
   // 4) fichiers du site (PAS d'history_paris ici)
   writeJson("data/snokido_top50.json", top50);
-
-  // optionnel : gros classement (50 pages) pour tes pages
   writeJson("data/players_pages.json", players);
 
-  console.log("✅ top50 updated (no history) + players_pages.json");
+  console.log("✅ top50 updated (no history) + players_pages.json (with snokido + snokido-2)");
 }
 
 main().catch(err => {
