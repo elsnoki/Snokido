@@ -14,7 +14,6 @@
     .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
     .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
 
-    /* ✅ NAVIGATION */
     .nav{
       display:flex; gap:10px; flex-wrap:wrap;
       padding:12px 16px;
@@ -32,11 +31,7 @@
       border:1px solid rgba(255,255,255,.18);
     }
     .nav a:hover{ background:rgba(255,255,255,.18); }
-    .nav a.active{
-      background:#ffffff;
-      color:#111;
-      border-color:#ffffff;
-    }
+    .nav a.active{ background:#ffffff; color:#111; border-color:#ffffff; }
 
     .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
     .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
@@ -62,12 +57,12 @@
     <section class="panel">
       <div class="titlebar">Classement Jour — XP gagnée</div>
 
-      <!-- ✅ BARRE NAV -->
       <div class="nav">
         <a class="active" href="jour.html">Jour</a>
         <a href="jour-veille.html">Hier</a>
         <a href="hebdo.html">Hebdo</a>
         <a href="mensuel.html">Mensuel</a>
+        <a href="mois-veille.html" id="btnPrevMonth">Mois-veille</a>
       </div>
 
       <div class="sub" id="rangeTxt">Chargement…</div>
@@ -90,6 +85,49 @@
   </main>
 
 <script>
+  function setPrevMonthNavLabel(){
+    const a = document.getElementById("btnPrevMonth");
+    if(!a) return;
+
+    const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+
+    const fromIndex = async () => {
+      try{
+        const res = await fetch("data/history_paris/index.json?t=" + Date.now(), { cache:"no-store" });
+        if(!res.ok) throw new Error();
+        const idx = await res.json();
+        if(!Array.isArray(idx)) throw new Error();
+        const days = idx.map(x => {
+          const s = String(x||"").trim();
+          const m = s.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+          return m ? m[1] : null;
+        }).filter(Boolean).sort();
+        if(days.length === 0) throw new Error();
+        return days[days.length-1];
+      }catch{
+        return null;
+      }
+    };
+
+    (async () => {
+      const latestDay = await fromIndex();
+      let y, m;
+      if(latestDay){
+        y = Number(latestDay.slice(0,4));
+        m = Number(latestDay.slice(5,7));
+      }else{
+        const now = new Date();
+        y = now.getFullYear();
+        m = now.getMonth() + 1;
+      }
+      m = m - 1;
+      if(m <= 0){ m = 12; y = y - 1; }
+      a.textContent = monthsFR[m-1];
+      a.title = "Classement du mois précédent (" + monthsFR[m-1] + " " + y + ")";
+    })();
+  }
+  document.addEventListener("DOMContentLoaded", setPrevMonthNavLabel);
+
   function warn(msg){
     const w = document.getElementById("warn");
     w.style.display = "block";
@@ -115,14 +153,12 @@
     }
   }
 
-  // ✅ clé unique : id profil (évite mohamed-dz vs mohameddz-3)
   function playerKey(p){
     const id = profileIdFromHref(p && p.profileHref);
     if(id) return "id:" + id;
     return "name:" + slugify(p && p.nom);
   }
 
-  // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache: "no-store" });
@@ -130,7 +166,6 @@
     try { return await res.json(); } catch { return null; }
   }
 
-  // ✅ accepte array ou {players:[...]}
   function extractPlayers(payload){
     if(!payload) return null;
     if(Array.isArray(payload)) return payload;
@@ -153,12 +188,8 @@
   async function loadIndex(){
     const idx = await fetchJson("data/history_paris/index.json");
     if(!Array.isArray(idx)) return null;
-
-    // accepte "YYYY-MM-DD" ou "YYYY-MM-DD.json"
-    return idx
-      .map(s => {
-        if(!s) return null;
-        const str = String(s).trim();
+    return idx.map(s=>{
+        const str = String(s||"").trim();
         if(str === "YYYY-MM-DD" || str === "YYYY-MM-DD.json") return null;
         if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
         const m = str.match(/^(\d{4}-\d{2}-\d{2})\.json$/);
@@ -178,7 +209,6 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
-  // ✅ "13-04-2014" -> "13/04/2014"
   function formatInscription(d){
     if(!d) return "—";
     const m = String(d).match(/^(\d{2})-(\d{2})-(\d{4})$/);
@@ -202,9 +232,7 @@
       return;
     }
 
-    // ✅ JOUR = baseline = dernier snapshot (même date)
     const latestDay = index[index.length - 1];
-
     const baseline = await loadSnapPlayers(latestDay);
     if(!baseline){
       warn("Snapshot du jour introuvable : " + latestDay);
@@ -226,6 +254,7 @@
 
       const curXp = Number(p.xp || 0);
       const dx = curXp - bXp;
+      if(Number(dx) === 0) continue;
 
       rows.push({
         nom: p.nom,
@@ -236,15 +265,9 @@
       });
     }
 
-    // ✅ enlever dx=0
-    rows = rows.filter(r => Number(r.dx) !== 0);
-
-    // tri simple
     rows.sort((a,b)=> b.dx - a.dx);
 
     tbody.innerHTML = "";
-
-    // ✅ afficher TOUS (plus de slice 300)
     for(let i=0;i<rows.length;i++){
       const r = rows[i];
       const tr = document.createElement("tr");
