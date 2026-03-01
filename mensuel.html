@@ -16,6 +16,34 @@
     .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
     .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
 
+    /* subnav (barre jour/hier/hebdo/mensuel/mois passé) */
+    .subnav{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      padding:10px 16px;
+      border-bottom:1px solid #e6e6e6;
+      background:#f6f6f6;
+    }
+    .subnav-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:10px;
+      font-weight:900;
+      text-decoration:none;
+      border:1px solid #d6d6d6;
+      background:#fff;
+      color:#333;
+    }
+    .subnav-btn:hover{ filter:brightness(.98); }
+    .subnav-btn.is-active{
+      border-color:#2c6fb7;
+      color:#2c6fb7;
+      box-shadow: inset 0 0 0 1px rgba(44,111,183,.25);
+    }
+
     table{ width:100%; border-collapse:separate; border-spacing:0; }
     thead th{ background:#fff; padding:14px 12px; text-align:left; font-size:15px; font-weight:900; border-bottom:1px solid #cfcfcf; }
     tbody td{ padding:18px 12px; border-bottom:1px solid #cfcfcf; vertical-align:middle; font-size:16px; }
@@ -36,6 +64,16 @@
   <main class="wrap">
     <section class="panel">
       <div class="titlebar">Classement Mensuel — XP gagnée</div>
+
+      <!-- ✅ barre navigation -->
+      <div class="subnav">
+        <a class="subnav-btn" href="jour.html">🕛 Jour</a>
+        <a class="subnav-btn" href="jour-veille.html">⏪ Hier</a>
+        <a class="subnav-btn" href="hebdo.html">📅 Hebdo</a>
+        <a class="subnav-btn is-active" href="mensuel.html">🗓️ Mensuel</a>
+        <a class="subnav-btn" href="mois-veille.html">⏮️ Mois passé</a>
+      </div>
+
       <div class="sub" id="rangeTxt">Chargement…</div>
       <div id="warn" class="warn"></div>
 
@@ -80,7 +118,7 @@
     }
   }
 
-  // ✅ clé robuste (évite Snokido vs Snokido-2)
+  // ✅ clé unique robuste : évite Snokido vs Snokido-2 (même nom)
   function playerKey(p){
     if(!p) return null;
     if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
@@ -142,7 +180,7 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
-  // ✅ Tie-break +12 uniquement si dx >= 500 (inchangé)
+  // ✅ Tie-break +12 uniquement si dx >= 500
   function applyDxTieBreakPlus12Over500(rows){
     const byDx = new Map();
     for(const r of rows){
@@ -163,6 +201,7 @@
         continue;
       }
 
+      // exception optionnelle : Betelgeuse/Aldebaran restent égaux
       const names = group.map(x => slugify(x.nom));
       const onlySpecialPair =
         group.length === 2 &&
@@ -220,7 +259,7 @@
 
     rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
 
-    // ✅ map baseline par clé robuste
+    // ✅ baseline map par clé robuste
     const baseMap = new Map();
     for(const p of baseline){
       const k = playerKey(p);
