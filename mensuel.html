@@ -13,26 +13,6 @@
     .wrap{ max-width:1180px; margin:26px auto 40px; padding:0 12px; }
     .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
     .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
-
-    .nav{
-      display:flex; gap:10px; flex-wrap:wrap;
-      padding:12px 16px;
-      background:#101827;
-      border-bottom:1px solid rgba(255,255,255,.10);
-    }
-    .nav a{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:10px 12px;
-      border-radius:10px;
-      text-decoration:none;
-      font-weight:900;
-      color:#fff;
-      background:rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.18);
-    }
-    .nav a:hover{ background:rgba(255,255,255,.18); }
-    .nav a.active{ background:#fff; color:#111; border-color:#fff; }
-
     .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
     .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
 
@@ -56,15 +36,6 @@
   <main class="wrap">
     <section class="panel">
       <div class="titlebar">Classement Mensuel — XP gagnée</div>
-
-      <div class="nav">
-        <a href="jour.html">Jour</a>
-        <a href="jour-veille.html">Hier</a>
-        <a href="hebdo.html">Hebdo</a>
-        <a class="active" href="mensuel.html">Mensuel</a>
-        <a href="mois-veille.html" id="btnPrevMonth">Mois-veille</a>
-      </div>
-
       <div class="sub" id="rangeTxt">Chargement…</div>
       <div id="warn" class="warn"></div>
 
@@ -84,50 +55,6 @@
   </main>
 
 <script>
-  function setPrevMonthNavLabel(){
-    const a = document.getElementById("btnPrevMonth");
-    if(!a) return;
-
-    const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
-
-    const fromIndex = async () => {
-      try{
-        const res = await fetch("data/history_paris/index.json?t=" + Date.now(), { cache:"no-store" });
-        if(!res.ok) throw new Error();
-        const idx = await res.json();
-        if(!Array.isArray(idx)) throw new Error();
-        const days = idx.map(x => {
-          const s = String(x||"").trim();
-          const m = s.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
-          return m ? m[1] : null;
-        }).filter(Boolean).sort();
-        if(days.length === 0) throw new Error();
-        return days[days.length-1];
-      }catch{
-        return null;
-      }
-    };
-
-    (async () => {
-      const latestDay = await fromIndex();
-      let y, m;
-      if(latestDay){
-        y = Number(latestDay.slice(0,4));
-        m = Number(latestDay.slice(5,7));
-      }else{
-        const now = new Date();
-        y = now.getFullYear();
-        m = now.getMonth() + 1;
-      }
-      m = m - 1;
-      if(m <= 0){ m = 12; y = y - 1; }
-      a.textContent = monthsFR[m-1];
-      a.title = "Classement du mois précédent (" + monthsFR[m-1] + " " + y + ")";
-    })();
-  }
-  document.addEventListener("DOMContentLoaded", setPrevMonthNavLabel);
-
-  /* --- Ton script mensuel existant (inchangé) --- */
   function warn(msg){
     const w = document.getElementById("warn");
     w.style.display = "block";
@@ -141,6 +68,28 @@
       .toLowerCase();
   }
 
+  function profileIdFromHref(href){
+    if(!href) return null;
+    try{
+      const u = new URL(href, location.origin);
+      const m = u.pathname.match(/\/player\/([^\/?#]+)/i);
+      return m ? m[1].toLowerCase() : null;
+    }catch{
+      const m = String(href).match(/\/player\/([^\/?#]+)/i);
+      return m ? m[1].toLowerCase() : null;
+    }
+  }
+
+  // ✅ clé robuste (évite Snokido vs Snokido-2)
+  function playerKey(p){
+    if(!p) return null;
+    if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
+    const id = profileIdFromHref(p.profileHref);
+    if(id) return "id:" + id;
+    return "name:" + slugify(p.nom);
+  }
+
+  // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache: "no-store" });
@@ -148,40 +97,31 @@
     try { return await res.json(); } catch { return null; }
   }
 
-  function extractPlayers(payload){
-    if(!payload) return null;
-    if(Array.isArray(payload)) return payload;
-    if(Array.isArray(payload.players)) return payload.players;
-    return null;
-  }
-
   async function loadCurrentPlayers(){
-    const bigRaw = await fetchJson("data/players_pages.json");
-    const big = extractPlayers(bigRaw);
-    if(big) return big;
+    const big = await fetchJson("data/players_pages.json");
+    if(Array.isArray(big)) return big;
 
-    const topRaw = await fetchJson("data/snokido_top50.json");
-    const top = extractPlayers(topRaw);
-    if(top) return top;
+    const top = await fetchJson("data/snokido_top50.json");
+    if(Array.isArray(top)) return top;
 
     return null;
-  }
-
-  function normalizeDay(s){
-    const str = String(s||"").trim();
-    const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
-    return m ? m[1] : null;
   }
 
   async function loadIndex(){
     const idx = await fetchJson("data/history_paris/index.json");
     if(!Array.isArray(idx)) return null;
-    return idx.map(normalizeDay).filter(Boolean).sort();
+    return idx
+      .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
+      .filter(d => d !== "YYYY-MM-DD")
+      .sort();
   }
 
   async function loadSnapPlayers(day){
-    const snapRaw = await fetchJson("data/history_paris/" + day + ".json");
-    return extractPlayers(snapRaw);
+    const snap = await fetchJson("data/history_paris/" + day + ".json");
+    if(!snap) return null;
+    if(Array.isArray(snap)) return snap;
+    if(Array.isArray(snap.players)) return snap.players;
+    return null;
   }
 
   function firstOfMonth(dayStr){
@@ -202,6 +142,7 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
+  // ✅ Tie-break +12 uniquement si dx >= 500 (inchangé)
   function applyDxTieBreakPlus12Over500(rows){
     const byDx = new Map();
     for(const r of rows){
@@ -210,7 +151,7 @@
       byDx.get(k).push(r);
     }
 
-    for(const [, group] of byDx){
+    for(const [dxKey, group] of byDx){
       if(group.length <= 1){
         group[0].dxAdj = group[0].dx;
         continue;
@@ -267,7 +208,7 @@
 
     const baseDay = findClosestLE(index, targetFirst);
     if(!baseDay){
-      warn("Baseline mensuelle introuvable.");
+      warn("Baseline mensuelle introuvable. Ajoute un snapshot du 1er dans history_paris + index.json.");
       return;
     }
 
@@ -277,31 +218,46 @@
       return;
     }
 
-    rangeTxt.textContent = "Période : " + baseDay + " → live";
+    rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
 
+    // ✅ map baseline par clé robuste
     const baseMap = new Map();
     for(const p of baseline){
-      baseMap.set(slugify(p.nom), Number(p.xp || 0));
+      const k = playerKey(p);
+      if(!k) continue;
+      baseMap.set(k, Number(p.xp || 0));
     }
 
     let rows = [];
     for(const p of current){
-      const key = slugify(p.nom);
-      const bXp = baseMap.get(key);
+      const k = playerKey(p);
+      if(!k) continue;
+
+      const bXp = baseMap.get(k);
       if(bXp == null) continue;
 
       const curXp = Number(p.xp || 0);
       const dx = curXp - bXp;
-      rows.push({ nom:p.nom, avatar:p.avatar, xp:curXp, dx:dx, dxAdj:null });
+
+      rows.push({
+        nom: p.nom,
+        avatar: p.avatar,
+        xp: curXp,
+        dx: dx,
+        dxAdj: null
+      });
     }
 
     rows = rows.filter(r => Number(r.dx) !== 0);
+
     applyDxTieBreakPlus12Over500(rows);
     rows.sort((a,b)=> b.dxAdj - a.dxAdj);
 
     tbody.innerHTML = "";
-    for(let i=0;i<rows.length;i++){
-      const r = rows[i];
+    const shown = rows.slice(0, 300);
+
+    for(let i=0;i<shown.length;i++){
+      const r = shown[i];
       const tr = document.createElement("tr");
       tr.innerHTML =
         '<td class="rank">' + (i+1) + '</td>' +
@@ -313,7 +269,7 @@
       tbody.appendChild(tr);
     }
 
-    if(rows.length === 0){
+    if(shown.length === 0){
       tbody.innerHTML =
         '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
     }
