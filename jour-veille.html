@@ -255,7 +255,24 @@
     return null;
   }
 
-  function nameKey(p){ return String(p?.nom || "").toLowerCase().trim(); }
+  /* ✅ FIX: clé robuste (évite Snokido vs Snokido-2, mohameddz vs mohameddz-3, etc.) */
+  function profileIdFromHref(href){
+    if(!href) return null;
+    try{
+      const u = new URL(href, location.origin);
+      const m = u.pathname.match(/\/player\/([^\/?#]+)/i);
+      return m ? m[1].toLowerCase() : null;
+    }catch{
+      const m = String(href).match(/\/player\/([^\/?#]+)/i);
+      return m ? m[1].toLowerCase() : null;
+    }
+  }
+
+  function playerKey(p){
+    const id = profileIdFromHref(p?.profileHref);
+    if(id) return "id:" + id;
+    return "name:" + String(p?.nom || "").toLowerCase().trim();
+  }
 
   window.addEventListener("DOMContentLoaded", async () => {
     const tbody = document.querySelector("#leaderboard tbody");
@@ -309,14 +326,14 @@
 
     const startMap = new Map();
     snapStart.forEach(p => {
-      const k = nameKey(p);
+      const k = playerKey(p);
       if(!k) return;
       startMap.set(k, Number(p.xp) || 0);
     });
 
     const rows = [];
     snapEnd.forEach(p => {
-      const k = nameKey(p);
+      const k = playerKey(p);
       if(!k) return;
       if(!startMap.has(k)) return;
 
