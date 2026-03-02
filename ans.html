@@ -71,6 +71,10 @@
         <a class="subnav-btn" href="hebdo.html">📅 Hebdo</a>
         <a class="subnav-btn" href="mensuel.html">🗓️ Mensuel</a>
         <a class="subnav-btn" href="mois-veille.html" id="btnPrevMonth">⏮️ —</a>
+
+        <!-- ✅ AJOUT : année précédente (ans-veille) -->
+        <a class="subnav-btn" href="ans-veille.html" id="btnPrevYear">📆 —</a>
+
         <a class="subnav-btn is-active" href="ans.html" id="btnYear">📆 —</a>
       </div>
 
@@ -99,10 +103,12 @@
     w.textContent = msg;
   }
 
-  /* ===== Labels auto nav : mois précédent + année courante ===== */
+  /* ===== Labels auto nav : mois précédent + année courante + année précédente ===== */
   function setNavLabels(){
     const btnPrevMonth = document.getElementById("btnPrevMonth");
+    const btnPrevYear = document.getElementById("btnPrevYear");
     const btnYear = document.getElementById("btnYear");
+
     const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
 
     const normalizeDay = (s) => {
@@ -137,11 +143,19 @@
         m = now.getMonth() + 1;
       }
 
+      // ✅ année courante
       if(btnYear){
         btnYear.textContent = "📆 " + y;
         btnYear.title = "Classement annuel (" + y + ")";
       }
 
+      // ✅ année précédente
+      if(btnPrevYear){
+        btnPrevYear.textContent = "📆 " + (y - 1);
+        btnPrevYear.title = "Classement annuel (" + (y - 1) + ")";
+      }
+
+      // ✅ mois précédent (label auto)
       if(btnPrevMonth){
         let pm = m - 1;
         let py = y;
@@ -206,7 +220,7 @@
     try { return await res.json(); } catch { return null; }
   }
 
-  function normalizeDay(s){
+  function normalizeDay2(s){
     const str = String(s||"").trim();
     const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
     return m ? m[1] : null;
@@ -215,7 +229,7 @@
   async function loadIndex(){
     const idx = await fetchJson("data/history_paris/index.json");
     if(!Array.isArray(idx)) return null;
-    return idx.map(normalizeDay).filter(Boolean).sort();
+    return idx.map(normalizeDay2).filter(Boolean).sort();
   }
 
   async function loadSnapPlayers(day){
@@ -298,28 +312,24 @@
     const latestDay = index[index.length - 1];
     const year = latestDay.slice(0,4);
 
-    // ✅ on va charger des baselines mensuelles (max 12 fichiers), et prendre la 1ère où le joueur existe
     const monthTargets = [];
     for(let mo=1; mo<=12; mo++){
       const mm = String(mo).padStart(2,"0");
       monthTargets.push(`${year}-${mm}-01`);
     }
 
-    // trouve pour chaque 1er du mois le snapshot existant le plus proche <=
     const monthSnapDays = [];
     for(const t of monthTargets){
       const d = findClosestLE(index, t);
       if(d && d.slice(0,4) === year) monthSnapDays.push(d);
     }
 
-    // dédoublonne + tri
     const uniqueMonthDays = Array.from(new Set(monthSnapDays)).sort();
     if(uniqueMonthDays.length === 0){
       warn("Aucun snapshot mensuel trouvé pour " + year + ".");
       return;
     }
 
-    // charge les snapshots mensuels
     const monthSnaps = [];
     for(const day of uniqueMonthDays){
       const snap = await loadSnapPlayers(day);
@@ -334,7 +344,6 @@
     rangeTxt.textContent =
       "Période : " + year + "-01-01 → live (année " + year + ") • Baseline = 1er snapshot mensuel dispo par joueur";
 
-    // construit pour chaque snapshot une map (multi-clés) -> xp
     const snapMaps = monthSnaps.map(s => {
       const m = new Map();
       for(const p of s.players){
@@ -354,7 +363,6 @@
       const keys = playerKeys(p);
       if(!keys.length) continue;
 
-      // baseline = première map (chronologique) où le joueur est présent
       let bXp = null;
       let baseDayUsed = null;
 
@@ -393,7 +401,6 @@
 
     tbody.innerHTML = "";
 
-    // ✅ TOP 50 SEULEMENT
     const shown = rows.slice(0, 50);
 
     for(let i=0;i<shown.length;i++){
