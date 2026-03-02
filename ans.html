@@ -14,7 +14,7 @@
     .panel{ background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.28); border:1px solid rgba(0,0,0,.10); }
     .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
 
-    /* barre navigation type mensuel */
+    /* barre navigation (style mensuel) */
     .subnav{
       display:flex;
       gap:8px;
@@ -71,8 +71,8 @@
         <a class="subnav-btn" href="jour-veille.html">⏪ Hier</a>
         <a class="subnav-btn" href="hebdo.html">📅 Hebdo</a>
         <a class="subnav-btn" href="mensuel.html">🗓️ Mensuel</a>
-        <a class="subnav-btn" href="mois-veille.html">⏮️ Mois passé</a>
-        <a class="subnav-btn is-active" href="ans.html">📆 Ans</a>
+        <a class="subnav-btn" href="mois-veille.html" id="btnPrevMonth">⏮️ —</a>
+        <a class="subnav-btn is-active" href="ans.html" id="btnYear">📆 —</a>
       </div>
 
       <div class="sub" id="rangeTxt">Chargement…</div>
@@ -94,6 +94,62 @@
   </main>
 
 <script>
+  /* ===== Labels auto nav : mois précédent + année courante ===== */
+  function setNavLabels(){
+    const btnPrevMonth = document.getElementById("btnPrevMonth");
+    const btnYear = document.getElementById("btnYear");
+    const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+
+    const normalizeDay = (s) => {
+      const str = String(s||"").trim();
+      const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+      return m ? m[1] : null;
+    };
+
+    const fromIndexLatestDay = async () => {
+      try{
+        const res = await fetch("data/history_paris/index.json?t=" + Date.now(), { cache:"no-store" });
+        if(!res.ok) throw new Error();
+        const idx = await res.json();
+        if(!Array.isArray(idx)) throw new Error();
+        const days = idx.map(normalizeDay).filter(Boolean).sort();
+        if(days.length === 0) throw new Error();
+        return days[days.length-1];
+      }catch{
+        return null;
+      }
+    };
+
+    (async () => {
+      const latestDay = await fromIndexLatestDay();
+
+      let y, m;
+      if(latestDay){
+        y = Number(latestDay.slice(0,4));
+        m = Number(latestDay.slice(5,7));
+      }else{
+        const now = new Date();
+        y = now.getFullYear();
+        m = now.getMonth() + 1;
+      }
+
+      if(btnYear){
+        btnYear.textContent = "📆 " + y;
+        btnYear.title = "Classement annuel (" + y + ")";
+      }
+
+      if(btnPrevMonth){
+        let pm = m - 1;
+        let py = y;
+        if(pm <= 0){ pm = 12; py = y - 1; }
+        btnPrevMonth.textContent = "⏮️ " + monthsFR[pm-1];
+        btnPrevMonth.title = "Classement du mois précédent (" + monthsFR[pm-1] + " " + py + ")";
+      }
+    })();
+  }
+  document.addEventListener("DOMContentLoaded", setNavLabels);
+
+  /* ===== Helpers ===== */
   function warn(msg){
     const w = document.getElementById("warn");
     w.style.display = "block";
@@ -119,13 +175,26 @@
     }
   }
 
-  // ✅ clé unique: ID profil d'abord
-  function playerKey(p){
-    if(!p) return null;
+  // ✅ renvoie plusieurs clés, pour matcher même si le snapshot n'a pas profileHref
+  function playerKeys(p){
+    const keys = [];
+    if(!p) return keys;
+
     const id = profileIdFromHref(p.profileHref);
-    if(id) return "id:" + id;
-    if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
-    return "name:" + slugify(p.nom);
+    if(id) keys.push("id:" + id);
+
+    if(p.slug){
+      const s = String(p.slug).toLowerCase().trim();
+      if(s){
+        keys.push("slug:" + s);
+        keys.push("id:" + s); // utile si snapshot n'a que slug
+      }
+    }
+
+    const nm = slugify(p.nom);
+    if(nm) keys.push("name:" + nm);
+
+    return Array.from(new Set(keys));
   }
 
   async function fetchJson(path){
@@ -256,19 +325,28 @@
 
     rangeTxt.textContent = "Période : " + baseDay + " → live (année " + year + ")";
 
+    // ✅ baseMap multi-clés (id/slug/name) -> xp
     const baseMap = new Map();
     for(const p of baseline){
-      const k = playerKey(p);
-      if(!k) continue;
-      baseMap.set(k, Number(p.xp || 0));
+      const xp0 = Number(p?.xp || 0);
+      const keys = playerKeys(p);
+      for(const k of keys){
+        if(!baseMap.has(k)) baseMap.set(k, xp0);
+      }
     }
 
     let rows = [];
     for(const p of current){
-      const k = playerKey(p);
-      if(!k) continue;
+      const keys = playerKeys(p);
+      if(!keys.length) continue;
 
-      const bXp = baseMap.get(k);
+      let bXp = null;
+      for(const k of keys){
+        if(baseMap.has(k)){
+          bXp = baseMap.get(k);
+          break;
+        }
+      }
       if(bXp == null) continue;
 
       const curXp = Number(p.xp || 0);
