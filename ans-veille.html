@@ -218,13 +218,16 @@
 
     const yearPrev = await setNavLabels(index);
 
-    // base = 1er snapshot dispo <= YYYY-01-01 (dans la même année)
-    const baseWanted = `${yearPrev}-01-01`;
-    const baseDay = findClosestLE(index, baseWanted);
-    if(!baseDay || baseDay.slice(0,4) !== String(yearPrev)){
-      warn("Baseline introuvable pour " + yearPrev + " (ajoute un snapshot proche du 01/01).");
-      return;
-    }
+   // ✅ Baseline = premier snapshot disponible de l'année précédente
+const yearDays = index.filter(d => d.slice(0,4) === String(yearPrev));
+
+if(yearDays.length === 0){
+  warn("Aucun snapshot trouvé pour l'année " + yearPrev + ".");
+  return;
+}
+
+// prend le plus ancien snapshot de l'année (ex: 2025-01-11)
+const baseDay = yearDays[0];
 
     // fin = dernier snapshot de l'année précédente
     const lastDay = index.filter(d => d.slice(0,4) === String(yearPrev)).slice(-1)[0];
