@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Classement Annuel — Année précédente</title>
+  <title>Classement Année précédente — XP gagnée</title>
 
   <link rel="stylesheet" href="style.css">
   <script src="header.js" defer></script>
@@ -63,18 +63,16 @@
 <body>
   <main class="wrap">
     <section class="panel">
-      <div class="titlebar" id="titleTxt">Classement Annuel — Année précédente</div>
+      <div class="titlebar">Classement Année précédente — XP gagnée</div>
 
+      <!-- ✅ même barre que ans.html -->
       <div class="subnav">
         <a class="subnav-btn" href="jour.html">🕛 Jour</a>
         <a class="subnav-btn" href="jour-veille.html">⏪ Hier</a>
         <a class="subnav-btn" href="hebdo.html">📅 Hebdo</a>
         <a class="subnav-btn" href="mensuel.html">🗓️ Mensuel</a>
-        <a class="subnav-btn" href="mois-veille.html" id="btnPrevMonth">⏮️ Mois-veille</a>
-
-        <!-- année courante -->
-        <a class="subnav-btn" href="ans.html" id="btnYearNow">📆 —</a>
-        <!-- année précédente (active) -->
+        <a class="subnav-btn" href="mois-veille.html" id="btnPrevMonth">⏮️ —</a>
+        <a class="subnav-btn" href="ans.html" id="btnYear">📆 —</a>
         <a class="subnav-btn is-active" href="ans-veille.html" id="btnYearPrev">📆 —</a>
       </div>
 
@@ -103,6 +101,7 @@
     w.textContent = msg;
   }
 
+  /* ===== Utils ===== */
   function slugify(name){
     return String(name || "")
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -122,14 +121,31 @@
     }
   }
 
-  function playerKey(p){
-    if(!p) return null;
-    if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
-    const id = profileIdFromHref(p.profileHref);
-    if(id) return "id:" + id;
-    return "name:" + slugify(p.nom);
+  // ✅ multi-keys pour matcher correctement (Snokido vs Snokido-2, mohameddz vs mohameddz-3, etc.)
+  function playerKeys(p){
+    const keys = [];
+    if(!p) return keys;
+
+    const href = p.profileHref || p.href || null;
+    const id = profileIdFromHref(href);
+    if(id) keys.push("id:" + id);
+
+    const s = String(p.slug || "").toLowerCase().trim();
+    if(s){
+      keys.push("slug:" + s);
+      keys.push("id:" + s);
+    }
+
+    const nLower = String(p.nom || "").toLowerCase().trim();
+    if(nLower) keys.push("nameLower:" + nLower);
+
+    const nSlug = slugify(p.nom);
+    if(nSlug) keys.push("nameSlug:" + nSlug);
+
+    return Array.from(new Set(keys));
   }
 
+  // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache: "no-store" });
@@ -149,12 +165,23 @@
     return idx.map(normalizeDay).filter(Boolean).sort();
   }
 
-  async function loadSnapPlayers(day){
-    const snap = await fetchJson("data/history_paris/" + day + ".json");
-    if(!snap) return null;
-    if(Array.isArray(snap)) return snap;
-    if(Array.isArray(snap.players)) return snap.players;
+  function extractPlayers(payload){
+    if(!payload) return null;
+
+    // tes anciens fichiers ont parfois { day:"YYYY-MM-DD", players:[...] }
+    if(Array.isArray(payload)) return payload;
+
+    if(payload && typeof payload === "object"){
+      if(Array.isArray(payload.players)) return payload.players;
+      if(Array.isArray(payload.top50)) return payload.top50;
+      if(Array.isArray(payload.data)) return payload.data;
+    }
     return null;
+  }
+
+  async function loadSnapPlayers(day){
+    const raw = await fetchJson("data/history_paris/" + day + ".json");
+    return extractPlayers(raw);
   }
 
   function findClosestLE(index, targetDay){
@@ -169,41 +196,63 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
-  /* ===== labels nav auto (mois précédent + année courante/précédente) ===== */
-  async function setNavLabels(index){
+  // Tie-break +12 uniquement si dx >= 500 (comme tes autres pages)
+  function applyDxTieBreakPlus12Over500(rows){
+    const byDx = new Map();
+    for(const r of rows){
+      const k = String(r.dx);
+      if(!byDx.has(k)) byDx.set(k, []);
+      byDx.get(k).push(r);
+    }
+    for(const [, group] of byDx){
+      if(group.length <= 1){
+        group[0].dxAdj = group[0].dx;
+        continue;
+      }
+      const dxVal = Number(group[0].dx || 0);
+      if(dxVal < 500){
+        group.forEach(r => r.dxAdj = r.dx);
+        continue;
+      }
+      const sorted = group.slice().sort((a,b)=> slugify(a.nom).localeCompare(slugify(b.nom)));
+      const n = sorted.length;
+      for(let i=0;i<n;i++){
+        const bonus = 12 * (n - 1 - i);
+        sorted[i].dxAdj = sorted[i].dx + bonus;
+      }
+    }
+    for(const r of rows){
+      if(typeof r.dxAdj !== "number") r.dxAdj = r.dx;
+    }
+  }
+
+  /* ===== Labels auto nav : mois précédent + année courante + année précédente ===== */
+  function setNavLabelsFromLatest(latestDay){
     const btnPrevMonth = document.getElementById("btnPrevMonth");
-    const btnYearNow = document.getElementById("btnYearNow");
+    const btnYear = document.getElementById("btnYear");
     const btnYearPrev = document.getElementById("btnYearPrev");
-    const titleTxt = document.getElementById("titleTxt");
 
     const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
 
-    const latestDay = index[index.length - 1];
-    const yNow = Number(latestDay.slice(0,4));
-    const mNow = Number(latestDay.slice(5,7));
-    const yPrev = yNow - 1;
+    const y = Number(latestDay.slice(0,4));
+    const m = Number(latestDay.slice(5,7));
 
-    if(btnYearNow){
-      btnYearNow.textContent = "📆 " + yNow;
-      btnYearNow.title = "Classement annuel (" + yNow + ")";
+    if(btnYear){
+      btnYear.textContent = "📆 " + y;
+      btnYear.title = "Classement annuel (" + y + ")";
     }
     if(btnYearPrev){
-      btnYearPrev.textContent = "📆 " + yPrev;
-      btnYearPrev.title = "Classement annuel (" + yPrev + ")";
-    }
-    if(titleTxt){
-      titleTxt.textContent = "Classement Annuel — " + yPrev;
+      btnYearPrev.textContent = "📆 " + (y - 1);
+      btnYearPrev.title = "Classement annuel (" + (y - 1) + ")";
     }
 
     if(btnPrevMonth){
-      let pm = mNow - 1;
-      let py = yNow;
-      if(pm <= 0){ pm = 12; py = yNow - 1; }
+      let pm = m - 1;
+      let py = y;
+      if(pm <= 0){ pm = 12; py = y - 1; }
       btnPrevMonth.textContent = "⏮️ " + monthsFR[pm-1];
       btnPrevMonth.title = "Classement du mois précédent (" + monthsFR[pm-1] + " " + py + ")";
     }
-
-    return yPrev;
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
@@ -212,70 +261,132 @@
 
     const index = await loadIndex();
     if(!index || index.length < 2){
-      warn("Pas assez d'historique (data/history_paris).");
+      warn("Pas assez d'historique (data/history_paris/index.json).");
       return;
     }
 
-    const yearPrev = await setNavLabels(index);
+    const latestDay = index[index.length - 1];
+    setNavLabelsFromLatest(latestDay);
 
-   // ✅ Baseline = premier snapshot disponible de l'année précédente
-const yearDays = index.filter(d => d.slice(0,4) === String(yearPrev));
+    const yearCurrent = Number(latestDay.slice(0,4));
+    const yearPrev = yearCurrent - 1;
 
-if(yearDays.length === 0){
-  warn("Aucun snapshot trouvé pour l'année " + yearPrev + ".");
-  return;
-}
-
-// prend le plus ancien snapshot de l'année (ex: 2025-01-11)
-const baseDay = yearDays[0];
-
-    // fin = dernier snapshot de l'année précédente
-    const lastDay = index.filter(d => d.slice(0,4) === String(yearPrev)).slice(-1)[0];
-    if(!lastDay){
-      warn("Fin d'année introuvable pour " + yearPrev + ".");
+    // ✅ BASELINE (début année précédente) = premier snapshot dispo de l'année précédente
+    const yearPrevDays = index.filter(d => d.slice(0,4) === String(yearPrev));
+    if(yearPrevDays.length === 0){
+      warn("Aucun snapshot trouvé pour l'année " + yearPrev + ".");
       return;
     }
+    const baseDay = yearPrevDays[0];
+
+    // ✅ FIN année précédente = repère 01/01 année suivante (ex: 2026-01-01)
+    const endTarget = String(yearPrev + 1) + "-01-01";
+    const endDay = findClosestLE(index, endTarget);
+
+    if(!endDay){
+      warn("Impossible de trouver la fin d'année (repère " + endTarget + ").");
+      return;
+    }
+
+    // si tu veux FORCER strictement 2026-01-01 :
+    // (décommente si tu veux qu'il refuse si la date exacte n'existe pas)
+    // if(endDay !== endTarget){
+    //   warn("Le snapshot fin d'année exact (" + endTarget + ") n'existe pas. Trouvé: " + endDay);
+    //   return;
+    // }
 
     const baseSnap = await loadSnapPlayers(baseDay);
-    const endSnap = await loadSnapPlayers(lastDay);
+    const endSnap = await loadSnapPlayers(endDay);
+
     if(!baseSnap || !endSnap){
-      warn("Snapshots manquants: " + baseDay + " ou " + lastDay);
+      warn("Snapshots introuvables : base=" + baseDay + " / fin=" + endDay);
       return;
     }
 
-    rangeTxt.textContent = "Période : " + baseDay + " → " + lastDay + " (année " + yearPrev + ")";
+    rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (année " + yearPrev + ")";
 
-    const baseMap = new Map();
-    for(const p of baseSnap){
-      const k = playerKey(p);
-      if(!k) continue;
-      baseMap.set(k, Number(p.xp || 0));
+    // ✅ enrichment (skins / liens) depuis players_pages.json si manquants dans vieux snapshots
+    const pagesRaw = await fetchJson("data/players_pages.json");
+    const pagesPlayers = extractPlayers(pagesRaw) || [];
+    const enrichMap = new Map();
+    for(const p of pagesPlayers){
+      const keys = playerKeys(p);
+      for(const k of keys){
+        if(!enrichMap.has(k)) enrichMap.set(k, p);
+      }
     }
 
-    let rows = [];
-    for(const p of endSnap){
-      const k = playerKey(p);
-      if(!k) continue;
-      if(!baseMap.has(k)) continue;
+    // base map : key -> xp
+    const baseMap = new Map();
+    for(const p of baseSnap){
+      const xp0 = Number(p?.xp || 0);
+      for(const k of playerKeys(p)){
+        if(!baseMap.has(k)) baseMap.set(k, xp0);
+      }
+    }
 
-      const xpEnd = Number(p.xp || 0);
-      const xpBase = baseMap.get(k) || 0;
-      const dx = xpEnd - xpBase;
+    // calc sur end snapshot (XP fin d'année)
+    let rows = [];
+    let matched = 0;
+
+    for(const pEnd of endSnap){
+      const keys = playerKeys(pEnd);
+      if(!keys.length) continue;
+
+      // trouve base XP par n'importe quelle clé
+      let bXp = null;
+      for(const k of keys){
+        if(baseMap.has(k)){
+          bXp = baseMap.get(k);
+          break;
+        }
+      }
+      if(bXp == null) continue;
+
+      matched++;
+
+      const xpEnd = Number(pEnd?.xp || 0);
+      const dx = xpEnd - bXp;
       if(dx === 0) continue;
 
+      // avatar/href : snapshot sinon enrichment
+      let avatar = pEnd?.avatar || null;
+      let profileHref = pEnd?.profileHref || null;
+
+      if(!avatar || !profileHref){
+        for(const k of keys){
+          const e = enrichMap.get(k);
+          if(e){
+            if(!avatar && e.avatar) avatar = e.avatar;
+            if(!profileHref && e.profileHref) profileHref = e.profileHref;
+          }
+        }
+      }
+
       rows.push({
-        nom: p.nom,
-        avatar: p.avatar,
-        profileHref: p.profileHref,
-        xp: xpEnd,
-        dx: dx
+        nom: pEnd?.nom || "—",
+        xpEnd,
+        dx,
+        dxAdj: null,
+        avatar,
+        profileHref
       });
     }
 
-    rows.sort((a,b)=> b.dx - a.dx);
+    applyDxTieBreakPlus12Over500(rows);
+    rows.sort((a,b)=> b.dxAdj - a.dxAdj);
 
     tbody.innerHTML = "";
-    const shown = rows.slice(0, 50);
+
+    // ✅ TOP 50 gagnants
+    const shown = rows.filter(r => r.dx > 0).slice(0, 50);
+
+    if(shown.length === 0){
+      warn("Aucun gain affiché. Debug: base=" + baseDay + " fin=" + endDay + " endSnap=" + endSnap.length + " match=" + matched);
+      tbody.innerHTML =
+        '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
+      return;
+    }
 
     for(let i=0;i<shown.length;i++){
       const r = shown[i];
@@ -285,15 +396,10 @@ const baseDay = yearDays[0];
         '<td class="rank">' + (i+1) + '</td>' +
         '<td class="avatarCell"><div class="frame"><img src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
         '<td class="name"><a target="_blank" rel="noopener" href="' + link + '">' + r.nom + '</a>' +
-        '<div class="small">' + r.xp.toLocaleString("fr-FR") + ' XP</div></td>' +
+        '<div class="small">' + r.xpEnd.toLocaleString("fr-FR") + ' XP (fin)</div></td>' +
         '<td class="center">' + formatSigned(r.dx) + '</td>' +
-        '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>';
+        '<td class="center">' + r.xpEnd.toLocaleString("fr-FR") + '</td>';
       tbody.appendChild(tr);
-    }
-
-    if(shown.length === 0){
-      tbody.innerHTML =
-        '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
     }
   });
 </script>
