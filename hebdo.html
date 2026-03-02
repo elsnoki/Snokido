@@ -127,7 +127,6 @@
   }
   document.addEventListener("DOMContentLoaded", setPrevMonthNavLabel);
 
-  /* --- Ton script hebdo existant (inchangé) --- */
   function warn(msg){
     const w = document.getElementById("warn");
     w.style.display = "block";
@@ -139,6 +138,27 @@
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-zA-Z0-9]/g, "")
       .toLowerCase();
+  }
+
+  function profileIdFromHref(href){
+    if(!href) return null;
+    try{
+      const u = new URL(href, location.origin);
+      const m = u.pathname.match(/\/player\/([^\/?#]+)/i);
+      return m ? m[1].toLowerCase() : null;
+    }catch{
+      const m = String(href).match(/\/player\/([^\/?#]+)/i);
+      return m ? m[1].toLowerCase() : null;
+    }
+  }
+
+  // ✅ ID profil d'abord (snokido vs snokido-2, mohameddz vs mohameddz-3)
+  function playerKey(p){
+    if(!p) return null;
+    const id = profileIdFromHref(p.profileHref);
+    if(id) return "id:" + id;
+    if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
+    return "name:" + slugify(p.nom);
   }
 
   async function fetchJson(path){
@@ -291,19 +311,30 @@
 
     const baseMap = new Map();
     for(const p of baseline){
-      baseMap.set(slugify(p.nom), Number(p.xp || 0));
+      const k = playerKey(p);
+      if(!k) continue;
+      baseMap.set(k, Number(p.xp || 0));
     }
 
     let rows = [];
     for(const p of current){
-      const key = slugify(p.nom);
-      const bXp = baseMap.get(key);
+      const k = playerKey(p);
+      if(!k) continue;
+
+      const bXp = baseMap.get(k);
       if(bXp == null) continue;
 
       const curXp = Number(p.xp || 0);
       const dx = curXp - bXp;
 
-      rows.push({ nom:p.nom, avatar:p.avatar, xp:curXp, dx:dx, dxAdj:null });
+      rows.push({
+        nom: p.nom,
+        avatar: p.avatar,
+        profileHref: p.profileHref || null,
+        xp: curXp,
+        dx: dx,
+        dxAdj: null
+      });
     }
 
     rows = rows.filter(r => Number(r.dx) !== 0);
@@ -313,11 +344,15 @@
     tbody.innerHTML = "";
     for(let i=0;i<rows.length;i++){
       const r = rows[i];
+      const link = r.profileHref
+        ? r.profileHref
+        : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
+
       const tr = document.createElement("tr");
       tr.innerHTML =
         '<td class="rank">' + (i+1) + '</td>' +
         '<td class="avatarCell"><div class="frame"><img src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
-        '<td class="name"><a href="profil.html?mode=nv100&u=' + encodeURIComponent(slugify(r.nom)) + '">' + r.nom + '</a>' +
+        '<td class="name"><a target="_blank" rel="noopener" href="' + link + '">' + r.nom + '</a>' +
         '<div class="small">' + r.xp.toLocaleString("fr-FR") + ' XP</div></td>' +
         '<td class="center">' + formatSigned(r.dx) + '</td>' +
         '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>';
