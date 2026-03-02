@@ -146,6 +146,7 @@
     <a href="hebdo.html">Hebdo</a>
     <a href="mensuel.html">Mensuel</a>
     <a href="mois-veille.html" id="btnPrevMonth">Mois-veille</a>
+    <a href="ans.html" id="btnYear">Ans</a>
   </div>
 
   <div id="warn" class="warn"></div>
@@ -175,7 +176,7 @@
 <script>
   function setPrevMonthNavLabel(){
     const a = document.getElementById("btnPrevMonth");
-    if(!a) return;
+    const yb = document.getElementById("btnYear");
 
     const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
 
@@ -208,10 +209,18 @@
         y = now.getFullYear();
         m = now.getMonth() + 1;
       }
+
+      if(yb){
+        yb.textContent = String(y);
+        yb.title = "Classement annuel (" + y + ")";
+      }
+
       m = m - 1;
       if(m <= 0){ m = 12; y = y - 1; }
-      a.textContent = monthsFR[m-1];
-      a.title = "Classement du mois précédent (" + monthsFR[m-1] + " " + y + ")";
+      if(a){
+        a.textContent = monthsFR[m-1];
+        a.title = "Classement du mois précédent (" + monthsFR[m-1] + " " + y + ")";
+      }
     })();
   }
   document.addEventListener("DOMContentLoaded", setPrevMonthNavLabel);
