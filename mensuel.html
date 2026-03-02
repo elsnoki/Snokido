@@ -16,7 +16,6 @@
     .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
     .warn{ margin:12px 16px 0; padding:10px 12px; background:#fff3cd; border:1px solid #ffe69c; border-radius:10px; font-weight:900; color:#664d03; display:none; }
 
-    /* subnav (barre jour/hier/hebdo/mensuel/mois passé) */
     .subnav{
       display:flex;
       gap:8px;
@@ -65,7 +64,6 @@
     <section class="panel">
       <div class="titlebar">Classement Mensuel — XP gagnée</div>
 
-      <!-- ✅ barre navigation -->
       <div class="subnav">
         <a class="subnav-btn" href="jour.html">🕛 Jour</a>
         <a class="subnav-btn" href="jour-veille.html">⏪ Hier</a>
@@ -118,16 +116,18 @@
     }
   }
 
-  // ✅ clé unique robuste : évite Snokido vs Snokido-2 (même nom)
+  // ✅ IMPORTANT: priorité au profile id (évite Snokido/Snokido-2 + Mohamed*)
   function playerKey(p){
     if(!p) return null;
-    if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
+
     const id = profileIdFromHref(p.profileHref);
     if(id) return "id:" + id;
+
+    if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
+
     return "name:" + slugify(p.nom);
   }
 
-  // Anti-cache GH Pages
   async function fetchJson(path){
     const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
     const res = await fetch(url, { cache: "no-store" });
@@ -180,7 +180,6 @@
     return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
   }
 
-  // ✅ Tie-break +12 uniquement si dx >= 500
   function applyDxTieBreakPlus12Over500(rows){
     const byDx = new Map();
     for(const r of rows){
@@ -201,7 +200,6 @@
         continue;
       }
 
-      // exception optionnelle : Betelgeuse/Aldebaran restent égaux
       const names = group.map(x => slugify(x.nom));
       const onlySpecialPair =
         group.length === 2 &&
@@ -259,7 +257,6 @@
 
     rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
 
-    // ✅ baseline map par clé robuste
     const baseMap = new Map();
     for(const p of baseline){
       const k = playerKey(p);
@@ -281,6 +278,7 @@
       rows.push({
         nom: p.nom,
         avatar: p.avatar,
+        profileHref: p.profileHref || null,
         xp: curXp,
         dx: dx,
         dxAdj: null
@@ -288,7 +286,6 @@
     }
 
     rows = rows.filter(r => Number(r.dx) !== 0);
-
     applyDxTieBreakPlus12Over500(rows);
     rows.sort((a,b)=> b.dxAdj - a.dxAdj);
 
@@ -297,11 +294,15 @@
 
     for(let i=0;i<shown.length;i++){
       const r = shown[i];
+      const link = r.profileHref
+        ? r.profileHref
+        : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
+
       const tr = document.createElement("tr");
       tr.innerHTML =
         '<td class="rank">' + (i+1) + '</td>' +
         '<td class="avatarCell"><div class="frame"><img src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
-        '<td class="name"><a href="profil.html?mode=nv100&u=' + encodeURIComponent(slugify(r.nom)) + '">' + r.nom + '</a>' +
+        '<td class="name"><a target="_blank" rel="noopener" href="' + link + '">' + r.nom + '</a>' +
         '<div class="small">' + r.xp.toLocaleString("fr-FR") + ' XP</div></td>' +
         '<td class="center">' + formatSigned(r.dx) + '</td>' +
         '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>';
