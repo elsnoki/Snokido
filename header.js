@@ -1,7 +1,5 @@
 // ================= HEADER =================
 
-const CLASSEMENTS_PAGE = "classements.html";
-
 const headerHTML = `
 <header class="topbar">
   <div class="topbar-inner">
@@ -20,8 +18,8 @@ const headerHTML = `
       <a class="tab tab-400" href="400k.html">400K</a>
       <a class="tab tab-500" href="500k.html">500K et +</a>
 
-      <!-- ✅ Niveau théorique : séparé / plus haut (pas collé aux XP) -->
-      <a class="tab tab-niveau" href="${CLASSEMENTS_PAGE}?mode=niveau">Niveau théorique</a>
+      <!-- ✅ FIX ICI : Niveau théorique sur la page unique -->
+      <a class="tab tab-niveau" href="classements.html?mode=niveau">Niveau théorique</a>
 
       <a class="tab tab-kara" href="kara.html">Kara</a>
 
@@ -44,9 +42,7 @@ const headerHTML = `
         </div>
       </span>
 
-      <!-- ✅ Classements XP (une seule page) -->
-      <a class="tab tab-year" href="${CLASSEMENTS_PAGE}?mode=ans">Classements XP</a>
-
+      <a class="tab tab-year" href="rankyear.html">Année</a>
       <a class="tab tab-chrono" href="timeline.html">Timeline</a>
 
     </nav>
@@ -64,27 +60,24 @@ const btn = document.getElementById("pauseBtn");
 const menu = document.querySelector(".pauseMenu");
 
 // Sécurité : menu caché au chargement
-if (wrap) wrap.classList.remove("is-open");
+wrap.classList.remove("is-open");
 
-function closeMenu() {
-  if (wrap) wrap.classList.remove("is-open");
-}
-function toggleMenu() {
-  if (wrap) wrap.classList.toggle("is-open");
-}
+function closeMenu(){ wrap.classList.remove("is-open"); }
+function toggleMenu(){ wrap.classList.toggle("is-open"); }
 
-if (btn) {
-  btn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleMenu();
-  });
-}
+// Ouvre au clic
+btn.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  toggleMenu();
+});
 
+// Ferme si clic ailleurs
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".pauseWrap")) closeMenu();
 });
 
+// Ferme avec ESC
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeMenu();
 });
