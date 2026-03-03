@@ -786,42 +786,57 @@ async function runMoisVeille(){
   if(!index || index.length < 2){ warnTo("mv_warn","Pas assez d'historique."); return; }
 
   const latestDay = index[index.length - 1];
-  const startTarget = prevMonthFirstDay(latestDay);
-  const endTarget = firstOfMonth(latestDay);
+  const startTarget = prevMonthFirstDay(latestDay); // 1er jour du mois précédent
+  const endTarget = firstOfMonth(latestDay);        // 1er jour du mois courant
 
   const baseDay = findClosestLE(index, startTarget);
   if(!baseDay){ warnTo("mv_warn","Baseline mois-veille introuvable : " + startTarget); return; }
 
   let endDay = findClosestLE(index, endTarget);
-  if(!endDay) endDay = latestDay; // fallback
+  if(!endDay) endDay = latestDay;
 
   const baseSnap = await loadSnapPlayers(baseDay);
   const endSnap  = await loadSnapPlayers(endDay);
-  if(!baseSnap || !endSnap){ warnTo("mv_warn","Snapshots introuvables : base=" + baseDay + " / fin=" + endDay); return; }
+  if(!baseSnap || !endSnap){
+    warnTo("mv_warn","Snapshots introuvables : base=" + baseDay + " / fin=" + endDay);
+    return;
+  }
 
   rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois précédent)";
 
+  // ✅ baseMap multi-keys
   const baseMap = new Map();
   for(const p of baseSnap){
-    const k = playerKeyRobust(p);
-    if(!k) continue;
-    baseMap.set(k, Number(p?.xp || 0));
+    const xp0 = Number(p?.xp || 0);
+    const keys = playerKeysMulti(p);
+    for(const k of keys){
+      if(!baseMap.has(k)) baseMap.set(k, xp0);
+    }
   }
 
   let rows = [];
-  for(const p of endSnap){
-    const k = playerKeyRobust(p);
-    if(!k) continue;
-    if(!baseMap.has(k)) continue;
+  for(const pEnd of endSnap){
+    const keys = playerKeysMulti(pEnd);
+    if(!keys.length) continue;
 
-    const xpEnd = Number(p?.xp || 0);
-    const dx = xpEnd - (baseMap.get(k) || 0);
-    if(dx <= 0) continue;
+    // trouve baseline via n'importe quelle clé
+    let bXp = null;
+    for(const k of keys){
+      if(baseMap.has(k)){
+        bXp = baseMap.get(k);
+        break;
+      }
+    }
+    if(bXp == null) continue;
+
+    const xpEnd = Number(pEnd?.xp || 0);
+    const dx = xpEnd - bXp;
+    if(dx <= 0) continue; // gains seulement (comme tes autres classements)
 
     rows.push({
-      nom: p.nom || "—",
-      avatar: p.avatar || "avatar/1.jpg",
-      profileHref: p.profileHref || null,
+      nom: pEnd?.nom || "—",
+      avatar: pEnd?.avatar || "avatar/1.jpg",
+      profileHref: pEnd?.profileHref || null,
       xpEnd,
       dx,
       dxAdj: null
@@ -833,6 +848,7 @@ async function runMoisVeille(){
 
   tbody.innerHTML = "";
   const shown = rows.slice(0, 50);
+
   for(let i=0;i<shown.length;i++){
     const r = shown[i];
     const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
@@ -840,14 +856,16 @@ async function runMoisVeille(){
     tr.innerHTML =
       '<td class="rank">'+(i+1)+'</td>' +
       '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+(r.avatar||"avatar/1.jpg")+'" alt="'+r.nom+'"></div></td>' +
-      '<td class="name"><a target="_blank" rel="noopener" href="'+link+'">'+r.nom+'</a><div class="small">'+r.xpEnd.toLocaleString("fr-FR")+' XP</div></td>' +
+      '<td class="name"><a target="_blank" rel="noopener" href="'+link+'">'+r.nom+'</a>' +
+      '<div class="small">'+r.xpEnd.toLocaleString("fr-FR")+' XP</div></td>' +
       '<td class="center">'+formatSigned(r.dx)+'</td>' +
       '<td class="center">'+r.xpEnd.toLocaleString("fr-FR")+'</td>';
     tbody.appendChild(tr);
   }
 
   if(shown.length === 0){
-    tbody.innerHTML = '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
+    tbody.innerHTML =
+      '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
   }
 }
 
