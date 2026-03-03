@@ -1,123 +1,126 @@
-// ================= BARS (subnav) =================
+// bars.js — barre de navigation pour la page unique "classements.html"
 
-(function () {
-  const file = (location.pathname.split("/").pop() || "").toLowerCase();
+const CLASSEMENTS_PAGE = "classements.html";
 
-  function el(html) {
-    const t = document.createElement("template");
-    t.innerHTML = html.trim();
-    return t.content.firstElementChild;
+function getMode() {
+  const p = new URLSearchParams(location.search);
+  return String(p.get("mode") || "jour").toLowerCase();
+}
+
+function isActiveMode(current, mode) {
+  if (current === mode) return true;
+  // alias
+  if (mode === "hier" && (current === "jour-veille")) return true;
+  if (mode === "ans-veille" && (current === "annee-veille")) return true;
+  return false;
+}
+
+function el(html) {
+  const d = document.createElement("div");
+  d.innerHTML = html.trim();
+  return d.firstElementChild;
+}
+
+async function fetchJson(path) {
+  const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) return null;
+  try { return await res.json(); } catch { return null; }
+}
+
+function normalizeDay(s) {
+  const str = String(s || "").trim();
+  const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+  return m ? m[1] : null;
+}
+
+async function getLatestDayFromIndex() {
+  const idx = await fetchJson("data/history_paris/index.json");
+  if (!Array.isArray(idx)) return null;
+  const days = idx.map(normalizeDay).filter(Boolean).sort();
+  return days.length ? days[days.length - 1] : null;
+}
+
+function monthNameFR(m) {
+  const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  return monthsFR[Math.max(0, Math.min(11, m - 1))];
+}
+
+function buildMainBar() {
+  const mode = getMode();
+
+  const items = [
+    { mode: "jour", label: "🕛 Jour" },
+    { mode: "hier", label: "⏪ Hier" },
+    { mode: "hebdo", label: "📅 Hebdo" },
+    { mode: "mensuel", label: "🗓️ Mensuel" },
+
+    // ✅ mois-veille (ton fichier / logique)
+    { mode: "mois-veille", label: "⏮️ Mois-veille", id: "barPrevMonth" },
+
+    { mode: "ans", label: "📆 Année", id: "barYear" },
+    { mode: "ans-veille", label: "📆 Année-1", id: "barPrevYear" },
+  ];
+
+  return el(`
+    <div class="subnav subnav-xp">
+      ${items.map(it => `
+        <a
+          class="subnav-btn ${isActiveMode(mode, it.mode) ? "is-active" : ""}"
+          href="${CLASSEMENTS_PAGE}?mode=${encodeURIComponent(it.mode)}"
+          ${it.id ? `id="${it.id}"` : ""}
+        >${it.label}</a>
+      `).join("")}
+    </div>
+  `);
+}
+
+async function setDynamicLabels() {
+  const latestDay = await getLatestDayFromIndex();
+  let y, m;
+
+  if (latestDay) {
+    y = Number(latestDay.slice(0, 4));
+    m = Number(latestDay.slice(5, 7));
+  } else {
+    const now = new Date();
+    y = now.getFullYear();
+    m = now.getMonth() + 1;
   }
 
-  function setActiveLinks(root) {
-    const links = root.querySelectorAll("a");
-    links.forEach(a => {
-      const href = (a.getAttribute("href") || "").toLowerCase();
-      const hrefFile = href.split("?")[0].split("#")[0].split("/").pop();
-      if (hrefFile && hrefFile === file) a.classList.add("is-active");
-    });
+  // Année
+  const by = document.getElementById("barYear");
+  if (by) {
+    by.textContent = "📆 " + y;
+    by.title = "Classement annuel (" + y + ")";
   }
 
-  // ---------- XP BAR (Jour/Hier/Hebdo/Mensuel/Mois-veille/Année) ----------
-  function buildXpBar() {
-    const bar = el(`
-      <div class="subnav subnav-xp">
-        <a class="subnav-btn" href="jour.html">🕛 Jour</a>
-        <a class="subnav-btn" href="jour-veille.html">⏪ Hier</a>
-        <a class="subnav-btn" href="hebdo.html">📅 Hebdo</a>
-        <a class="subnav-btn" href="mensuel.html">🗓️ Mensuel</a>
-        <a class="subnav-btn" href="mois-veille.html">⏮️ Mois-veille</a>
-        <a class="subnav-btn" href="ans.html">📆 Année</a>
-      </div>
-    `);
-    setActiveLinks(bar);
-    return bar;
+  // Année-1
+  const bpy = document.getElementById("barPrevYear");
+  if (bpy) {
+    bpy.textContent = "📆 " + (y - 1);
+    bpy.title = "Classement annuel (" + (y - 1) + ")";
   }
 
-  // ---------- NIVEAU BAR (séparée + plus haut) ----------
-  function buildNiveauBar() {
-    const bar = el(`
-      <div class="subnav subnav-niveau">
-        <a class="subnav-btn" href="niveau.html">⭐ Niveau théorique</a>
-        <span class="subnav-sep">|</span>
-        <a class="subnav-btn" href="jour.html">🕛 Jour</a>
-        <a class="subnav-btn" href="mensuel.html">🗓️ Mensuel</a>
-        <a class="subnav-btn" href="ans.html">📆 Année</a>
-      </div>
-    `);
-    setActiveLinks(bar);
-    return bar;
+  // Mois-veille = mois précédent du latestDay
+  const bm = document.getElementById("barPrevMonth");
+  if (bm) {
+    let pm = m - 1;
+    let py = y;
+    if (pm <= 0) { pm = 12; py = y - 1; }
+    bm.textContent = "⏮️ " + monthNameFR(pm);
+    bm.title = "Classement du mois précédent (" + monthNameFR(pm) + " " + py + ")";
   }
+}
 
-  // ---------- CSS injecté (pour placement + “Niveau” pas collé) ----------
-  function injectCss() {
-    const style = el(`
-      <style>
-        /* barre XP standard */
-        .subnav.subnav-xp{
-          display:flex; gap:8px; flex-wrap:wrap;
-          padding:10px 16px;
-          border-bottom:1px solid #e6e6e6;
-          background:#f6f6f6;
-        }
-        .subnav-btn{
-          display:inline-flex; align-items:center; gap:8px;
-          padding:8px 10px;
-          border-radius:10px;
-          font-weight:900;
-          text-decoration:none;
-          border:1px solid #d6d6d6;
-          background:#fff;
-          color:#333;
-        }
-        .subnav-btn:hover{ filter:brightness(.98); }
-        .subnav-btn.is-active{
-          border-color:#2c6fb7;
-          color:#2c6fb7;
-          box-shadow: inset 0 0 0 1px rgba(44,111,183,.25);
-        }
+function mountBars() {
+  document.querySelectorAll('[data-bar="main"]').forEach(m => {
+    m.innerHTML = "";
+    m.appendChild(buildMainBar());
+  });
+}
 
-        /* barre Niveau (plus haut + séparée visuellement) */
-        .subnav.subnav-niveau{
-          display:flex; gap:8px; flex-wrap:wrap;
-          padding:10px 18px;
-          margin:14px auto 0;
-          max-width:1180px;
-          border:1px solid rgba(0,0,0,.10);
-          border-radius:12px;
-          background: rgba(255,255,255,.92);
-          box-shadow: 0 10px 24px rgba(0,0,0,.18);
-        }
-        .subnav-sep{
-          display:inline-flex;
-          align-items:center;
-          font-weight:900;
-          opacity:.45;
-          padding:0 4px;
-        }
-      </style>
-    `);
-    document.head.appendChild(style);
-  }
-
-  // ---------- Mount ----------
-  function mount() {
-    injectCss();
-
-    // 1) Bar Niveau : seulement sur niveau.html
-    if (file === "niveau.html") {
-      const mountNode = document.getElementById("subnav-niveau");
-      if (mountNode) mountNode.replaceWith(buildNiveauBar());
-      else document.body.insertAdjacentElement("afterbegin", buildNiveauBar());
-    }
-
-    // 2) Bar XP : sur pages XP (jour/jour-veille/hebdo/mensuel/mois-veille/ans)
-    const xpPages = new Set(["jour.html","jour-veille.html","hebdo.html","mensuel.html","mois-veille.html","ans.html"]);
-    if (xpPages.has(file)) {
-      const mountNode = document.getElementById("subnav-xp");
-      if (mountNode) mountNode.replaceWith(buildXpBar());
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", mount);
-})();
+document.addEventListener("DOMContentLoaded", async () => {
+  mountBars();
+  await setDynamicLabels();
+});
