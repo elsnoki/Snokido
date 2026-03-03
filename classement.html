@@ -17,7 +17,7 @@
       font-family: Arial, sans-serif;
     }
 
-    /* ===== layout types (box + panel) ===== */
+    /* ===== layout types (panel + box) ===== */
     .wrap{ max-width:1280px; margin:26px auto 40px; padding:0 12px; }
     .panel{
       background:#fff;
@@ -64,7 +64,7 @@
       display:none;
     }
 
-    /* ===== tables communes ===== */
+    /* ===== tables ===== */
     table{ width:100%; border-collapse:separate; border-spacing:0; }
     thead th{ background:#fff; padding:14px 12px; text-align:left; font-size:15px; font-weight:900; border-bottom:1px solid #cfcfcf; }
     tbody td{ padding:18px 12px; border-bottom:1px solid #cfcfcf; vertical-align:middle; font-size:16px; }
@@ -106,15 +106,14 @@
 
     .gain{ font-weight:900; font-size:16px; color:#0a7a2f; }
 
-    /* ===== vues ===== */
+    /* ===== router ===== */
     .view{ display:none; }
     .view.is-active{ display:block; }
 
-    /* (optionnel) wrapper table responsive */
     .table-wrap{ overflow-x:auto; }
     .table-wrap table{ min-width: 820px; }
 
-    /* barre “mount” (générée par bars.js) */
+    /* mount bar (bars.js) */
     .barMount{ }
   </style>
 </head>
@@ -128,8 +127,6 @@
     <main class="wrap">
       <section class="panel">
         <div class="titlebar">Classement Jour — XP gagnée</div>
-
-        <!-- barre auto -->
         <div class="barMount" data-bar="main"></div>
 
         <div class="sub" id="jour_rangeTxt">Chargement…</div>
@@ -167,7 +164,6 @@
         <div class="pill" id="hier_infoPill">Δ XP</div>
       </div>
 
-      <!-- barre auto -->
       <div class="barMount" data-bar="main"></div>
 
       <div id="hier_warn" class="warn"></div>
@@ -202,8 +198,6 @@
     <main class="wrap">
       <section class="panel">
         <div class="titlebar">Classement Hebdo — XP gagnée</div>
-
-        <!-- barre auto -->
         <div class="barMount" data-bar="main"></div>
 
         <div class="sub" id="hebdo_rangeTxt">Chargement…</div>
@@ -234,8 +228,6 @@
     <main class="wrap">
       <section class="panel">
         <div class="titlebar">Classement Mensuel — XP gagnée</div>
-
-        <!-- barre auto -->
         <div class="barMount" data-bar="main"></div>
 
         <div class="sub" id="mensuel_rangeTxt">Chargement…</div>
@@ -260,14 +252,42 @@
   </div>
 
   <!-- =======================
+       VUE : MOIS-VEILLE
+       ======================= -->
+  <div class="view" id="view-mois-veille">
+    <main class="wrap">
+      <section class="panel">
+        <div class="titlebar">Classement Mois-veille — XP gagnée</div>
+        <div class="barMount" data-bar="main"></div>
+
+        <div class="sub" id="mv_rangeTxt">Chargement…</div>
+        <div id="mv_warn" class="warn"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th></th>
+                <th>Joueur</th>
+                <th class="center">Δ XP (mois-veille)</th>
+                <th class="center">XP actuel</th>
+              </tr>
+            </thead>
+            <tbody id="mv_tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- =======================
        VUE : ANNUEL (ans)
        ======================= -->
   <div class="view" id="view-ans">
     <main class="wrap">
       <section class="panel">
         <div class="titlebar">Classement Annuel — XP gagnée</div>
-
-        <!-- barre auto -->
         <div class="barMount" data-bar="main"></div>
 
         <div class="sub" id="ans_rangeTxt">Chargement…</div>
@@ -292,14 +312,12 @@
   </div>
 
   <!-- =======================
-       VUE : ANS-VEILLE
+       VUE : ANS-VEILLE (année précédente)
        ======================= -->
   <div class="view" id="view-ans-veille">
     <main class="wrap">
       <section class="panel">
         <div class="titlebar">Classement Année précédente — XP gagnée</div>
-
-        <!-- barre auto -->
         <div class="barMount" data-bar="main"></div>
 
         <div class="sub" id="ansv_rangeTxt">Chargement…</div>
@@ -336,7 +354,6 @@
         <div class="pill" id="niv_modelInfo">Modèle…</div>
       </div>
 
-      <!-- barre auto -->
       <div class="barMount" data-bar="main"></div>
 
       <div id="niv_warn" class="warn"></div>
@@ -367,7 +384,7 @@
 
 <script>
 /* =========================================================
-   ROUTER (1 page) : ?mode=jour|hier|hebdo|mensuel|ans|ans-veille|niveau
+   ROUTER (1 page) : ?mode=jour|hier|hebdo|mensuel|mois-veille|ans|ans-veille|niveau
    ========================================================= */
 function getMode(){
   const p = new URLSearchParams(location.search);
@@ -380,8 +397,9 @@ function showView(mode){
     "jour-veille":"view-hier",
     "hebdo":"view-hebdo",
     "mensuel":"view-mensuel",
+    "mois-veille":"view-mois-veille",
+    "moisveille":"view-mois-veille",
     "ans":"view-ans",
-    "annuel":"view-ans",
     "ans-veille":"view-ans-veille",
     "annee-veille":"view-ans-veille",
     "niveau":"view-niveau",
@@ -515,6 +533,37 @@ function applyDxTieBreakPlus12Over500(rows){
   }
 }
 
+/* ========= clés robustes ========= */
+function playerKeyRobust(p){
+  if(!p) return null;
+  const id = profileIdFromHref(p.profileHref);
+  if(id) return "id:" + id;
+  if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
+  return "name:" + slugify(p.nom);
+}
+function nameLower(p){ return String(p?.nom || "").toLowerCase().trim(); }
+function playerKeysMulti(p){
+  const keys = [];
+  if(!p) return keys;
+
+  const id = profileIdFromHref(p.profileHref);
+  if(id) keys.push("id:" + id);
+
+  const s = String(p.slug || "").toLowerCase().trim();
+  if(s){
+    keys.push("slug:" + s);
+    keys.push("id:" + s);
+  }
+
+  const n1 = nameLower(p);
+  if(n1) keys.push("n1:" + n1);
+
+  const n2 = slugify(p.nom);
+  if(n2) keys.push("n2:" + n2);
+
+  return Array.from(new Set(keys));
+}
+
 /* ========= MODE : JOUR ========= */
 async function runJour(){
   const tbody = document.getElementById("jour_tbody");
@@ -543,16 +592,17 @@ async function runJour(){
 
   const baseMap = new Map();
   for(const p of baseline){
-    const id = profileIdFromHref(p?.profileHref);
-    const k = id ? ("id:" + id) : ("name:" + slugify(p?.nom));
+    const k = playerKeyRobust(p);
+    if(!k) continue;
     baseMap.set(k, Number(p?.xp || 0));
   }
 
   let rows = [];
   for(const p of current){
-    const id = profileIdFromHref(p?.profileHref);
-    const key = id ? ("id:" + id) : ("name:" + slugify(p?.nom));
-    const bXp = baseMap.get(key);
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+
+    const bXp = baseMap.get(k);
     if(bXp == null) continue;
 
     const curXp = Number(p?.xp || 0);
@@ -591,7 +641,7 @@ async function runJour(){
   }
 }
 
-/* ========= MODE : HIER (2 derniers snapshots) ========= */
+/* ========= MODE : HIER ========= */
 async function runHier(){
   const tbody = document.getElementById("hier_tbody");
   const rangeInfo = document.getElementById("hier_rangeInfo");
@@ -624,15 +674,13 @@ async function runHier(){
 
   const startMap = new Map();
   snapStart.forEach(p => {
-    const id = profileIdFromHref(p?.profileHref);
-    const k = id ? ("id:" + id) : ("name:" + String(p?.nom||"").toLowerCase().trim());
+    const k = playerKeyRobust(p) || ("name:" + String(p?.nom||"").toLowerCase().trim());
     startMap.set(k, Number(p?.xp) || 0);
   });
 
   const rows = [];
   snapEnd.forEach(p => {
-    const id = profileIdFromHref(p?.profileHref);
-    const k = id ? ("id:" + id) : ("name:" + String(p?.nom||"").toLowerCase().trim());
+    const k = playerKeyRobust(p) || ("name:" + String(p?.nom||"").toLowerCase().trim());
     if(!startMap.has(k)) return;
 
     const xpEnd = Number(p?.xp) || 0;
@@ -694,13 +742,6 @@ function mondayOfWeek(dayStr){
   const wd = d.getUTCDay() || 7;
   d.setUTCDate(d.getUTCDate() - (wd - 1));
   return fromUTCDate(d);
-}
-function playerKeyRobust(p){
-  if(!p) return null;
-  const id = profileIdFromHref(p.profileHref);
-  if(id) return "id:" + id;
-  if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
-  return "name:" + slugify(p.nom);
 }
 
 async function runHebdo(){
@@ -769,9 +810,7 @@ async function runHebdo(){
   tbody.innerHTML = "";
   for(let i=0;i<rows.length;i++){
     const r = rows[i];
-    const link = r.profileHref
-      ? r.profileHref
-      : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
 
     const tr = document.createElement("tr");
     tr.innerHTML =
@@ -817,7 +856,7 @@ async function runMensuel(){
   const targetFirst = firstOfMonth(latestDay);
   const baseDay = findClosestLE(index, targetFirst);
   if(!baseDay){
-    warnTo("mensuel_warn", "Baseline mensuelle introuvable. Ajoute un snapshot du 1er dans history_paris + index.json.");
+    warnTo("mensuel_warn", "Baseline mensuelle introuvable (repère " + targetFirst + ").");
     return;
   }
 
@@ -883,30 +922,103 @@ async function runMensuel(){
   }
 }
 
-/* ========= MODE : ANNUEL ========= */
-function nameLower(p){ return String(p?.nom || "").toLowerCase().trim(); }
-function playerKeysMulti(p){
-  const keys = [];
-  if(!p) return keys;
+/* ========= MODE : MOIS-VEILLE ========= */
+async function runMoisVeille(){
+  const tbody = document.getElementById("mv_tbody");
+  const rangeTxt = document.getElementById("mv_rangeTxt");
 
-  const id = profileIdFromHref(p.profileHref);
-  if(id) keys.push("id:" + id);
-
-  const s = String(p.slug || "").toLowerCase().trim();
-  if(s){
-    keys.push("slug:" + s);
-    keys.push("id:" + s);
+  const current = await loadCurrentPlayers();
+  if(!current){
+    warnTo("mv_warn", "Impossible de charger data/players_pages.json ou data/snokido_top50.json.");
+    return;
   }
 
-  const n1 = nameLower(p);
-  if(n1) keys.push("n1:" + n1);
+  const index = await loadIndex();
+  if(!index || index.length < 2){
+    warnTo("mv_warn", "Pas assez d'historique (history_paris).");
+    return;
+  }
 
-  const n2 = slugify(p.nom);
-  if(n2) keys.push("n2:" + n2);
+  const latestDay = index[index.length - 1];
+  const y = Number(latestDay.slice(0,4));
+  const m = Number(latestDay.slice(5,7));
 
-  return Array.from(new Set(keys));
+  let pm = m - 1;
+  let py = y;
+  if(pm <= 0){ pm = 12; py = y - 1; }
+
+  const targetFirst = `${py}-${String(pm).padStart(2,"0")}-01`;
+  const baseDay = findClosestLE(index, targetFirst);
+
+  if(!baseDay){
+    warnTo("mv_warn", "Baseline mois-veille introuvable (repère " + targetFirst + ").");
+    return;
+  }
+
+  const baseline = await loadSnapPlayers(baseDay);
+  if(!baseline){
+    warnTo("mv_warn", "Snapshot baseline introuvable : " + baseDay);
+    return;
+  }
+
+  rangeTxt.textContent = "Période : " + baseDay + " → live";
+
+  const baseMap = new Map();
+  for(const p of baseline){
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+    baseMap.set(k, Number(p.xp || 0));
+  }
+
+  let rows = [];
+  for(const p of current){
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+
+    const bXp = baseMap.get(k);
+    if(bXp == null) continue;
+
+    const curXp = Number(p.xp || 0);
+    const dx = curXp - bXp;
+
+    rows.push({
+      nom: p.nom,
+      avatar: p.avatar,
+      profileHref: p.profileHref || null,
+      xp: curXp,
+      dx,
+      dxAdj: null
+    });
+  }
+
+  rows = rows.filter(r => Number(r.dx) !== 0);
+  applyDxTieBreakPlus12Over500(rows);
+  rows.sort((a,b)=> b.dxAdj - a.dxAdj);
+
+  tbody.innerHTML = "";
+  const shown = rows.slice(0, 300);
+
+  for(let i=0;i<shown.length;i++){
+    const r = shown[i];
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td class="rank">' + (i+1) + '</td>' +
+      '<td class="avatarCell"><div class="frame"><img loading="lazy" src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
+      '<td class="name"><a target="_blank" rel="noopener" href="' + link + '">' + r.nom + '</a>' +
+      '<div class="small">' + r.xp.toLocaleString("fr-FR") + ' XP</div></td>' +
+      '<td class="center">' + formatSigned(r.dx) + '</td>' +
+      '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>';
+    tbody.appendChild(tr);
+  }
+
+  if(shown.length === 0){
+    tbody.innerHTML =
+      '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
+  }
 }
 
+/* ========= MODE : ANNUEL ========= */
 async function runAns(){
   const tbody = document.getElementById("ans_tbody");
   const rangeTxt = document.getElementById("ans_rangeTxt");
@@ -1157,19 +1269,17 @@ async function runAnsVeille(){
 
 /* ========= MODE : NIVEAU THEORIQUE ========= */
 async function runNiveau(){
-  // CONFIG DU MODÈLE 3
   const XP_AT_100 = 49500;
   const A1 = 1290;
   const TARGET_XP_100_TO_1000 = 1600000;
   const R = 0.0006792294619366293;
 
-  document.getElementById("niv_modelInfo").textContent =
-    `L100=${XP_AT_100.toLocaleString("fr-FR")} | a1=${A1} | r=${(R*100).toFixed(4)}% | 100→1000≈${TARGET_XP_100_TO_1000.toLocaleString("fr-FR")} XP`;
-
-  function sumAfter100(n){
-    if(n <= 0) return 0;
-    return A1 * (Math.pow(1 + R, n) - 1) / R;
+  const modelInfo = document.getElementById("niv_modelInfo");
+  if(modelInfo){
+    modelInfo.textContent =
+      `L100=${XP_AT_100.toLocaleString("fr-FR")} | a1=${A1} | r=${(R*100).toFixed(4)}% | 100→1000≈${TARGET_XP_100_TO_1000.toLocaleString("fr-FR")} XP`;
   }
+
   function levelsBeyond100FromXp(xpExtra){
     if(xpExtra <= 0) return 0;
     const x = (xpExtra * R / A1) + 1;
@@ -1190,11 +1300,11 @@ async function runNiveau(){
   const tbody = document.getElementById("niv_tbody");
 
   const topRaw = await fetchJson("data/snokido_top50.json");
-  const top50 = extractPlayers(topRaw) || (Array.isArray(topRaw) ? topRaw : null);
+  const top50 = extractPlayers(topRaw);
 
   if(!top50 || !Array.isArray(top50)){
     warnTo("niv_warn", "Impossible de charger data/snokido_top50.json");
-    tbody.innerHTML = "";
+    if(tbody) tbody.innerHTML = "";
     return;
   }
 
@@ -1231,18 +1341,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const mode = getMode();
   const viewId = showView(mode);
 
-  // bars.js va créer les barres + labels (mois/année)
-  // ici on lance juste la logique de la vue
   try{
     if(viewId === "view-jour") await runJour();
     else if(viewId === "view-hier") await runHier();
     else if(viewId === "view-hebdo") await runHebdo();
     else if(viewId === "view-mensuel") await runMensuel();
+    else if(viewId === "view-mois-veille") await runMoisVeille();
     else if(viewId === "view-ans") await runAns();
     else if(viewId === "view-ans-veille") await runAnsVeille();
     else if(viewId === "view-niveau") await runNiveau();
   }catch(e){
-    // fallback : affiche une erreur dans la vue active
     const w = document.querySelector(".view.is-active .warn");
     if(w){
       w.style.display = "block";
