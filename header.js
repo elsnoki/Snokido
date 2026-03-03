@@ -1,12 +1,5 @@
 // ================= HEADER =================
 
-// ⚠️ Mets ici le nom EXACT de ta page unique :
-const CLASSEMENT_PAGE = "classement.html"; // <- change si besoin
-
-function withMode(mode) {
-  return `${CLASSEMENT_PAGE}?mode=${encodeURIComponent(mode)}`;
-}
-
 const headerHTML = `
 <header class="topbar">
   <div class="topbar-inner">
@@ -24,10 +17,7 @@ const headerHTML = `
       <a class="tab tab-300" href="300k.html">300K</a>
       <a class="tab tab-400" href="400k.html">400K</a>
       <a class="tab tab-500" href="500k.html">500K et +</a>
-
-      <!-- ✅ Ton onglet Niveaux : soit il reste niveau.html, soit il va vers la page unique -->
-      <a class="tab tab-niveau" href="${withMode("niveau")}">Niveaux</a>
-
+      <a class="tab tab-niveau" href="niveau.html">Niveaux</a>
       <a class="tab tab-kara" href="kara.html">Kara</a>
 
       <span class="tab-sep">|</span>
@@ -49,9 +39,8 @@ const headerHTML = `
         </div>
       </span>
 
-      <!-- ✅ Année : soit rankyear.html existe, soit tu veux que ça ouvre la page unique -->
-      <a class="tab tab-year" href="${withMode("ans")}">Année</a>
-
+      <!-- ✅ On garde 1 seule page Année -->
+      <a class="tab tab-year" href="ans.html">Année</a>
       <a class="tab tab-chrono" href="timeline.html">Timeline</a>
 
     </nav>
@@ -61,11 +50,11 @@ const headerHTML = `
 
 document.body.insertAdjacentHTML("afterbegin", headerHTML);
 
+
 // ================= PAUSE MENU LOGIC =================
 
 const wrap = document.querySelector(".pauseWrap");
 const btn = document.getElementById("pauseBtn");
-const menu = document.querySelector(".pauseMenu");
 
 // Sécurité : menu caché au chargement
 wrap.classList.remove("is-open");
@@ -73,23 +62,21 @@ wrap.classList.remove("is-open");
 function closeMenu() {
   wrap.classList.remove("is-open");
 }
+
 function toggleMenu() {
   wrap.classList.toggle("is-open");
 }
 
-// Ouvre au clic
 btn.addEventListener("click", (e) => {
   e.preventDefault();
   e.stopPropagation();
   toggleMenu();
 });
 
-// Ferme si clic ailleurs
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".pauseWrap")) closeMenu();
 });
 
-// Ferme avec ESC
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeMenu();
 });
