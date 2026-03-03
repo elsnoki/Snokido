@@ -1,5 +1,7 @@
 // ================= HEADER =================
 
+const CLASSEMENTS_PAGE = "classements.html";
+
 const headerHTML = `
 <header class="topbar">
   <div class="topbar-inner">
@@ -17,7 +19,10 @@ const headerHTML = `
       <a class="tab tab-300" href="300k.html">300K</a>
       <a class="tab tab-400" href="400k.html">400K</a>
       <a class="tab tab-500" href="500k.html">500K et +</a>
-      <a class="tab tab-niveau" href="niveau.html">Niveaux</a>
+
+      <!-- ✅ Niveau théorique : séparé / plus haut (pas collé aux XP) -->
+      <a class="tab tab-niveau" href="${CLASSEMENTS_PAGE}?mode=niveau">Niveau théorique</a>
+
       <a class="tab tab-kara" href="kara.html">Kara</a>
 
       <span class="tab-sep">|</span>
@@ -39,8 +44,9 @@ const headerHTML = `
         </div>
       </span>
 
-      <!-- ✅ On garde 1 seule page Année -->
-      <a class="tab tab-year" href="ans.html">Année</a>
+      <!-- ✅ Classements XP (une seule page) -->
+      <a class="tab tab-year" href="${CLASSEMENTS_PAGE}?mode=ans">Classements XP</a>
+
       <a class="tab tab-chrono" href="timeline.html">Timeline</a>
 
     </nav>
@@ -55,23 +61,25 @@ document.body.insertAdjacentHTML("afterbegin", headerHTML);
 
 const wrap = document.querySelector(".pauseWrap");
 const btn = document.getElementById("pauseBtn");
+const menu = document.querySelector(".pauseMenu");
 
 // Sécurité : menu caché au chargement
-wrap.classList.remove("is-open");
+if (wrap) wrap.classList.remove("is-open");
 
 function closeMenu() {
-  wrap.classList.remove("is-open");
+  if (wrap) wrap.classList.remove("is-open");
 }
-
 function toggleMenu() {
-  wrap.classList.toggle("is-open");
+  if (wrap) wrap.classList.toggle("is-open");
 }
 
-btn.addEventListener("click", (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  toggleMenu();
-});
+if (btn) {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleMenu();
+  });
+}
 
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".pauseWrap")) closeMenu();
