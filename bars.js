@@ -5,51 +5,28 @@ function getMode(){
   return String(p.get("mode") || "jour").toLowerCase();
 }
 
+function normalizeDay(s){
+  const str = String(s||"").trim();
+  const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+  return m ? m[1] : null;
+}
+
 async function getLatestDayFromIndex(){
   try{
     const res = await fetch("data/history_paris/index.json?t=" + Date.now(), { cache:"no-store" });
     if(!res.ok) throw new Error("HTTP " + res.status);
     const idx = await res.json();
     if(!Array.isArray(idx)) throw new Error("index pas un tableau");
-
-    const days = idx
-      .map(x => {
-        const s = String(x||"").trim();
-        const m = s.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
-        return m ? m[1] : null;
-      })
-      .filter(Boolean)
-      .sort();
-
+    const days = idx.map(normalizeDay).filter(Boolean).sort();
     return days.length ? days[days.length - 1] : null;
   }catch{
     return null;
   }
 }
 
-function buildBarHTML({ activeMode, yearLabel, prevMonthLabel }){
-  // ✅ IMPORTANT : tout pointe vers classement.html?mode=...
-  const items = [
-    ["jour",       "🕛 Jour"],
-    ["hier",       "⏪ Hier"],
-    ["hebdo",      "📅 Hebdo"],
-    ["mensuel",    "🗓️ Mensuel"],
-    ["mois-veille","⏮️ " + (prevMonthLabel || "Mois-veille")],
-    ["ans",        "📆 " + (yearLabel || "Année")],
-    ["ans-veille", "📆 " + ((yearLabel && /^\d+$/.test(yearLabel)) ? (Number(yearLabel)-1) : "Année-1")],
-    ["niveau",     "⭐ Niveau théorique"],
-  ];
-
-  const btn = (mode, label) => {
-    const cls = "subnav-btn" + (activeMode === mode ? " is-active" : "");
-    return `<a class="${cls}" href="classement.html?mode=${encodeURIComponent(mode)}">${label}</a>`;
-  };
-
-  return `
-    <div class="subnav">
-      ${items.map(([m,l]) => btn(m,l)).join("")}
-    </div>
-  `;
+function aBtn(mode, label, activeMode){
+  const cls = "subnav-btn" + (activeMode === mode ? " is-active" : "");
+  return `<a class="${cls}" href="classement.html?mode=${encodeURIComponent(mode)}">${label}</a>`;
 }
 
 async function mountBars(){
@@ -57,7 +34,6 @@ async function mountBars(){
   const mounts = document.querySelectorAll('.barMount[data-bar="main"]');
   if(!mounts.length) return;
 
-  // labels auto (mois précédent + année) basés sur index.json si possible
   const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   const latestDay = await getLatestDayFromIndex();
 
@@ -72,15 +48,26 @@ async function mountBars(){
   }
 
   let pm = m - 1;
-  let py = y;
-  if(pm <= 0){ pm = 12; py = y - 1; }
+  if(pm <= 0) pm = 12;
 
+  const prevMonthLabel = monthsFR[pm-1];
   const yearLabel = String(y);
-  const prevMonthLabel = monthsFR[pm-1]; // juste "février" etc (ton bouton reste "mode=mois-veille")
+  const yearPrevLabel = String(y - 1);
 
-  const html = buildBarHTML({ activeMode: mode, yearLabel, prevMonthLabel });
+  const html =
+    `<div class="subnav">` +
+      aBtn("jour","🕛 Jour",mode) +
+      aBtn("hier","⏪ Hier",mode) +
+      aBtn("hebdo","📅 Hebdo",mode) +
+      aBtn("mensuel","🗓️ Mois",mode) +
+      // ✅ “février” etc = juste un label -> mode=mois-veille
+      aBtn("mois-veille","⏮️ " + prevMonthLabel,mode) +
+      aBtn("ans","📆 " + yearLabel,mode) +
+      aBtn("ans-veille","📆 " + yearPrevLabel,mode) +
+      aBtn("niveau","⭐ Niveau théorique",mode) +
+    `</div>`;
 
-  mounts.forEach(el => { el.innerHTML = html; });
+  mounts.forEach(el => el.innerHTML = html);
 }
 
 document.addEventListener("DOMContentLoaded", mountBars);
