@@ -18,8 +18,10 @@ const headerHTML = `
       <a class="tab tab-400" href="400k.html">400K</a>
       <a class="tab tab-500" href="500k.html">500K et +</a>
 
-      <!-- ✅ FIX ICI : Niveau théorique sur la page unique -->
-      <a class="tab tab-niveau" href="classements.html?mode=niveau">Niveau théorique</a>
+      <!-- ✅ CORRIGÉ ICI -->
+      <a class="tab tab-niveau" href="classement.html?mode=niveau">
+        Niveau théorique
+      </a>
 
       <a class="tab tab-kara" href="kara.html">Kara</a>
 
@@ -81,3 +83,4 @@ document.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeMenu();
 });
+
