@@ -1,0 +1,1257 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Classements — Snokido</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="header.js" defer></script>
+  <script src="bars.js" defer></script>
+
+  <style>
+    /* ===== fond commun ===== */
+    body{
+      margin:0;
+      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+      font-family: Arial, sans-serif;
+    }
+
+    /* ===== layout types (box + panel) ===== */
+    .wrap{ max-width:1280px; margin:26px auto 40px; padding:0 12px; }
+    .panel{
+      background:#fff;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 12px 30px rgba(0,0,0,.28);
+      border:1px solid rgba(0,0,0,.10);
+    }
+    .titlebar{ background:#3b3b3b; color:#fff; padding:14px 16px; font-size:22px; font-weight:900; }
+
+    .box{
+      width: 1100px;
+      max-width: calc(100% - 24px);
+      margin: 40px auto;
+      background:#ffffff;
+      border-radius:8px;
+      overflow:hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    }
+    .title{
+      background:#3a3a3a;
+      color:white;
+      padding:14px 18px;
+      font-size:20px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .subtitle{ font-size:13px; font-weight:700; opacity:.9; }
+
+    .sub{ padding:10px 16px; font-weight:900; color:#444; border-bottom:1px solid #e6e6e6; background:#fafafa; }
+
+    .warn{
+      margin:12px 18px 0;
+      padding:10px 12px;
+      background:#fff3cd;
+      border:1px solid #ffe69c;
+      border-radius:10px;
+      font-weight:900;
+      color:#664d03;
+      display:none;
+    }
+
+    /* ===== tables communes ===== */
+    table{ width:100%; border-collapse:separate; border-spacing:0; }
+    thead th{ background:#fff; padding:14px 12px; text-align:left; font-size:15px; font-weight:900; border-bottom:1px solid #cfcfcf; }
+    tbody td{ padding:18px 12px; border-bottom:1px solid #cfcfcf; vertical-align:middle; font-size:16px; }
+    tbody tr:nth-child(odd){ background:#f2f2f2; }
+    tbody tr:nth-child(even){ background:#ffffff; }
+
+    .rank{ width:70px; text-align:center; font-weight:900; font-size:26px; color:#444; }
+    .avatarCell{ width:110px; text-align:center; }
+    .avatar{ width:90px; text-align:center; }
+
+    .frame{ width:64px; height:64px; margin:0 auto; background:#e9e9e9; border:1px solid #bdbdbd; border-radius:10px; display:flex; align-items:center; justify-content:center; }
+    .frame img{ width:56px; height:56px; object-fit:cover; border:2px solid #8f8f8f; border-radius:10px; background:#ddd; display:block; }
+
+    .name a{ color:#2c6fb7; font-weight:900; text-decoration:none; font-size:18px; }
+    .name a:hover{ text-decoration:underline; }
+
+    .center{ text-align:center; white-space:nowrap; font-weight:900; }
+    .small{ font-weight:700; font-size:13px; color:#666; }
+
+    .pill{
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      font-weight:900;
+      font-size:12px;
+      border:1px solid rgba(0,0,0,.12);
+      background:#f2f2f2;
+      color:#111;
+    }
+
+    .hint{
+      padding: 10px 18px;
+      font-size: 13px;
+      color:#555;
+      border-top: 1px solid #e5e5e5;
+      background:#fafafa;
+      line-height:1.35;
+    }
+
+    .gain{ font-weight:900; font-size:16px; color:#0a7a2f; }
+
+    /* ===== vues ===== */
+    .view{ display:none; }
+    .view.is-active{ display:block; }
+
+    /* (optionnel) wrapper table responsive */
+    .table-wrap{ overflow-x:auto; }
+    .table-wrap table{ min-width: 820px; }
+
+    /* barre “mount” (générée par bars.js) */
+    .barMount{ }
+  </style>
+</head>
+
+<body>
+
+  <!-- =======================
+       VUE : JOUR
+       ======================= -->
+  <div class="view" id="view-jour">
+    <main class="wrap">
+      <section class="panel">
+        <div class="titlebar">Classement Jour — XP gagnée</div>
+
+        <!-- barre auto -->
+        <div class="barMount" data-bar="main"></div>
+
+        <div class="sub" id="jour_rangeTxt">Chargement…</div>
+        <div id="jour_warn" class="warn"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th></th>
+                <th>Joueur</th>
+                <th class="center">Δ XP (jour)</th>
+                <th class="center">XP actuel</th>
+                <th class="center">Inscription</th>
+              </tr>
+            </thead>
+            <tbody id="jour_tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- =======================
+       VUE : HIER (jour-veille)
+       ======================= -->
+  <div class="view" id="view-hier">
+    <div class="box">
+      <div class="title">
+        <div>
+          Classement gains XP — 24h
+          <div class="subtitle" id="hier_rangeInfo">Chargement…</div>
+        </div>
+        <div class="pill" id="hier_infoPill">Δ XP</div>
+      </div>
+
+      <!-- barre auto -->
+      <div class="barMount" data-bar="main"></div>
+
+      <div id="hier_warn" class="warn"></div>
+
+      <table id="hier_leaderboard">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th>Nom du joueur</th>
+            <th class="center">Gain XP (24h)</th>
+            <th class="center">XP (fin)</th>
+            <th class="center">Kara</th>
+          </tr>
+        </thead>
+        <tbody id="hier_tbody"></tbody>
+      </table>
+
+      <div class="hint">
+        Comparaison automatique entre les <b>2 derniers scrapes</b> dans
+        <code>data/history_paris/index.json</code>.
+        <br>
+        Les joueurs absents la veille sont ignorés. Les gains à <b>0</b> ne sont pas affichés.
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================
+       VUE : HEBDO
+       ======================= -->
+  <div class="view" id="view-hebdo">
+    <main class="wrap">
+      <section class="panel">
+        <div class="titlebar">Classement Hebdo — XP gagnée</div>
+
+        <!-- barre auto -->
+        <div class="barMount" data-bar="main"></div>
+
+        <div class="sub" id="hebdo_rangeTxt">Chargement…</div>
+        <div id="hebdo_warn" class="warn"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th></th>
+                <th>Joueur</th>
+                <th class="center">Δ XP (hebdo)</th>
+                <th class="center">XP actuel</th>
+              </tr>
+            </thead>
+            <tbody id="hebdo_tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- =======================
+       VUE : MENSUEL
+       ======================= -->
+  <div class="view" id="view-mensuel">
+    <main class="wrap">
+      <section class="panel">
+        <div class="titlebar">Classement Mensuel — XP gagnée</div>
+
+        <!-- barre auto -->
+        <div class="barMount" data-bar="main"></div>
+
+        <div class="sub" id="mensuel_rangeTxt">Chargement…</div>
+        <div id="mensuel_warn" class="warn"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th></th>
+                <th>Joueur</th>
+                <th class="center">Δ XP (mensuel)</th>
+                <th class="center">XP actuel</th>
+              </tr>
+            </thead>
+            <tbody id="mensuel_tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- =======================
+       VUE : ANNUEL (ans)
+       ======================= -->
+  <div class="view" id="view-ans">
+    <main class="wrap">
+      <section class="panel">
+        <div class="titlebar">Classement Annuel — XP gagnée</div>
+
+        <!-- barre auto -->
+        <div class="barMount" data-bar="main"></div>
+
+        <div class="sub" id="ans_rangeTxt">Chargement…</div>
+        <div id="ans_warn" class="warn"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th></th>
+                <th>Joueur</th>
+                <th class="center">Δ XP (an)</th>
+                <th class="center">XP actuel</th>
+              </tr>
+            </thead>
+            <tbody id="ans_tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- =======================
+       VUE : ANS-VEILLE
+       ======================= -->
+  <div class="view" id="view-ans-veille">
+    <main class="wrap">
+      <section class="panel">
+        <div class="titlebar">Classement Année précédente — XP gagnée</div>
+
+        <!-- barre auto -->
+        <div class="barMount" data-bar="main"></div>
+
+        <div class="sub" id="ansv_rangeTxt">Chargement…</div>
+        <div id="ansv_warn" class="warn"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th></th>
+                <th>Joueur</th>
+                <th class="center">Δ XP (an)</th>
+                <th class="center">XP (fin année)</th>
+              </tr>
+            </thead>
+            <tbody id="ansv_tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- =======================
+       VUE : NIVEAU THEORIQUE
+       ======================= -->
+  <div class="view" id="view-niveau">
+    <div class="box">
+      <div class="title">
+        <div>
+          Niveau théorique — Top 50 (Snokido)
+          <div class="subtitle">Progression après 100 (modèle %)</div>
+        </div>
+        <div class="pill" id="niv_modelInfo">Modèle…</div>
+      </div>
+
+      <!-- barre auto -->
+      <div class="barMount" data-bar="main"></div>
+
+      <div id="niv_warn" class="warn"></div>
+
+      <table id="niv_leaderboard">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th>Nom du joueur</th>
+            <th class="center">XP</th>
+            <th class="center">Kara</th>
+            <th class="center">Niveau théorique</th>
+          </tr>
+        </thead>
+        <tbody id="niv_tbody"></tbody>
+      </table>
+
+      <div class="hint">
+        <b>Modèle 3 :</b><br>
+        • Niveau 100 = <b>49&nbsp;500 XP</b>.<br>
+        • Le premier niveau après 100 coûte <b>1&nbsp;290 XP</b>.<br>
+        • Ensuite, le coût augmente de <b>+0,0679%</b> par niveau (progression géométrique).<br>
+        • Réglé pour faire environ <b>1&nbsp;600&nbsp;000 XP</b> de 100 → 1000.
+      </div>
+    </div>
+  </div>
+
+<script>
+/* =========================================================
+   ROUTER (1 page) : ?mode=jour|hier|hebdo|mensuel|ans|ans-veille|niveau
+   ========================================================= */
+function getMode(){
+  const p = new URLSearchParams(location.search);
+  return String(p.get("mode") || "jour").toLowerCase();
+}
+function showView(mode){
+  const map = {
+    "jour":"view-jour",
+    "hier":"view-hier",
+    "jour-veille":"view-hier",
+    "hebdo":"view-hebdo",
+    "mensuel":"view-mensuel",
+    "ans":"view-ans",
+    "annuel":"view-ans",
+    "ans-veille":"view-ans-veille",
+    "annee-veille":"view-ans-veille",
+    "niveau":"view-niveau",
+    "theorique":"view-niveau"
+  };
+  const id = map[mode] || "view-jour";
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("is-active"));
+  const el = document.getElementById(id);
+  if(el) el.classList.add("is-active");
+  return id;
+}
+
+function warnTo(id, msg){
+  const w = document.getElementById(id);
+  if(!w) return;
+  w.style.display = "block";
+  w.textContent = msg;
+}
+
+function slugify(name){
+  return String(name || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toLowerCase();
+}
+
+function profileIdFromHref(href){
+  if(!href) return null;
+  try{
+    const u = new URL(href, location.origin);
+    const m = u.pathname.match(/\/player\/([^\/?#]+)/i);
+    return m ? m[1].toLowerCase() : null;
+  }catch{
+    const m = String(href).match(/\/player\/([^\/?#]+)/i);
+    return m ? m[1].toLowerCase() : null;
+  }
+}
+
+async function fetchJson(path){
+  const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
+  const res = await fetch(url, { cache:"no-store" });
+  if(!res.ok) return null;
+  try { return await res.json(); } catch { return null; }
+}
+
+function extractPlayers(payload){
+  if(!payload) return null;
+  if(Array.isArray(payload)) return payload;
+  if(payload && typeof payload === "object"){
+    if(Array.isArray(payload.players)) return payload.players;
+    if(Array.isArray(payload.top50)) return payload.top50;
+    if(Array.isArray(payload.data)) return payload.data;
+  }
+  return null;
+}
+
+function normalizeDay(s){
+  const str = String(s||"").trim();
+  const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+  return m ? m[1] : null;
+}
+
+async function loadIndex(){
+  const idx = await fetchJson("data/history_paris/index.json");
+  if(!Array.isArray(idx)) return null;
+  return idx.map(normalizeDay).filter(Boolean).sort();
+}
+
+async function loadSnapPlayers(day){
+  const raw = await fetchJson("data/history_paris/" + day + ".json");
+  return extractPlayers(raw);
+}
+
+async function loadCurrentPlayers(){
+  const bigRaw = await fetchJson("data/players_pages.json");
+  const big = extractPlayers(bigRaw);
+  if(big) return big;
+
+  const topRaw = await fetchJson("data/snokido_top50.json");
+  const top = extractPlayers(topRaw);
+  if(top) return top;
+
+  return null;
+}
+
+function formatSigned(n){
+  const v = Number(n || 0);
+  return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
+}
+
+function formatInscription(d){
+  if(!d) return "—";
+  const m = String(d).match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if(m) return `${m[1]}/${m[2]}/${m[3]}`;
+  return String(d);
+}
+
+function findClosestLE(index, targetDay){
+  for(let i = index.length - 1; i >= 0; i--){
+    if(index[i] <= targetDay) return index[i];
+  }
+  return null;
+}
+
+function applyDxTieBreakPlus12Over500(rows){
+  const byDx = new Map();
+  for(const r of rows){
+    const k = String(r.dx);
+    if(!byDx.has(k)) byDx.set(k, []);
+    byDx.get(k).push(r);
+  }
+  for(const [, group] of byDx){
+    if(group.length <= 1){
+      group[0].dxAdj = group[0].dx;
+      continue;
+    }
+    const dxVal = Number(group[0].dx || 0);
+    if(dxVal < 500){
+      group.forEach(r => r.dxAdj = r.dx);
+      continue;
+    }
+    const sorted = group.slice().sort((a,b)=> slugify(a.nom).localeCompare(slugify(b.nom)));
+    const n = sorted.length;
+    for(let i=0;i<n;i++){
+      const bonus = 12 * (n - 1 - i);
+      sorted[i].dxAdj = sorted[i].dx + bonus;
+    }
+  }
+  for(const r of rows){
+    if(typeof r.dxAdj !== "number") r.dxAdj = r.dx;
+  }
+}
+
+/* ========= MODE : JOUR ========= */
+async function runJour(){
+  const tbody = document.getElementById("jour_tbody");
+  const rangeTxt = document.getElementById("jour_rangeTxt");
+
+  const current = await loadCurrentPlayers();
+  if(!current){
+    warnTo("jour_warn", "Impossible de charger data/players_pages.json ou data/snokido_top50.json.");
+    return;
+  }
+
+  const index = await loadIndex();
+  if(!index || index.length < 1){
+    warnTo("jour_warn", "history_paris/index.json introuvable ou vide.");
+    return;
+  }
+
+  const latestDay = index[index.length - 1];
+  const baseline = await loadSnapPlayers(latestDay);
+  if(!baseline){
+    warnTo("jour_warn", "Snapshot du jour introuvable : " + latestDay);
+    return;
+  }
+
+  rangeTxt.textContent = "Période : " + latestDay + " → live (MAJ à chaque workflow)";
+
+  const baseMap = new Map();
+  for(const p of baseline){
+    const id = profileIdFromHref(p?.profileHref);
+    const k = id ? ("id:" + id) : ("name:" + slugify(p?.nom));
+    baseMap.set(k, Number(p?.xp || 0));
+  }
+
+  let rows = [];
+  for(const p of current){
+    const id = profileIdFromHref(p?.profileHref);
+    const key = id ? ("id:" + id) : ("name:" + slugify(p?.nom));
+    const bXp = baseMap.get(key);
+    if(bXp == null) continue;
+
+    const curXp = Number(p?.xp || 0);
+    const dx = curXp - bXp;
+    if(Number(dx) === 0) continue;
+
+    rows.push({
+      nom: p.nom,
+      avatar: p.avatar,
+      xp: curXp,
+      dx,
+      inscription: p.inscription || null
+    });
+  }
+
+  rows.sort((a,b)=> b.dx - a.dx);
+
+  tbody.innerHTML = "";
+  for(let i=0;i<rows.length;i++){
+    const r = rows[i];
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td class="rank">' + (i+1) + '</td>' +
+      '<td class="avatarCell"><div class="frame"><img loading="lazy" src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
+      '<td class="name"><a href="profil.html?mode=nv100&u=' + encodeURIComponent(slugify(r.nom)) + '">' + r.nom + '</a>' +
+      '<div class="small">' + r.xp.toLocaleString("fr-FR") + ' XP</div></td>' +
+      '<td class="center">' + formatSigned(r.dx) + '</td>' +
+      '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>' +
+      '<td class="center">' + formatInscription(r.inscription) + '</td>';
+    tbody.appendChild(tr);
+  }
+
+  if(rows.length === 0){
+    tbody.innerHTML =
+      '<tr><td colspan="6" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
+  }
+}
+
+/* ========= MODE : HIER (2 derniers snapshots) ========= */
+async function runHier(){
+  const tbody = document.getElementById("hier_tbody");
+  const rangeInfo = document.getElementById("hier_rangeInfo");
+
+  const indexRaw = await fetchJson("data/history_paris/index.json");
+  if(!Array.isArray(indexRaw)){
+    warnTo("hier_warn", "index.json doit être un tableau de dates.");
+    rangeInfo.textContent = "Index invalide.";
+    return;
+  }
+
+  const dates = indexRaw.map(normalizeDay).filter(Boolean).filter(s => /^\d{4}-\d{2}-\d{2}$/.test(s)).sort();
+  if(dates.length < 2){
+    warnTo("hier_warn", "Il faut au moins 2 dates dans index.json.");
+    rangeInfo.textContent = "Données insuffisantes.";
+    return;
+  }
+
+  const dateEnd = dates[dates.length - 1];
+  const dateStart = dates[dates.length - 2];
+  rangeInfo.textContent = `Période : ${dateStart} → ${dateEnd}`;
+
+  const snapStart = await loadSnapPlayers(dateStart);
+  const snapEnd = await loadSnapPlayers(dateEnd);
+
+  if(!snapStart || !snapEnd){
+    warnTo("hier_warn", "Snapshots invalides / introuvables.");
+    return;
+  }
+
+  const startMap = new Map();
+  snapStart.forEach(p => {
+    const id = profileIdFromHref(p?.profileHref);
+    const k = id ? ("id:" + id) : ("name:" + String(p?.nom||"").toLowerCase().trim());
+    startMap.set(k, Number(p?.xp) || 0);
+  });
+
+  const rows = [];
+  snapEnd.forEach(p => {
+    const id = profileIdFromHref(p?.profileHref);
+    const k = id ? ("id:" + id) : ("name:" + String(p?.nom||"").toLowerCase().trim());
+    if(!startMap.has(k)) return;
+
+    const xpEnd = Number(p?.xp) || 0;
+    const xpStart = startMap.get(k) || 0;
+    const gain = xpEnd - xpStart;
+    if(gain <= 0) return;
+
+    rows.push({
+      nom: p.nom || "—",
+      profileHref: p.profileHref || "#",
+      avatar: p.avatar || "avatar/1.jpg",
+      karas: (p.karas == null) ? 0 : Number(p.karas),
+      xpEnd,
+      gain
+    });
+  });
+
+  rows.sort((a,b) => (b.gain - a.gain) || (b.xpEnd - a.xpEnd));
+
+  tbody.innerHTML = "";
+  if(rows.length === 0){
+    warnTo("hier_warn", "Aucun joueur n'a gagné d'XP sur cette période.");
+    return;
+  }
+
+  rows.forEach((p, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="rank">${i+1}</td>
+      <td class="avatar">
+        <div class="frame">
+          <img loading="lazy" src="${p.avatar}" alt="${p.nom}">
+        </div>
+      </td>
+      <td class="name">
+        <a target="_blank" rel="noopener" href="${p.profileHref}">${p.nom}</a>
+      </td>
+      <td class="center gain">+${p.gain.toLocaleString("fr-FR")} XP</td>
+      <td class="center">${p.xpEnd.toLocaleString("fr-FR")}</td>
+      <td class="center">${(p.karas||0).toLocaleString("fr-FR")}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ========= MODE : HEBDO ========= */
+function toUTCDate(dayStr){
+  const [y,m,d] = dayStr.split("-").map(Number);
+  return new Date(Date.UTC(y, m-1, d));
+}
+function fromUTCDate(dt){
+  const yy = dt.getUTCFullYear();
+  const mm = String(dt.getUTCMonth()+1).padStart(2,"0");
+  const dd = String(dt.getUTCDate()).padStart(2,"0");
+  return `${yy}-${mm}-${dd}`;
+}
+function mondayOfWeek(dayStr){
+  const d = toUTCDate(dayStr);
+  const wd = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() - (wd - 1));
+  return fromUTCDate(d);
+}
+function playerKeyRobust(p){
+  if(!p) return null;
+  const id = profileIdFromHref(p.profileHref);
+  if(id) return "id:" + id;
+  if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
+  return "name:" + slugify(p.nom);
+}
+
+async function runHebdo(){
+  const tbody = document.getElementById("hebdo_tbody");
+  const rangeTxt = document.getElementById("hebdo_rangeTxt");
+
+  const current = await loadCurrentPlayers();
+  if(!current){
+    warnTo("hebdo_warn", "Impossible de charger data/players_pages.json ou data/snokido_top50.json.");
+    return;
+  }
+
+  const index = await loadIndex();
+  if(!index || index.length < 2){
+    warnTo("hebdo_warn", "Pas assez d'historique (history_paris).");
+    return;
+  }
+
+  const latestDay = index[index.length - 1];
+  const targetMonday = mondayOfWeek(latestDay);
+  const baseDay = findClosestLE(index, targetMonday);
+  if(!baseDay){
+    warnTo("hebdo_warn", "Baseline hebdo introuvable.");
+    return;
+  }
+
+  const baseline = await loadSnapPlayers(baseDay);
+  if(!baseline){
+    warnTo("hebdo_warn", "Snapshot baseline introuvable : " + baseDay);
+    return;
+  }
+
+  rangeTxt.textContent = "Période : " + baseDay + " → live";
+
+  const baseMap = new Map();
+  for(const p of baseline){
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+    baseMap.set(k, Number(p.xp || 0));
+  }
+
+  let rows = [];
+  for(const p of current){
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+    const bXp = baseMap.get(k);
+    if(bXp == null) continue;
+
+    const curXp = Number(p.xp || 0);
+    const dx = curXp - bXp;
+
+    rows.push({
+      nom: p.nom,
+      avatar: p.avatar,
+      profileHref: p.profileHref || null,
+      xp: curXp,
+      dx,
+      dxAdj: null
+    });
+  }
+
+  rows = rows.filter(r => Number(r.dx) !== 0);
+  applyDxTieBreakPlus12Over500(rows);
+  rows.sort((a,b)=> b.dxAdj - a.dxAdj);
+
+  tbody.innerHTML = "";
+  for(let i=0;i<rows.length;i++){
+    const r = rows[i];
+    const link = r.profileHref
+      ? r.profileHref
+      : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
+
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td class="rank">' + (i+1) + '</td>' +
+      '<td class="avatarCell"><div class="frame"><img loading="lazy" src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
+      '<td class="name"><a target="_blank" rel="noopener" href="' + link + '">' + r.nom + '</a>' +
+      '<div class="small">' + r.xp.toLocaleString("fr-FR") + ' XP</div></td>' +
+      '<td class="center">' + formatSigned(r.dx) + '</td>' +
+      '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>';
+    tbody.appendChild(tr);
+  }
+
+  if(rows.length === 0){
+    tbody.innerHTML =
+      '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
+  }
+}
+
+/* ========= MODE : MENSUEL ========= */
+function firstOfMonth(dayStr){
+  const y = dayStr.slice(0,4);
+  const m = dayStr.slice(5,7);
+  return y + "-" + m + "-01";
+}
+
+async function runMensuel(){
+  const tbody = document.getElementById("mensuel_tbody");
+  const rangeTxt = document.getElementById("mensuel_rangeTxt");
+
+  const current = await loadCurrentPlayers();
+  if(!current){
+    warnTo("mensuel_warn", "Impossible de charger data/players_pages.json ou data/snokido_top50.json.");
+    return;
+  }
+
+  const index = await loadIndex();
+  if(!index || index.length < 2){
+    warnTo("mensuel_warn", "Pas assez d'historique (history_paris).");
+    return;
+  }
+
+  const latestDay = index[index.length - 1];
+  const targetFirst = firstOfMonth(latestDay);
+  const baseDay = findClosestLE(index, targetFirst);
+  if(!baseDay){
+    warnTo("mensuel_warn", "Baseline mensuelle introuvable. Ajoute un snapshot du 1er dans history_paris + index.json.");
+    return;
+  }
+
+  const baseline = await loadSnapPlayers(baseDay);
+  if(!baseline){
+    warnTo("mensuel_warn", "Snapshot baseline introuvable : " + baseDay);
+    return;
+  }
+
+  rangeTxt.textContent = "Période : " + baseDay + " → live (MAJ à chaque workflow)";
+
+  const baseMap = new Map();
+  for(const p of baseline){
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+    baseMap.set(k, Number(p.xp || 0));
+  }
+
+  let rows = [];
+  for(const p of current){
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+    const bXp = baseMap.get(k);
+    if(bXp == null) continue;
+
+    const curXp = Number(p.xp || 0);
+    const dx = curXp - bXp;
+
+    rows.push({
+      nom: p.nom,
+      avatar: p.avatar,
+      profileHref: p.profileHref || null,
+      xp: curXp,
+      dx,
+      dxAdj: null
+    });
+  }
+
+  rows = rows.filter(r => Number(r.dx) !== 0);
+  applyDxTieBreakPlus12Over500(rows);
+  rows.sort((a,b)=> b.dxAdj - a.dxAdj);
+
+  tbody.innerHTML = "";
+  const shown = rows.slice(0, 300);
+
+  for(let i=0;i<shown.length;i++){
+    const r = shown[i];
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td class="rank">' + (i+1) + '</td>' +
+      '<td class="avatarCell"><div class="frame"><img loading="lazy" src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
+      '<td class="name"><a target="_blank" rel="noopener" href="' + link + '">' + r.nom + '</a>' +
+      '<div class="small">' + r.xp.toLocaleString("fr-FR") + ' XP</div></td>' +
+      '<td class="center">' + formatSigned(r.dx) + '</td>' +
+      '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>';
+    tbody.appendChild(tr);
+  }
+
+  if(shown.length === 0){
+    tbody.innerHTML =
+      '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
+  }
+}
+
+/* ========= MODE : ANNUEL ========= */
+function nameLower(p){ return String(p?.nom || "").toLowerCase().trim(); }
+function playerKeysMulti(p){
+  const keys = [];
+  if(!p) return keys;
+
+  const id = profileIdFromHref(p.profileHref);
+  if(id) keys.push("id:" + id);
+
+  const s = String(p.slug || "").toLowerCase().trim();
+  if(s){
+    keys.push("slug:" + s);
+    keys.push("id:" + s);
+  }
+
+  const n1 = nameLower(p);
+  if(n1) keys.push("n1:" + n1);
+
+  const n2 = slugify(p.nom);
+  if(n2) keys.push("n2:" + n2);
+
+  return Array.from(new Set(keys));
+}
+
+async function runAns(){
+  const tbody = document.getElementById("ans_tbody");
+  const rangeTxt = document.getElementById("ans_rangeTxt");
+
+  const current = await loadCurrentPlayers();
+  if(!current){
+    warnTo("ans_warn", "Impossible de charger data/players_pages.json (ou top50).");
+    return;
+  }
+
+  const index = await loadIndex();
+  if(!index || index.length < 2){
+    warnTo("ans_warn", "Pas assez d'historique (data/history_paris).");
+    return;
+  }
+
+  const latestDay = index[index.length - 1];
+  const year = latestDay.slice(0,4);
+
+  const monthTargets = [];
+  for(let mo=1; mo<=12; mo++){
+    const mm = String(mo).padStart(2,"0");
+    monthTargets.push(`${year}-${mm}-01`);
+  }
+
+  const monthSnapDays = [];
+  for(const t of monthTargets){
+    const d = findClosestLE(index, t);
+    if(d && d.slice(0,4) === year) monthSnapDays.push(d);
+  }
+
+  const uniqueMonthDays = Array.from(new Set(monthSnapDays)).sort();
+  if(uniqueMonthDays.length === 0){
+    warnTo("ans_warn", "Aucun snapshot mensuel trouvé pour " + year + ".");
+    return;
+  }
+
+  const monthSnaps = [];
+  for(const day of uniqueMonthDays){
+    const snap = await loadSnapPlayers(day);
+    if(snap && snap.length) monthSnaps.push({ day, players: snap });
+  }
+  if(monthSnaps.length === 0){
+    warnTo("ans_warn", "Snapshots mensuels invalides / vides.");
+    return;
+  }
+
+  rangeTxt.textContent =
+    "Période : " + year + "-01-01 → live (année " + year + ") • Baseline = 1er snapshot mensuel dispo par joueur";
+
+  const snapMaps = monthSnaps.map(s => {
+    const m = new Map();
+    for(const p of s.players){
+      const xp0 = Number(p?.xp || 0);
+      const keys = playerKeysMulti(p);
+      for(const k of keys){
+        if(!m.has(k)) m.set(k, xp0);
+      }
+    }
+    return { day: s.day, map: m };
+  });
+
+  let rows = [];
+  for(const p of current){
+    const keys = playerKeysMulti(p);
+    if(!keys.length) continue;
+
+    let bXp = null;
+    let baseDayUsed = null;
+
+    for(const sm of snapMaps){
+      for(const k of keys){
+        if(sm.map.has(k)){
+          bXp = sm.map.get(k);
+          baseDayUsed = sm.day;
+          break;
+        }
+      }
+      if(bXp != null) break;
+    }
+
+    if(bXp == null) continue;
+
+    const curXp = Number(p.xp || 0);
+    const dx = curXp - bXp;
+    if(dx === 0) continue;
+
+    rows.push({
+      nom: p.nom,
+      avatar: p.avatar,
+      profileHref: p.profileHref || null,
+      xp: curXp,
+      dx,
+      dxAdj: null,
+      baseDayUsed
+    });
+  }
+
+  applyDxTieBreakPlus12Over500(rows);
+  rows.sort((a,b)=> b.dxAdj - a.dxAdj);
+
+  tbody.innerHTML = "";
+  const shown = rows.slice(0, 50);
+
+  for(let i=0;i<shown.length;i++){
+    const r = shown[i];
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td class="rank">' + (i+1) + '</td>' +
+      '<td class="avatarCell"><div class="frame"><img loading="lazy" src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
+      '<td class="name"><a target="_blank" rel="noopener" href="' + link + '">' + r.nom + '</a>' +
+      '<div class="small">base: ' + (r.baseDayUsed || "—") + ' • ' + r.xp.toLocaleString("fr-FR") + ' XP</div></td>' +
+      '<td class="center">' + formatSigned(r.dx) + '</td>' +
+      '<td class="center">' + r.xp.toLocaleString("fr-FR") + '</td>';
+    tbody.appendChild(tr);
+  }
+
+  if(shown.length === 0){
+    tbody.innerHTML =
+      '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
+  }
+}
+
+/* ========= MODE : ANS-VEILLE ========= */
+async function runAnsVeille(){
+  const tbody = document.getElementById("ansv_tbody");
+  const rangeTxt = document.getElementById("ansv_rangeTxt");
+
+  const index = await loadIndex();
+  if(!index || index.length < 2){
+    warnTo("ansv_warn", "Pas assez d'historique (data/history_paris/index.json).");
+    return;
+  }
+
+  const latestDay = index[index.length - 1];
+  const yearCurrent = Number(latestDay.slice(0,4));
+  const yearPrev = yearCurrent - 1;
+
+  const yearPrevDays = index.filter(d => d.slice(0,4) === String(yearPrev));
+  if(yearPrevDays.length === 0){
+    warnTo("ansv_warn", "Aucun snapshot trouvé pour l'année " + yearPrev + ".");
+    return;
+  }
+  const baseDay = yearPrevDays[0];
+
+  const endTarget = String(yearPrev + 1) + "-01-01";
+  const endDay = findClosestLE(index, endTarget);
+  if(!endDay){
+    warnTo("ansv_warn", "Impossible de trouver la fin d'année (repère " + endTarget + ").");
+    return;
+  }
+
+  const baseSnap = await loadSnapPlayers(baseDay);
+  const endSnap = await loadSnapPlayers(endDay);
+  if(!baseSnap || !endSnap){
+    warnTo("ansv_warn", "Snapshots introuvables : base=" + baseDay + " / fin=" + endDay);
+    return;
+  }
+
+  rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (année " + yearPrev + ")";
+
+  const pagesRaw = await fetchJson("data/players_pages.json");
+  const pagesPlayers = extractPlayers(pagesRaw) || [];
+  const enrichMap = new Map();
+  for(const p of pagesPlayers){
+    const keys = playerKeysMulti(p);
+    for(const k of keys){
+      if(!enrichMap.has(k)) enrichMap.set(k, p);
+    }
+  }
+
+  const baseMap = new Map();
+  for(const p of baseSnap){
+    const xp0 = Number(p?.xp || 0);
+    for(const k of playerKeysMulti(p)){
+      if(!baseMap.has(k)) baseMap.set(k, xp0);
+    }
+  }
+
+  let rows = [];
+  for(const pEnd of endSnap){
+    const keys = playerKeysMulti(pEnd);
+    if(!keys.length) continue;
+
+    let bXp = null;
+    for(const k of keys){
+      if(baseMap.has(k)){
+        bXp = baseMap.get(k);
+        break;
+      }
+    }
+    if(bXp == null) continue;
+
+    const xpEnd = Number(pEnd?.xp || 0);
+    const dx = xpEnd - bXp;
+    if(dx === 0) continue;
+
+    let avatar = pEnd?.avatar || null;
+    let profileHref = pEnd?.profileHref || null;
+
+    if(!avatar || !profileHref){
+      for(const k of keys){
+        const e = enrichMap.get(k);
+        if(e){
+          if(!avatar && e.avatar) avatar = e.avatar;
+          if(!profileHref && e.profileHref) profileHref = e.profileHref;
+        }
+      }
+    }
+
+    rows.push({
+      nom: pEnd?.nom || "—",
+      xpEnd,
+      dx,
+      dxAdj: null,
+      avatar,
+      profileHref
+    });
+  }
+
+  applyDxTieBreakPlus12Over500(rows);
+  rows.sort((a,b)=> b.dxAdj - a.dxAdj);
+
+  tbody.innerHTML = "";
+
+  const shown = rows.filter(r => r.dx > 0).slice(0, 50);
+  if(shown.length === 0){
+    tbody.innerHTML =
+      '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
+    return;
+  }
+
+  for(let i=0;i<shown.length;i++){
+    const r = shown[i];
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td class="rank">' + (i+1) + '</td>' +
+      '<td class="avatarCell"><div class="frame"><img loading="lazy" src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
+      '<td class="name"><a target="_blank" rel="noopener" href="' + link + '">' + r.nom + '</a>' +
+      '<div class="small">' + r.xpEnd.toLocaleString("fr-FR") + ' XP (fin)</div></td>' +
+      '<td class="center">' + formatSigned(r.dx) + '</td>' +
+      '<td class="center">' + r.xpEnd.toLocaleString("fr-FR") + '</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+/* ========= MODE : NIVEAU THEORIQUE ========= */
+async function runNiveau(){
+  // CONFIG DU MODÈLE 3
+  const XP_AT_100 = 49500;
+  const A1 = 1290;
+  const TARGET_XP_100_TO_1000 = 1600000;
+  const R = 0.0006792294619366293;
+
+  document.getElementById("niv_modelInfo").textContent =
+    `L100=${XP_AT_100.toLocaleString("fr-FR")} | a1=${A1} | r=${(R*100).toFixed(4)}% | 100→1000≈${TARGET_XP_100_TO_1000.toLocaleString("fr-FR")} XP`;
+
+  function sumAfter100(n){
+    if(n <= 0) return 0;
+    return A1 * (Math.pow(1 + R, n) - 1) / R;
+  }
+  function levelsBeyond100FromXp(xpExtra){
+    if(xpExtra <= 0) return 0;
+    const x = (xpExtra * R / A1) + 1;
+    if(x <= 1) return 0;
+    const n = Math.log(x) / Math.log(1 + R);
+    return Math.max(0, Math.floor(n));
+  }
+  function xpToTheoreticalLevel(xp, fallbackLevel){
+    const xpNum = Number(xp || 0);
+    if(xpNum <= XP_AT_100){
+      return (typeof fallbackLevel === "number" && fallbackLevel > 0) ? fallbackLevel : 100;
+    }
+    const extra = xpNum - XP_AT_100;
+    const n = levelsBeyond100FromXp(extra);
+    return 100 + n;
+  }
+
+  const tbody = document.getElementById("niv_tbody");
+
+  const topRaw = await fetchJson("data/snokido_top50.json");
+  const top50 = extractPlayers(topRaw) || (Array.isArray(topRaw) ? topRaw : null);
+
+  if(!top50 || !Array.isArray(top50)){
+    warnTo("niv_warn", "Impossible de charger data/snokido_top50.json");
+    tbody.innerHTML = "";
+    return;
+  }
+
+  top50.sort((a,b) => (Number(b.xp)||0) - (Number(a.xp)||0));
+
+  tbody.innerHTML = "";
+  top50.forEach((p, i) => {
+    const xp = Number(p.xp) || 0;
+    const karas = (p.karas == null) ? 0 : Number(p.karas);
+    const lvlScraped = (typeof p.niveau === "number") ? p.niveau : null;
+    const lvlTheo = xpToTheoreticalLevel(xp, lvlScraped);
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="rank">${i+1}</td>
+      <td class="avatar">
+        <div class="frame">
+          <img loading="lazy" src="${p.avatar || "avatar/1.jpg"}" alt="${p.nom || ""}">
+        </div>
+      </td>
+      <td class="name">
+        <a target="_blank" rel="noopener" href="${p.profileHref || "#"}">${p.nom || "—"}</a>
+      </td>
+      <td class="center">${xp.toLocaleString("fr-FR")}</td>
+      <td class="center">${(karas||0).toLocaleString("fr-FR")}</td>
+      <td class="center"><b>${lvlTheo.toLocaleString("fr-FR")}</b></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ========= BOOT ========= */
+document.addEventListener("DOMContentLoaded", async () => {
+  const mode = getMode();
+  const viewId = showView(mode);
+
+  // bars.js va créer les barres + labels (mois/année)
+  // ici on lance juste la logique de la vue
+  try{
+    if(viewId === "view-jour") await runJour();
+    else if(viewId === "view-hier") await runHier();
+    else if(viewId === "view-hebdo") await runHebdo();
+    else if(viewId === "view-mensuel") await runMensuel();
+    else if(viewId === "view-ans") await runAns();
+    else if(viewId === "view-ans-veille") await runAnsVeille();
+    else if(viewId === "view-niveau") await runNiveau();
+  }catch(e){
+    // fallback : affiche une erreur dans la vue active
+    const w = document.querySelector(".view.is-active .warn");
+    if(w){
+      w.style.display = "block";
+      w.textContent = "Erreur JS : " + (e?.message || String(e));
+    }
+    console.error(e);
+  }
+});
+</script>
+
+</body>
+</html>
