@@ -1,126 +1,86 @@
-// bars.js — barre de navigation pour la page unique "classements.html"
+// bars.js — barre de navigation pour classement.html (1 page)
 
-const CLASSEMENTS_PAGE = "classements.html";
-
-function getMode() {
+function getMode(){
   const p = new URLSearchParams(location.search);
   return String(p.get("mode") || "jour").toLowerCase();
 }
 
-function isActiveMode(current, mode) {
-  if (current === mode) return true;
-  // alias
-  if (mode === "hier" && (current === "jour-veille")) return true;
-  if (mode === "ans-veille" && (current === "annee-veille")) return true;
-  return false;
+async function getLatestDayFromIndex(){
+  try{
+    const res = await fetch("data/history_paris/index.json?t=" + Date.now(), { cache:"no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const idx = await res.json();
+    if(!Array.isArray(idx)) throw new Error("index pas un tableau");
+
+    const days = idx
+      .map(x => {
+        const s = String(x||"").trim();
+        const m = s.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+        return m ? m[1] : null;
+      })
+      .filter(Boolean)
+      .sort();
+
+    return days.length ? days[days.length - 1] : null;
+  }catch{
+    return null;
+  }
 }
 
-function el(html) {
-  const d = document.createElement("div");
-  d.innerHTML = html.trim();
-  return d.firstElementChild;
-}
-
-async function fetchJson(path) {
-  const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) return null;
-  try { return await res.json(); } catch { return null; }
-}
-
-function normalizeDay(s) {
-  const str = String(s || "").trim();
-  const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
-  return m ? m[1] : null;
-}
-
-async function getLatestDayFromIndex() {
-  const idx = await fetchJson("data/history_paris/index.json");
-  if (!Array.isArray(idx)) return null;
-  const days = idx.map(normalizeDay).filter(Boolean).sort();
-  return days.length ? days[days.length - 1] : null;
-}
-
-function monthNameFR(m) {
-  const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
-  return monthsFR[Math.max(0, Math.min(11, m - 1))];
-}
-
-function buildMainBar() {
-  const mode = getMode();
-
+function buildBarHTML({ activeMode, yearLabel, prevMonthLabel }){
+  // ✅ IMPORTANT : tout pointe vers classement.html?mode=...
   const items = [
-    { mode: "jour", label: "🕛 Jour" },
-    { mode: "hier", label: "⏪ Hier" },
-    { mode: "hebdo", label: "📅 Hebdo" },
-    { mode: "mensuel", label: "🗓️ Mensuel" },
-
-    // ✅ mois-veille (ton fichier / logique)
-    { mode: "mois-veille", label: "⏮️ Mois-veille", id: "barPrevMonth" },
-
-    { mode: "ans", label: "📆 Année", id: "barYear" },
-    { mode: "ans-veille", label: "📆 Année-1", id: "barPrevYear" },
+    ["jour",       "🕛 Jour"],
+    ["hier",       "⏪ Hier"],
+    ["hebdo",      "📅 Hebdo"],
+    ["mensuel",    "🗓️ Mensuel"],
+    ["mois-veille","⏮️ " + (prevMonthLabel || "Mois-veille")],
+    ["ans",        "📆 " + (yearLabel || "Année")],
+    ["ans-veille", "📆 " + ((yearLabel && /^\d+$/.test(yearLabel)) ? (Number(yearLabel)-1) : "Année-1")],
+    ["niveau",     "⭐ Niveau théorique"],
   ];
 
-  return el(`
-    <div class="subnav subnav-xp">
-      ${items.map(it => `
-        <a
-          class="subnav-btn ${isActiveMode(mode, it.mode) ? "is-active" : ""}"
-          href="${CLASSEMENTS_PAGE}?mode=${encodeURIComponent(it.mode)}"
-          ${it.id ? `id="${it.id}"` : ""}
-        >${it.label}</a>
-      `).join("")}
+  const btn = (mode, label) => {
+    const cls = "subnav-btn" + (activeMode === mode ? " is-active" : "");
+    return `<a class="${cls}" href="classement.html?mode=${encodeURIComponent(mode)}">${label}</a>`;
+  };
+
+  return `
+    <div class="subnav">
+      ${items.map(([m,l]) => btn(m,l)).join("")}
     </div>
-  `);
+  `;
 }
 
-async function setDynamicLabels() {
-  const latestDay = await getLatestDayFromIndex();
-  let y, m;
+async function mountBars(){
+  const mode = getMode();
+  const mounts = document.querySelectorAll('.barMount[data-bar="main"]');
+  if(!mounts.length) return;
 
-  if (latestDay) {
-    y = Number(latestDay.slice(0, 4));
-    m = Number(latestDay.slice(5, 7));
-  } else {
+  // labels auto (mois précédent + année) basés sur index.json si possible
+  const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  const latestDay = await getLatestDayFromIndex();
+
+  let y, m;
+  if(latestDay){
+    y = Number(latestDay.slice(0,4));
+    m = Number(latestDay.slice(5,7));
+  }else{
     const now = new Date();
     y = now.getFullYear();
     m = now.getMonth() + 1;
   }
 
-  // Année
-  const by = document.getElementById("barYear");
-  if (by) {
-    by.textContent = "📆 " + y;
-    by.title = "Classement annuel (" + y + ")";
-  }
+  let pm = m - 1;
+  let py = y;
+  if(pm <= 0){ pm = 12; py = y - 1; }
 
-  // Année-1
-  const bpy = document.getElementById("barPrevYear");
-  if (bpy) {
-    bpy.textContent = "📆 " + (y - 1);
-    bpy.title = "Classement annuel (" + (y - 1) + ")";
-  }
+  const yearLabel = String(y);
+  const prevMonthLabel = monthsFR[pm-1]; // juste "février" etc (ton bouton reste "mode=mois-veille")
 
-  // Mois-veille = mois précédent du latestDay
-  const bm = document.getElementById("barPrevMonth");
-  if (bm) {
-    let pm = m - 1;
-    let py = y;
-    if (pm <= 0) { pm = 12; py = y - 1; }
-    bm.textContent = "⏮️ " + monthNameFR(pm);
-    bm.title = "Classement du mois précédent (" + monthNameFR(pm) + " " + py + ")";
-  }
+  const html = buildBarHTML({ activeMode: mode, yearLabel, prevMonthLabel });
+
+  mounts.forEach(el => { el.innerHTML = html; });
 }
 
-function mountBars() {
-  document.querySelectorAll('[data-bar="main"]').forEach(m => {
-    m.innerHTML = "";
-    m.appendChild(buildMainBar());
-  });
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
-  mountBars();
-  await setDynamicLabels();
-});
+document.addEventListener("DOMContentLoaded", mountBars);
