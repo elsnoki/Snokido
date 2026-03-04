@@ -87,6 +87,35 @@
 
     .table-wrap{ overflow-x:auto; }
     .table-wrap table{ min-width: 820px; }
+
+    /* ajout : liste années */
+    .yearGrid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap:10px;
+      padding:12px 16px 18px;
+    }
+    .yearCard{
+      border:1px solid #e0e0e0;
+      border-radius:12px;
+      padding:12px;
+      background:#fff;
+      box-shadow:0 6px 18px rgba(0,0,0,.06);
+    }
+    .yearCard a{
+      display:inline-block;
+      font-weight:900;
+      text-decoration:none;
+      color:#2c6fb7;
+      font-size:18px;
+    }
+    .yearCard a:hover{ text-decoration:underline; }
+    .yearCard .meta{
+      margin-top:6px;
+      color:#666;
+      font-weight:800;
+      font-size:12px;
+    }
   </style>
 </head>
 
@@ -223,7 +252,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : ANNUEL (2026) ======================= -->
+  <!-- ======================= VUE : ANNUEL (année courante par rapport au dernier snapshot) ======================= -->
   <div class="view" id="view-ans">
     <main class="wrap">
       <section class="panel">
@@ -249,7 +278,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : ANS-VEILLE (2025) ======================= -->
+  <!-- ======================= VUE : ANS-VEILLE (année précédente relative au dernier snapshot) ======================= -->
   <div class="view" id="view-ans-veille">
     <main class="wrap">
       <section class="panel">
@@ -269,6 +298,48 @@
               </tr>
             </thead>
             <tbody id="ansv_tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ======================= ✅ NOUVELLE VUE : LISTE DES ANNEES ======================= -->
+  <div class="view" id="view-annees">
+    <main class="wrap">
+      <section class="panel">
+        <div class="titlebar">Années — Choisir une année</div>
+        <div class="barMount" data-bar="main"></div>
+
+        <div class="sub" id="annees_info">Chargement…</div>
+        <div id="annees_warn" class="warn"></div>
+
+        <div class="yearGrid" id="annees_grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ======================= ✅ NOUVELLE VUE : UNE ANNEE SPECIFIQUE ======================= -->
+  <div class="view" id="view-annee">
+    <main class="wrap">
+      <section class="panel">
+        <div class="titlebar" id="annee_titlebar">Classement Année — XP gagnée</div>
+        <div class="barMount" data-bar="main"></div>
+
+        <div class="sub" id="annee_rangeTxt">Chargement…</div>
+        <div id="annee_warn" class="warn"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th><th></th><th>Joueur</th>
+                <th class="center">Δ XP (année)</th>
+                <th class="center">XP (fin)</th>
+                <th class="center">Inscription</th>
+              </tr>
+            </thead>
+            <tbody id="annee_tbody"></tbody>
           </table>
         </div>
       </section>
@@ -308,6 +379,13 @@ function getMode(){
   const p = new URLSearchParams(location.search);
   return String(p.get("mode") || "jour").toLowerCase();
 }
+function getYearParam(){
+  const p = new URLSearchParams(location.search);
+  const y = p.get("y");
+  if(!y) return null;
+  const yy = String(y).trim();
+  return /^\d{4}$/.test(yy) ? yy : null;
+}
 function showView(mode){
   const map = {
     "jour":"view-jour",
@@ -322,6 +400,9 @@ function showView(mode){
     "annuel":"view-ans",
     "ans-veille":"view-ans-veille",
     "annee-veille":"view-ans-veille",
+    "annees":"view-annees",
+    "annee":"view-annee",
+    "year":"view-annee",
     "niveau":"view-niveau",
     "theorique":"view-niveau"
   };
@@ -404,6 +485,7 @@ function extractPlayers(payload){
     if(Array.isArray(payload.players)) return payload.players;
     if(Array.isArray(payload.top50)) return payload.top50;
     if(Array.isArray(payload.data)) return payload.data;
+    if(Array.isArray(payload.joueurs)) return payload.joueurs; // ✅ au cas où
   }
   return null;
 }
@@ -769,7 +851,7 @@ async function runMensuel(){
   }
 }
 
-/* ✅ MOIS-VEILLE (février etc) : baseline début mois précédent → fin début mois courant (fallback latest) */
+/* ✅ MOIS-VEILLE */
 function prevMonthFirstDay(latestDay){
   let y = Number(latestDay.slice(0,4));
   let m = Number(latestDay.slice(5,7));
@@ -786,8 +868,8 @@ async function runMoisVeille(){
   if(!index || index.length < 2){ warnTo("mv_warn","Pas assez d'historique."); return; }
 
   const latestDay = index[index.length - 1];
-  const startTarget = prevMonthFirstDay(latestDay); // 1er jour du mois précédent
-  const endTarget = firstOfMonth(latestDay);        // 1er jour du mois courant
+  const startTarget = prevMonthFirstDay(latestDay);
+  const endTarget = firstOfMonth(latestDay);
 
   const baseDay = findClosestLE(index, startTarget);
   if(!baseDay){ warnTo("mv_warn","Baseline mois-veille introuvable : " + startTarget); return; }
@@ -804,7 +886,6 @@ async function runMoisVeille(){
 
   rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois précédent)";
 
-  // ✅ baseMap multi-keys
   const baseMap = new Map();
   for(const p of baseSnap){
     const xp0 = Number(p?.xp || 0);
@@ -819,7 +900,6 @@ async function runMoisVeille(){
     const keys = playerKeysMulti(pEnd);
     if(!keys.length) continue;
 
-    // trouve baseline via n'importe quelle clé
     let bXp = null;
     for(const k of keys){
       if(baseMap.has(k)){
@@ -831,7 +911,7 @@ async function runMoisVeille(){
 
     const xpEnd = Number(pEnd?.xp || 0);
     const dx = xpEnd - bXp;
-    if(dx <= 0) continue; // gains seulement (comme tes autres classements)
+    if(dx <= 0) continue;
 
     rows.push({
       nom: pEnd?.nom || "—",
@@ -869,7 +949,7 @@ async function runMoisVeille(){
   }
 }
 
-/* ✅ ANS (repris de ton ans.html posté) */
+/* ✅ ANS (ton mode “année courante relative au dernier snapshot”) */
 async function runAns(){
   const tbody = document.getElementById("ans_tbody");
   const rangeTxt = document.getElementById("ans_rangeTxt");
@@ -982,7 +1062,7 @@ async function runAns(){
   }
 }
 
-/* ✅ ANS-VEILLE (repris de ton ans-veille) */
+/* ✅ ANS-VEILLE (ton mode “année précédente relative au dernier snapshot”) */
 async function runAnsVeille(){
   const tbody = document.getElementById("ansv_tbody");
   const rangeTxt = document.getElementById("ansv_rangeTxt");
@@ -1083,6 +1163,164 @@ async function runAnsVeille(){
   }
 }
 
+/* ✅ NOUVEAU : LISTE DES ANNEES */
+async function runAnnees(){
+  const info = document.getElementById("annees_info");
+  const grid = document.getElementById("annees_grid");
+
+  const index = await loadIndex();
+  if(!index || index.length === 0){
+    warnTo("annees_warn", "index.json vide/introuvable.");
+    info.textContent = "Données indisponibles.";
+    return;
+  }
+
+  // regroupe jours par année
+  const byYear = new Map();
+  for(const d of index){
+    const y = d.slice(0,4);
+    if(!byYear.has(y)) byYear.set(y, []);
+    byYear.get(y).push(d);
+  }
+
+  const years = Array.from(byYear.keys()).sort();
+  info.textContent = "Années disponibles : " + years.join(", ");
+
+  grid.innerHTML = "";
+  for(const y of years){
+    const days = byYear.get(y).slice().sort();
+    const first = days[0];
+    const last  = days[days.length - 1];
+
+    const card = document.createElement("div");
+    card.className = "yearCard";
+    card.innerHTML = `
+      <a href="classement.html?mode=annee&y=${encodeURIComponent(y)}">${y}</a>
+      <div class="meta">Snapshots: ${days.length}<br>Début: ${first}<br>Fin: ${last}</div>
+    `;
+    grid.appendChild(card);
+  }
+}
+
+/* ✅ NOUVEAU : UNE ANNEE SPECIFIQUE (y=YYYY) */
+async function runAnneeFixe(year){
+  const titlebar = document.getElementById("annee_titlebar");
+  const rangeTxt = document.getElementById("annee_rangeTxt");
+  const tbody = document.getElementById("annee_tbody");
+
+  if(!year){
+    warnTo("annee_warn", "Paramètre manquant. Utilise: classement.html?mode=annee&y=2014");
+    rangeTxt.textContent = "Aucune année sélectionnée.";
+    tbody.innerHTML = "";
+    return;
+  }
+
+  const index = await loadIndex();
+  if(!index || index.length === 0){
+    warnTo("annee_warn", "index.json vide/introuvable.");
+    return;
+  }
+
+  const days = index.filter(d => d.slice(0,4) === year).sort();
+  if(days.length === 0){
+    warnTo("annee_warn", "Aucun snapshot trouvé pour l'année " + year + ".");
+    rangeTxt.textContent = "Année " + year + " indisponible.";
+    return;
+  }
+
+  const dayStart = days[0];
+  const dayEnd = days[days.length - 1];
+
+  titlebar.textContent = "Classement " + year + " — XP gagnée";
+  rangeTxt.textContent = `Période : ${dayStart} → ${dayEnd} (année ${year})`;
+
+  const snapStart = await loadSnapPlayers(dayStart);
+  const snapEnd = await loadSnapPlayers(dayEnd);
+  if(!snapStart || !snapEnd){
+    warnTo("annee_warn", "Snapshots introuvables : " + dayStart + " / " + dayEnd);
+    return;
+  }
+
+  // Map baseline (multi-keys)
+  const startMap = new Map();
+  for(const p of snapStart){
+    const xp0 = Number(p?.xp || 0);
+    for(const k of playerKeysMulti(p)){
+      if(!startMap.has(k)) startMap.set(k, xp0);
+    }
+  }
+
+  // Enrich depuis players_pages si dispo (avatar/inscription)
+  const pagesRaw = await fetchJson("data/players_pages.json");
+  const pagesPlayers = extractPlayers(pagesRaw) || [];
+  const enrichMap = new Map();
+  for(const p of pagesPlayers){
+    for(const k of playerKeysMulti(p)){
+      if(!enrichMap.has(k)) enrichMap.set(k, p);
+    }
+  }
+
+  let rows = [];
+  for(const pEnd of snapEnd){
+    const keys = playerKeysMulti(pEnd);
+    if(!keys.length) continue;
+
+    // baseline = xp début année si trouvé, sinon 0 (nouveau compte dans l’année)
+    let bXp = null;
+    for(const k of keys){
+      if(startMap.has(k)){ bXp = startMap.get(k); break; }
+    }
+    if(bXp == null) bXp = 0;
+
+    const xpEnd = Number(pEnd?.xp || 0);
+    const dx = xpEnd - bXp;
+
+    // si tu veux *tout le monde*, même gain=0, enlève ce filtre
+    if(dx <= 0) continue;
+
+    let avatar = pEnd?.avatar || null;
+    let profileHref = pEnd?.profileHref || null;
+    let inscription = pEnd?.inscription || null;
+    let nom = pEnd?.nom || "—";
+
+    for(const k of keys){
+      const e = enrichMap.get(k);
+      if(e){
+        if(!avatar && e.avatar) avatar = e.avatar;
+        if(!profileHref && e.profileHref) profileHref = e.profileHref;
+        if(!inscription && e.inscription) inscription = e.inscription;
+        if((!nom || nom==="—") && e.nom) nom = e.nom;
+      }
+    }
+
+    rows.push({ nom, avatar: avatar || "avatar/1.jpg", profileHref, inscription, xpEnd, dx, dxAdj:null });
+  }
+
+  applyDxTieBreakPlus12Over500(rows);
+  rows.sort((a,b)=> (b.dxAdj - a.dxAdj) || (b.xpEnd - a.xpEnd));
+
+  tbody.innerHTML = "";
+  if(rows.length === 0){
+    tbody.innerHTML = '<tr><td colspan="6" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur cette année.</td></tr>';
+    return;
+  }
+
+  const shown = rows.slice(0, 500);
+  for(let i=0;i<shown.length;i++){
+    const r = shown[i];
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td class="rank">'+(i+1)+'</td>' +
+      '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+(r.avatar||"avatar/1.jpg")+'" alt="'+r.nom+'"></div></td>' +
+      '<td class="name"><a target="_blank" rel="noopener" href="'+link+'">'+r.nom+'</a><div class="small">'+r.xpEnd.toLocaleString("fr-FR")+' XP</div></td>' +
+      '<td class="center">'+formatSigned(r.dx)+'</td>' +
+      '<td class="center">'+r.xpEnd.toLocaleString("fr-FR")+'</td>' +
+      '<td class="center">'+formatInscription(r.inscription)+'</td>';
+    tbody.appendChild(tr);
+  }
+}
+
 /* NIVEAU THEORIQUE (repris) */
 async function runNiveau(){
   const XP_AT_100 = 49500;
@@ -1153,6 +1391,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     else if(viewId === "view-mois-veille") await runMoisVeille();
     else if(viewId === "view-ans") await runAns();
     else if(viewId === "view-ans-veille") await runAnsVeille();
+    else if(viewId === "view-annees") await runAnnees();
+    else if(viewId === "view-annee") await runAnneeFixe(getYearParam());
     else if(viewId === "view-niveau") await runNiveau();
   }catch(e){
     const w = document.querySelector(".view.is-active .warn");
