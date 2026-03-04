@@ -1,4 +1,4 @@
-// bars.js — barre de navigation pour classement.html (1 page)
+// bars.js — barre de navigation pour classement.html
 
 function getMode(){
   const p = new URLSearchParams(location.search);
@@ -29,45 +29,69 @@ function aBtn(mode, label, activeMode){
   return `<a class="${cls}" href="classement.html?mode=${encodeURIComponent(mode)}">${label}</a>`;
 }
 
+function yearBtn(year, activeMode){
+
+  // ✅ correction spéciale 2025
+  // 2025 commence le 11 janvier
+  let href;
+
+  if(year === 2025){
+    href = "classement.html?mode=annee&y=2025&start=2025-01-11";
+  }else{
+    href = `classement.html?mode=annee&y=${year}`;
+  }
+
+  const cls = "subnav-btn" + (activeMode === "annee" ? " is-active" : "");
+  return `<a class="${cls}" href="${href}">📆 ${year}</a>`;
+}
+
 async function mountBars(){
+
   const mode = getMode();
   const mounts = document.querySelectorAll('.barMount[data-bar="main"]');
   if(!mounts.length) return;
 
-  const monthsFR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  const monthsFR = [
+    "janvier","février","mars","avril","mai","juin",
+    "juillet","août","septembre","octobre","novembre","décembre"
+  ];
+
   const latestDay = await getLatestDayFromIndex();
 
-  let y, m;
+  let y,m;
+
   if(latestDay){
     y = Number(latestDay.slice(0,4));
     m = Number(latestDay.slice(5,7));
   }else{
     const now = new Date();
     y = now.getFullYear();
-    m = now.getMonth() + 1;
+    m = now.getMonth()+1;
   }
 
-  let pm = m - 1;
-  if(pm <= 0) pm = 12;
+  let pm = m-1;
+  if(pm<=0) pm=12;
 
   const prevMonthLabel = monthsFR[pm-1];
-  const yearLabel = String(y);
-  const yearPrevLabel = String(y - 1);
 
   const html =
     `<div class="subnav">` +
+
       aBtn("jour","🕛 Jour",mode) +
       aBtn("hier","⏪ Hier",mode) +
       aBtn("hebdo","📅 Hebdo",mode) +
       aBtn("mensuel","🗓️ Mois",mode) +
-      aBtn("mois-veille","⏮️ " + prevMonthLabel,mode) +
-      aBtn("ans","📆 " + yearLabel,mode) +
-      aBtn("ans-veille","📆 " + yearPrevLabel,mode) +
-      aBtn("annees","📚 Années",mode) +
+      aBtn("mois-veille","⏮️ "+prevMonthLabel,mode) +
+
+      // année actuelle
+      yearBtn(y,mode) +
+
+      aBtn("annees","📊 Années",mode) +
       aBtn("niveau","⭐ Niveau théorique",mode) +
+
     `</div>`;
 
-  mounts.forEach(el => el.innerHTML = html);
+  mounts.forEach(el=>el.innerHTML = html);
 }
 
 document.addEventListener("DOMContentLoaded", mountBars);
