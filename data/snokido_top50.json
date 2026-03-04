@@ -15,11 +15,11 @@
     "nom": "alex.c2109",
     "slug": "alexc2109",
     "niveau": 100,
-    "xp": 827500,
+    "xp": 827812,
     "inscription": "24-06-2017",
     "avatar": "https://www.snokido.fr/images/snoki/medium/53.jpg",
     "profileHref": "https://www.snokido.fr/player/alexc2109",
-    "karas": 1140189
+    "karas": 1140501
   },
   {
     "rank": 3,
@@ -103,11 +103,11 @@
     "nom": "lumia",
     "slug": "lumia",
     "niveau": 100,
-    "xp": 122338,
+    "xp": 122530,
     "inscription": "01-01-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
     "profileHref": "https://www.snokido.fr/player/lumia",
-    "karas": 454687
+    "karas": 454879
   },
   {
     "rank": 11,
@@ -136,22 +136,22 @@
     "nom": "Ko0pa",
     "slug": "ko0pa",
     "niveau": 100,
-    "xp": 77162,
+    "xp": 77570,
     "inscription": "24-01-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/11.jpg",
     "profileHref": "https://www.snokido.fr/player/ko0pa",
-    "karas": 401591
+    "karas": 401999
   },
   {
     "rank": 14,
     "nom": "Unit",
     "slug": "unit",
     "niveau": 100,
-    "xp": 68520,
+    "xp": 68600,
     "inscription": "13-07-2018",
     "avatar": "https://www.snokido.fr/images/snoki/medium/133.jpg",
     "profileHref": "https://www.snokido.fr/player/unit",
-    "karas": 394069
+    "karas": 394149
   },
   {
     "rank": 15,
@@ -268,11 +268,11 @@
     "nom": "Houka",
     "slug": "houka",
     "niveau": 91,
-    "xp": 41740,
+    "xp": 41752,
     "inscription": "18-11-2023",
     "avatar": "https://www.snokido.fr/images/snoki/medium/73.jpg",
     "profileHref": "https://www.snokido.fr/player/houka",
-    "karas": 296985
+    "karas": 296997
   },
   {
     "rank": 26,
@@ -499,11 +499,11 @@
     "nom": "E1V2R3",
     "slug": "e1v2r3",
     "niveau": 71,
-    "xp": 25272,
+    "xp": 25284,
     "inscription": "15-06-2021",
     "avatar": "https://www.snokido.fr/images/snoki/medium/130.jpg",
     "profileHref": "https://www.snokido.fr/player/e1v2r3",
-    "karas": 145107
+    "karas": 145119
   },
   {
     "rank": 47,
@@ -529,6 +529,17 @@
   },
   {
     "rank": 49,
+    "nom": "LargoJunior",
+    "slug": "largojunior",
+    "niveau": 70,
+    "xp": 24572,
+    "inscription": "10-02-2026",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/11.jpg",
+    "profileHref": "https://www.snokido.fr/player/largojunior",
+    "karas": 141266
+  },
+  {
+    "rank": 50,
     "nom": "younouss",
     "slug": "younouss",
     "niveau": 70,
@@ -537,16 +548,5 @@
     "avatar": "https://www.snokido.fr/images/snoki/medium/143.jpg",
     "profileHref": "https://www.snokido.fr/player/younouss",
     "karas": 78226
-  },
-  {
-    "rank": 50,
-    "nom": "LargoJunior",
-    "slug": "largojunior",
-    "niveau": 70,
-    "xp": 24260,
-    "inscription": "10-02-2026",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/11.jpg",
-    "profileHref": "https://www.snokido.fr/player/largojunior",
-    "karas": 140958
   }
 ]
