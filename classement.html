@@ -88,10 +88,10 @@
     .table-wrap{ overflow-x:auto; }
     .table-wrap table{ min-width: 820px; }
 
-    /* Années */
-    .yearGrid{
+    /* ====== AJOUT : UI “Années” ====== */
+    .yearsGrid{
       display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap:12px;
       padding:12px 16px 18px;
     }
@@ -122,7 +122,7 @@
 
 <body>
 
-  <!-- ======================= VUE : JOUR ======================= -->
+  <!-- ======================= VUE : JOUR (si tu veux, sinon tu t'en fous) ======================= -->
   <div class="view" id="view-jour">
     <main class="wrap">
       <section class="panel">
@@ -201,7 +201,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : MENSUEL ======================= -->
+  <!-- ======================= VUE : MENSUEL (mois) ======================= -->
   <div class="view" id="view-mensuel">
     <main class="wrap">
       <section class="panel">
@@ -227,7 +227,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : MOIS-VEILLE ======================= -->
+  <!-- ======================= VUE : MOIS-VEILLE (février etc) ======================= -->
   <div class="view" id="view-mois-veille">
     <main class="wrap">
       <section class="panel">
@@ -253,7 +253,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : ANS (ton mode live) ======================= -->
+  <!-- ======================= VUE : ANNUEL (2026) ======================= -->
   <div class="view" id="view-ans">
     <main class="wrap">
       <section class="panel">
@@ -279,7 +279,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : ANS-VEILLE (ton mode) ======================= -->
+  <!-- ======================= VUE : ANS-VEILLE (2025) ======================= -->
   <div class="view" id="view-ans-veille">
     <main class="wrap">
       <section class="panel">
@@ -305,7 +305,7 @@
     </main>
   </div>
 
-  <!-- ======================= ✅ VUE : ANNEES ======================= -->
+  <!-- ======================= ✅ VUE : ANNEES (liste) ======================= -->
   <div class="view" id="view-annees">
     <main class="wrap">
       <section class="panel">
@@ -315,12 +315,12 @@
         <div class="sub" id="annees_info">Chargement…</div>
         <div id="annees_warn" class="warn"></div>
 
-        <div class="yearGrid" id="annees_grid"></div>
+        <div class="yearsGrid" id="annees_grid"></div>
       </section>
     </main>
   </div>
 
-  <!-- ======================= ✅ VUE : ANNEE (janvier→janvier) ======================= -->
+  <!-- ======================= ✅ VUE : ANNEE (détail) ======================= -->
   <div class="view" id="view-annee">
     <main class="wrap">
       <section class="panel">
@@ -380,13 +380,6 @@ function getMode(){
   const p = new URLSearchParams(location.search);
   return String(p.get("mode") || "jour").toLowerCase();
 }
-function getYearParam(){
-  const p = new URLSearchParams(location.search);
-  const y = p.get("y");
-  if(!y) return null;
-  const yy = String(y).trim();
-  return /^\d{4}$/.test(yy) ? yy : null;
-}
 function showView(mode){
   const map = {
     "jour":"view-jour",
@@ -401,11 +394,12 @@ function showView(mode){
     "annuel":"view-ans",
     "ans-veille":"view-ans-veille",
     "annee-veille":"view-ans-veille",
-    "annees":"view-annees",
-    "annee":"view-annee",
-    "year":"view-annee",
     "niveau":"view-niveau",
-    "theorique":"view-niveau"
+    "theorique":"view-niveau",
+
+    /* ✅ AJOUT */
+    "annees":"view-annees",
+    "annee":"view-annee"
   };
   const id = map[mode] || "view-jour";
   document.querySelectorAll(".view").forEach(v => v.classList.remove("is-active"));
@@ -414,7 +408,7 @@ function showView(mode){
   return id;
 }
 
-/* ================= HELPERS ================= */
+/* ================= HELPERS (repris de tes fichiers) ================= */
 function warnTo(id, msg){
   const w = document.getElementById(id);
   if(!w) return;
@@ -472,11 +466,38 @@ function playerKeysMulti(p){
   return Array.from(new Set(keys));
 }
 
+/* ✅ IMPORTANT : fetchJson “tolérant” (pour tes anciens JSON parfois pas stricts) */
 async function fetchJson(path){
   const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
   const res = await fetch(url, { cache:"no-store" });
   if(!res.ok) return null;
-  try { return await res.json(); } catch { return null; }
+
+  // 1) parsing normal
+  try{
+    return await res.json();
+  }catch{
+    // 2) fallback tolérant
+    try{
+      let txt = await res.text();
+
+      // BOM
+      txt = txt.replace(/^\uFEFF/, "");
+
+      // commentaires
+      txt = txt.replace(/\/\/[^\n\r]*/g, "");
+      txt = txt.replace(/\/\*[\s\S]*?\*\//g, "");
+
+      // trailing commas
+      txt = txt.replace(/,\s*([}\]])/g, "$1");
+
+      // null bytes
+      txt = txt.replace(/\u0000/g, "");
+
+      return JSON.parse(txt);
+    }catch{
+      return null;
+    }
+  }
 }
 
 function extractPlayers(payload){
@@ -504,7 +525,8 @@ async function loadIndex(){
 
 async function loadSnapPlayers(day){
   const raw = await fetchJson("data/history_paris/" + day + ".json");
-  return extractPlayers(raw);
+  const snap = extractPlayers(raw);
+  return snap;
 }
 
 async function loadCurrentPlayers(){
@@ -538,23 +560,6 @@ function formatInscription(d){
   return String(d);
 }
 
-/* dd-mm-yyyy -> yyyy-mm-dd (comparaison lexicographique OK) */
-function inscriptionToISO(d){
-  if(!d) return null;
-  const s = String(d).trim();
-  const m = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-  if(!m) return null;
-  const dd = m[1], mm = m[2], yy = m[3];
-  return `${yy}-${mm}-${dd}`;
-}
-
-/* IMPORTANT: évite les joueurs "ajoutés après coup" dans les vieux snapshots */
-function isAccountExistingAtStart(inscription, startDay){
-  const iso = inscriptionToISO(inscription);
-  if(!iso) return true; // si on ne sait pas, on ne filtre pas
-  return iso <= startDay;
-}
-
 function applyDxTieBreakPlus12Over500(rows){
   const byDx = new Map();
   for(const r of rows){
@@ -586,7 +591,7 @@ function applyDxTieBreakPlus12Over500(rows){
 
 /* ===================== MODES ===================== */
 
-/* JOUR */
+/* JOUR (optionnel) */
 async function runJour(){
   const tbody = document.getElementById("jour_tbody");
   const rangeTxt = document.getElementById("jour_rangeTxt");
@@ -645,7 +650,7 @@ async function runJour(){
   }
 }
 
-/* HIER = 2 derniers snapshots */
+/* HIER = 2 derniers snapshots (repris) */
 async function runHier(){
   const tbody = document.getElementById("hier_tbody");
   const rangeInfo = document.getElementById("hier_rangeInfo");
@@ -716,7 +721,7 @@ async function runHier(){
   });
 }
 
-/* HEBDO */
+/* HEBDO (repris de ton gros fichier) */
 function toUTCDate(dayStr){
   const [y,m,d] = dayStr.split("-").map(Number);
   return new Date(Date.UTC(y, m-1, d));
@@ -796,7 +801,7 @@ async function runHebdo(){
   }
 }
 
-/* MENSUEL */
+/* ✅ MENSUEL (ton ancien mois/mensuel) */
 function firstOfMonth(dayStr){
   const y = dayStr.slice(0,4);
   const m = dayStr.slice(5,7);
@@ -867,7 +872,7 @@ async function runMensuel(){
   }
 }
 
-/* MOIS-VEILLE */
+/* ✅ MOIS-VEILLE (février etc) : baseline début mois précédent → fin début mois courant (fallback latest) */
 function prevMonthFirstDay(latestDay){
   let y = Number(latestDay.slice(0,4));
   let m = Number(latestDay.slice(5,7));
@@ -884,8 +889,8 @@ async function runMoisVeille(){
   if(!index || index.length < 2){ warnTo("mv_warn","Pas assez d'historique."); return; }
 
   const latestDay = index[index.length - 1];
-  const startTarget = prevMonthFirstDay(latestDay);
-  const endTarget = firstOfMonth(latestDay);
+  const startTarget = prevMonthFirstDay(latestDay); // 1er jour du mois précédent
+  const endTarget = firstOfMonth(latestDay);        // 1er jour du mois courant
 
   const baseDay = findClosestLE(index, startTarget);
   if(!baseDay){ warnTo("mv_warn","Baseline mois-veille introuvable : " + startTarget); return; }
@@ -902,6 +907,7 @@ async function runMoisVeille(){
 
   rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois précédent)";
 
+  // ✅ baseMap multi-keys
   const baseMap = new Map();
   for(const p of baseSnap){
     const xp0 = Number(p?.xp || 0);
@@ -916,6 +922,7 @@ async function runMoisVeille(){
     const keys = playerKeysMulti(pEnd);
     if(!keys.length) continue;
 
+    // trouve baseline via n'importe quelle clé
     let bXp = null;
     for(const k of keys){
       if(baseMap.has(k)){
@@ -927,7 +934,7 @@ async function runMoisVeille(){
 
     const xpEnd = Number(pEnd?.xp || 0);
     const dx = xpEnd - bXp;
-    if(dx <= 0) continue;
+    if(dx <= 0) continue; // gains seulement (comme tes autres classements)
 
     rows.push({
       nom: pEnd?.nom || "—",
@@ -965,7 +972,7 @@ async function runMoisVeille(){
   }
 }
 
-/* ANS (live: baseline = 1er snapshot mensuel dispo par joueur) */
+/* ✅ ANS (repris de ton ans.html posté) */
 async function runAns(){
   const tbody = document.getElementById("ans_tbody");
   const rangeTxt = document.getElementById("ans_rangeTxt");
@@ -1078,7 +1085,7 @@ async function runAns(){
   }
 }
 
-/* ANS-VEILLE */
+/* ✅ ANS-VEILLE (repris de ton ans-veille) */
 async function runAnsVeille(){
   const tbody = document.getElementById("ansv_tbody");
   const rangeTxt = document.getElementById("ansv_rangeTxt");
@@ -1179,7 +1186,7 @@ async function runAnsVeille(){
   }
 }
 
-/* NIVEAU THEORIQUE */
+/* NIVEAU THEORIQUE (repris) */
 async function runNiveau(){
   const XP_AT_100 = 49500;
   const A1 = 1290;
@@ -1236,33 +1243,42 @@ async function runNiveau(){
   });
 }
 
-/* ======================= ✅ ANNEES (janvier→janvier) ======================= */
-function buildAnnualPeriods(index){
-  const byYear = new Map();
-  for(const d of index){
-    const y = d.slice(0,4);
-    if(!byYear.has(y)) byYear.set(y, []);
-    byYear.get(y).push(d);
-  }
-  const years = Array.from(byYear.keys()).sort();
-  if(years.length === 0) return [];
+/* ======================= ✅ AJOUT : Années (liste + détail) ======================= */
 
-  const starts = new Map();
-  for(const y of years){
-    const days = byYear.get(y).slice().sort();
-    starts.set(y, days[0]);
-  }
+function parseFrDateToISO(d){
+  // "dd-mm-yyyy" -> "yyyy-mm-dd"
+  const m = String(d||"").trim().match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if(!m) return null;
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
 
-  const lastGlobal = index[index.length - 1];
-  const periods = [];
-  for(let i=0;i<years.length;i++){
-    const y = years[i];
-    const start = starts.get(y);
-    const nextY = years[i+1];
-    const end = nextY ? starts.get(nextY) : lastGlobal;
-    periods.push({ year:y, startDay:start, endDay:end });
-  }
-  return periods;
+function isInscriptionAfterDay(inscription, dayISO){
+  const iso = parseFrDateToISO(inscription);
+  if(!iso) return false; // si pas d'info, on ne filtre pas
+  return iso > dayISO;
+}
+
+function computeYearPeriod(index, year){
+  // période "janvier → janvier" basée sur TES snapshots existants
+  const yStr = String(year);
+
+  // début = premier snapshot de l'année si existe, sinon null
+  const yearDays = index.filter(d => d.slice(0,4) === yStr);
+  if(!yearDays.length) return null;
+
+  const startDay = yearDays[0];
+
+  // fin = snapshot <= (year+1)-01-01 si existe, sinon dernier snapshot dispo
+  const endTarget = String(year + 1) + "-01-01";
+  let endDay = findClosestLE(index, endTarget);
+  if(!endDay) endDay = index[index.length - 1];
+
+  // sécurité : si endDay < startDay, prend le dernier jour de l'année
+  if(endDay < startDay) endDay = yearDays[yearDays.length - 1];
+
+  const snapsInPeriod = index.filter(d => d >= startDay && d <= endDay).length;
+
+  return { startDay, endDay, snapsInPeriod };
 }
 
 async function runAnnees(){
@@ -1270,23 +1286,28 @@ async function runAnnees(){
   const grid = document.getElementById("annees_grid");
 
   const index = await loadIndex();
-  if(!index || index.length === 0){
-    warnTo("annees_warn", "index.json vide/introuvable.");
-    info.textContent = "Données indisponibles.";
+  if(!index || !index.length){
+    warnTo("annees_warn","index.json vide/introuvable.");
+    info.textContent = "Données insuffisantes.";
     return;
   }
 
-  const periods = buildAnnualPeriods(index);
-  info.textContent = "Années disponibles : " + periods.map(p=>p.year).join(", ");
+  const years = Array.from(new Set(index.map(d => Number(d.slice(0,4))))).sort((a,b)=>a-b);
+  info.textContent = "Années disponibles : " + years.join(", ");
 
   grid.innerHTML = "";
-  for(const p of periods){
+  for(const y of years){
+    const p = computeYearPeriod(index, y);
+    if(!p) continue;
+
     const card = document.createElement("div");
     card.className = "yearCard";
     card.innerHTML = `
-      <a href="classement.html?mode=annee&y=${encodeURIComponent(p.year)}">${p.year}</a>
+      <a href="classement.html?mode=annee&y=${encodeURIComponent(String(y))}">${y}</a>
       <div class="meta">
-        Période : ${p.startDay} → ${p.endDay}<br>
+        Snapshots: ${p.snapsInPeriod}<br>
+        Début: ${p.startDay}<br>
+        Fin: ${p.endDay}<br>
         (janvier → janvier)
       </div>
     `;
@@ -1294,49 +1315,40 @@ async function runAnnees(){
   }
 }
 
-/* ✅ ANNEE (YYYY) : calcule startSnap -> endSnap, MAIS EXCLUT ceux inscrits après startDay */
 async function runAnnee(year){
-  const titlebar = document.getElementById("annee_titlebar");
-  const rangeTxt = document.getElementById("annee_rangeTxt");
   const tbody = document.getElementById("annee_tbody");
+  const rangeTxt = document.getElementById("annee_rangeTxt");
+  const titlebar = document.getElementById("annee_titlebar");
 
-  if(!year){
-    warnTo("annee_warn", "Paramètre manquant. Exemple: classement.html?mode=annee&y=2015");
-    rangeTxt.textContent = "Aucune année sélectionnée.";
-    tbody.innerHTML = "";
-    return;
-  }
+  titlebar.textContent = "Classement Année " + year + " — XP gagnée";
 
   const index = await loadIndex();
-  if(!index || index.length === 0){
-    warnTo("annee_warn", "index.json vide/introuvable.");
+  if(!index || !index.length){
+    warnTo("annee_warn","index.json vide/introuvable.");
+    rangeTxt.textContent = "Données insuffisantes.";
     return;
   }
 
-  const periods = buildAnnualPeriods(index);
-  const period = periods.find(p => p.year === year);
+  const period = computeYearPeriod(index, Number(year));
   if(!period){
-    warnTo("annee_warn", "Aucune période trouvée pour " + year + ".");
-    rangeTxt.textContent = "Année " + year + " indisponible.";
-    tbody.innerHTML = "";
+    warnTo("annee_warn","Aucun snapshot trouvé pour " + year + ".");
+    rangeTxt.textContent = "—";
     return;
   }
 
-  const dayStart = period.startDay;
-  const dayEnd = period.endDay;
+  const { startDay, endDay } = period;
+  rangeTxt.textContent = `Période : ${startDay} → ${endDay} (janvier → janvier)`;
 
-  titlebar.textContent = "Classement " + year + " — XP gagnée";
-  rangeTxt.textContent = `Période : ${dayStart} → ${dayEnd} (janvier → janvier)`;
+  const snapStart = await loadSnapPlayers(startDay);
+  const snapEnd   = await loadSnapPlayers(endDay);
 
-  const snapStart = await loadSnapPlayers(dayStart);
-  const snapEnd = await loadSnapPlayers(dayEnd);
   if(!snapStart || !snapEnd){
-    warnTo("annee_warn", "Snapshots introuvables : " + dayStart + " / " + dayEnd);
+    warnTo("annee_warn","Snapshots introuvables : " + startDay + " / " + endDay);
     tbody.innerHTML = "";
     return;
   }
 
-  // enrich (avatar / inscription / liens)
+  // enrich (avatars + profil + inscription) via players_pages si dispo
   const pagesRaw = await fetchJson("data/players_pages.json");
   const pagesPlayers = extractPlayers(pagesRaw) || [];
   const enrichMap = new Map();
@@ -1346,73 +1358,62 @@ async function runAnnee(year){
     }
   }
 
-  // baseline: uniquement les joueurs du start snapshot
-  const startMap = new Map();
-  const startMeta = new Map();
+  // baseline map (start snapshot) : IMPORTANT => PAS de baseline=0 pour les nouveaux
+  const baseMap = new Map(); // key -> {xp, inscription, nom}
   for(const p of snapStart){
+    // filtre anti “joueurs ajoutés après” (2026 etc)
+    if(isInscriptionAfterDay(p?.inscription, startDay)) continue;
+
     const xp0 = Number(p?.xp || 0);
-    const ins = p?.inscription || null;
-    const keys = playerKeysMulti(p);
-    for(const k of keys){
-      if(!startMap.has(k)) startMap.set(k, xp0);
-      if(!startMeta.has(k)) startMeta.set(k, { inscription: ins });
+    const meta = { xp: xp0, inscription: p?.inscription || null, nom: p?.nom || null };
+
+    for(const k of playerKeysMulti(p)){
+      if(!baseMap.has(k)) baseMap.set(k, meta);
     }
   }
 
   let rows = [];
   for(const pEnd of snapEnd){
+    // filtre anti “joueurs ajoutés après” (ne pas les afficher dans les années avant)
+    if(isInscriptionAfterDay(pEnd?.inscription, startDay)) continue;
+
     const keys = playerKeysMulti(pEnd);
     if(!keys.length) continue;
 
-    // on ne compte QUE si le joueur existe au début (sinon c'est un joueur ajouté après coup / ou créé après)
-    let bXp = null;
-    let ins = pEnd?.inscription || null;
+    let base = null;
     for(const k of keys){
-      if(startMap.has(k)){
-        bXp = startMap.get(k);
-        const meta = startMeta.get(k);
-        if(!ins && meta?.inscription) ins = meta.inscription;
-        break;
-      }
+      if(baseMap.has(k)){ base = baseMap.get(k); break; }
     }
-    if(bXp == null) continue;
-
-    // récup inscription via enrich si besoin
-    if(!ins){
-      for(const k of keys){
-        const e = enrichMap.get(k);
-        if(e?.inscription){ ins = e.inscription; break; }
-      }
-    }
-
-    // ✅ filtre anti “joueurs apparus en 2026 dans les vieux fichiers”
-    if(!isAccountExistingAtStart(ins, dayStart)) continue;
+    if(!base) continue; // pas dans le début => nouveau => on ignore
 
     const xpEnd = Number(pEnd?.xp || 0);
-    const dx = xpEnd - bXp;
-    if(dx <= 0) continue;
+    const dx = xpEnd - Number(base.xp || 0);
+    if(dx <= 0) continue; // gains seulement
 
+    // avatar / href / inscription (enrich si manque)
     let avatar = pEnd?.avatar || null;
     let profileHref = pEnd?.profileHref || null;
-    let nom = pEnd?.nom || "—";
+    let inscription = pEnd?.inscription || base.inscription || null;
 
-    for(const k of keys){
-      const e = enrichMap.get(k);
-      if(e){
-        if(!avatar && e.avatar) avatar = e.avatar;
-        if(!profileHref && e.profileHref) profileHref = e.profileHref;
-        if((!nom || nom==="—") && e.nom) nom = e.nom;
+    if((!avatar || !profileHref || !inscription) && enrichMap.size){
+      for(const k of keys){
+        const e = enrichMap.get(k);
+        if(e){
+          if(!avatar && e.avatar) avatar = e.avatar;
+          if(!profileHref && e.profileHref) profileHref = e.profileHref;
+          if(!inscription && e.inscription) inscription = e.inscription;
+        }
       }
     }
 
     rows.push({
-      nom,
-      avatar: avatar || "avatar/1.jpg",
-      profileHref,
-      inscription: ins,
-      xpEnd,
+      nom: pEnd?.nom || base.nom || "—",
       dx,
-      dxAdj: null
+      dxAdj: null,
+      xpEnd,
+      avatar: avatar || "avatar/1.jpg",
+      profileHref: profileHref || null,
+      inscription
     });
   }
 
@@ -1420,12 +1421,8 @@ async function runAnnee(year){
   rows.sort((a,b)=> (b.dxAdj - a.dxAdj) || (b.xpEnd - a.xpEnd));
 
   tbody.innerHTML = "";
-  if(rows.length === 0){
-    tbody.innerHTML = '<tr><td colspan="6" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur cette année.</td></tr>';
-    return;
-  }
+  const shown = rows.slice(0, 300);
 
-  const shown = rows.slice(0, 500);
   for(let i=0;i<shown.length;i++){
     const r = shown[i];
     const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
@@ -1433,11 +1430,16 @@ async function runAnnee(year){
     tr.innerHTML =
       '<td class="rank">'+(i+1)+'</td>' +
       '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+(r.avatar||"avatar/1.jpg")+'" alt="'+r.nom+'"></div></td>' +
-      '<td class="name"><a target="_blank" rel="noopener" href="'+link+'">'+r.nom+'</a><div class="small">'+r.xpEnd.toLocaleString("fr-FR")+' XP</div></td>' +
+      '<td class="name"><a target="_blank" rel="noopener" href="'+link+'">'+r.nom+'</a><div class="small">'+r.xpEnd.toLocaleString("fr-FR")+' XP (fin)</div></td>' +
       '<td class="center">'+formatSigned(r.dx)+'</td>' +
       '<td class="center">'+r.xpEnd.toLocaleString("fr-FR")+'</td>' +
       '<td class="center">'+formatInscription(r.inscription)+'</td>';
     tbody.appendChild(tr);
+  }
+
+  if(shown.length === 0){
+    tbody.innerHTML =
+      '<tr><td colspan="6" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
   }
 }
 
@@ -1454,9 +1456,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     else if(viewId === "view-mois-veille") await runMoisVeille();
     else if(viewId === "view-ans") await runAns();
     else if(viewId === "view-ans-veille") await runAnsVeille();
-    else if(viewId === "view-annees") await runAnnees();
-    else if(viewId === "view-annee") await runAnnee(getYearParam());
     else if(viewId === "view-niveau") await runNiveau();
+
+    /* ✅ AJOUT */
+    else if(viewId === "view-annees") await runAnnees();
+    else if(viewId === "view-annee"){
+      const p = new URLSearchParams(location.search);
+      const y = Number(p.get("y") || 0);
+      if(!y || y < 2013){ warnTo("annee_warn","Paramètre année invalide (y)."); return; }
+      await runAnnee(y);
+    }
   }catch(e){
     const w = document.querySelector(".view.is-active .warn");
     if(w){
