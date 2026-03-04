@@ -88,7 +88,7 @@
     .table-wrap{ overflow-x:auto; }
     .table-wrap table{ min-width: 820px; }
 
-    /* ====== AJOUT : UI “Années” ====== */
+    /* ====== UI “Années” ====== */
     .yearsGrid{
       display:grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -122,7 +122,7 @@
 
 <body>
 
-  <!-- ======================= VUE : JOUR (si tu veux, sinon tu t'en fous) ======================= -->
+  <!-- ======================= VUE : JOUR ======================= -->
   <div class="view" id="view-jour">
     <main class="wrap">
       <section class="panel">
@@ -201,7 +201,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : MENSUEL (mois) ======================= -->
+  <!-- ======================= VUE : MENSUEL ======================= -->
   <div class="view" id="view-mensuel">
     <main class="wrap">
       <section class="panel">
@@ -227,7 +227,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : MOIS-VEILLE (février etc) ======================= -->
+  <!-- ======================= VUE : MOIS-VEILLE ======================= -->
   <div class="view" id="view-mois-veille">
     <main class="wrap">
       <section class="panel">
@@ -253,7 +253,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : ANNUEL (2026) ======================= -->
+  <!-- ======================= VUE : ANNUEL (live) ======================= -->
   <div class="view" id="view-ans">
     <main class="wrap">
       <section class="panel">
@@ -279,7 +279,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : ANS-VEILLE (2025) ======================= -->
+  <!-- ======================= VUE : ANS-VEILLE ======================= -->
   <div class="view" id="view-ans-veille">
     <main class="wrap">
       <section class="panel">
@@ -305,7 +305,7 @@
     </main>
   </div>
 
-  <!-- ======================= ✅ VUE : ANNEES (liste) ======================= -->
+  <!-- ======================= VUE : ANNEES (liste) ======================= -->
   <div class="view" id="view-annees">
     <main class="wrap">
       <section class="panel">
@@ -320,7 +320,7 @@
     </main>
   </div>
 
-  <!-- ======================= ✅ VUE : ANNEE (détail) ======================= -->
+  <!-- ======================= VUE : ANNEE (détail) ======================= -->
   <div class="view" id="view-annee">
     <main class="wrap">
       <section class="panel">
@@ -396,8 +396,6 @@ function showView(mode){
     "annee-veille":"view-ans-veille",
     "niveau":"view-niveau",
     "theorique":"view-niveau",
-
-    /* ✅ AJOUT */
     "annees":"view-annees",
     "annee":"view-annee"
   };
@@ -408,7 +406,7 @@ function showView(mode){
   return id;
 }
 
-/* ================= HELPERS (repris de tes fichiers) ================= */
+/* ================= HELPERS ================= */
 function warnTo(id, msg){
   const w = document.getElementById(id);
   if(!w) return;
@@ -466,38 +464,38 @@ function playerKeysMulti(p){
   return Array.from(new Set(keys));
 }
 
-/* ✅ IMPORTANT : fetchJson “tolérant” (pour tes anciens JSON parfois pas stricts) */
-async function fetchJson(path){
-  const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
-  const res = await fetch(url, { cache:"no-store" });
-  if(!res.ok) return null;
+/* ================= CHEMINS ROBUSTES =================
+   On essaie d'abord data/history_paris, puis history_paris (sans data/)
+*/
+const HISTORY_BASES = ["data/history_paris", "history_paris"];
 
-  // 1) parsing normal
-  try{
-    return await res.json();
-  }catch{
-    // 2) fallback tolérant
+/* fetch tolérant + essaye plusieurs chemins */
+async function fetchJsonAny(paths){
+  for(const path of paths){
+    const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
+    const res = await fetch(url, { cache:"no-store" });
+    if(!res.ok) continue;
+
+    // parsing normal
     try{
-      let txt = await res.text();
-
-      // BOM
-      txt = txt.replace(/^\uFEFF/, "");
-
-      // commentaires
-      txt = txt.replace(/\/\/[^\n\r]*/g, "");
-      txt = txt.replace(/\/\*[\s\S]*?\*\//g, "");
-
-      // trailing commas
-      txt = txt.replace(/,\s*([}\]])/g, "$1");
-
-      // null bytes
-      txt = txt.replace(/\u0000/g, "");
-
-      return JSON.parse(txt);
+      return await res.json();
     }catch{
-      return null;
+      // parsing tolérant
+      try{
+        let txt = await res.text();
+        txt = txt.replace(/^\uFEFF/, "");
+        txt = txt.replace(/\/\/[^\n\r]*/g, "");
+        txt = txt.replace(/\/\*[\s\S]*?\*\//g, "");
+        txt = txt.replace(/,\s*([}\]])/g, "$1");
+        txt = txt.replace(/\u0000/g, "");
+        return JSON.parse(txt);
+      }catch{
+        // si celui-ci est illisible, on tente le prochain chemin
+        continue;
+      }
     }
   }
+  return null;
 }
 
 function extractPlayers(payload){
@@ -518,23 +516,25 @@ function normalizeDay(s){
 }
 
 async function loadIndex(){
-  const idx = await fetchJson("data/history_paris/index.json");
+  const paths = HISTORY_BASES.map(b => `${b}/index.json`);
+  const idx = await fetchJsonAny(paths);
   if(!Array.isArray(idx)) return null;
   return idx.map(normalizeDay).filter(Boolean).sort();
 }
 
 async function loadSnapPlayers(day){
-  const raw = await fetchJson("data/history_paris/" + day + ".json");
+  const paths = HISTORY_BASES.map(b => `${b}/${day}.json`);
+  const raw = await fetchJsonAny(paths);
   const snap = extractPlayers(raw);
   return snap;
 }
 
 async function loadCurrentPlayers(){
-  const bigRaw = await fetchJson("data/players_pages.json");
+  const bigRaw = await fetchJsonAny(["data/players_pages.json"]);
   const big = extractPlayers(bigRaw);
   if(big) return big;
 
-  const topRaw = await fetchJson("data/snokido_top50.json");
+  const topRaw = await fetchJsonAny(["data/snokido_top50.json"]);
   const top = extractPlayers(topRaw);
   if(top) return top;
 
@@ -589,9 +589,9 @@ function applyDxTieBreakPlus12Over500(rows){
   }
 }
 
-/* ===================== MODES ===================== */
+/* ===================== MODES EXISTANTS (INCHANGÉS) ===================== */
 
-/* JOUR (optionnel) */
+/* JOUR */
 async function runJour(){
   const tbody = document.getElementById("jour_tbody");
   const rangeTxt = document.getElementById("jour_rangeTxt");
@@ -650,7 +650,7 @@ async function runJour(){
   }
 }
 
-/* HIER = 2 derniers snapshots (repris) */
+/* HIER */
 async function runHier(){
   const tbody = document.getElementById("hier_tbody");
   const rangeInfo = document.getElementById("hier_rangeInfo");
@@ -721,7 +721,7 @@ async function runHier(){
   });
 }
 
-/* HEBDO (repris de ton gros fichier) */
+/* HEBDO */
 function toUTCDate(dayStr){
   const [y,m,d] = dayStr.split("-").map(Number);
   return new Date(Date.UTC(y, m-1, d));
@@ -801,7 +801,7 @@ async function runHebdo(){
   }
 }
 
-/* ✅ MENSUEL (ton ancien mois/mensuel) */
+/* MENSUEL */
 function firstOfMonth(dayStr){
   const y = dayStr.slice(0,4);
   const m = dayStr.slice(5,7);
@@ -872,7 +872,7 @@ async function runMensuel(){
   }
 }
 
-/* ✅ MOIS-VEILLE (février etc) : baseline début mois précédent → fin début mois courant (fallback latest) */
+/* MOIS-VEILLE */
 function prevMonthFirstDay(latestDay){
   let y = Number(latestDay.slice(0,4));
   let m = Number(latestDay.slice(5,7));
@@ -889,8 +889,8 @@ async function runMoisVeille(){
   if(!index || index.length < 2){ warnTo("mv_warn","Pas assez d'historique."); return; }
 
   const latestDay = index[index.length - 1];
-  const startTarget = prevMonthFirstDay(latestDay); // 1er jour du mois précédent
-  const endTarget = firstOfMonth(latestDay);        // 1er jour du mois courant
+  const startTarget = prevMonthFirstDay(latestDay);
+  const endTarget = firstOfMonth(latestDay);
 
   const baseDay = findClosestLE(index, startTarget);
   if(!baseDay){ warnTo("mv_warn","Baseline mois-veille introuvable : " + startTarget); return; }
@@ -907,7 +907,6 @@ async function runMoisVeille(){
 
   rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois précédent)";
 
-  // ✅ baseMap multi-keys
   const baseMap = new Map();
   for(const p of baseSnap){
     const xp0 = Number(p?.xp || 0);
@@ -922,19 +921,15 @@ async function runMoisVeille(){
     const keys = playerKeysMulti(pEnd);
     if(!keys.length) continue;
 
-    // trouve baseline via n'importe quelle clé
     let bXp = null;
     for(const k of keys){
-      if(baseMap.has(k)){
-        bXp = baseMap.get(k);
-        break;
-      }
+      if(baseMap.has(k)){ bXp = baseMap.get(k); break; }
     }
     if(bXp == null) continue;
 
     const xpEnd = Number(pEnd?.xp || 0);
     const dx = xpEnd - bXp;
-    if(dx <= 0) continue; // gains seulement (comme tes autres classements)
+    if(dx <= 0) continue;
 
     rows.push({
       nom: pEnd?.nom || "—",
@@ -972,7 +967,7 @@ async function runMoisVeille(){
   }
 }
 
-/* ✅ ANS (repris de ton ans.html posté) */
+/* ANS (live) */
 async function runAns(){
   const tbody = document.getElementById("ans_tbody");
   const rangeTxt = document.getElementById("ans_rangeTxt");
@@ -981,7 +976,7 @@ async function runAns(){
   if(!current){ warnTo("ans_warn","Impossible de charger data/players_pages.json (ou top50)."); return; }
 
   const index = await loadIndex();
-  if(!index || index.length < 2){ warnTo("ans_warn","Pas assez d'historique (data/history_paris)."); return; }
+  if(!index || index.length < 2){ warnTo("ans_warn","Pas assez d'historique (history_paris)."); return; }
 
   const latestDay = index[index.length - 1];
   const year = latestDay.slice(0,4);
@@ -1085,7 +1080,7 @@ async function runAns(){
   }
 }
 
-/* ✅ ANS-VEILLE (repris de ton ans-veille) */
+/* ANS-VEILLE */
 async function runAnsVeille(){
   const tbody = document.getElementById("ansv_tbody");
   const rangeTxt = document.getElementById("ansv_rangeTxt");
@@ -1111,7 +1106,7 @@ async function runAnsVeille(){
 
   rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (année " + yearPrev + ")";
 
-  const pagesRaw = await fetchJson("data/players_pages.json");
+  const pagesRaw = await fetchJsonAny(["data/players_pages.json"]);
   const pagesPlayers = extractPlayers(pagesRaw) || [];
   const enrichMap = new Map();
   for(const p of pagesPlayers){
@@ -1186,7 +1181,7 @@ async function runAnsVeille(){
   }
 }
 
-/* NIVEAU THEORIQUE (repris) */
+/* NIVEAU THEORIQUE */
 async function runNiveau(){
   const XP_AT_100 = 49500;
   const A1 = 1290;
@@ -1212,7 +1207,7 @@ async function runNiveau(){
   }
 
   const tbody = document.getElementById("niv_tbody");
-  const topRaw = await fetchJson("data/snokido_top50.json");
+  const topRaw = await fetchJsonAny(["data/snokido_top50.json"]);
   const top50 = extractPlayers(topRaw);
 
   if(!top50 || !Array.isArray(top50)){
@@ -1243,41 +1238,32 @@ async function runNiveau(){
   });
 }
 
-/* ======================= ✅ AJOUT : Années (liste + détail) ======================= */
-
+/* ======================= ANNEES (liste + détail) ======================= */
 function parseFrDateToISO(d){
-  // "dd-mm-yyyy" -> "yyyy-mm-dd"
   const m = String(d||"").trim().match(/^(\d{2})-(\d{2})-(\d{4})$/);
   if(!m) return null;
   return `${m[3]}-${m[2]}-${m[1]}`;
 }
-
 function isInscriptionAfterDay(inscription, dayISO){
   const iso = parseFrDateToISO(inscription);
-  if(!iso) return false; // si pas d'info, on ne filtre pas
+  if(!iso) return false;
   return iso > dayISO;
 }
 
 function computeYearPeriod(index, year){
-  // période "janvier → janvier" basée sur TES snapshots existants
   const yStr = String(year);
-
-  // début = premier snapshot de l'année si existe, sinon null
   const yearDays = index.filter(d => d.slice(0,4) === yStr);
   if(!yearDays.length) return null;
 
   const startDay = yearDays[0];
 
-  // fin = snapshot <= (year+1)-01-01 si existe, sinon dernier snapshot dispo
   const endTarget = String(year + 1) + "-01-01";
   let endDay = findClosestLE(index, endTarget);
   if(!endDay) endDay = index[index.length - 1];
 
-  // sécurité : si endDay < startDay, prend le dernier jour de l'année
   if(endDay < startDay) endDay = yearDays[yearDays.length - 1];
 
   const snapsInPeriod = index.filter(d => d >= startDay && d <= endDay).length;
-
   return { startDay, endDay, snapsInPeriod };
 }
 
@@ -1348,8 +1334,7 @@ async function runAnnee(year){
     return;
   }
 
-  // enrich (avatars + profil + inscription) via players_pages si dispo
-  const pagesRaw = await fetchJson("data/players_pages.json");
+  const pagesRaw = await fetchJsonAny(["data/players_pages.json"]);
   const pagesPlayers = extractPlayers(pagesRaw) || [];
   const enrichMap = new Map();
   for(const p of pagesPlayers){
@@ -1358,15 +1343,11 @@ async function runAnnee(year){
     }
   }
 
-  // baseline map (start snapshot) : IMPORTANT => PAS de baseline=0 pour les nouveaux
   const baseMap = new Map(); // key -> {xp, inscription, nom}
   for(const p of snapStart){
-    // filtre anti “joueurs ajoutés après” (2026 etc)
     if(isInscriptionAfterDay(p?.inscription, startDay)) continue;
-
     const xp0 = Number(p?.xp || 0);
     const meta = { xp: xp0, inscription: p?.inscription || null, nom: p?.nom || null };
-
     for(const k of playerKeysMulti(p)){
       if(!baseMap.has(k)) baseMap.set(k, meta);
     }
@@ -1374,7 +1355,6 @@ async function runAnnee(year){
 
   let rows = [];
   for(const pEnd of snapEnd){
-    // filtre anti “joueurs ajoutés après” (ne pas les afficher dans les années avant)
     if(isInscriptionAfterDay(pEnd?.inscription, startDay)) continue;
 
     const keys = playerKeysMulti(pEnd);
@@ -1384,13 +1364,12 @@ async function runAnnee(year){
     for(const k of keys){
       if(baseMap.has(k)){ base = baseMap.get(k); break; }
     }
-    if(!base) continue; // pas dans le début => nouveau => on ignore
+    if(!base) continue; // nouveau => ignoré
 
     const xpEnd = Number(pEnd?.xp || 0);
     const dx = xpEnd - Number(base.xp || 0);
-    if(dx <= 0) continue; // gains seulement
+    if(dx <= 0) continue;
 
-    // avatar / href / inscription (enrich si manque)
     let avatar = pEnd?.avatar || null;
     let profileHref = pEnd?.profileHref || null;
     let inscription = pEnd?.inscription || base.inscription || null;
@@ -1457,8 +1436,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     else if(viewId === "view-ans") await runAns();
     else if(viewId === "view-ans-veille") await runAnsVeille();
     else if(viewId === "view-niveau") await runNiveau();
-
-    /* ✅ AJOUT */
     else if(viewId === "view-annees") await runAnnees();
     else if(viewId === "view-annee"){
       const p = new URLSearchParams(location.search);
