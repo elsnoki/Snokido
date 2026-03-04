@@ -122,7 +122,7 @@
 
 <body>
 
-  <!-- ======================= VUE : JOUR ======================= -->
+  <!-- ======================= VUE : JOUR (si tu veux, sinon tu t'en fous) ======================= -->
   <div class="view" id="view-jour">
     <main class="wrap">
       <section class="panel">
@@ -201,7 +201,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : MENSUEL ======================= -->
+  <!-- ======================= VUE : MENSUEL (mois) ======================= -->
   <div class="view" id="view-mensuel">
     <main class="wrap">
       <section class="panel">
@@ -227,7 +227,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : MOIS-VEILLE ======================= -->
+  <!-- ======================= VUE : MOIS-VEILLE (février etc) ======================= -->
   <div class="view" id="view-mois-veille">
     <main class="wrap">
       <section class="panel">
@@ -464,9 +464,7 @@ function playerKeysMulti(p){
   return Array.from(new Set(keys));
 }
 
-/* ================= CHEMINS ROBUSTES =================
-   On essaie d'abord data/history_paris, puis history_paris (sans data/)
-*/
+/* ================= CHEMINS ROBUSTES ================= */
 const HISTORY_BASES = ["data/history_paris", "history_paris"];
 
 /* fetch tolérant + essaye plusieurs chemins */
@@ -476,11 +474,9 @@ async function fetchJsonAny(paths){
     const res = await fetch(url, { cache:"no-store" });
     if(!res.ok) continue;
 
-    // parsing normal
     try{
       return await res.json();
     }catch{
-      // parsing tolérant
       try{
         let txt = await res.text();
         txt = txt.replace(/^\uFEFF/, "");
@@ -490,7 +486,6 @@ async function fetchJsonAny(paths){
         txt = txt.replace(/\u0000/g, "");
         return JSON.parse(txt);
       }catch{
-        // si celui-ci est illisible, on tente le prochain chemin
         continue;
       }
     }
@@ -500,6 +495,11 @@ async function fetchJsonAny(paths){
 
 function extractPlayers(payload){
   if(!payload) return null;
+
+  // snapshots 2013..2024 etc: { date, joueurs:[...] }
+  if(payload && typeof payload === "object" && Array.isArray(payload.joueurs)) return payload.joueurs;
+
+  // tes autres formats possibles
   if(Array.isArray(payload)) return payload;
   if(payload && typeof payload === "object"){
     if(Array.isArray(payload.players)) return payload.players;
@@ -589,7 +589,8 @@ function applyDxTieBreakPlus12Over500(rows){
   }
 }
 
-/* ===================== MODES EXISTANTS (INCHANGÉS) ===================== */
+/* ===================== MODES ===================== */
+/* (tout le reste identique à ton fichier: jour/hier/hebdo/mensuel/mois-veille/ans/ans-veille/niveau) */
 
 /* JOUR */
 async function runJour(){
@@ -1238,7 +1239,7 @@ async function runNiveau(){
   });
 }
 
-/* ======================= ANNEES (liste + détail) ======================= */
+/* ======================= ANNEES ======================= */
 function parseFrDateToISO(d){
   const m = String(d||"").trim().match(/^(\d{2})-(\d{2})-(\d{4})$/);
   if(!m) return null;
@@ -1249,7 +1250,6 @@ function isInscriptionAfterDay(inscription, dayISO){
   if(!iso) return false;
   return iso > dayISO;
 }
-
 function computeYearPeriod(index, year){
   const yStr = String(year);
   const yearDays = index.filter(d => d.slice(0,4) === yStr);
@@ -1266,7 +1266,6 @@ function computeYearPeriod(index, year){
   const snapsInPeriod = index.filter(d => d >= startDay && d <= endDay).length;
   return { startDay, endDay, snapsInPeriod };
 }
-
 async function runAnnees(){
   const info = document.getElementById("annees_info");
   const grid = document.getElementById("annees_grid");
@@ -1300,7 +1299,6 @@ async function runAnnees(){
     grid.appendChild(card);
   }
 }
-
 async function runAnnee(year){
   const tbody = document.getElementById("annee_tbody");
   const rangeTxt = document.getElementById("annee_rangeTxt");
@@ -1334,16 +1332,7 @@ async function runAnnee(year){
     return;
   }
 
-  const pagesRaw = await fetchJsonAny(["data/players_pages.json"]);
-  const pagesPlayers = extractPlayers(pagesRaw) || [];
-  const enrichMap = new Map();
-  for(const p of pagesPlayers){
-    for(const k of playerKeysMulti(p)){
-      if(!enrichMap.has(k)) enrichMap.set(k, p);
-    }
-  }
-
-  const baseMap = new Map(); // key -> {xp, inscription, nom}
+  const baseMap = new Map();
   for(const p of snapStart){
     if(isInscriptionAfterDay(p?.inscription, startDay)) continue;
     const xp0 = Number(p?.xp || 0);
@@ -1370,29 +1359,14 @@ async function runAnnee(year){
     const dx = xpEnd - Number(base.xp || 0);
     if(dx <= 0) continue;
 
-    let avatar = pEnd?.avatar || null;
-    let profileHref = pEnd?.profileHref || null;
-    let inscription = pEnd?.inscription || base.inscription || null;
-
-    if((!avatar || !profileHref || !inscription) && enrichMap.size){
-      for(const k of keys){
-        const e = enrichMap.get(k);
-        if(e){
-          if(!avatar && e.avatar) avatar = e.avatar;
-          if(!profileHref && e.profileHref) profileHref = e.profileHref;
-          if(!inscription && e.inscription) inscription = e.inscription;
-        }
-      }
-    }
-
     rows.push({
       nom: pEnd?.nom || base.nom || "—",
       dx,
       dxAdj: null,
       xpEnd,
-      avatar: avatar || "avatar/1.jpg",
-      profileHref: profileHref || null,
-      inscription
+      avatar: pEnd?.avatar || "avatar/1.jpg",
+      profileHref: pEnd?.profileHref || null,
+      inscription: pEnd?.inscription || base.inscription || null
     });
   }
 
