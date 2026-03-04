@@ -38,6 +38,34 @@
       display:none;
     }
 
+    /* barre */
+    .subnav{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      padding:10px 16px;
+      border-bottom:1px solid #e6e6e6;
+      background:#f6f6f6;
+    }
+    .subnav-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:10px;
+      font-weight:900;
+      text-decoration:none;
+      border:1px solid #d6d6d6;
+      background:#fff;
+      color:#333;
+    }
+    .subnav-btn:hover{ filter:brightness(.98); }
+    .subnav-btn.is-active{
+      border-color:#2c6fb7;
+      color:#2c6fb7;
+      box-shadow: inset 0 0 0 1px rgba(44,111,183,.25);
+    }
+
     table{ width:100%; border-collapse:separate; border-spacing:0; }
     thead th{ background:#fff; padding:14px 12px; text-align:left; font-size:15px; font-weight:900; border-bottom:1px solid #cfcfcf; }
     tbody td{ padding:18px 12px; border-bottom:1px solid #cfcfcf; vertical-align:middle; font-size:16px; }
@@ -60,7 +88,7 @@
     .table-wrap{ overflow-x:auto; }
     .table-wrap table{ min-width: 820px; }
 
-    /* années */
+    /* ====== UI “Années” ====== */
     .yearsGrid{
       display:grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -94,7 +122,7 @@
 
 <body>
 
-  <!-- ======================= VUE : JOUR ======================= -->
+  <!-- ======================= VUE : JOUR (si tu veux, sinon tu t'en fous) ======================= -->
   <div class="view" id="view-jour">
     <main class="wrap">
       <section class="panel">
@@ -173,7 +201,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : MENSUEL ======================= -->
+  <!-- ======================= VUE : MENSUEL (mois) ======================= -->
   <div class="view" id="view-mensuel">
     <main class="wrap">
       <section class="panel">
@@ -199,7 +227,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : MOIS-VEILLE ======================= -->
+  <!-- ======================= VUE : MOIS-VEILLE (février etc) ======================= -->
   <div class="view" id="view-mois-veille">
     <main class="wrap">
       <section class="panel">
@@ -225,7 +253,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : ANNUEL (année en cours → live) ======================= -->
+  <!-- ======================= VUE : ANNUEL (live) ======================= -->
   <div class="view" id="view-ans">
     <main class="wrap">
       <section class="panel">
@@ -251,7 +279,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : ANS-VEILLE (année précédente) ======================= -->
+  <!-- ======================= VUE : ANS-VEILLE ======================= -->
   <div class="view" id="view-ans-veille">
     <main class="wrap">
       <section class="panel">
@@ -292,7 +320,7 @@
     </main>
   </div>
 
-  <!-- ======================= VUE : ANNEE (janvier → janvier) ======================= -->
+  <!-- ======================= VUE : ANNEE (détail) ======================= -->
   <div class="view" id="view-annee">
     <main class="wrap">
       <section class="panel">
@@ -366,10 +394,10 @@ function showView(mode){
     "annuel":"view-ans",
     "ans-veille":"view-ans-veille",
     "annee-veille":"view-ans-veille",
-    "annees":"view-annees",
-    "annee":"view-annee",
     "niveau":"view-niveau",
-    "theorique":"view-niveau"
+    "theorique":"view-niveau",
+    "annees":"view-annees",
+    "annee":"view-annee"
   };
   const id = map[mode] || "view-jour";
   document.querySelectorAll(".view").forEach(v => v.classList.remove("is-active"));
@@ -436,6 +464,90 @@ function playerKeysMulti(p){
   return Array.from(new Set(keys));
 }
 
+/* ================= CHEMINS ROBUSTES ================= */
+const HISTORY_BASES = ["data/history_paris", "history_paris"];
+
+/* fetch tolérant + essaye plusieurs chemins */
+async function fetchJsonAny(paths){
+  for(const path of paths){
+    const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
+    const res = await fetch(url, { cache:"no-store" });
+    if(!res.ok) continue;
+
+    try{
+      return await res.json();
+    }catch{
+      try{
+        let txt = await res.text();
+        txt = txt.replace(/^\uFEFF/, "");
+        txt = txt.replace(/\/\/[^\n\r]*/g, "");
+        txt = txt.replace(/\/\*[\s\S]*?\*\//g, "");
+        txt = txt.replace(/,\s*([}\]])/g, "$1");
+        txt = txt.replace(/\u0000/g, "");
+        return JSON.parse(txt);
+      }catch{
+        continue;
+      }
+    }
+  }
+  return null;
+}
+
+function extractPlayers(payload){
+  if(!payload) return null;
+
+  // snapshots 2013..2024 etc: { date, joueurs:[...] }
+  if(payload && typeof payload === "object" && Array.isArray(payload.joueurs)) return payload.joueurs;
+
+  // tes autres formats possibles
+  if(Array.isArray(payload)) return payload;
+  if(payload && typeof payload === "object"){
+    if(Array.isArray(payload.players)) return payload.players;
+    if(Array.isArray(payload.top50)) return payload.top50;
+    if(Array.isArray(payload.data)) return payload.data;
+  }
+  return null;
+}
+
+function normalizeDay(s){
+  const str = String(s||"").trim();
+  const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+  return m ? m[1] : null;
+}
+
+async function loadIndex(){
+  const paths = HISTORY_BASES.map(b => `${b}/index.json`);
+  const idx = await fetchJsonAny(paths);
+  if(!Array.isArray(idx)) return null;
+  return idx.map(normalizeDay).filter(Boolean).sort();
+}
+
+async function loadSnapPlayers(day){
+  const paths = HISTORY_BASES.map(b => `${b}/${day}.json`);
+  const raw = await fetchJsonAny(paths);
+  const snap = extractPlayers(raw);
+  return snap;
+}
+
+async function loadCurrentPlayers(){
+  const bigRaw = await fetchJsonAny(["data/players_pages.json"]);
+  const big = extractPlayers(bigRaw);
+  if(big) return big;
+
+  const topRaw = await fetchJsonAny(["data/snokido_top50.json"]);
+  const top = extractPlayers(topRaw);
+  if(top) return top;
+
+  return null;
+}
+
+function findClosestLE(index, targetDay){
+  for(let i = index.length - 1; i >= 0; i--){
+    if(index[i] <= targetDay) return index[i];
+  }
+  return null;
+}
+
 function formatSigned(n){
   const v = Number(n || 0);
   return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
@@ -477,143 +589,16 @@ function applyDxTieBreakPlus12Over500(rows){
   }
 }
 
-/* ================= DATA LOADERS ================= */
-
-/* historique */
-const HISTORY_BASE = "data/history_paris";
-
-/* top + skins live */
-const LIVE_PATH = "period/players_pages.json";
-
-async function fetchJson(path){
-  const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
-  const res = await fetch(url, { cache:"no-store" });
-  if(!res.ok) return null;
-
-  try{
-    return await res.json();
-  }catch{
-    // tolérance JSON “sale”
-    try{
-      let txt = await res.text();
-      txt = txt.replace(/^\uFEFF/, "");
-      txt = txt.replace(/\/\/[^\n\r]*/g, "");
-      txt = txt.replace(/\/\*[\s\S]*?\*\//g, "");
-      txt = txt.replace(/,\s*([}\]])/g, "$1");
-      return JSON.parse(txt);
-    }catch{
-      return null;
-    }
-  }
-}
-
-function extractPlayers(payload){
-  if(!payload) return null;
-
-  // ✅ ton format historique (ex: { date:"2018-01-01", joueurs:[...] })
-  if(payload && typeof payload === "object" && Array.isArray(payload.joueurs)) return payload.joueurs;
-
-  // autres formats possibles
-  if(Array.isArray(payload)) return payload;
-  if(payload && typeof payload === "object"){
-    if(Array.isArray(payload.players)) return payload.players;
-    if(Array.isArray(payload.top50)) return payload.top50;
-    if(Array.isArray(payload.data)) return payload.data;
-  }
-  return null;
-}
-
-function normalizeDay(s){
-  const str = String(s||"").trim();
-  const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
-  return m ? m[1] : null;
-}
-
-async function loadIndex(){
-  const idx = await fetchJson(HISTORY_BASE + "/index.json");
-  if(!Array.isArray(idx)) return null;
-  return idx.map(normalizeDay).filter(Boolean).sort();
-}
-
-async function loadSnapPlayers(day){
-  const raw = await fetchJson(HISTORY_BASE + "/" + day + ".json");
-  return extractPlayers(raw);
-}
-
-async function loadCurrentPlayers(){
-  const raw = await fetchJson(LIVE_PATH);
-  const arr = extractPlayers(raw);
-  return arr;
-}
-
-function findClosestLE(index, targetDay){
-  for(let i = index.length - 1; i >= 0; i--){
-    if(index[i] <= targetDay) return index[i];
-  }
-  return null;
-}
-
-/* ================= ENRICH (skins/links/inscription) =================
-   Objectif:
-   - snapshots historiques n'ont pas avatar/profileHref
-   - period/players_pages.json oui (top 2500)
-   => on enrichit par clés robustes (pas “pseudo exact”)
-*/
-let ENRICH_MAP = null;
-
-async function loadEnrichMap(){
-  if(ENRICH_MAP) return ENRICH_MAP;
-
-  const raw = await fetchJson(LIVE_PATH);
-  const arr = extractPlayers(raw) || [];
-  const map = new Map();
-
-  for(const p of arr){
-    const keys = playerKeysMulti(p);
-    for(const k of keys){
-      if(!map.has(k)){
-        map.set(k, {
-          avatar: p.avatar || null,
-          profileHref: p.profileHref || null,
-          inscription: p.inscription || null,
-          karas: (p.karas == null) ? null : Number(p.karas)
-        });
-      }
-    }
-  }
-
-  ENRICH_MAP = map;
-  return ENRICH_MAP;
-}
-
-function enrichRowFromPlayer(row, p, enrichMap){
-  const keys = playerKeysMulti(p);
-  for(const k of keys){
-    const e = enrichMap.get(k);
-    if(e){
-      if(!row.avatar && e.avatar) row.avatar = e.avatar;
-      if(!row.profileHref && e.profileHref) row.profileHref = e.profileHref;
-      if(!row.inscription && e.inscription) row.inscription = e.inscription;
-      if(row.karas == null && e.karas != null) row.karas = e.karas;
-      break;
-    }
-  }
-  return row;
-}
-
-function linkForPlayer(nom, profileHref){
-  return profileHref ? profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(nom)));
-}
-
 /* ===================== MODES ===================== */
+/* (tout le reste identique à ton fichier: jour/hier/hebdo/mensuel/mois-veille/ans/ans-veille/niveau) */
 
-/* JOUR : dernier snapshot → live */
+/* JOUR */
 async function runJour(){
   const tbody = document.getElementById("jour_tbody");
   const rangeTxt = document.getElementById("jour_rangeTxt");
 
   const current = await loadCurrentPlayers();
-  if(!current){ warnTo("jour_warn","Impossible de charger " + LIVE_PATH); return; }
+  if(!current){ warnTo("jour_warn","Impossible de charger players_pages/top50."); return; }
 
   const index = await loadIndex();
   if(!index || index.length < 1){ warnTo("jour_warn","index.json vide/introuvable."); return; }
@@ -624,44 +609,25 @@ async function runJour(){
 
   rangeTxt.textContent = "Période : " + latestDay + " → live";
 
-  const enrichMap = await loadEnrichMap();
-
   const baseMap = new Map();
   for(const p of baseline){
-    const keys = playerKeysMulti(p);
-    const xp0 = Number(p?.xp || 0);
-    for(const k of keys){
-      if(!baseMap.has(k)) baseMap.set(k, xp0);
-    }
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+    baseMap.set(k, Number(p?.xp || 0));
   }
 
   let rows = [];
   for(const p of current){
-    const keys = playerKeysMulti(p);
-    if(!keys.length) continue;
-
-    let bXp = null;
-    for(const k of keys){
-      if(baseMap.has(k)){ bXp = baseMap.get(k); break; }
-    }
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+    const bXp = baseMap.get(k);
     if(bXp == null) continue;
 
     const curXp = Number(p?.xp || 0);
     const dx = curXp - bXp;
     if(dx === 0) continue;
 
-    let row = {
-      nom: p.nom || "—",
-      avatar: p.avatar || null,
-      profileHref: p.profileHref || null,
-      xp: curXp,
-      dx,
-      inscription: p.inscription || null
-    };
-
-    row = enrichRowFromPlayer(row, p, enrichMap);
-
-    rows.push(row);
+    rows.push({ nom:p.nom, avatar:p.avatar, xp:curXp, dx, inscription:p.inscription || null });
   }
 
   rows.sort((a,b)=> b.dx - a.dx);
@@ -673,7 +639,7 @@ async function runJour(){
     tr.innerHTML =
       '<td class="rank">'+(i+1)+'</td>' +
       '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+(r.avatar||"avatar/1.jpg")+'" alt="'+r.nom+'"></div></td>' +
-      '<td class="name"><a href="'+linkForPlayer(r.nom, null)+'">'+r.nom+'</a><div class="small">'+r.xp.toLocaleString("fr-FR")+' XP</div></td>' +
+      '<td class="name"><a href="profil.html?mode=nv100&u='+encodeURIComponent(slugify(r.nom))+'">'+r.nom+'</a><div class="small">'+r.xp.toLocaleString("fr-FR")+' XP</div></td>' +
       '<td class="center">'+formatSigned(r.dx)+'</td>' +
       '<td class="center">'+r.xp.toLocaleString("fr-FR")+'</td>' +
       '<td class="center">'+formatInscription(r.inscription)+'</td>';
@@ -685,14 +651,14 @@ async function runJour(){
   }
 }
 
-/* HIER : 2 derniers snapshots */
+/* HIER */
 async function runHier(){
   const tbody = document.getElementById("hier_tbody");
   const rangeInfo = document.getElementById("hier_rangeInfo");
 
   const index = await loadIndex();
   if(!index || index.length < 2){
-    warnTo("hier_warn","Il faut au moins 2 dates dans " + HISTORY_BASE + "/index.json.");
+    warnTo("hier_warn","Il faut au moins 2 dates dans history_paris/index.json.");
     rangeInfo.textContent = "Données insuffisantes.";
     return;
   }
@@ -704,48 +670,35 @@ async function runHier(){
   const snapStart = await loadSnapPlayers(dateStart);
   const snapEnd = await loadSnapPlayers(dateEnd);
   if(!snapStart || !snapEnd){
-    warnTo("hier_warn","Snapshots invalides / introuvables : " + dateStart + " / " + dateEnd);
+    warnTo("hier_warn","Snapshots invalides / introuvables.");
     return;
   }
 
-  const enrichMap = await loadEnrichMap();
-
   const startMap = new Map();
-  for(const p of snapStart){
-    const xp0 = Number(p?.xp || 0);
-    for(const k of playerKeysMulti(p)){
-      if(!startMap.has(k)) startMap.set(k, xp0);
-    }
-  }
+  snapStart.forEach(p => {
+    const k = playerKeyRobust(p) || ("name:" + String(p?.nom||"").toLowerCase().trim());
+    startMap.set(k, Number(p?.xp) || 0);
+  });
 
-  let rows = [];
-  for(const pEnd of snapEnd){
-    const keys = playerKeysMulti(pEnd);
-    if(!keys.length) continue;
+  const rows = [];
+  snapEnd.forEach(p => {
+    const k = playerKeyRobust(p) || ("name:" + String(p?.nom||"").toLowerCase().trim());
+    if(!startMap.has(k)) return;
 
-    let bXp = null;
-    for(const k of keys){
-      if(startMap.has(k)){ bXp = startMap.get(k); break; }
-    }
-    if(bXp == null) continue;
+    const xpEnd = Number(p?.xp) || 0;
+    const xpStart = startMap.get(k) || 0;
+    const gain = xpEnd - xpStart;
+    if(gain <= 0) return;
 
-    const xpEnd = Number(pEnd?.xp || 0);
-    const gain = xpEnd - bXp;
-    if(gain <= 0) continue;
-
-    let row = {
-      nom: pEnd?.nom || "—",
-      avatar: pEnd?.avatar || null,
-      profileHref: pEnd?.profileHref || null,
-      gain,
+    rows.push({
+      nom: p.nom || "—",
+      profileHref: p.profileHref || "#",
+      avatar: p.avatar || "avatar/1.jpg",
+      karas: (p.karas == null) ? 0 : Number(p.karas),
       xpEnd,
-      karas: (pEnd?.karas == null) ? null : Number(pEnd.karas)
-    };
-
-    row = enrichRowFromPlayer(row, pEnd, enrichMap);
-
-    rows.push(row);
-  }
+      gain
+    });
+  });
 
   rows.sort((a,b) => (b.gain - a.gain) || (b.xpEnd - a.xpEnd));
 
@@ -756,21 +709,20 @@ async function runHier(){
   }
 
   rows.forEach((p, i) => {
-    const link = linkForPlayer(p.nom, p.profileHref);
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="rank">${i+1}</td>
-      <td class="avatarCell"><div class="frame"><img loading="lazy" src="${p.avatar || "avatar/1.jpg"}" alt="${p.nom}"></div></td>
-      <td class="name"><a target="_blank" rel="noopener" href="${link}">${p.nom}</a></td>
+      <td class="avatarCell"><div class="frame"><img loading="lazy" src="${p.avatar}" alt="${p.nom}"></div></td>
+      <td class="name"><a target="_blank" rel="noopener" href="${p.profileHref}">${p.nom}</a></td>
       <td class="center">+${p.gain.toLocaleString("fr-FR")} XP</td>
       <td class="center">${p.xpEnd.toLocaleString("fr-FR")}</td>
-      <td class="center">${((p.karas||0)).toLocaleString("fr-FR")}</td>
+      <td class="center">${(p.karas||0).toLocaleString("fr-FR")}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-/* HEBDO : lundi → live */
+/* HEBDO */
 function toUTCDate(dayStr){
   const [y,m,d] = dayStr.split("-").map(Number);
   return new Date(Date.UTC(y, m-1, d));
@@ -793,7 +745,7 @@ async function runHebdo(){
   const rangeTxt = document.getElementById("hebdo_rangeTxt");
 
   const current = await loadCurrentPlayers();
-  if(!current){ warnTo("hebdo_warn","Impossible de charger " + LIVE_PATH); return; }
+  if(!current){ warnTo("hebdo_warn","Impossible de charger players_pages/top50."); return; }
 
   const index = await loadIndex();
   if(!index || index.length < 2){ warnTo("hebdo_warn","Pas assez d'historique."); return; }
@@ -807,43 +759,25 @@ async function runHebdo(){
 
   rangeTxt.textContent = "Période : " + baseDay + " → live";
 
-  const enrichMap = await loadEnrichMap();
-
   const baseMap = new Map();
   for(const p of baseline){
-    const xp0 = Number(p?.xp || 0);
-    for(const k of playerKeysMulti(p)){
-      if(!baseMap.has(k)) baseMap.set(k, xp0);
-    }
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+    baseMap.set(k, Number(p.xp || 0));
   }
 
   let rows = [];
   for(const p of current){
-    const keys = playerKeysMulti(p);
-    if(!keys.length) continue;
-
-    let bXp = null;
-    for(const k of keys){
-      if(baseMap.has(k)){ bXp = baseMap.get(k); break; }
-    }
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+    const bXp = baseMap.get(k);
     if(bXp == null) continue;
 
-    const curXp = Number(p?.xp || 0);
+    const curXp = Number(p.xp || 0);
     const dx = curXp - bXp;
     if(dx === 0) continue;
 
-    let row = {
-      nom: p.nom || "—",
-      avatar: p.avatar || null,
-      profileHref: p.profileHref || null,
-      xp: curXp,
-      dx,
-      dxAdj: null
-    };
-
-    row = enrichRowFromPlayer(row, p, enrichMap);
-
-    rows.push(row);
+    rows.push({ nom:p.nom, avatar:p.avatar, profileHref:p.profileHref||null, xp:curXp, dx, dxAdj:null });
   }
 
   applyDxTieBreakPlus12Over500(rows);
@@ -852,7 +786,7 @@ async function runHebdo(){
   tbody.innerHTML = "";
   for(let i=0;i<rows.length;i++){
     const r = rows[i];
-    const link = linkForPlayer(r.nom, r.profileHref);
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
     const tr = document.createElement("tr");
     tr.innerHTML =
       '<td class="rank">'+(i+1)+'</td>' +
@@ -868,7 +802,7 @@ async function runHebdo(){
   }
 }
 
-/* MENSUEL : 1er jour du mois → live */
+/* MENSUEL */
 function firstOfMonth(dayStr){
   const y = dayStr.slice(0,4);
   const m = dayStr.slice(5,7);
@@ -880,7 +814,7 @@ async function runMensuel(){
   const rangeTxt = document.getElementById("mensuel_rangeTxt");
 
   const current = await loadCurrentPlayers();
-  if(!current){ warnTo("mensuel_warn","Impossible de charger " + LIVE_PATH); return; }
+  if(!current){ warnTo("mensuel_warn","Impossible de charger players_pages/top50."); return; }
 
   const index = await loadIndex();
   if(!index || index.length < 2){ warnTo("mensuel_warn","Pas assez d'historique."); return; }
@@ -894,43 +828,26 @@ async function runMensuel(){
 
   rangeTxt.textContent = "Période : " + baseDay + " → live";
 
-  const enrichMap = await loadEnrichMap();
-
   const baseMap = new Map();
   for(const p of baseline){
-    const xp0 = Number(p?.xp || 0);
-    for(const k of playerKeysMulti(p)){
-      if(!baseMap.has(k)) baseMap.set(k, xp0);
-    }
+    const k = playerKeyRobust(p);
+    if(!k) continue;
+    baseMap.set(k, Number(p.xp || 0));
   }
 
   let rows = [];
   for(const p of current){
-    const keys = playerKeysMulti(p);
-    if(!keys.length) continue;
+    const k = playerKeyRobust(p);
+    if(!k) continue;
 
-    let bXp = null;
-    for(const k of keys){
-      if(baseMap.has(k)){ bXp = baseMap.get(k); break; }
-    }
+    const bXp = baseMap.get(k);
     if(bXp == null) continue;
 
-    const curXp = Number(p?.xp || 0);
+    const curXp = Number(p.xp || 0);
     const dx = curXp - bXp;
     if(dx === 0) continue;
 
-    let row = {
-      nom: p.nom || "—",
-      avatar: p.avatar || null,
-      profileHref: p.profileHref || null,
-      xp: curXp,
-      dx,
-      dxAdj: null
-    };
-
-    row = enrichRowFromPlayer(row, p, enrichMap);
-
-    rows.push(row);
+    rows.push({ nom:p.nom, avatar:p.avatar, profileHref:p.profileHref||null, xp:curXp, dx, dxAdj:null });
   }
 
   applyDxTieBreakPlus12Over500(rows);
@@ -938,10 +855,9 @@ async function runMensuel(){
 
   tbody.innerHTML = "";
   const shown = rows.slice(0, 300);
-
   for(let i=0;i<shown.length;i++){
     const r = shown[i];
-    const link = linkForPlayer(r.nom, r.profileHref);
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
     const tr = document.createElement("tr");
     tr.innerHTML =
       '<td class="rank">'+(i+1)+'</td>' +
@@ -957,7 +873,7 @@ async function runMensuel(){
   }
 }
 
-/* MOIS-VEILLE : 1er mois précédent → 1er mois courant (fallback latest) */
+/* MOIS-VEILLE */
 function prevMonthFirstDay(latestDay){
   let y = Number(latestDay.slice(0,4));
   let m = Number(latestDay.slice(5,7));
@@ -992,12 +908,11 @@ async function runMoisVeille(){
 
   rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (mois précédent)";
 
-  const enrichMap = await loadEnrichMap();
-
   const baseMap = new Map();
   for(const p of baseSnap){
     const xp0 = Number(p?.xp || 0);
-    for(const k of playerKeysMulti(p)){
+    const keys = playerKeysMulti(p);
+    for(const k of keys){
       if(!baseMap.has(k)) baseMap.set(k, xp0);
     }
   }
@@ -1017,18 +932,14 @@ async function runMoisVeille(){
     const dx = xpEnd - bXp;
     if(dx <= 0) continue;
 
-    let row = {
+    rows.push({
       nom: pEnd?.nom || "—",
-      avatar: pEnd?.avatar || null,
+      avatar: pEnd?.avatar || "avatar/1.jpg",
       profileHref: pEnd?.profileHref || null,
       xpEnd,
       dx,
       dxAdj: null
-    };
-
-    row = enrichRowFromPlayer(row, pEnd, enrichMap);
-
-    rows.push(row);
+    });
   }
 
   applyDxTieBreakPlus12Over500(rows);
@@ -1039,7 +950,7 @@ async function runMoisVeille(){
 
   for(let i=0;i<shown.length;i++){
     const r = shown[i];
-    const link = linkForPlayer(r.nom, r.profileHref);
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
     const tr = document.createElement("tr");
     tr.innerHTML =
       '<td class="rank">'+(i+1)+'</td>' +
@@ -1057,13 +968,13 @@ async function runMoisVeille(){
   }
 }
 
-/* ANS (année en cours) : baseline = 1er snapshot mensuel dispo par joueur → live */
+/* ANS (live) */
 async function runAns(){
   const tbody = document.getElementById("ans_tbody");
   const rangeTxt = document.getElementById("ans_rangeTxt");
 
   const current = await loadCurrentPlayers();
-  if(!current){ warnTo("ans_warn","Impossible de charger " + LIVE_PATH); return; }
+  if(!current){ warnTo("ans_warn","Impossible de charger data/players_pages.json (ou top50)."); return; }
 
   const index = await loadIndex();
   if(!index || index.length < 2){ warnTo("ans_warn","Pas assez d'historique (history_paris)."); return; }
@@ -1094,15 +1005,14 @@ async function runAns(){
   if(monthSnaps.length === 0){ warnTo("ans_warn","Snapshots mensuels invalides / vides."); return; }
 
   rangeTxt.textContent =
-    "Période : " + year + "-01-01 → live (année " + year + ") • Base = 1er snapshot mensuel dispo par joueur";
-
-  const enrichMap = await loadEnrichMap();
+    "Période : " + year + "-01-01 → live (année " + year + ") • Baseline = 1er snapshot mensuel dispo par joueur";
 
   const snapMaps = monthSnaps.map(s => {
     const m = new Map();
     for(const p of s.players){
       const xp0 = Number(p?.xp || 0);
-      for(const k of playerKeysMulti(p)){
+      const keys = playerKeysMulti(p);
+      for(const k of keys){
         if(!m.has(k)) m.set(k, xp0);
       }
     }
@@ -1130,23 +1040,19 @@ async function runAns(){
 
     if(bXp == null) continue;
 
-    const curXp = Number(p?.xp || 0);
+    const curXp = Number(p.xp || 0);
     const dx = curXp - bXp;
     if(dx === 0) continue;
 
-    let row = {
-      nom: p.nom || "—",
-      avatar: p.avatar || null,
+    rows.push({
+      nom: p.nom,
+      avatar: p.avatar,
       profileHref: p.profileHref || null,
       xp: curXp,
       dx,
       dxAdj: null,
       baseDayUsed
-    };
-
-    row = enrichRowFromPlayer(row, p, enrichMap);
-
-    rows.push(row);
+    });
   }
 
   applyDxTieBreakPlus12Over500(rows);
@@ -1157,7 +1063,7 @@ async function runAns(){
 
   for(let i=0;i<shown.length;i++){
     const r = shown[i];
-    const link = linkForPlayer(r.nom, r.profileHref);
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
     const tr = document.createElement("tr");
     tr.innerHTML =
       '<td class="rank">' + (i+1) + '</td>' +
@@ -1175,7 +1081,7 @@ async function runAns(){
   }
 }
 
-/* ANS-VEILLE : année précédente (start=1er snapshot de l'année, end=01-01 année suivante) */
+/* ANS-VEILLE */
 async function runAnsVeille(){
   const tbody = document.getElementById("ansv_tbody");
   const rangeTxt = document.getElementById("ansv_rangeTxt");
@@ -1201,7 +1107,15 @@ async function runAnsVeille(){
 
   rangeTxt.textContent = "Période : " + baseDay + " → " + endDay + " (année " + yearPrev + ")";
 
-  const enrichMap = await loadEnrichMap();
+  const pagesRaw = await fetchJsonAny(["data/players_pages.json"]);
+  const pagesPlayers = extractPlayers(pagesRaw) || [];
+  const enrichMap = new Map();
+  for(const p of pagesPlayers){
+    const keys = playerKeysMulti(p);
+    for(const k of keys){
+      if(!enrichMap.has(k)) enrichMap.set(k, p);
+    }
+  }
 
   const baseMap = new Map();
   for(const p of baseSnap){
@@ -1224,28 +1138,29 @@ async function runAnsVeille(){
 
     const xpEnd = Number(pEnd?.xp || 0);
     const dx = xpEnd - bXp;
-    if(dx <= 0) continue;
+    if(dx === 0) continue;
 
-    let row = {
-      nom: pEnd?.nom || "—",
-      xpEnd,
-      dx,
-      dxAdj: null,
-      avatar: pEnd?.avatar || null,
-      profileHref: pEnd?.profileHref || null
-    };
+    let avatar = pEnd?.avatar || null;
+    let profileHref = pEnd?.profileHref || null;
 
-    row = enrichRowFromPlayer(row, pEnd, enrichMap);
+    if(!avatar || !profileHref){
+      for(const k of keys){
+        const e = enrichMap.get(k);
+        if(e){
+          if(!avatar && e.avatar) avatar = e.avatar;
+          if(!profileHref && e.profileHref) profileHref = e.profileHref;
+        }
+      }
+    }
 
-    rows.push(row);
+    rows.push({ nom: pEnd?.nom || "—", xpEnd, dx, dxAdj:null, avatar, profileHref });
   }
 
   applyDxTieBreakPlus12Over500(rows);
   rows.sort((a,b)=> b.dxAdj - a.dxAdj);
 
   tbody.innerHTML = "";
-  const shown = rows.slice(0, 50);
-
+  const shown = rows.filter(r => r.dx > 0).slice(0, 50);
   if(shown.length === 0){
     tbody.innerHTML =
       '<tr><td colspan="5" style="padding:16px;font-weight:900;color:#666;">Personne n’a gagné d’XP sur la période.</td></tr>';
@@ -1254,7 +1169,7 @@ async function runAnsVeille(){
 
   for(let i=0;i<shown.length;i++){
     const r = shown[i];
-    const link = linkForPlayer(r.nom, r.profileHref);
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
     const tr = document.createElement("tr");
     tr.innerHTML =
       '<td class="rank">' + (i+1) + '</td>' +
@@ -1267,29 +1182,90 @@ async function runAnsVeille(){
   }
 }
 
-/* ======== ANNEES (liste + détail) ======== */
+/* NIVEAU THEORIQUE */
+async function runNiveau(){
+  const XP_AT_100 = 49500;
+  const A1 = 1290;
+  const TARGET_XP_100_TO_1000 = 1600000;
+  const R = 0.0006792294619366293;
+
+  const modelTxt = `L100=${XP_AT_100.toLocaleString("fr-FR")} | a1=${A1} | r=${(R*100).toFixed(4)}% | 100→1000≈${TARGET_XP_100_TO_1000.toLocaleString("fr-FR")} XP`;
+  document.getElementById("niv_modelInfo").textContent = modelTxt;
+
+  function levelsBeyond100FromXp(xpExtra){
+    if(xpExtra <= 0) return 0;
+    const x = (xpExtra * R / A1) + 1;
+    if(x <= 1) return 0;
+    const n = Math.log(x) / Math.log(1 + R);
+    return Math.max(0, Math.floor(n));
+  }
+  function xpToTheoreticalLevel(xp, fallbackLevel){
+    const xpNum = Number(xp || 0);
+    if(xpNum <= XP_AT_100){
+      return (typeof fallbackLevel === "number" && fallbackLevel > 0) ? fallbackLevel : 100;
+    }
+    return 100 + levelsBeyond100FromXp(xpNum - XP_AT_100);
+  }
+
+  const tbody = document.getElementById("niv_tbody");
+  const topRaw = await fetchJsonAny(["data/snokido_top50.json"]);
+  const top50 = extractPlayers(topRaw);
+
+  if(!top50 || !Array.isArray(top50)){
+    warnTo("niv_warn","Impossible de charger data/snokido_top50.json");
+    tbody.innerHTML = "";
+    return;
+  }
+
+  top50.sort((a,b) => (Number(b.xp)||0) - (Number(a.xp)||0));
+
+  tbody.innerHTML = "";
+  top50.forEach((p, i) => {
+    const xp = Number(p.xp) || 0;
+    const karas = (p.karas == null) ? 0 : Number(p.karas);
+    const lvlScraped = (typeof p.niveau === "number") ? p.niveau : null;
+    const lvlTheo = xpToTheoreticalLevel(xp, lvlScraped);
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="rank">${i+1}</td>
+      <td class="avatarCell"><div class="frame"><img loading="lazy" src="${p.avatar || "avatar/1.jpg"}" alt="${p.nom || ""}"></div></td>
+      <td class="name"><a target="_blank" rel="noopener" href="${p.profileHref || "#"}">${p.nom || "—"}</a></td>
+      <td class="center">${xp.toLocaleString("fr-FR")}</td>
+      <td class="center">${(karas||0).toLocaleString("fr-FR")}</td>
+      <td class="center"><b>${lvlTheo.toLocaleString("fr-FR")}</b></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ======================= ANNEES ======================= */
+function parseFrDateToISO(d){
+  const m = String(d||"").trim().match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if(!m) return null;
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
+function isInscriptionAfterDay(inscription, dayISO){
+  const iso = parseFrDateToISO(inscription);
+  if(!iso) return false;
+  return iso > dayISO;
+}
 function computeYearPeriod(index, year){
   const yStr = String(year);
   const yearDays = index.filter(d => d.slice(0,4) === yStr);
   if(!yearDays.length) return null;
 
-  // début = 1er snapshot dispo dans l'année
   const startDay = yearDays[0];
 
-  // fin = snapshot le plus proche <= (année+1)-01-01
   const endTarget = String(year + 1) + "-01-01";
   let endDay = findClosestLE(index, endTarget);
-
-  // si pas trouvé, fallback “dernier snapshot existant”
   if(!endDay) endDay = index[index.length - 1];
 
-  // garantie end >= start
   if(endDay < startDay) endDay = yearDays[yearDays.length - 1];
 
   const snapsInPeriod = index.filter(d => d >= startDay && d <= endDay).length;
   return { startDay, endDay, snapsInPeriod };
 }
-
 async function runAnnees(){
   const info = document.getElementById("annees_info");
   const grid = document.getElementById("annees_grid");
@@ -1323,12 +1299,6 @@ async function runAnnees(){
     grid.appendChild(card);
   }
 }
-
-/* ✅ FIX IMPORTANT :
-   - on inclut les joueurs présents dans le snapshot START (même si xp=0)
-   - on exclut ceux absents du snapshot START (pas d'info → pas de rétroactivité)
-   - skins pris via enrichMap (period/players_pages.json)
-*/
 async function runAnnee(year){
   const tbody = document.getElementById("annee_tbody");
   const rangeTxt = document.getElementById("annee_rangeTxt");
@@ -1362,11 +1332,9 @@ async function runAnnee(year){
     return;
   }
 
-  const enrichMap = await loadEnrichMap();
-
-  // baseline = joueurs dans START (même si xp=0)
   const baseMap = new Map();
   for(const p of snapStart){
+    if(isInscriptionAfterDay(p?.inscription, startDay)) continue;
     const xp0 = Number(p?.xp || 0);
     const meta = { xp: xp0, inscription: p?.inscription || null, nom: p?.nom || null };
     for(const k of playerKeysMulti(p)){
@@ -1376,6 +1344,8 @@ async function runAnnee(year){
 
   let rows = [];
   for(const pEnd of snapEnd){
+    if(isInscriptionAfterDay(pEnd?.inscription, startDay)) continue;
+
     const keys = playerKeysMulti(pEnd);
     if(!keys.length) continue;
 
@@ -1383,28 +1353,21 @@ async function runAnnee(year){
     for(const k of keys){
       if(baseMap.has(k)){ base = baseMap.get(k); break; }
     }
-
-    // ✅ si pas dans baseline => on ignore (pas d'info)
-    if(!base) continue;
+    if(!base) continue; // nouveau => ignoré
 
     const xpEnd = Number(pEnd?.xp || 0);
     const dx = xpEnd - Number(base.xp || 0);
     if(dx <= 0) continue;
 
-    let row = {
+    rows.push({
       nom: pEnd?.nom || base.nom || "—",
       dx,
       dxAdj: null,
       xpEnd,
-      avatar: pEnd?.avatar || null,
+      avatar: pEnd?.avatar || "avatar/1.jpg",
       profileHref: pEnd?.profileHref || null,
       inscription: pEnd?.inscription || base.inscription || null
-    };
-
-    // ✅ skins/links depuis period/players_pages.json
-    row = enrichRowFromPlayer(row, pEnd, enrichMap);
-
-    rows.push(row);
+    });
   }
 
   applyDxTieBreakPlus12Over500(rows);
@@ -1415,7 +1378,7 @@ async function runAnnee(year){
 
   for(let i=0;i<shown.length;i++){
     const r = shown[i];
-    const link = linkForPlayer(r.nom, r.profileHref);
+    const link = r.profileHref ? r.profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(r.nom)));
     const tr = document.createElement("tr");
     tr.innerHTML =
       '<td class="rank">'+(i+1)+'</td>' +
@@ -1433,71 +1396,6 @@ async function runAnnee(year){
   }
 }
 
-/* NIVEAU THEORIQUE :
-   - comme tu n'as PAS data/top50 etc, on prend period/players_pages.json
-   - on trie par XP et on prend top 50
-*/
-async function runNiveau(){
-  const XP_AT_100 = 49500;
-  const A1 = 1290;
-  const TARGET_XP_100_TO_1000 = 1600000;
-  const R = 0.0006792294619366293;
-
-  const modelTxt = `L100=${XP_AT_100.toLocaleString("fr-FR")} | a1=${A1} | r=${(R*100).toFixed(4)}% | 100→1000≈${TARGET_XP_100_TO_1000.toLocaleString("fr-FR")} XP`;
-  document.getElementById("niv_modelInfo").textContent = modelTxt;
-
-  function levelsBeyond100FromXp(xpExtra){
-    if(xpExtra <= 0) return 0;
-    const x = (xpExtra * R / A1) + 1;
-    if(x <= 1) return 0;
-    const n = Math.log(x) / Math.log(1 + R);
-    return Math.max(0, Math.floor(n));
-  }
-  function xpToTheoreticalLevel(xp, fallbackLevel){
-    const xpNum = Number(xp || 0);
-    if(xpNum <= XP_AT_100){
-      return (typeof fallbackLevel === "number" && fallbackLevel > 0) ? fallbackLevel : 100;
-    }
-    return 100 + levelsBeyond100FromXp(xpNum - XP_AT_100);
-  }
-
-  const tbody = document.getElementById("niv_tbody");
-  const arr = await loadCurrentPlayers();
-  if(!arr || !Array.isArray(arr)){
-    warnTo("niv_warn","Impossible de charger " + LIVE_PATH);
-    tbody.innerHTML = "";
-    return;
-  }
-
-  const enrichMap = await loadEnrichMap();
-
-  const top = arr.slice().sort((a,b) => (Number(b.xp)||0) - (Number(a.xp)||0)).slice(0, 50);
-
-  tbody.innerHTML = "";
-  top.forEach((p, i) => {
-    const xp = Number(p.xp) || 0;
-    const karas = (p.karas == null) ? 0 : Number(p.karas);
-    const lvlScraped = (typeof p.niveau === "number") ? p.niveau : null;
-    const lvlTheo = xpToTheoreticalLevel(xp, lvlScraped);
-
-    let row = { avatar: p.avatar || null, profileHref: p.profileHref || null };
-    row = enrichRowFromPlayer(row, p, enrichMap);
-
-    const link = linkForPlayer(p.nom || "—", row.profileHref);
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="rank">${i+1}</td>
-      <td class="avatarCell"><div class="frame"><img loading="lazy" src="${row.avatar || "avatar/1.jpg"}" alt="${p.nom || ""}"></div></td>
-      <td class="name"><a target="_blank" rel="noopener" href="${link}">${p.nom || "—"}</a></td>
-      <td class="center">${xp.toLocaleString("fr-FR")}</td>
-      <td class="center">${(karas||0).toLocaleString("fr-FR")}</td>
-      <td class="center"><b>${lvlTheo.toLocaleString("fr-FR")}</b></td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
 /* ================= BOOT ================= */
 document.addEventListener("DOMContentLoaded", async () => {
   const mode = getMode();
@@ -1511,6 +1409,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     else if(viewId === "view-mois-veille") await runMoisVeille();
     else if(viewId === "view-ans") await runAns();
     else if(viewId === "view-ans-veille") await runAnsVeille();
+    else if(viewId === "view-niveau") await runNiveau();
     else if(viewId === "view-annees") await runAnnees();
     else if(viewId === "view-annee"){
       const p = new URLSearchParams(location.search);
@@ -1518,7 +1417,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       if(!y || y < 2013){ warnTo("annee_warn","Paramètre année invalide (y)."); return; }
       await runAnnee(y);
     }
-    else if(viewId === "view-niveau") await runNiveau();
   }catch(e){
     const w = document.querySelector(".view.is-active .warn");
     if(w){
