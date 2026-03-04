@@ -60,10 +60,10 @@ async function mountBars(){
       aBtn("hier","⏪ Hier",mode) +
       aBtn("hebdo","📅 Hebdo",mode) +
       aBtn("mensuel","🗓️ Mois",mode) +
+      // ✅ “février” etc = juste un label -> mode=mois-veille
       aBtn("mois-veille","⏮️ " + prevMonthLabel,mode) +
       aBtn("ans","📆 " + yearLabel,mode) +
       aBtn("ans-veille","📆 " + yearPrevLabel,mode) +
-      aBtn("annees","📚 Années",mode) +
       aBtn("niveau","⭐ Niveau théorique",mode) +
     `</div>`;
 
