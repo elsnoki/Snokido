@@ -406,14 +406,6 @@ function profileIdFromHref(href){
   }
 }
 
-function playerKeyRobust(p){
-  if(!p) return null;
-  const id = profileIdFromHref(p.profileHref);
-  if(id) return "id:" + id;
-  if(p.slug) return "slug:" + String(p.slug).toLowerCase().trim();
-  return "name:" + slugify(p.nom);
-}
-
 function playerKeysMulti(p){
   const keys = [];
   if(!p) return keys;
@@ -477,20 +469,6 @@ function applyDxTieBreakPlus12Over500(rows){
   }
 }
 
-/* ✅ dates helpers pour la vue année */
-function frDateToISO(d){
-  // "dd-mm-yyyy" -> "yyyy-mm-dd"
-  if(!d) return null;
-  const m = String(d).trim().match(/^(\d{2})-(\d{2})-(\d{4})$/);
-  if(!m) return null;
-  return `${m[3]}-${m[2]}-${m[1]}`;
-}
-function isISOBetween(iso, startISO, endISO){
-  // compare lexicographique OK pour yyyy-mm-dd
-  if(!iso) return false;
-  return iso >= startISO && iso < endISO;
-}
-
 /* ================= DATA LOADERS ================= */
 
 /* historique */
@@ -499,24 +477,42 @@ const HISTORY_BASE = "data/history_paris";
 /* top + skins live */
 const LIVE_PATH = "period/players_pages.json";
 
+/* ✅ IMPORTANT : fetchJson robuste (NE CASSE PAS jour/hebdo/etc) */
 async function fetchJson(path){
   const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
-  const res = await fetch(url, { cache:"no-store" });
+  let res;
+  try{
+    res = await fetch(url, { cache:"no-store" });
+  }catch{
+    return null;
+  }
   if(!res.ok) return null;
 
+  // ✅ On lit toujours en texte (sinon res.json() consomme le body)
+  let txt;
   try{
-    return await res.json();
+    txt = await res.text();
   }catch{
-    try{
-      let txt = await res.text();
-      txt = txt.replace(/^\uFEFF/, "");
-      txt = txt.replace(/\/\/[^\n\r]*/g, "");
-      txt = txt.replace(/\/\*[\s\S]*?\*\//g, "");
-      txt = txt.replace(/,\s*([}\]])/g, "$1");
-      return JSON.parse(txt);
-    }catch{
-      return null;
-    }
+    return null;
+  }
+
+  txt = txt.replace(/^\uFEFF/, "").trim();
+  if(!txt) return null;
+
+  // parse strict
+  try{
+    return JSON.parse(txt);
+  }catch{}
+
+  // parse tolérant
+  try{
+    let clean = txt;
+    clean = clean.replace(/\/\/[^\n\r]*/g, "");
+    clean = clean.replace(/\/\*[\s\S]*?\*\//g, "");
+    clean = clean.replace(/,\s*([}\]])/g, "$1");
+    return JSON.parse(clean);
+  }catch{
+    return null;
   }
 }
 
@@ -526,7 +522,7 @@ function extractPlayers(payload){
   // ✅ format historique: { date:"2018-01-01", joueurs:[...] }
   if(payload && typeof payload === "object" && Array.isArray(payload.joueurs)) return payload.joueurs;
 
-  // autres formats tolérés
+  // format live: { players:[...] } ou direct array
   if(Array.isArray(payload)) return payload;
   if(payload && typeof payload === "object"){
     if(Array.isArray(payload.players)) return payload.players;
@@ -565,7 +561,7 @@ function findClosestLE(index, targetDay){
   return null;
 }
 
-/* ================= ENRICH (skins/links/inscription) ================= */
+/* ================= ENRICH (skins/links/inscription/karas) ================= */
 let ENRICH_MAP = null;
 
 async function loadEnrichMap(){
@@ -679,7 +675,7 @@ async function runJour(){
     tr.innerHTML =
       '<td class="rank">'+(i+1)+'</td>' +
       '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+(r.avatar||"avatar/1.jpg")+'" alt="'+r.nom+'"></div></td>' +
-      '<td class="name"><a target="_blank" rel="noopener" href="'+link+'">'+r.nom+'</a><div class="small">'+r.xp.toLocaleString("fr-FR")+' XP</div></td>' +
+      '<td class="name"><a href="'+link+'">'+r.nom+'</a><div class="small">'+r.xp.toLocaleString("fr-FR")+' XP</div></td>' +
       '<td class="center">'+formatSigned(r.dx)+'</td>' +
       '<td class="center">'+r.xp.toLocaleString("fr-FR")+'</td>' +
       '<td class="center">'+formatInscription(r.inscription)+'</td>';
@@ -1273,12 +1269,17 @@ function computeYearPeriod(index, year){
   const yearDays = index.filter(d => d.slice(0,4) === yStr);
   if(!yearDays.length) return null;
 
+  // début = 1er snapshot dispo dans l'année
   const startDay = yearDays[0];
 
+  // fin = snapshot le plus proche <= (année+1)-01-01
   const endTarget = String(year + 1) + "-01-01";
   let endDay = findClosestLE(index, endTarget);
 
+  // si pas trouvé, fallback “dernier snapshot existant”
   if(!endDay) endDay = index[index.length - 1];
+
+  // garantie end >= start
   if(endDay < startDay) endDay = yearDays[yearDays.length - 1];
 
   const snapsInPeriod = index.filter(d => d >= startDay && d <= endDay).length;
@@ -1319,11 +1320,19 @@ async function runAnnees(){
   }
 }
 
-/* ✅ VUE ANNEE (janvier → janvier) :
-   Règles:
-   - si joueur présent au START => baseline = XP start
-   - si joueur absent au START => on l’accepte seulement si inscription dans la période, baseline=0
-   - sinon on ignore (évite rétroactivité de gens apparus en 2026)
+function ymdToDay(ymd){ return String(ymd||"").trim(); }
+function inscriptionToYMD(insc){
+  // attendu: "dd-mm-yyyy"
+  const m = String(insc||"").match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if(!m) return null;
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
+
+/* ✅ ANNEE (janvier → janvier)
+   - baseline = joueurs dans START (même si xp=0)
+   - + ajout : joueurs ABSENTS du START mais INSCRITS pendant la période (startDay..endDay) => baseline xp=0
+   - donc TheGladiator inscrit en 2020, absent du snapshot 2020-01-01 (xp=0) mais présent en 2021 => il apparaît en 2020 (dx=+...)
+   - on évite le bug “2026 partout” : si inscrit hors période => pas rétroactif
 */
 async function runAnnee(year){
   const tbody = document.getElementById("annee_tbody");
@@ -1360,8 +1369,10 @@ async function runAnnee(year){
 
   const enrichMap = await loadEnrichMap();
 
-  // baseline = joueurs dans START (même si xp=0)
+  // baseMap : clé -> { xp, inscription, nom }
   const baseMap = new Map();
+
+  // 1) joueurs du START (même xp=0)
   for(const p of snapStart){
     const xp0 = Number(p?.xp || 0);
     const meta = { xp: xp0, inscription: p?.inscription || null, nom: p?.nom || null };
@@ -1370,59 +1381,47 @@ async function runAnnee(year){
     }
   }
 
+  // helper: est-ce que l'inscription est dans [startDay..endDay] ?
+  function isInscriptionWithinPeriod(insc){
+    const ymd = inscriptionToYMD(insc);
+    if(!ymd) return false;
+    return (ymd >= startDay && ymd <= endDay);
+  }
+
   let rows = [];
 
   for(const pEnd of snapEnd){
     const keys = playerKeysMulti(pEnd);
     if(!keys.length) continue;
 
-    // baseline si présent au START
+    // trouve baseline si existe
     let base = null;
     for(const k of keys){
       if(baseMap.has(k)){ base = baseMap.get(k); break; }
     }
 
-    let baseXp = null;
-    let baseIns = null;
-    let baseNom = null;
-
-    if(base){
-      baseXp = Number(base.xp || 0);
-      baseIns = base.inscription || null;
-      baseNom = base.nom || null;
-    }else{
-      // absent au START => accepter seulement si inscription dans la période
-      let ins = pEnd?.inscription || null;
-
-      if(!ins){
-        for(const k of keys){
-          const e = enrichMap.get(k);
-          if(e && e.inscription){ ins = e.inscription; break; }
-        }
+    // ✅ si pas dans start, on autorise seulement si INSCRIT pendant la période => base xp=0
+    if(!base){
+      const insc = pEnd?.inscription || null;
+      if(!isInscriptionWithinPeriod(insc)){
+        // pas d'info dans START et pas inscrit durant la période => pas rétroactif
+        continue;
       }
-
-      const insISO = frDateToISO(ins);
-      if(!isISOBetween(insISO, startDay, endDay)){
-        continue; // pas d'info fiable => pas de rétroactivité
-      }
-
-      baseXp = 0;
-      baseIns = ins;
-      baseNom = null;
+      base = { xp: 0, inscription: insc, nom: pEnd?.nom || null };
     }
 
     const xpEnd = Number(pEnd?.xp || 0);
-    const dx = xpEnd - baseXp;
+    const dx = xpEnd - Number(base.xp || 0);
     if(dx <= 0) continue;
 
     let row = {
-      nom: pEnd?.nom || baseNom || "—",
+      nom: pEnd?.nom || base.nom || "—",
       dx,
       dxAdj: null,
       xpEnd,
       avatar: pEnd?.avatar || null,
       profileHref: pEnd?.profileHref || null,
-      inscription: pEnd?.inscription || baseIns || null
+      inscription: pEnd?.inscription || base.inscription || null
     };
 
     row = enrichRowFromPlayer(row, pEnd, enrichMap);
@@ -1456,8 +1455,8 @@ async function runAnnee(year){
 }
 
 /* NIVEAU THEORIQUE :
-   - prend period/players_pages.json
-   - trie par XP et prend top 50
+   - on prend period/players_pages.json
+   - on trie par XP et on prend top 50
 */
 async function runNiveau(){
   const XP_AT_100 = 49500;
@@ -1491,6 +1490,7 @@ async function runNiveau(){
     return;
   }
 
+  const enrichMap = await loadEnrichMap();
   const top = arr.slice().sort((a,b) => (Number(b.xp)||0) - (Number(a.xp)||0)).slice(0, 50);
 
   tbody.innerHTML = "";
@@ -1500,12 +1500,15 @@ async function runNiveau(){
     const lvlScraped = (typeof p.niveau === "number") ? p.niveau : null;
     const lvlTheo = xpToTheoreticalLevel(xp, lvlScraped);
 
-    const link = linkForPlayer(p.nom || "—", p.profileHref || null);
+    let row = { avatar: p.avatar || null, profileHref: p.profileHref || null };
+    row = enrichRowFromPlayer(row, p, enrichMap);
+
+    const link = linkForPlayer(p.nom || "—", row.profileHref);
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="rank">${i+1}</td>
-      <td class="avatarCell"><div class="frame"><img loading="lazy" src="${p.avatar || "avatar/1.jpg"}" alt="${p.nom || ""}"></div></td>
+      <td class="avatarCell"><div class="frame"><img loading="lazy" src="${row.avatar || "avatar/1.jpg"}" alt="${p.nom || ""}"></div></td>
       <td class="name"><a target="_blank" rel="noopener" href="${link}">${p.nom || "—"}</a></td>
       <td class="center">${xp.toLocaleString("fr-FR")}</td>
       <td class="center">${(karas||0).toLocaleString("fr-FR")}</td>
