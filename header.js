@@ -18,7 +18,6 @@ const headerHTML = `
       <a class="tab tab-400" href="400k.html">400K</a>
       <a class="tab tab-500" href="500k.html">500K et +</a>
 
-      <!-- ✅ CORRIGÉ ICI -->
       <a class="tab tab-niveau" href="classement.html?mode=niveau">
         Niveau théorique
       </a>
@@ -39,8 +38,8 @@ const headerHTML = `
         </a>
 
         <div class="pauseMenu">
-          <a href="pause.html">Records — pauses uniques</a>
-          <a href="pauses.html">Records — total par joueur</a>
+          <a id="pauseLinkUnique" href="pause.html">Records — pauses uniques</a>
+          <a id="pauseLinkTotal" href="pauses.html">Records — total par joueur</a>
         </div>
       </span>
 
@@ -54,14 +53,13 @@ const headerHTML = `
 
 document.body.insertAdjacentHTML("afterbegin", headerHTML);
 
-
 // ================= PAUSE MENU LOGIC =================
 
 const wrap = document.querySelector(".pauseWrap");
 const btn = document.getElementById("pauseBtn");
 const menu = document.querySelector(".pauseMenu");
 
-// Sécurité : menu caché au chargement
+// Sécurité : menu fermé au chargement
 wrap.classList.remove("is-open");
 
 function closeMenu(){ wrap.classList.remove("is-open"); }
@@ -84,3 +82,22 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeMenu();
 });
 
+// ================= ACTIVE STATE (pause pages) =================
+(function setActivePause(){
+  const path = (location.pathname || "").toLowerCase();
+  const file = path.split("/").pop(); // ex: pause.html
+
+  const tabPause = document.querySelector(".tab-pause");
+  const linkUnique = document.getElementById("pauseLinkUnique");
+  const linkTotal  = document.getElementById("pauseLinkTotal");
+
+  const isPausePage =
+    file === "pause.html" ||
+    file === "pauses.html" ||
+    file === "pauses_total.html"; // si tu as encore cet ancien nom
+
+  if(isPausePage && tabPause) tabPause.classList.add("active");
+
+  if(file === "pause.html" && linkUnique) linkUnique.classList.add("is-active");
+  if((file === "pauses.html" || file === "pauses_total.html") && linkTotal) linkTotal.classList.add("is-active");
+})();
