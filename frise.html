@@ -5,15 +5,33 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Frise — Chronologie</title>
 
-  <!-- Ton CSS global si tu veux (facultatif) -->
   <link rel="stylesheet" href="style.css">
 
   <style>
+    :root{
+      --bg1:#2a88ad;
+      --bg2:#0b3551;
+      --bg3:#062638;
+
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line: rgba(15, 23, 42, .10);
+
+      --accent:#66ccff;
+      --accent2:#00ffaa;
+      --gold:#ffd44d;
+      --red:#ff3b3b;
+
+      --shadow: 0 16px 44px rgba(0,0,0,.30);
+      --shadow2: 0 10px 24px rgba(0,0,0,.18);
+    }
+
     body{
       margin:0;
       font-family: Arial, sans-serif;
-      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
-      color:#222;
+      background: radial-gradient(1100px 600px at 25% 15%, var(--bg1) 0%, var(--bg2) 60%, var(--bg3) 100%);
+      color:var(--text);
     }
 
     .wrap{
@@ -22,19 +40,168 @@
       padding:0 12px;
     }
 
-    .panel{
-      background:#fff;
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 12px 30px rgba(0,0,0,.28);
-      border:1px solid rgba(0,0,0,.10);
+    /* ===== NAV ===== */
+    .navYear{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
     }
 
-    .titlebar{
-      background:#3b3b3b;
+    .navBtn{
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.25);
+      background:rgba(255,255,255,.12);
       color:#fff;
-      padding:14px 16px;
+      font-weight:900;
+      text-decoration:none;
+      cursor:pointer;
+      backdrop-filter: blur(4px);
+      box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+    }
+    .navBtn:hover{ background:rgba(255,255,255,.18); }
+    .navBtn.primary{
+      background: var(--accent);
+      color:#003347;
+      border:1px solid rgba(0,0,0,.15);
+    }
+
+    /* ===== HERO ===== */
+    .hero{
+      border-radius:18px;
+      padding:16px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 14px 40px rgba(0,0,0,.25);
+      backdrop-filter: blur(6px);
+      margin-bottom:14px;
+    }
+
+    .heroTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .heroTitle{
+      color:#fff;
+      font-weight:900;
       font-size:22px;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .heroSub{
+      margin-top:6px;
+      color:rgba(255,255,255,.85);
+      font-weight:800;
+      font-size:13px;
+      max-width: 820px;
+      line-height:1.35;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .ctrl{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:12px;
+      padding:8px 10px;
+      color:#fff;
+      font-weight:900;
+      box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+    }
+
+    .ctrl input{
+      border:0;
+      outline:0;
+      background:transparent;
+      color:#fff;
+      font-weight:900;
+      width:220px;
+    }
+    .ctrl input::placeholder{ color:rgba(255,255,255,.70); font-weight:900; }
+
+    .ctrl select{
+      border:0;
+      outline:0;
+      background:transparent;
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      background: rgba(255,255,255,.14);
+      color:#fff;
+      font-weight:900;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+    }
+    .btn:hover{ background: rgba(255,255,255,.18); }
+
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .stat{
+      background: rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:14px;
+      padding:10px 12px;
+      color:#fff;
+      box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+      min-height: 52px;
+    }
+    .stat .k{ font-size:12px; font-weight:900; opacity:.9; }
+    .stat .v{ margin-top:2px; font-size:18px; font-weight:900; }
+
+    @media (max-width: 900px){
+      .stats{ grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px){
+      .stats{ grid-template-columns: 1fr; }
+      .ctrl input{ width:160px; }
+    }
+
+    /* ===== PANEL ===== */
+    .panel{
+      background:#fff;
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      border:1px solid rgba(255,255,255,.20);
+    }
+
+    .panelHead{
+      padding:14px 16px;
+      background: linear-gradient(#3b3b3b,#2a2a2a);
+      color:#fff;
+      font-size:18px;
       font-weight:900;
       display:flex;
       align-items:center;
@@ -43,37 +210,34 @@
       flex-wrap:wrap;
     }
 
-    .titlebar .links{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      font-size:14px;
-    }
-    .titlebar .links a{
-      color:#bfe6ff;
-      text-decoration:none;
+    .panelHead small{
+      font-size:12px;
+      color:#cfeeff;
       font-weight:900;
     }
-    .titlebar .links a:hover{ text-decoration:underline; }
 
-    /* Barème */
     .legend{
       padding:14px 16px;
       border-bottom:1px solid #d9d9d9;
       background:#f6f6f6;
     }
+
     .legend h2{
       margin:0 0 10px 0;
       font-size:16px;
       font-weight:900;
       color:#333;
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
+
     .chips{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
     }
+
     .chip{
       background:#fff;
       border:1px solid #d2d2d2;
@@ -87,7 +251,14 @@
     .chip .pts{ margin-left:6px; opacity:.85; }
     .chip.neg{ background:#fff2f2; border-color:#f0b0b0; }
 
-    /* Timeline */
+    .note{
+      margin-top:10px;
+      font-size:12px;
+      color:#666;
+      font-weight:900;
+    }
+
+    /* ===== TIMELINE ===== */
     .timeline{
       position:relative;
       padding:16px;
@@ -101,8 +272,9 @@
       bottom:16px;
       width:4px;
       border-radius:999px;
-      background: linear-gradient(#7ec8ff, #2a88ad, #114e6a);
-      opacity:.9;
+      background: linear-gradient(var(--accent), #2a88ad, #114e6a);
+      opacity:.95;
+      box-shadow: 0 0 0 6px rgba(102,204,255,.10);
     }
 
     .year{
@@ -119,53 +291,77 @@
       border-radius:999px;
       background:#fff;
       border:4px solid #2a88ad;
-      box-shadow:0 2px 0 rgba(0,0,0,.15);
+      box-shadow: 0 0 0 6px rgba(102,204,255,.12), 0 2px 0 rgba(0,0,0,.12);
       flex:0 0 auto;
       margin-left: 18px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
 
     .card{
       flex:1;
-      background:#f9f9f9;
-      border:1px solid #d9d9d9;
-      border-radius:12px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
       overflow:hidden;
-      box-shadow:0 6px 16px rgba(0,0,0,.10);
+      box-shadow: var(--shadow2);
     }
 
     .cardHead{
-      background:#ececec;
-      border-bottom:1px solid #d9d9d9;
       padding:12px 14px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
       flex-wrap:wrap;
+      background: linear-gradient(rgba(102,204,255,.14), rgba(255,255,255,0));
+      border-bottom:1px solid var(--line);
     }
 
     .yearTitle{
+      display:flex;
+      align-items:baseline;
+      gap:10px;
       font-size:20px;
       font-weight:900;
-      color:#222;
+      color:#0f172a;
+    }
+
+    .yearTitle .small{
+      font-size:12px;
+      font-weight:900;
+      color:var(--muted);
     }
 
     .totalPill{
-      font-size:14px;
+      font-size:13px;
       font-weight:900;
       padding:8px 10px;
       border-radius:999px;
       background:#ffffff;
-      border:1px solid #cfcfcf;
+      border:1px solid rgba(0,0,0,.12);
       box-shadow:0 2px 0 rgba(0,0,0,.06);
       white-space:nowrap;
     }
-
     .totalPill b{ font-size:16px; }
 
+    .bar{
+      width:100%;
+      height:10px;
+      border-radius:999px;
+      background: rgba(15,23,42,.08);
+      border:1px solid rgba(15,23,42,.06);
+      overflow:hidden;
+      margin-top:10px;
+    }
+    .bar i{
+      display:block;
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+    }
+
     .events{
-      padding: 12px 14px;
+      padding: 12px 14px 14px;
       background:#fff;
     }
 
@@ -175,36 +371,51 @@
       justify-content:space-between;
       gap:12px;
       padding:10px 0;
-      border-bottom:1px solid #ececec;
+      border-bottom:1px dashed rgba(15,23,42,.14);
       font-size:14px;
     }
     .event:last-child{ border-bottom:none; }
 
     .evtText{
-      color:#222;
+      color:#111827;
       line-height:1.25;
+      font-weight:800;
     }
 
     .pts{
       flex:0 0 auto;
       font-weight:900;
-      padding:6px 10px;
-      border-radius:10px;
-      border:1px solid #d0d0d0;
-      background:#f3fff1;
+      padding:7px 10px;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,.12);
+      background: rgba(0,255,170,.10);
       white-space:nowrap;
       min-width: 64px;
       text-align:center;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,.06);
     }
     .pts.neg{
-      background:#fff1f1;
-      border-color:#f0b0b0;
+      background: rgba(255,59,59,.10);
+      border-color: rgba(255,59,59,.35);
     }
 
-    .note{
-      margin-top:10px;
-      font-size:12px;
-      color:#666;
+    /* TOP YEAR highlight */
+    .year.top .dot{
+      border-color: var(--gold);
+      box-shadow: 0 0 0 6px rgba(255,212,77,.16), 0 0 22px rgba(255,212,77,.35);
+    }
+    .year.top .totalPill{
+      border-color: rgba(255,212,77,.65);
+      box-shadow: 0 10px 18px rgba(255,212,77,.12);
+    }
+
+    .empty{
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      font-weight:900;
+      color:#b00020;
+      background:#fff;
     }
 
     @media (max-width: 760px){
@@ -216,22 +427,60 @@
 </head>
 
 <body>
-  <!-- Header commun -->
   <script src="header.js"></script>
 
   <main class="wrap">
-    <section class="panel">
-      <div class="titlebar">
-        <div>Frise — Chronologie</div>
-        <div class="links">
-          <a href="annee.html">Classement des années</a>
-          <span style="opacity:.6">•</span>
-          <a href="annee2.html">XP par année (générations)</a>
+
+    <div class="navYear">
+      <button class="navBtn" onclick="history.back()">← Retour</button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="navBtn" href="annee.html">Classement des années</a>
+        <a class="navBtn primary" href="annee2.html">XP par année →</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="heroTop">
+        <div>
+          <div class="heroTitle">Frise — Chronologie <span style="opacity:.75; font-size:14px;">• événements & points</span></div>
+          <div class="heroSub">
+            Recherche dans les événements, tri, et totaux calculés automatiquement.
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="ctrl" title="Rechercher dans les événements">
+            🔎 <input id="q" type="text" placeholder="Ex: niveau 100, inscription, duel…">
+          </div>
+
+          <div class="ctrl" title="Tri">
+            ↕️
+            <select id="sort">
+              <option value="chrono" selected>Chronologique</option>
+              <option value="total">Par total (desc)</option>
+            </select>
+          </div>
+
+          <button class="btn" id="clear">✕ Effacer</button>
         </div>
       </div>
 
+      <div class="stats">
+        <div class="stat"><div class="k">Années</div><div class="v" id="stYears">—</div></div>
+        <div class="stat"><div class="k">Événements</div><div class="v" id="stEvents">—</div></div>
+        <div class="stat"><div class="k">Total points (global)</div><div class="v" id="stTotal">—</div></div>
+        <div class="stat"><div class="k">Meilleure année</div><div class="v" id="stTop">—</div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panelHead">
+        <div>Timeline</div>
+        <small id="meta">Chargement…</small>
+      </div>
+
       <div class="legend">
-        <h2>Barème (points)</h2>
+        <h2>Barème (points) <span style="font-size:12px; color:#666; font-weight:900;">• rappel</span></h2>
         <div class="chips" id="chips"></div>
         <div class="note">Les totaux par année sont calculés automatiquement à partir des événements listés.</div>
       </div>
@@ -261,8 +510,6 @@
     ];
 
     // ===== Données frise =====
-    // Chaque event: {t:"texte", p:points}
-    // (p peut être nombre)
     const frise = [
       {
         year: 2013,
@@ -280,7 +527,6 @@
           { t: "Monkey D Dragon vs Yassine (duel moyen)", p: 4 },
         ],
       },
-
       {
         year: 2014,
         events: [
@@ -298,7 +544,6 @@
           { t: "Seka vs Josué455 (mini duel)", p: 2 },
         ],
       },
-
       {
         year: 2015,
         events: [
@@ -315,7 +560,6 @@
           { t: "Suppression de Cahincaha", p: -3 },
         ],
       },
-
       {
         year: 2016,
         events: [
@@ -331,7 +575,6 @@
           { t: "Josué455 1er — 6 mois", p: 4 },
         ],
       },
-
       {
         year: 2017,
         events: [
@@ -349,7 +592,6 @@
           { t: "Talk Takashi vs Abelard (duel moyen)", p: 4 },
         ],
       },
-
       {
         year: 2018,
         events: [
@@ -364,10 +606,9 @@
           { t: "Golder vs Alex.c2109 (duel moyen)", p: 4 },
           { t: "Talk Takashi atteint 200K", p: 5 },
           { t: "Dude atteint le niveau 100", p: 5 },
-{ t: "Korben atteint le niveau 100", p: 5 },
+          { t: "Korben atteint le niveau 100", p: 5 },
         ],
       },
-
       {
         year: 2019,
         events: [
@@ -390,7 +631,6 @@
           { t: "Alex.c2109 vs Abelard (mini duel)", p: 2 },
         ],
       },
-
       {
         year: 2020,
         events: [
@@ -425,7 +665,6 @@
           { t: "Alex.c2109 atteint 300K", p: 5 },
         ],
       },
-
       {
         year: 2021,
         events: [
@@ -438,7 +677,6 @@
           { t: "Francoeur atteint 300K", p: 5 },
         ],
       },
-
       {
         year: 2022,
         events: [
@@ -455,7 +693,6 @@
           { t: "Mini bot", p: -2 },
         ],
       },
-
       {
         year: 2023,
         events: [
@@ -466,7 +703,6 @@
           { t: "Francoeur atteint 400K", p: 5 },
         ],
       },
-
       {
         year: 2024,
         events: [
@@ -479,7 +715,6 @@
           { t: "Alex.c2109 atteint 600K", p: 5 },
         ],
       },
-
       {
         year: 2025,
         events: [
@@ -489,7 +724,6 @@
           { t: "Inscription de Venom2", p: 5 },
         ],
       },
-
       {
         year: 2026,
         events: [
@@ -503,8 +737,19 @@
       },
     ];
 
-    // ===== Render =====
+    // ===== UI elements =====
     const chips = document.getElementById("chips");
+    const yearsEl = document.getElementById("years");
+    const qEl = document.getElementById("q");
+    const sortEl = document.getElementById("sort");
+    const metaEl = document.getElementById("meta");
+
+    document.getElementById("clear").addEventListener("click", () => {
+      qEl.value = "";
+      render();
+    });
+
+    // Render chips
     chips.innerHTML = bareme.map(([label,val]) => {
       const isNeg = (typeof val === "number" && val < 0);
       return `<div class="chip ${isNeg ? "neg":""}">${label}<span class="pts">(${val})</span></div>`;
@@ -515,37 +760,116 @@
       return `${sign}${p}`;
     }
 
-    const yearsEl = document.getElementById("years");
+    function compute(list){
+      const out = list.map(y => {
+        const total = (y.events || []).reduce((s,e)=> s + (Number(e.p)||0), 0);
+        return { ...y, total, count: (y.events||[]).length };
+      });
 
-    frise.forEach(y=>{
-      const total = (y.events || []).reduce((s,e)=> s + (Number(e.p)||0), 0);
+      const maxTotal = out.reduce((m,y)=> Math.max(m, y.total), 0);
+      const globalTotal = out.reduce((s,y)=> s + y.total, 0);
+      const globalEvents = out.reduce((s,y)=> s + y.count, 0);
 
-      const eventsHtml = (y.events || []).map(e=>{
-        const neg = (e.p < 0) ? "neg" : "";
-        return `
-          <div class="event">
-            <div class="evtText">${e.t}</div>
-            <div class="pts ${neg}">${fmtPts(e.p)}</div>
-          </div>
-        `;
-      }).join("");
+      let best = out[0];
+      for(const y of out){
+        if(!best || y.total > best.total) best = y;
+      }
 
-      yearsEl.insertAdjacentHTML("beforeend", `
-        <div class="year">
-          <div class="dot"></div>
-          <div class="card">
-            <div class="cardHead">
-              <div class="yearTitle">${y.year}</div>
-              <div class="totalPill">Total : <b>${total}</b> pts</div>
+      return { out, maxTotal, globalTotal, globalEvents, best };
+    }
+
+    function filterAndSort(list){
+      const q = String(qEl.value || "").trim().toLowerCase();
+
+      // filtre par texte dans événements ou année
+      let filtered = list.filter(y => {
+        if(!q) return true;
+        if(String(y.year).includes(q)) return true;
+        return (y.events || []).some(e => String(e.t || "").toLowerCase().includes(q));
+      });
+
+      const mode = sortEl.value;
+      if(mode === "total"){
+        filtered = filtered.slice().sort((a,b)=> (b.total||0) - (a.total||0));
+      }else{
+        filtered = filtered.slice().sort((a,b)=> (a.year||0) - (b.year||0));
+      }
+
+      return filtered;
+    }
+
+    function render(){
+      const computed = compute(frise);
+      const list = filterAndSort(computed.out);
+
+      // stats top
+      document.getElementById("stYears").textContent = computed.out.length;
+      document.getElementById("stEvents").textContent = computed.globalEvents;
+      document.getElementById("stTotal").textContent = computed.globalTotal + " pts";
+      document.getElementById("stTop").textContent = computed.best ? (computed.best.year + " (" + computed.best.total + ")") : "—";
+
+      const q = String(qEl.value || "").trim();
+      metaEl.textContent = q ? `${list.length} année(s) trouvée(s)` : `${list.length} année(s)`;
+
+      yearsEl.innerHTML = "";
+
+      if(!list.length){
+        yearsEl.innerHTML = `<div class="empty">Aucun résultat pour “${q}”.</div>`;
+        return;
+      }
+
+      // meilleure année (pour highlight)
+      const bestYear = computed.best ? computed.best.year : null;
+
+      list.forEach(y=>{
+        const total = y.total || 0;
+        const pct = computed.maxTotal > 0 ? Math.round((total / computed.maxTotal) * 100) : 0;
+
+        // si recherche: ne garder que les events qui match
+        const qLower = String(qEl.value || "").trim().toLowerCase();
+        const evts = !qLower ? (y.events || []) : (y.events || []).filter(e => {
+          if(String(y.year).includes(qLower)) return true;
+          return String(e.t || "").toLowerCase().includes(qLower);
+        });
+
+        const eventsHtml = evts.map(e=>{
+          const neg = (e.p < 0) ? "neg" : "";
+          return `
+            <div class="event">
+              <div class="evtText">${e.t}</div>
+              <div class="pts ${neg}">${fmtPts(e.p)}</div>
             </div>
-            <div class="events">
-              ${eventsHtml}
+          `;
+        }).join("");
+
+        const clsTop = (bestYear != null && y.year === bestYear) ? " top" : "";
+
+        yearsEl.insertAdjacentHTML("beforeend", `
+          <div class="year${clsTop}">
+            <div class="dot"></div>
+            <div class="card">
+              <div class="cardHead">
+                <div class="yearTitle">
+                  ${y.year}
+                  <span class="small">• ${y.count} événement(s)</span>
+                </div>
+                <div style="min-width: 240px;">
+                  <div class="totalPill">Total : <b>${total}</b> pts</div>
+                  <div class="bar"><i style="width:${pct}%;"></i></div>
+                </div>
+              </div>
+              <div class="events">
+                ${eventsHtml || `<div class="note">Aucun événement ne correspond au filtre.</div>`}
+              </div>
             </div>
           </div>
-        </div>
-      `);
-    });
+        `);
+      });
+    }
+
+    qEl.addEventListener("input", render);
+    sortEl.addEventListener("change", render);
+    render();
   </script>
 </body>
-
 </html>
