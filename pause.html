@@ -5,37 +5,36 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Pauses — Records (pauses uniques)</title>
 
-  <!-- Utilise ton style.css si tu veux -->
   <link rel="stylesheet" href="style.css">
 
   <style>
     .avatarCell{
-  width:70px;
-  text-align:center;
-}
+      width:70px;
+      text-align:center;
+    }
 
-.avatarCell .frame{
-  width:52px;
-  height:52px;
-  margin:0 auto;
-  background:#e9e9e9;
-  border:1px solid #bdbdbd;
-  border-radius:6px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+    .avatarCell .frame{
+      width:52px;
+      height:52px;
+      margin:0 auto;
+      background:#e9e9e9;
+      border:1px solid #bdbdbd;
+      border-radius:6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
 
-.avatarCell img{
-  width:46px;
-  height:46px;
-  object-fit:cover;
-  border:2px solid #8f8f8f;
-  border-radius:6px;
-  background:#ddd;
-  display:block;
-}
-    /* Fallback si jamais style.css ne contient pas tout */
+    .avatarCell img{
+      width:46px;
+      height:46px;
+      object-fit:cover;
+      border:2px solid #8f8f8f;
+      border-radius:6px;
+      background:#ddd;
+      display:block;
+    }
+
     body{
       margin:0;
       font-family: Arial, sans-serif;
@@ -115,7 +114,6 @@
       white-space:nowrap;
     }
 
-    /* badge estimation si on a dû approx */
     .approx{
       display:inline-block;
       margin-left:8px;
@@ -157,7 +155,6 @@
     .pauseMenu a:hover{ background: rgba(255,255,255,.10); }
     .pauseMenu a.is-active{ background: rgba(255,255,255,.14); }
 
-    /* petit caret */
     .caret{
       margin-left:6px;
       opacity:.9;
@@ -176,39 +173,8 @@
 
 <body>
 
-<!-- HEADER : garde ton header habituel -->
-<header class="topbar">
-  <div class="topbar-inner">
-    <a class="logo" href="rank.html" aria-label="Accueil">
-      <img src="snokiki.png" alt="SNOKIKI">
-    </a>
-
-    <nav class="nav">
-      <a class="tab tab-nv100" href="rank.html">NV100</a>
-      <a class="tab tab-nv0" href="rank0pause.html">NV100 sans pause</a>
-      <a class="tab tab-100" href="100k.html">100K</a>
-      <a class="tab tab-200" href="200k.html">200K</a>
-      <a class="tab tab-300" href="300k.html">300K</a>
-      <a class="tab tab-400" href="400k.html">400K</a>
-      <a class="tab tab-500" href="500k.html">500K et +</a>
-      <span class="tab-sep">|</span>
-      <a class="tab tab-gang" href="gang.html">Gang</a>
-      <span class="tab-sep">|</span>
-      <a class="tab tab-graph" href="graphe.html">Graphe</a>
-
-      <!-- Pauses + sous-menu -->
-      <span class="pauseWrap">
-        <a class="tab tab-pause active" href="pause.html" id="pauseBtn">Pauses<span class="caret">▾</span></a>
-        <div class="pauseMenu" id="pauseMenu">
-          <a class="is-active" href="pause.html">Records — pauses uniques</a>
-          <a href="pauses.html">Records — total par joueur</a>
-        </div>
-      </span>
-
-      <a class="tab tab-chrono" href="timeline.html">Timeline</a>
-    </nav>
-  </div>
-</header>
+<!-- ✅ HEADER INJECTÉ PAR JS -->
+<script src="header.js"></script>
 
 <main class="wrap">
   <section class="panel">
@@ -219,16 +185,16 @@
 
     <table id="tbl">
       <thead>
-  <tr>
-    <th></th>
-    <th></th>
-    <th>Joueur</th>
-    <th>Objectif</th>
-    <th>XP (au moment)</th>
-    <th>Période</th>
-    <th>Durée</th>
-  </tr>
-</thead>
+        <tr>
+          <th></th>
+          <th></th>
+          <th>Joueur</th>
+          <th>Objectif</th>
+          <th>XP (au moment)</th>
+          <th>Période</th>
+          <th>Durée</th>
+        </tr>
+      </thead>
       <tbody></tbody>
     </table>
 
@@ -241,23 +207,6 @@
 
 <script src="data.js"></script>
 <script>
-  // ===== Sous-menu Pauses (toggle) =====
-  const pauseBtn = document.getElementById("pauseBtn");
-  const pauseMenu = document.getElementById("pauseMenu");
-
-  pauseBtn.addEventListener("click", (e)=>{
-    // sur pause.html, on veut ouvrir le menu au clic sans changer de page
-    e.preventDefault();
-    pauseMenu.style.display = (pauseMenu.style.display === "block") ? "none" : "block";
-  });
-
-  document.addEventListener("click", (e)=>{
-    if(!e.target.closest(".pauseWrap")){
-      pauseMenu.style.display = "none";
-    }
-  });
-
-  // ===== Helpers =====
   function slugify(name){
     return String(name || "")
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -265,7 +214,6 @@
       .toLowerCase();
   }
 
-  // Essaie d'extraire des dates "dd/mm/yyyy" ou "dd-mm-yyyy" dans "periode"
   function extractDates(periode){
     const s = String(periode || "");
     const re = /(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/g;
@@ -306,7 +254,6 @@
     return `${n} jours`;
   }
 
-  // ===== Collecte pauses depuis data.js =====
   const entries = [];
 
   if(typeof joueurs !== "undefined" && Array.isArray(joueurs)){
@@ -316,11 +263,9 @@
         const st = modes[mode];
         const list = Array.isArray(st.pauses_detail) ? st.pauses_detail : [];
         list.forEach(pa=>{
-          // calc durée
           let days = (pa.jours != null) ? Number(pa.jours) : null;
           let approx = false;
 
-          // si pas de jours mais dates précises dans periode
           if(days == null){
             const d = extractDates(pa.periode);
             if(d){
@@ -329,13 +274,11 @@
             }
           }
 
-          // si toujours pas, approxim à partir des mois
           if(days == null && pa.mois != null){
             approx = true;
             days = Math.round(Number(pa.mois) * 30.4);
           }
 
-          // si rien du tout, on met très bas
           if(days == null){
             approx = true;
             days = -1;
@@ -357,10 +300,8 @@
     });
   }
 
-  // Trie décroissant par durée
   entries.sort((a,b)=>b.days - a.days);
 
-  // Affiche
   const tbody = document.querySelector("#tbl tbody");
 
   if(entries.length === 0){
@@ -374,15 +315,15 @@
       const approxBadge = (e.approx && e.days >= 0) ? `<span class="approx">estimé</span>` : "";
 
       tr.innerHTML = `
-  <td class="rank">${idx+1}</td>
+        <td class="rank">${idx+1}</td>
 
-  <td class="avatarCell">
-    <div class="frame">
-      <img src="${joueurs.find(x=>slugify(x.nom)===e.playerSlug)?.avatar || ''}" alt="${e.playerName}">
-    </div>
-  </td>
+        <td class="avatarCell">
+          <div class="frame">
+            <img src="${joueurs.find(x=>slugify(x.nom)===e.playerSlug)?.avatar || ''}" alt="${e.playerName}">
+          </div>
+        </td>
 
-  <td class="who">
+        <td class="who">
           <a href="profil.html?mode=${encodeURIComponent(e.mode)}&u=${encodeURIComponent(e.playerSlug)}">${e.playerName}</a>
         </td>
         <td class="mode">${modeLabel(e.mode)}</td>
