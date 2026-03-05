@@ -177,6 +177,9 @@
       const xpValue = (stats.xp != null) ? stats.xp : defaultXpForMode(mode);
       const xpText = Number(xpValue).toLocaleString("fr-FR") + " xp";
 
+      const maxXp = defaultXpForMode(mode);
+      const percent = Math.max(0, Math.min(100, (Number(xpValue) / Number(maxXp)) * 100));
+
       const t = stats.pauses_total || {nb:0, mois:0, jours:0};
       const details = Array.isArray(stats.pauses_detail) ? stats.pauses_detail : [];
 
@@ -223,7 +226,7 @@
 
           <div class="xpRow">
             <div class="xpWrap">
-              <div class="xpFill"></div>
+              <div class="xpFill" style="width:${percent}%;"></div>
               <div class="xpText">${xpText}</div>
             </div>
           </div>
