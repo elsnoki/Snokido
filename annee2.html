@@ -122,6 +122,17 @@
     white-space:nowrap;
   }
 
+  /* ✅ Skin à côté du pseudo */
+  .pill .skin{
+    width:22px;
+    height:22px;
+    border-radius:8px;
+    object-fit:cover;
+    border:1px solid #bbb;
+    background:#ddd;
+    flex:0 0 auto;
+  }
+
   .pill .xp{
     font-weight:900;
     color:#2b2b2b;
@@ -154,13 +165,13 @@
   <section class="panel">
     <div class="titlebar">
       <div>XP par année (générations)</div>
-      <div style="font-size:13px; font-weight:900; color:#bfe6ff;">
-        Classement basé sur la somme d’XP des comptes créés l’année
+      <div id="meta" style="font-size:13px; font-weight:900; color:#bfe6ff;">
+        Chargement…
       </div>
     </div>
 
     <div class="subtitle">
-      Pour l’instant, les totaux sont ceux que tu as donnés. Plus tard, on branchera ça sur ton Top 50 pour calculer automatiquement.
+      Données live depuis <code>data/players_pages.json</code> — joueurs affichés uniquement si <b>XP ≥ 40&nbsp;000</b>.
     </div>
 
     <table>
@@ -179,167 +190,251 @@
 
 <script>
   // NOTE: on ignore "fluffy" comme demandé.
+  // NOTE: On ne touche pas à rankyear.html. Ici, on lit le même JSON que ton scrap met à jour.
 
+  const DATA_URL = "data/players_pages.json";
+  const MIN_XP = 40000;
+
+  // (Legacy) Tes données manuelles restent ici (non utilisées désormais),
+  // mais on ne les supprime pas.
   const years = [
-    {
-      year: 2013,
-      total: 192596,
-      players: [
-        { nom: "Dude", xp: 100258 },
-        { nom: "Korben", xp: 92406 },
-      ],
-    },
-    {
-      year: 2014,
-      total: 1542018,
-      players: [
-        { nom: "Talk Takashi", xp: 1225000 },
-        { nom: "Josué455", xp: 159480 },
-        { nom: "Largo672", xp: 57836 },
-        { nom: "Djabrail", xp: 57054 },
-        { nom: "Seka", xp: 42648 },
-      ],
-    },
-    {
-      year: 2015,
-      total: 660222,
-      players: [
-        { nom: "Francoeur", xp: 443222 },
-        { nom: "Hoopa", xp: 175000 },
-        { nom: "Cahincaha", xp: 42000 },
-      ],
-    },
-    {
-      year: 2016,
-      total: 201568,
-      players: [
-        { nom: "Abelard", xp: 201568 },
-      ],
-    },
-    {
-      year: 2017,
-      total: 881358,
-      players: [
-        { nom: "Alex.c2109", xp: 817544 },
-        { nom: "Golder", xp: 66666 },
-      ],
-    },
-    {
-      year: 2018,
-      total: 317282,
-      players: [
-        { nom: "Alexis279", xp: 157282 },
-        { nom: "Esdras950", xp: 100000 },
-        { nom: "Unit", xp: 61724 },
-        // "fluffy" ignoré
-      ],
-    },
-    {
-      year: 2019,
-      total: 528054,
-      players: [
-        { nom: "Jordan.io", xp: 200000 },
-        { nom: "Lumia", xp: 114994 },
-        { nom: "Pingu", xp: 50000 },
-        { nom: "Marcosino", xp: 45216 },
-        { nom: "Blackout", xp: 40000 },
-        { nom: "Athèna", xp: 40000 },
-        { nom: "Acno", xp: 40000 },
-      ],
-    },
-    {
-      year: 2020,
-      total: 626208,
-      players: [
-        { nom: "TheGladiator", xp: 394442 },
-        { nom: "Cirpacha", xp: 102876 },
-        { nom: "Bételgeuse", xp: 40000 },
-        { nom: "Aldébaran", xp: 40000 },
-        { nom: "Tellor", xp: 51014 },
-      ],
-    },
-    {
-      year: 2021,
-      total: 48108,
-      players: [
-        { nom: "Venom_", xp: 48108 },
-      ],
-    },
-    {
-      year: 2022,
-      total: 89500,
-      players: [
-        { nom: "Redbot", xp: 49500 },
-        { nom: "UY-Scuty", xp: 40000 },
-      ],
-    },
-    {
-      year: 2023,
-      total: 83000,
-      players: [
-        { nom: "Houka", xp: 41000 },
-        { nom: "Cahincaha2", xp: 42000 },
-      ],
-    },
-    {
-      year: 2024,
-      total: 52940,
-      players: [
-        { nom: "Justice-", xp: 40268 },
-        { nom: "Napoléon.1er", xp: 14312 },
-      ],
-    },
-    {
-      year: 2025,
-      total: 18596,
-      players: [
-        { nom: "Polyy", xp: 4044 },
-        { nom: "Venom2", xp: 14912 },
-      ],
-    },
-    {
-      year: 2026,
-      total: 56808,
-      players: [
-        { nom: "Ko0pa", xp: 58214 },        // si tu veux respecter EXACT top50, garde 58214
-        { nom: "LargoJunior", xp: 7860 },
-        { nom: "Clovis1er", xp: 100 },
-      ],
-    },
+    { year: 2013, total: 192596, players: [ { nom: "Dude", xp: 100258 }, { nom: "Korben", xp: 92406 } ] },
   ];
 
-  // Tri décroissant par total
-  const sorted = years.slice().sort((a,b)=>b.total - a.total);
+  function fmtInt(n){
+    if(n == null) return "—";
+    try { return new Intl.NumberFormat("fr-FR").format(n); }
+    catch(e){ return String(n); }
+  }
 
-  const tbody = document.getElementById("tbody");
-  tbody.innerHTML = "";
+  function toNumber(v){
+    if(v == null) return null;
+    if(typeof v === "number" && Number.isFinite(v)) return v;
 
-  sorted.forEach((y, idx) => {
-    const totalStr = y.total.toLocaleString("fr-FR") + " xp";
+    const s = String(v).trim();
+    if(!s) return null;
 
-    // Optionnel: trier les joueurs par xp décroissant dans l’affichage
-    const players = (y.players || []).slice().sort((a,b)=> (b.xp||0) - (a.xp||0));
+    const m = s.replace(/\u00A0/g, " ").match(/-?\d[\d\s]*/);
+    if(!m) return null;
 
-    const pills = players.map(p => `
-      <span class="pill">
-        ${p.nom}
-        <span class="xp">${(p.xp||0).toLocaleString("fr-FR")} xp</span>
-      </span>
-    `).join("");
+    const cleaned = m[0].replace(/\s/g, "");
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : null;
+  }
 
-    const tr = document.createElement("tr");
-    if(idx === 0) tr.classList.add("firstRow");
+  function deepFindValue(obj, keyNames, maxDepth = 7){
+    const keysSet = new Set(keyNames.map(k => String(k).toLowerCase()));
+    const seen = new Set();
 
-    tr.innerHTML = `
-      <td class="rank">${idx+1}</td>
-      <td class="year">${y.year}</td>
-      <td class="total">${totalStr}</td>
-      <td class="players">
-        <div class="pillWrap">${pills}</div>
-        <div class="muted">${players.length} joueur(s)</div>
-      </td>
-    `;
-    tbody.appendChild(tr);
+    function walk(node, depth){
+      if(!node || depth > maxDepth) return null;
+      if(typeof node !== "object") return null;
+      if(seen.has(node)) return null;
+      seen.add(node);
+
+      for(const k of Object.keys(node)){
+        if(keysSet.has(k.toLowerCase())){
+          const v = node[k];
+          if(v != null && v !== "") return v;
+        }
+      }
+      for(const k of Object.keys(node)){
+        const v = node[k];
+        if(v && typeof v === "object"){
+          const r = walk(v, depth + 1);
+          if(r != null) return r;
+        }
+      }
+      return null;
+    }
+    return walk(obj, 0);
+  }
+
+  function deepFindNumber(obj, keyNames, maxDepth = 7){
+    const v = deepFindValue(obj, keyNames, maxDepth);
+    return toNumber(v);
+  }
+
+  function extractYear(inscription){
+    if(!inscription) return null;
+    const s = String(inscription).trim();
+
+    // "DD-MM-YYYY"
+    const parts = s.split("-");
+    if(parts.length === 3){
+      const y = Number(parts[2]);
+      return Number.isFinite(y) ? y : null;
+    }
+
+    // "YYYY-MM-DD" ou autre
+    const m = s.match(/(19\d{2}|20\d{2}|2100)/);
+    return m ? Number(m[1]) : null;
+  }
+
+  function normalizePlayers(json){
+    if(Array.isArray(json)) return json;
+    if(json && Array.isArray(json.players)) return json.players;
+
+    if(json && Array.isArray(json.pages)){
+      const out = [];
+      for(const p of json.pages){
+        if(Array.isArray(p)) out.push(...p);
+        else if(p && Array.isArray(p.players)) out.push(...p.players);
+        else if(p && Array.isArray(p.joueurs)) out.push(...p.joueurs);
+        else if(p && Array.isArray(p.items)) out.push(...p.items);
+      }
+      return out;
+    }
+
+    if(json && typeof json === "object"){
+      const out = [];
+      for(const k of Object.keys(json)){
+        if(Array.isArray(json[k])) out.push(...json[k]);
+      }
+      if(out.length) return out;
+    }
+
+    return [];
+  }
+
+  async function loadAllPlayers(){
+    const res = await fetch(DATA_URL, { cache: "no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
+    const list = normalizePlayers(json);
+    if(!list.length) throw new Error("Format JSON non reconnu ou liste vide");
+    return list;
+  }
+
+  // 1) Si "modes" existe: meilleur xp = max(modes[*].xp)
+  // 2) Sinon: XP via deepFindNumber(...)
+  function bestXP(player){
+    if(player && player.modes && typeof player.modes === "object"){
+      let best = { xp: null };
+      for(const modeKey of Object.keys(player.modes)){
+        const m = player.modes[modeKey];
+        const xp = (m && typeof m.xp === "number") ? m.xp : toNumber(m?.xp);
+        if(xp == null) continue;
+        if(best.xp == null || xp > best.xp){
+          best.xp = xp;
+        }
+      }
+      if(best.xp != null) return best;
+    }
+
+    const xp = deepFindNumber(player, [
+      "xp","xptotal","xp_total","total_xp","totalxp",
+      "experience","exp","points_xp","pointsxp"
+    ]);
+    return { xp };
+  }
+
+  function getName(player){
+    return deepFindValue(player, ["nom","name","pseudo","username","player","player_name"]) ?? "—";
+  }
+
+  function getAvatar(player){
+    return deepFindValue(player, ["avatar","img","image","photo","pfp","avatar_url","avatarUrl"]) ?? "avatar/1.jpg";
+  }
+
+  function getInscription(player){
+    return deepFindValue(player, ["inscription","registered","register_date","registration","created","created_at","createdAt","date_inscription"]) ?? null;
+  }
+
+  function buildYearsFromPlayers(players){
+    // Parse + filtre XP >= MIN_XP + année valide
+    const rows = players.map(pl => {
+      const nom = getName(pl);
+      const avatar = getAvatar(pl);
+      const inscription = getInscription(pl);
+      const year = extractYear(inscription);
+      const xp = bestXP(pl).xp;
+
+      return { nom, avatar, inscription, year, xp };
+    }).filter(r =>
+      r.year != null &&
+      r.xp != null &&
+      r.xp >= MIN_XP &&
+      String(r.nom).trim().toLowerCase() !== "fluffy"
+    );
+
+    // Group by year
+    const byYear = new Map();
+    for(const r of rows){
+      if(!byYear.has(r.year)){
+        byYear.set(r.year, { year: r.year, total: 0, players: [] });
+      }
+      const g = byYear.get(r.year);
+      g.players.push({ nom: r.nom, xp: r.xp, avatar: r.avatar });
+      g.total += r.xp;
+    }
+
+    // Sort players inside each year by xp desc
+    const list = Array.from(byYear.values());
+    for(const y of list){
+      y.players.sort((a,b)=> (b.xp||0) - (a.xp||0));
+    }
+
+    return { years: list, keptPlayers: rows.length };
+  }
+
+  function renderTable(yearsArr){
+    // Tri décroissant par total
+    const sorted = yearsArr.slice().sort((a,b)=> (b.total||0) - (a.total||0));
+
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+
+    sorted.forEach((y, idx) => {
+      const totalStr = fmtInt(y.total) + " xp";
+      const players = (y.players || []);
+
+      const pills = players.map(p => `
+        <span class="pill" title="${p.nom} — ${fmtInt(p.xp)} xp">
+          <img class="skin" src="${p.avatar}" alt="${p.nom}">
+          ${p.nom}
+          <span class="xp">${fmtInt(p.xp)} xp</span>
+        </span>
+      `).join("");
+
+      const tr = document.createElement("tr");
+      if(idx === 0) tr.classList.add("firstRow");
+
+      tr.innerHTML = `
+        <td class="rank">${idx+1}</td>
+        <td class="year">${y.year}</td>
+        <td class="total">${totalStr}</td>
+        <td class="players">
+          <div class="pillWrap">${pills || `<span class="muted">Aucun joueur ≥ ${fmtInt(MIN_XP)} xp</span>`}</div>
+          <div class="muted">${players.length} joueur(s)</div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    const meta = document.getElementById("meta");
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = `<tr><td colspan="4" style="padding:14px 12px;font-weight:900;color:#444;">Chargement des joueurs…</td></tr>`;
+
+    try{
+      const players = await loadAllPlayers();
+      const built = buildYearsFromPlayers(players);
+
+      meta.textContent = `${built.keptPlayers} joueur(s) ≥ ${fmtInt(MIN_XP)} xp`;
+      renderTable(built.years);
+    }catch(e){
+      meta.textContent = "Erreur de chargement";
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" style="padding:14px 12px;font-weight:900;color:#b00020;">
+            Impossible de charger <code>${DATA_URL}</code> : ${String(e.message || e)}
+          </td>
+        </tr>
+      `;
+      console.error(e);
+    }
   });
 </script>
 
