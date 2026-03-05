@@ -68,6 +68,7 @@ tbody tr:nth-child(even){ background:#fff; }
 <body>
 
 <script src="header.js"></script>
+<script src="data.js"></script>
 
 <div class="box">
   <div class="title">Rank 400K — par rapidité</div>
@@ -87,45 +88,63 @@ tbody tr:nth-child(even){ background:#fff; }
 </div>
 
 <script>
-function slugify(name){
-  return name.normalize("NFD")
+function slugifyLocal(name){
+  return String(name || "")
+    .normalize("NFD")
     .replace(/[\u0300-\u036f]/g,"")
     .replace(/[^a-zA-Z0-9]/g,"")
     .toLowerCase();
 }
 
-const joueurs = [
-  {nom:"Talk Takashi", jours:204, atteint:"31-12-2019", avatar:"avatar/1.jpg"},
-  {nom:"alex.c2109", jours:776, atteint:"14-02-2023", avatar:"avatar/2.jpg"},
-  {nom:"francoeur", jours:1052, atteint:"08-12-2023", avatar:"avatar/3.jpg"},
-  {nom:"TheGladiator", jours:"?", atteint:"—", avatar:"avatar/4.jpg"}
-];
-
-joueurs.sort((a,b)=>{
-  if(typeof a.jours==="number" && typeof b.jours==="number")
-    return a.jours-b.jours;
-  return 1;
-});
-
 const tbody = document.querySelector("#leaderboard tbody");
 
-joueurs.forEach((j,i)=>{
-  const tr=document.createElement("tr");
-  tr.innerHTML=`
-    <td class="rank">${i+1}</td>
-    <td class="avatar">
-      <div class="frame">
-        <img src="${j.avatar}" alt="${j.nom}">
-      </div>
-    </td>
-    <td class="name">
-      <a href="profil.html?mode=400k&u=${slugify(j.nom)}">${j.nom}</a>
-    </td>
-    <td class="center">${j.jours}${typeof j.jours==="number"?" jours":""}</td>
-    <td class="center">${j.atteint}</td>
-  `;
-  tbody.appendChild(tr);
-});
+if(typeof joueurs === "undefined" || !Array.isArray(joueurs)){
+  tbody.innerHTML = "<tr><td colspan='5' style='padding:16px'>Erreur : data.js ne s'est pas chargé.</td></tr>";
+} else {
+
+  // on construit le classement à partir de data.js
+  const mode = "400k";
+  const list = joueurs
+    .map(p => {
+      const s = p.modes && p.modes[mode] ? p.modes[mode] : null;
+      if(!s) return null;
+      return {
+        nom: p.nom,
+        avatar: p.avatar || "avatar/1.jpg",
+        jours: s.jours,
+        atteint: s.atteint_le
+      };
+    })
+    .filter(Boolean);
+
+  // tri : chiffres d'abord (du plus rapide au plus lent), puis les null à la fin
+  list.sort((a,b)=>{
+    const an = typeof a.jours === "number";
+    const bn = typeof b.jours === "number";
+    if(an && bn) return a.jours - b.jours;
+    if(an && !bn) return -1;
+    if(!an && bn) return 1;
+    return 0;
+  });
+
+  list.forEach((j,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td class="rank">${i+1}</td>
+      <td class="avatar">
+        <div class="frame">
+          <img src="${j.avatar}" alt="${j.nom}">
+        </div>
+      </td>
+      <td class="name">
+        <a href="profil.html?mode=400k&u=${slugifyLocal(j.nom)}">${j.nom}</a>
+      </td>
+      <td class="center">${typeof j.jours==="number" ? (j.jours + " jours") : "—"}</td>
+      <td class="center">${j.atteint || "—"}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 </script>
 
 </body>
