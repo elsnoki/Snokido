@@ -139,37 +139,8 @@
 
 <body>
 
-<header class="topbar">
-  <div class="topbar-inner">
-    <a class="logo" href="rank.html" aria-label="Accueil">
-      <img src="snokiki.png" alt="SNOKIKI">
-    </a>
-
-    <nav class="nav">
-      <a class="tab tab-nv100" href="rank.html">NV100</a>
-      <a class="tab tab-nv0" href="rank0pause.html">NV100 sans pause</a>
-      <a class="tab tab-100" href="100k.html">100K</a>
-      <a class="tab tab-200" href="200k.html">200K</a>
-      <a class="tab tab-300" href="300k.html">300K</a>
-      <a class="tab tab-400" href="400k.html">400K</a>
-      <a class="tab tab-500" href="500k.html">500K et +</a>
-      <span class="tab-sep">|</span>
-      <a class="tab tab-gang" href="gang.html">Gang</a>
-      <span class="tab-sep">|</span>
-      <a class="tab tab-graph" href="graphe.html">Graphe</a>
-
-      <span class="pauseWrap">
-        <a class="tab tab-pause active" href="pauses_total.html" id="pauseBtn">Pauses<span class="caret">▾</span></a>
-        <div class="pauseMenu" id="pauseMenu">
-          <a href="pause.html">Records — pauses uniques</a>
-          <a class="is-active" href="pauses_total.html">Records — total par joueur</a>
-        </div>
-      </span>
-
-      <a class="tab tab-chrono" href="timeline.html">Timeline</a>
-    </nav>
-  </div>
-</header>
+<!-- ✅ HEADER INJECTÉ PAR JS -->
+<script src="header.js"></script>
 
 <main class="wrap">
   <section class="panel">
@@ -201,19 +172,6 @@
 
 <script src="data.js"></script>
 <script>
-  // menu
-  const pauseBtn = document.getElementById("pauseBtn");
-  const pauseMenu = document.getElementById("pauseMenu");
-  pauseBtn.addEventListener("click", (e)=>{
-    e.preventDefault();
-    pauseMenu.style.display = (pauseMenu.style.display === "block") ? "none" : "block";
-  });
-  document.addEventListener("click", (e)=>{
-    if(!e.target.closest(".pauseWrap")){
-      pauseMenu.style.display = "none";
-    }
-  });
-
   function slugify(name){
     return String(name || "")
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
