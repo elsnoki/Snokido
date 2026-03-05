@@ -310,6 +310,36 @@
     background: linear-gradient(#ffd44d,#f0b300);
     color:#111;
   }
+
+  .navYear{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+}
+
+.navBtn{
+  display:inline-block;
+  padding:10px 14px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  font-weight:900;
+  text-decoration:none;
+  cursor:pointer;
+  backdrop-filter: blur(4px);
+}
+
+.navBtn:hover{
+  background:rgba(255,255,255,.18);
+}
+
+.navBtn.primary{
+  background:#66ccff;
+  color:#003347;
+  border:1px solid rgba(0,0,0,.15);
+}
 </style>
 </head>
 
@@ -317,6 +347,14 @@
 <script src="header.js"></script>
 
 <main class="wrap">
+
+  <div class="navYear">
+  <button class="navBtn" onclick="history.back()">← Retour</button>
+
+  <a class="navBtn primary" href="annee.html">
+    Classement des années →
+  </a>
+</div>
 
   <section class="hero">
     <div class="heroTop">
@@ -665,3 +703,4 @@
 
 </body>
 </html>
+
