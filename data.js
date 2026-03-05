@@ -23,7 +23,7 @@ const joueurs = [
       "100k":{ jours:40, atteint_le:"25-08-2020", rang:"3/14", xp:100000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
       "200k":{ jours:84, atteint_le:"17-11-2020", rang:"1/6", xp:200000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
       "300k": { jours:135, atteint_le:"01-04-2021", rang:"1/4", xp:300000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-      "400k": { jours:null, atteint_le:"02-03-2026", rang:"4/4", xp:400000, pauses_total:{nb:1, mois:38, jours:1163}, pauses_detail:[{xp:300010, periode:"01/04/2021 -> 07/06/2024", mois:38, jours:1163}] }
+      "400k": { jours:2109, atteint_le:"02-03-2026", rang:"4/4", xp:400000, pauses_total:{nb:1, mois:38, jours:1163}, pauses_detail:[{xp:300010, periode:"01/04/2021 -> 07/06/2024", mois:38, jours:1163}] }
     }
   },
   {
@@ -227,3 +227,4 @@ const joueurs = [
     }
   }
 ];
+
