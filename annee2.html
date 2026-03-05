@@ -8,11 +8,28 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
+  :root{
+    --bg1:#2a88ad;
+    --bg2:#0b3551;
+    --bg3:#062638;
+
+    --card:#ffffff;
+    --text:#101418;
+    --muted:#667085;
+    --line:rgba(16,24,40,.10);
+
+    --shadow: 0 18px 48px rgba(0,0,0,.30);
+    --shadow2: 0 10px 24px rgba(0,0,0,.20);
+
+    --accent:#66ccff;
+    --gold:#ffd44d;
+  }
+
   body{
     margin:0;
     font-family: Arial, sans-serif;
-    background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
-    color:#222;
+    background: radial-gradient(1100px 600px at 25% 15%, var(--bg1) 0%, var(--bg2) 60%, var(--bg3) 100%);
+    color:var(--text);
   }
 
   .wrap{
@@ -21,19 +38,128 @@
     padding:0 12px;
   }
 
-  .panel{
-    background:#fff;
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow:0 12px 30px rgba(0,0,0,.28);
-    border:1px solid rgba(0,0,0,.10);
+  /* ===== HERO / HEADER ===== */
+  .hero{
+    border-radius:16px;
+    padding:16px;
+    background: rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow: 0 14px 40px rgba(0,0,0,.25);
+    backdrop-filter: blur(6px);
+    margin-bottom:14px;
   }
 
-  .titlebar{
-    background:#3b3b3b;
+  .heroTop{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+
+  .heroTitle{
     color:#fff;
-    padding:14px 16px;
+    font-weight:900;
     font-size:22px;
+    letter-spacing:.2px;
+  }
+  .heroSub{
+    margin-top:4px;
+    color:rgba(255,255,255,.85);
+    font-weight:800;
+    font-size:13px;
+  }
+
+  .heroActions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:flex-end;
+  }
+
+  .ctrl{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:12px;
+    padding:8px 10px;
+    color:#fff;
+    font-weight:900;
+    box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+  }
+
+  .ctrl input{
+    border:0;
+    outline:0;
+    background:transparent;
+    color:#fff;
+    font-weight:900;
+    width:210px;
+  }
+  .ctrl input::placeholder{ color:rgba(255,255,255,.70); font-weight:900; }
+
+  .ctrl select{
+    border:0;
+    outline:0;
+    background:transparent;
+    color:#fff;
+    font-weight:900;
+    cursor:pointer;
+  }
+
+  .btn{
+    border:0;
+    cursor:pointer;
+    background: rgba(255,255,255,.14);
+    color:#fff;
+    font-weight:900;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+  }
+  .btn:hover{ background: rgba(255,255,255,.18); }
+
+  .stats{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap:10px;
+    margin-top:12px;
+  }
+
+  .stat{
+    background: rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:14px;
+    padding:10px 12px;
+    color:#fff;
+    box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+  }
+  .stat .k{ font-size:12px; font-weight:900; opacity:.9; }
+  .stat .v{ margin-top:2px; font-size:18px; font-weight:900; }
+
+  @media (max-width: 760px){
+    .ctrl input{ width:160px; }
+    .stats{ grid-template-columns: 1fr; }
+  }
+
+  /* ===== PANELS / CARDS ===== */
+  .panel{
+    background:var(--card);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow: var(--shadow);
+    border:1px solid rgba(255,255,255,.20);
+  }
+
+  .panelHead{
+    padding:14px 16px;
+    background: linear-gradient(#3b3b3b,#2a2a2a);
+    color:#fff;
+    font-size:18px;
     font-weight:900;
     display:flex;
     align-items:center;
@@ -42,63 +168,88 @@
     flex-wrap:wrap;
   }
 
-  .subtitle{
-    padding:12px 16px;
-    background:#f6f6f6;
-    border-bottom:1px solid #d9d9d9;
-    color:#444;
-    font-size:13px;
-    font-weight:700;
-  }
-
-  table{
-    width:100%;
-    border-collapse:separate;
-    border-spacing:0;
-  }
-
-  thead th{
-    background:#ffffff;
-    padding:14px 12px;
-    text-align:left;
-    font-size:14px;
+  .panelHead small{
+    font-size:12px;
+    color:#cfeeff;
     font-weight:900;
-    border-bottom:2px solid #d9d9d9;
   }
 
-  tbody td{
-    padding:16px 12px;
-    border-bottom:1px solid #e6e6e6;
-    vertical-align:top;
-    font-size:15px;
+  .content{
+    padding:14px;
   }
 
-  tbody tr:nth-child(odd){ background:#fafafa; }
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:12px;
+  }
 
-  .rank{
-    width:70px;
+  @media (max-width: 980px){
+    .grid{ grid-template-columns: 1fr; }
+  }
+
+  .yearCard{
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow: var(--shadow2);
+    background:#fff;
+  }
+
+  .yearTop{
+    padding:12px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background: linear-gradient(rgba(102,204,255,.14), rgba(255,255,255,.0));
+    border-bottom:1px solid var(--line);
+  }
+
+  .yearLeft{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:34px; height:34px;
+    border-radius:12px;
     font-weight:900;
+    background:#111;
+    color:#fff;
+  }
+
+  .yearMeta .y{
     font-size:18px;
-    color:#444;
-    text-align:center;
+    font-weight:900;
+  }
+  .yearMeta .s{
+    margin-top:2px;
+    font-size:12px;
+    font-weight:900;
+    color:var(--muted);
   }
 
-  .year{
-    width:120px;
+  .yearTotal{
+    text-align:right;
     font-weight:900;
+  }
+  .yearTotal .t{
     font-size:16px;
   }
-
-  .total{
-    width:180px;
+  .yearTotal .sub{
+    margin-top:2px;
+    font-size:12px;
+    color:var(--muted);
     font-weight:900;
-    font-size:16px;
-    color:#111;
-    white-space:nowrap;
   }
 
   .players{
-    padding-top:2px;
+    padding:12px 14px 14px;
   }
 
   .pillWrap{
@@ -113,16 +264,20 @@
     gap:8px;
     padding:8px 10px;
     border-radius:999px;
-    border:1px solid #d2d2d2;
+    border:1px solid rgba(0,0,0,.12);
     background:#fff;
     box-shadow:0 2px 0 rgba(0,0,0,.05);
     font-size:13px;
     font-weight:900;
     color:#222;
     white-space:nowrap;
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .pill:hover{
+    transform: translateY(-1px);
+    box-shadow:0 8px 18px rgba(0,0,0,.12);
   }
 
-  /* ✅ Skin à côté du pseudo */
   .pill .skin{
     width:22px;
     height:22px;
@@ -139,64 +294,93 @@
     opacity:.9;
   }
 
-  .muted{
-    color:#666;
-    font-weight:700;
+  .mutedRow{
+    margin-top:10px;
+    color:var(--muted);
+    font-weight:900;
     font-size:12px;
-    margin-top:8px;
   }
 
-  /* petit effet top 1 */
-  tr.firstRow td{
-    background: linear-gradient(rgba(255,212,77,.18), rgba(255,255,255,.10));
-    border-bottom-color:#e9d28a;
+  /* effet #1 */
+  .yearCard.first{
+    border:1px solid rgba(255,212,77,.70);
+    box-shadow: 0 16px 42px rgba(255,212,77,.18), var(--shadow2);
   }
-  tr.firstRow .total{
-    color:#7a5200;
+  .yearCard.first .badge{
+    background: linear-gradient(#ffd44d,#f0b300);
+    color:#111;
   }
 </style>
 </head>
 
 <body>
-
 <script src="header.js"></script>
 
 <main class="wrap">
-  <section class="panel">
-    <div class="titlebar">
-      <div>XP par année (générations)</div>
-      <div id="meta" style="font-size:13px; font-weight:900; color:#bfe6ff;">
-        Chargement…
+
+  <section class="hero">
+    <div class="heroTop">
+      <div>
+        <div class="heroTitle">XP par année (générations)</div>
+        <div class="heroSub">
+          Données live depuis <code style="color:#fff; font-weight:900;">data/players_pages.json</code>
+          — affichage des joueurs ≥ <span id="minXpLabel">40&nbsp;000</span> XP.
+        </div>
+      </div>
+
+      <div class="heroActions">
+        <div class="ctrl" title="Rechercher un joueur">
+          🔎 <input id="q" type="text" placeholder="Rechercher un pseudo…">
+        </div>
+
+        <div class="ctrl" title="Seuil XP minimum">
+          ⚙️
+          <select id="minxp">
+            <option value="40000" selected>40 000+</option>
+            <option value="50000">50 000+</option>
+            <option value="75000">75 000+</option>
+            <option value="100000">100 000+</option>
+          </select>
+        </div>
+
+        <button class="btn" id="refreshBtn" type="button">↻ Recharger</button>
       </div>
     </div>
 
-    <div class="subtitle">
-      Données live depuis <code>data/players_pages.json</code> — joueurs affichés uniquement si <b>XP ≥ 40&nbsp;000</b>.
+    <div class="stats">
+      <div class="stat">
+        <div class="k">Joueurs affichés</div>
+        <div class="v" id="statPlayers">—</div>
+      </div>
+      <div class="stat">
+        <div class="k">Années</div>
+        <div class="v" id="statYears">—</div>
+      </div>
+      <div class="stat">
+        <div class="k">Total XP (sur joueurs filtrés)</div>
+        <div class="v" id="statTotal">—</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panelHead">
+      <div>Classement par année</div>
+      <small id="meta">Chargement…</small>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Année</th>
-          <th>Total XP</th>
-          <th>Joueurs (XP individuel)</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+    <div class="content">
+      <div id="grid" class="grid"></div>
+    </div>
   </section>
+
 </main>
 
 <script>
-  // NOTE: on ignore "fluffy" comme demandé.
-  // NOTE: On ne touche pas à rankyear.html. Ici, on lit le même JSON que ton scrap met à jour.
-
+  // NOTE: On ne touche pas à rankyear.html. Ici on lit le même JSON scrapé.
   const DATA_URL = "data/players_pages.json";
-  const MIN_XP = 40000;
 
-  // (Legacy) Tes données manuelles restent ici (non utilisées désormais),
-  // mais on ne les supprime pas.
+  // (Legacy) on garde des données manuelles, mais non utilisées désormais (on ne supprime pas)
   const years = [
     { year: 2013, total: 192596, players: [ { nom: "Dude", xp: 100258 }, { nom: "Korben", xp: 92406 } ] },
   ];
@@ -210,13 +394,10 @@
   function toNumber(v){
     if(v == null) return null;
     if(typeof v === "number" && Number.isFinite(v)) return v;
-
     const s = String(v).trim();
     if(!s) return null;
-
     const m = s.replace(/\u00A0/g, " ").match(/-?\d[\d\s]*/);
     if(!m) return null;
-
     const cleaned = m[0].replace(/\s/g, "");
     const n = Number(cleaned);
     return Number.isFinite(n) ? n : null;
@@ -306,8 +487,6 @@
     return list;
   }
 
-  // 1) Si "modes" existe: meilleur xp = max(modes[*].xp)
-  // 2) Sinon: XP via deepFindNumber(...)
   function bestXP(player){
     if(player && player.modes && typeof player.modes === "object"){
       let best = { xp: null };
@@ -341,24 +520,21 @@
     return deepFindValue(player, ["inscription","registered","register_date","registration","created","created_at","createdAt","date_inscription"]) ?? null;
   }
 
-  function buildYearsFromPlayers(players){
-    // Parse + filtre XP >= MIN_XP + année valide
+  function buildYearsFromPlayers(players, minXp){
     const rows = players.map(pl => {
       const nom = getName(pl);
       const avatar = getAvatar(pl);
       const inscription = getInscription(pl);
       const year = extractYear(inscription);
       const xp = bestXP(pl).xp;
-
       return { nom, avatar, inscription, year, xp };
     }).filter(r =>
       r.year != null &&
       r.xp != null &&
-      r.xp >= MIN_XP &&
+      r.xp >= minXp &&
       String(r.nom).trim().toLowerCase() !== "fluffy"
     );
 
-    // Group by year
     const byYear = new Map();
     for(const r of rows){
       if(!byYear.has(r.year)){
@@ -369,7 +545,6 @@
       g.total += r.xp;
     }
 
-    // Sort players inside each year by xp desc
     const list = Array.from(byYear.values());
     for(const y of list){
       y.players.sort((a,b)=> (b.xp||0) - (a.xp||0));
@@ -378,18 +553,29 @@
     return { years: list, keptPlayers: rows.length };
   }
 
-  function renderTable(yearsArr){
-    // Tri décroissant par total
+  function applySearch(yearsArr, query){
+    const q = String(query || "").trim().toLowerCase();
+    if(!q) return yearsArr;
+
+    // on garde l'année si au moins 1 joueur match, et on filtre les pills
+    return yearsArr.map(y => {
+      const players = (y.players || []).filter(p => String(p.nom||"").toLowerCase().includes(q));
+      const total = players.reduce((s,p)=> s + (p.xp||0), 0);
+      return { year:y.year, players, total };
+    }).filter(y => (y.players || []).length > 0);
+  }
+
+  function renderCards(yearsArr){
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
     const sorted = yearsArr.slice().sort((a,b)=> (b.total||0) - (a.total||0));
 
-    const tbody = document.getElementById("tbody");
-    tbody.innerHTML = "";
-
     sorted.forEach((y, idx) => {
-      const totalStr = fmtInt(y.total) + " xp";
-      const players = (y.players || []);
+      const card = document.createElement("div");
+      card.className = "yearCard" + (idx === 0 ? " first" : "");
 
-      const pills = players.map(p => `
+      const pills = (y.players || []).map(p => `
         <span class="pill" title="${p.nom} — ${fmtInt(p.xp)} xp">
           <img class="skin" src="${p.avatar}" alt="${p.nom}">
           ${p.nom}
@@ -397,44 +583,83 @@
         </span>
       `).join("");
 
-      const tr = document.createElement("tr");
-      if(idx === 0) tr.classList.add("firstRow");
+      card.innerHTML = `
+        <div class="yearTop">
+          <div class="yearLeft">
+            <div class="badge">${idx+1}</div>
+            <div class="yearMeta">
+              <div class="y">Année ${y.year}</div>
+              <div class="s">${(y.players||[]).length} joueur(s)</div>
+            </div>
+          </div>
+          <div class="yearTotal">
+            <div class="t">${fmtInt(y.total)} xp</div>
+            <div class="sub">Total (filtré)</div>
+          </div>
+        </div>
 
-      tr.innerHTML = `
-        <td class="rank">${idx+1}</td>
-        <td class="year">${y.year}</td>
-        <td class="total">${totalStr}</td>
-        <td class="players">
-          <div class="pillWrap">${pills || `<span class="muted">Aucun joueur ≥ ${fmtInt(MIN_XP)} xp</span>`}</div>
-          <div class="muted">${players.length} joueur(s)</div>
-        </td>
+        <div class="players">
+          <div class="pillWrap">
+            ${pills || `<span class="mutedRow">Aucun joueur pour ce filtre.</span>`}
+          </div>
+        </div>
       `;
-      tbody.appendChild(tr);
+
+      grid.appendChild(card);
     });
   }
 
-  window.addEventListener("DOMContentLoaded", async () => {
+  let RAW_PLAYERS = [];
+  let LAST_BUILT = [];
+
+  function updateUI(){
     const meta = document.getElementById("meta");
-    const tbody = document.getElementById("tbody");
-    tbody.innerHTML = `<tr><td colspan="4" style="padding:14px 12px;font-weight:900;color:#444;">Chargement des joueurs…</td></tr>`;
+    const q = document.getElementById("q").value || "";
+    const minxp = Number(document.getElementById("minxp").value || 40000);
 
+    document.getElementById("minXpLabel").textContent = fmtInt(minxp);
+
+    const built = buildYearsFromPlayers(RAW_PLAYERS, minxp);
+    const searched = applySearch(built.years, q);
+
+    // stats
+    const totalAll = searched.reduce((s,y)=> s + (y.total||0), 0);
+    const playersCount = searched.reduce((s,y)=> s + ((y.players||[]).length), 0);
+
+    document.getElementById("statPlayers").textContent = fmtInt(playersCount);
+    document.getElementById("statYears").textContent = fmtInt(searched.length);
+    document.getElementById("statTotal").textContent = fmtInt(totalAll);
+
+    meta.textContent = `${fmtInt(built.keptPlayers)} joueur(s) ≥ ${fmtInt(minxp)} xp (avant recherche)`;
+
+    LAST_BUILT = searched;
+    renderCards(searched);
+  }
+
+  async function refresh(){
+    const meta = document.getElementById("meta");
+    meta.textContent = "Rechargement…";
     try{
-      const players = await loadAllPlayers();
-      const built = buildYearsFromPlayers(players);
-
-      meta.textContent = `${built.keptPlayers} joueur(s) ≥ ${fmtInt(MIN_XP)} xp`;
-      renderTable(built.years);
+      RAW_PLAYERS = await loadAllPlayers();
+      updateUI();
+      meta.textContent += " — OK";
     }catch(e){
       meta.textContent = "Erreur de chargement";
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="4" style="padding:14px 12px;font-weight:900;color:#b00020;">
-            Impossible de charger <code>${DATA_URL}</code> : ${String(e.message || e)}
-          </td>
-        </tr>
+      const grid = document.getElementById("grid");
+      grid.innerHTML = `
+        <div style="padding:14px; font-weight:900; color:#b00020; background:#fff; border-radius:14px; border:1px solid rgba(0,0,0,.12);">
+          Impossible de charger <code>${DATA_URL}</code> : ${String(e.message || e)}
+        </div>
       `;
       console.error(e);
     }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("q").addEventListener("input", updateUI);
+    document.getElementById("minxp").addEventListener("change", updateUI);
+    document.getElementById("refreshBtn").addEventListener("click", refresh);
+    refresh();
   });
 </script>
 
