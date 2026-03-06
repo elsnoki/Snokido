@@ -5,34 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Frise — Chronologie</title>
 
-  <!-- Ton CSS global -->
   <link rel="stylesheet" href="style.css">
 
   <style>
-    :root{
-      --bg1:#2a88ad;
-      --bg2:#0b3551;
-      --bg3:#062638;
-
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --line: rgba(15, 23, 42, .10);
-
-      --accent:#66ccff;
-      --gold:#ffd44d;
-      --red:#ff3b3b;
-      --green:#00ffaa;
-
-      --shadow: 0 16px 44px rgba(0,0,0,.30);
-      --shadow2: 0 10px 24px rgba(0,0,0,.18);
-    }
-
     body{
       margin:0;
       font-family: Arial, sans-serif;
-      background: radial-gradient(1100px 600px at 25% 15%, var(--bg1) 0%, var(--bg2) 60%, var(--bg3) 100%);
-      color:var(--text);
+      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+      color:#222;
     }
 
     .wrap{
@@ -43,10 +23,10 @@
 
     .panel{
       background:#fff;
-      border-radius:16px;
+      border-radius:12px;
       overflow:hidden;
-      box-shadow: var(--shadow);
-      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 12px 30px rgba(0,0,0,.28);
+      border:1px solid rgba(0,0,0,.10);
     }
 
     .titlebar{
@@ -76,65 +56,6 @@
     }
     .titlebar .links a:hover{ text-decoration:underline; }
 
-    /* ===== Barre d'outils (AJOUT, sans enlever ton titlebar) ===== */
-    .toolbar{
-      padding:12px 16px;
-      background:#f6f6f6;
-      border-bottom:1px solid #d9d9d9;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-
-    .ctrl{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      background:#fff;
-      border:1px solid rgba(0,0,0,.12);
-      border-radius:12px;
-      padding:8px 10px;
-      color:#111;
-      font-weight:900;
-      box-shadow: inset 0 -2px 0 rgba(0,0,0,.05);
-    }
-    .ctrl input{
-      border:0;
-      outline:0;
-      background:transparent;
-      font-weight:900;
-      width:240px;
-    }
-    .ctrl input::placeholder{ color:#7b7b7b; font-weight:900; }
-
-    .ctrl select{
-      border:0;
-      outline:0;
-      background:transparent;
-      font-weight:900;
-      cursor:pointer;
-    }
-
-    .btn{
-      border:0;
-      cursor:pointer;
-      background:#3b3b3b;
-      color:#fff;
-      font-weight:900;
-      padding:10px 12px;
-      border-radius:12px;
-      box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
-    }
-    .btn:hover{ background:#2f2f2f; }
-
-    .meta{
-      font-size:12px;
-      color:#444;
-      font-weight:900;
-    }
-
     /* Barème */
     .legend{
       padding:14px 16px;
@@ -146,13 +67,7 @@
       font-size:16px;
       font-weight:900;
       color:#333;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
     }
-
     .chips{
       display:flex;
       gap:8px;
@@ -171,13 +86,6 @@
     .chip .pts{ margin-left:6px; opacity:.85; }
     .chip.neg{ background:#fff2f2; border-color:#f0b0b0; }
 
-    .note{
-      margin-top:10px;
-      font-size:12px;
-      color:#666;
-      font-weight:900;
-    }
-
     /* Timeline */
     .timeline{
       position:relative;
@@ -192,9 +100,8 @@
       bottom:16px;
       width:4px;
       border-radius:999px;
-      background: linear-gradient(var(--accent), #2a88ad, #114e6a);
-      opacity:.95;
-      box-shadow: 0 0 0 6px rgba(102,204,255,.10);
+      background: linear-gradient(#7ec8ff, #2a88ad, #114e6a);
+      opacity:.9;
     }
 
     .year{
@@ -211,82 +118,53 @@
       border-radius:999px;
       background:#fff;
       border:4px solid #2a88ad;
-      box-shadow: 0 0 0 6px rgba(102,204,255,.12), 0 2px 0 rgba(0,0,0,.12);
+      box-shadow:0 2px 0 rgba(0,0,0,.15);
       flex:0 0 auto;
       margin-left: 18px;
-      margin-top: 14px;
+      margin-top: 12px;
     }
 
     .card{
       flex:1;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:16px;
+      background:#f9f9f9;
+      border:1px solid #d9d9d9;
+      border-radius:12px;
       overflow:hidden;
-      box-shadow: var(--shadow2);
+      box-shadow:0 6px 16px rgba(0,0,0,.10);
     }
 
     .cardHead{
+      background:#ececec;
+      border-bottom:1px solid #d9d9d9;
       padding:12px 14px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
       flex-wrap:wrap;
-      background: linear-gradient(rgba(102,204,255,.14), rgba(255,255,255,0));
-      border-bottom:1px solid var(--line);
     }
 
     .yearTitle{
       font-size:20px;
       font-weight:900;
-      color:#111827;
-      display:flex;
-      align-items:baseline;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .yearTitle .small{
-      font-size:12px;
-      font-weight:900;
-      color:var(--muted);
-    }
-
-    .rightBox{
-      min-width: 260px;
+      color:#222;
     }
 
     .totalPill{
-      font-size:13px;
+      font-size:14px;
       font-weight:900;
       padding:8px 10px;
       border-radius:999px;
       background:#ffffff;
-      border:1px solid rgba(0,0,0,.12);
+      border:1px solid #cfcfcf;
       box-shadow:0 2px 0 rgba(0,0,0,.06);
       white-space:nowrap;
-      display:inline-block;
     }
+
     .totalPill b{ font-size:16px; }
 
-    .bar{
-      width:100%;
-      height:10px;
-      border-radius:999px;
-      background: rgba(15,23,42,.08);
-      border:1px solid rgba(15,23,42,.06);
-      overflow:hidden;
-      margin-top:10px;
-    }
-    .bar i{
-      display:block;
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, var(--accent), var(--gold));
-    }
-
     .events{
-      padding: 12px 14px 14px;
+      padding: 12px 14px;
       background:#fff;
     }
 
@@ -296,66 +174,51 @@
       justify-content:space-between;
       gap:12px;
       padding:10px 0;
-      border-bottom:1px dashed rgba(15,23,42,.14);
+      border-bottom:1px solid #ececec;
       font-size:14px;
     }
     .event:last-child{ border-bottom:none; }
 
     .evtText{
-      color:#111827;
+      color:#222;
       line-height:1.25;
-      font-weight:800;
     }
 
     .pts{
       flex:0 0 auto;
       font-weight:900;
-      padding:7px 10px;
-      border-radius:12px;
-      border:1px solid rgba(0,0,0,.12);
-      background: rgba(0,255,170,.10);
+      padding:6px 10px;
+      border-radius:10px;
+      border:1px solid #d0d0d0;
+      background:#f3fff1;
       white-space:nowrap;
       min-width: 64px;
       text-align:center;
-      box-shadow: inset 0 -2px 0 rgba(0,0,0,.06);
     }
     .pts.neg{
-      background: rgba(255,59,59,.10);
-      border-color: rgba(255,59,59,.35);
+      background:#fff1f1;
+      border-color:#f0b0b0;
     }
 
-    /* highlight meilleure année */
-    .year.top .dot{
-      border-color: var(--gold);
-      box-shadow: 0 0 0 6px rgba(255,212,77,.16), 0 0 22px rgba(255,212,77,.35);
-    }
-    .year.top .totalPill{
-      border-color: rgba(255,212,77,.65);
-      box-shadow: 0 10px 18px rgba(255,212,77,.12);
-    }
-
-    .empty{
-      padding:14px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      font-weight:900;
-      color:#b00020;
-      background:#fff;
+    .note{
+      margin-top:10px;
+      font-size:12px;
+      color:#666;
     }
 
     @media (max-width: 760px){
       .line{ left:18px; }
       .dot{ margin-left: 2px; }
       .year{ padding-left: 0; }
-      .ctrl input{ width:170px; }
-      .rightBox{ min-width: 220px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- Header commun -->
   <script src="header.js"></script>
+
+  <!-- IMPORTANT : source partagée -->
+  <script src="frise_data.js"></script>
 
   <main class="wrap">
     <section class="panel">
@@ -368,32 +231,8 @@
         </div>
       </div>
 
-      <!-- AJOUT : toolbar (ne supprime rien, c'est en plus) -->
-      <div class="toolbar">
-        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-          <div class="ctrl" title="Rechercher dans les événements">
-            🔎 <input id="q" type="text" placeholder="Ex: niveau 100, duel, inscription…">
-          </div>
-
-          <div class="ctrl" title="Tri">
-            ↕️
-            <select id="sort">
-              <option value="chrono" selected>Chronologique</option>
-              <option value="total">Par total (desc)</option>
-            </select>
-          </div>
-
-          <button class="btn" id="clear" type="button">✕ Effacer</button>
-        </div>
-
-        <div class="meta" id="meta">Chargement…</div>
-      </div>
-
       <div class="legend">
-        <h2>
-          <span>Barème (points)</span>
-          <span style="font-size:12px;color:#666;font-weight:900;">• rappel</span>
-        </h2>
+        <h2>Barème (points)</h2>
         <div class="chips" id="chips"></div>
         <div class="note">Les totaux par année sont calculés automatiquement à partir des événements listés.</div>
       </div>
@@ -406,7 +245,6 @@
   </main>
 
   <script>
-    // ===== Barème affiché en haut (référence) =====
     const bareme = [
       ["Inscription", 5],
       ["Gros duel", 6],
@@ -422,372 +260,52 @@
       ["Suppression joueur", -3]
     ];
 
-    // ===== Données frise (TES DONNÉES + AJOUTS 2026) =====
-    const frise = [
-      {
-        year: 2013,
-        events: [
-          { t: "New génération 0", p: 4 },
-          { t: "Inscription de Dude", p: 5 },
-          { t: "Inscription de Korben", p: 5 },
-          { t: "Dude vs Korben (mini duel)", p: 2 },
-          { t: "Korben 1er — 3 mois", p: 3 },
-          { t: "Sanji 1er — 1 mois", p: 1 },
-          { t: "Aurel-08 1er — 1 mois", p: 1 },
-          { t: "Luko vs Seb vs Deidashi vs Aurel-08 (gros duel)", p: 6 },
-          { t: "Jordialba vs Aurel-08 (mini duel)", p: 2 },
-          { t: "Aurel-08 1er — 1 mois", p: 1 },
-          { t: "Monkey D Dragon vs Yassine (duel moyen)", p: 4 },
-        ],
-      },
-      {
-        year: 2014,
-        events: [
-          { t: "Yassine vs Monkey D Dragon vs Jordialba (gros duel)", p: 6 },
-          { t: "Inscription de Largo672", p: 5 },
-          { t: "Monkey D Dragon 1er — 2 mois", p: 3 },
-          { t: "Largo672 vs Maître Gims vs Orsu vs Monkey D Dragon (gros duel)", p: 6 },
-          { t: "Largo vs Dude & Korben (mini duel)", p: 2 },
-          { t: "Largo672 1er — 32 mois (new premier)", p: 6 },
-          { t: "Akai vs Distructeur vs Hyorinmaru (duel moyen)", p: 4 },
-          { t: "Inscription de Talk Takashi", p: 5 },
-          { t: "Inscription de Josué455 & Djabrail", p: 10 },
-          { t: "Akai vs Distructeur vs Hyorinmaru (mini duel)", p: 2 },
-          { t: "Inscription de Seka (mini)", p: 2 },
-          { t: "Seka vs Josué455 (mini duel)", p: 2 },
-        ],
-      },
-      {
-        year: 2015,
-        events: [
-          { t: "Seka vs Djabrail (mini duel)", p: 2 },
-          { t: "Inscription de Cahincaha", p: 5 },
-          { t: "New génération 1", p: 4 },
-          { t: "Josué455 vs Ronaldo651 (mini duel)", p: 2 },
-          { t: "Cahincaha vs Ronaldo651 (mini duel)", p: 2 },
-          { t: "Josué455 vs Seka (mini duel)", p: 2 },
-          { t: "Cahincaha vs Djabrail (gros duel)", p: 6 },
-          { t: "Largo672 atteint le niveau 100", p: 5 },
-          { t: "Inscription de Hoopa", p: 5 },
-          { t: "Inscription de Francoeur", p: 5 },
-          { t: "Suppression de Cahincaha", p: -3 },
-        ],
-      },
-      {
-        year: 2016,
-        events: [
-          { t: "Inscription d'Abelard", p: 5 },
-          { t: "Largo672 vs Djabrail (duel moyen)", p: 4 },
-          { t: "Abelard vs Francoeur (mini duel)", p: 2 },
-          { t: "New génération 2", p: 4 },
-          { t: "Talk Takashi vs Francoeur (mini duel)", p: 2 },
-          { t: "Swaga976 vs Seka (duel moyen)", p: 4 },
-          { t: "Djabrail atteint le niveau 100", p: 5 },
-          { t: "Josué455 atteint le niveau 100", p: 5 },
-          { t: "Talk Takashi vs Abelard (gros duel)", p: 6 },
-          { t: "Josué455 1er — 6 mois", p: 4 },
-        ],
-      },
-      {
-        year: 2017,
-        events: [
-          { t: "Abelard + Talk Takashi atteignent le niveau 100", p: 10 },
-          { t: "Abelard vs Talk Takashi (gros duel)", p: 6 },
-          { t: "Abelard vs Josué455 (gros duel)", p: 6 },
-          { t: "Abelard 1er — 1 mois", p: 1 },
-          { t: "Duel de 1er", p: 3 },
-          { t: "Inscription d'Alex.c2109", p: 5 },
-          { t: "Inscription de Golder", p: 5 },
-          { t: "Alex.c2109 vs Golder (duel moyen)", p: 4 },
-          { t: "Josué455 atteint 100K", p: 5 },
-          { t: "Abelard atteint 100K", p: 5 },
-          { t: "Talk Takashi atteint 100K", p: 5 },
-          { t: "Talk Takashi vs Abelard (duel moyen)", p: 4 },
-        ],
-      },
-      {
-        year: 2018,
-        events: [
-          { t: "Talk Takashi vs Josué455 (mini duel)", p: 2 },
-          { t: "Talk Takashi 1er (new premier)", p: 6 },
-          { t: "Inscription d'Esdras950", p: 5 },
-          { t: "Inscription d'Alexis279", p: 5 },
-          { t: "New génération 3", p: 4 },
-          { t: "Inscription de Unit", p: 5 },
-          { t: "Golder vs Francoeur (mini duel)", p: 2 },
-          { t: "Unit vs Esdras950 (mini duel)", p: 2 },
-          { t: "Golder vs Alex.c2109 (duel moyen)", p: 4 },
-          { t: "Talk Takashi atteint 200K", p: 5 },
-          { t: "Dude atteint le niveau 100", p: 5 },
-          { t: "Korben atteint le niveau 100", p: 5 },
-        ],
-      },
-      {
-        year: 2019,
-        events: [
-          { t: "Inscription de Lumia + Athèna + Acno", p: 15 },
-          { t: "Duel (Alex.c2109 + Golder + Francoeur + Unit)", p: 4 },
-          { t: "Francoeur vs Alex.c2109 (gros duel)", p: 6 },
-          { t: "Inscription de Jordan.io + Blackout + Pingu", p: 15 },
-          { t: "Hoopa vs Alexis279 (mini duel)", p: 2 },
-          { t: "Inscription de Marcosino (mini)", p: 2 },
-          { t: "Alex.c2109 + Francoeur atteignent le niveau 100", p: 10 },
-          { t: "Hoopa atteint le niveau 100", p: 5 },
-          { t: "Hoopa vs Francoeur (duel moyen)", p: 4 },
-          { t: "Hoopa vs Alex.c2109 (duel moyen)", p: 4 },
-          { t: "Talk Takashi atteint 300K", p: 5 },
-          { t: "Hoopa atteint 100K", p: 5 },
-          { t: "Hoopa vs Abelard (mini duel)", p: 2 },
-          { t: "Gros bot", p: -4 },
-          { t: "Francoeur atteint 100K", p: 5 },
-          { t: "Talk Takashi atteint 400K", p: 5 },
-          { t: "Alex.c2109 vs Abelard (mini duel)", p: 2 },
-        ],
-      },
-      {
-        year: 2020,
-        events: [
-          { t: "Unit vs Esdras950 (duel moyen)", p: 4 },
-          { t: "Inscription de Cirpacha", p: 5 },
-          { t: "New génération 4", p: 4 },
-          { t: "Alexis279 vs Esdras950 vs Unit vs Golder (gros duel)", p: 6 },
-          { t: "Alexis279 + Golder atteignent le niveau 100", p: 10 },
-          { t: "Alex.c2109 atteint 200K", p: 5 },
-          { t: "Jordan.io vs Golder vs Unit vs Esdras950 (gros duel)", p: 6 },
-          { t: "Jordan.io + Esdras950 + Unit atteignent le niveau 100", p: 15 },
-          { t: "Inscription de Tellor", p: 5 },
-          { t: "Cirpacha atteint le niveau 100", p: 5 },
-          { t: "Alexis279 atteint 100K", p: 5 },
-          { t: "Cirpacha vs Esdras950 vs Golder vs Jordan.io (gros duel)", p: 6 },
-          { t: "Inscription de TheGladiator", p: 5 },
-          { t: "Inscription de Bételgeuse & Aldébaran", p: 10 },
-          { t: "Bételgeuse vs Aldébaran (mini duel)", p: 2 },
-          { t: "Tellor vs TheGladiator (duel moyen)", p: 4 },
-          { t: "Talk Takashi atteint 500K", p: 5 },
-          { t: "Francoeur vs Abelard (mini duel)", p: 2 },
-          { t: "TheGladiator atteint le niveau 100", p: 5 },
-          { t: "TheGladiator vs Cirpacha + Esdras950 + Jordan.io (gros duel)", p: 6 },
-          { t: "TheGladiator atteint 100K", p: 5 },
-          { t: "Talk Takashi atteint 600K", p: 5 },
-          { t: "Francoeur atteint 200K", p: 5 },
-          { t: "TheGladiator vs Alexis279 (gros duel)", p: 6 },
-          { t: "Cirpacha vs Esdras950 (duel moyen)", p: 4 },
-          { t: "Jordan.io atteint 100K", p: 5 },
-          { t: "TheGladiator atteint 200K", p: 5 },
-          { t: "Talk Takashi atteint 700K", p: 5 },
-          { t: "Alex.c2109 atteint 300K", p: 5 },
-        ],
-      },
-      {
-        year: 2021,
-        events: [
-          { t: "Inscription de Venom_", p: 5 },
-          { t: "TheGladiator vs Francoeur (gros duel)", p: 6 },
-          { t: "Cirpacha atteint 100K", p: 5 },
-          { t: "Talk Takashi atteint 800K", p: 5 },
-          { t: "TheGladiator atteint 300K", p: 5 },
-          { t: "Talk Takashi atteint 900K", p: 5 },
-          { t: "Francoeur atteint 300K", p: 5 },
-        ],
-      },
-      {
-        year: 2022,
-        events: [
-          { t: "Esdras950 atteint 100K", p: 5 },
-          { t: "New génération 5", p: 4 },
-          { t: "Francoeur vs Alex.c2109 (gros duel)", p: 6 },
-          { t: "Inscription de UY-Scuty", p: 5 },
-          { t: "Talk Takashi atteint 1M", p: 7 },
-          { t: "Jordan.io vs Josué455 (duel moyen)", p: 4 },
-          { t: "Abelard atteint 200K", p: 5 },
-          { t: "Blackout vs Athèna vs Bételgeuse vs Aldébaran vs Redbot (duel moyen)", p: 4 },
-          { t: "UY-Scuty vs Acno (mini duel)", p: 2 },
-          { t: "Redbot atteint le niveau 100", p: 5 },
-          { t: "Mini bot", p: -2 },
-        ],
-      },
-      {
-        year: 2023,
-        events: [
-          { t: "Alex.c2109 atteint 400K", p: 5 },
-          { t: "Inscription de Cahincaha2 + Houka", p: 10 },
-          { t: "Jordan.io atteint 200K", p: 5 },
-          { t: "Talk Takashi atteint 1M1", p: 5 },
-          { t: "Francoeur atteint 400K", p: 5 },
-        ],
-      },
-      {
-        year: 2024,
-        events: [
-          { t: "Inscription de Justice-", p: 5 },
-          { t: "Alex.c2109 atteint 500K", p: 5 },
-          { t: "Pingu vs Justice- (duel moyen)", p: 4 },
-          { t: "Inscription de Napoléon.1er", p: 5 },
-          { t: "Pingu atteint le niveau 100", p: 5 },
-          { t: "Lumia atteint 100K", p: 5 },
-          { t: "Alex.c2109 atteint 600K", p: 5 },
-        ],
-      },
-      {
-        year: 2025,
-        events: [
-          { t: "Alex.c2109 atteint 700K", p: 5 },
-          { t: "Talk Takashi atteint 1M2", p: 5 },
-          { t: "Inscription de Polyy", p: 5 },
-          { t: "Inscription de Venom2", p: 5 },
-        ],
-      },
-      {
-        year: 2026,
-        events: [
-          { t: "Dude atteint 100K", p: 5 },
-          { t: "Alex.c2109 atteint 800K", p: 5 },
-          { t: "Inscription de Ko0pa + Clovis1er + LargoJunior", p: 15 },
-          { t: "Justice- vs Ko0pa (mini duel)", p: 2 },
-          { t: "LargoJunior vs Polyy (mini duel)", p: 2 },
-          { t: "Ko0pa atteint le niveau 100", p: 5 },
+    // Utilise la source partagée
+    const frise = window.FRISE || [];
 
-          /* AJOUTS demandés */
-          { t: "TheGladiator atteint 400K", p: 5 },
-          { t: "Ko0pa et Unit atteignent 100K", p: 10 },
-          { t: "Duel Unit vs Ko0pa", p: 2 },
-          { t: "Duel Houka vs Justice-", p: 4 },
-        ],
-      },
-    ];
-
-    // ===== Render =====
+    // Barème affiché en haut
     const chips = document.getElementById("chips");
-    const yearsEl = document.getElementById("years");
-    const metaEl  = document.getElementById("meta");
-    const qEl     = document.getElementById("q");
-    const sortEl  = document.getElementById("sort");
-    const clearEl = document.getElementById("clear");
-
-    // Barème
-    if(chips){
-      chips.innerHTML = bareme.map(([label,val]) => {
-        const isNeg = (typeof val === "number" && val < 0);
-        return `<div class="chip ${isNeg ? "neg":""}">${label}<span class="pts">(${val})</span></div>`;
-      }).join("");
-    }
+    chips.innerHTML = bareme.map(([label,val]) => {
+      const isNeg = (typeof val === "number" && val < 0);
+      return `<div class="chip ${isNeg ? "neg":""}">${label}<span class="pts">(${val})</span></div>`;
+    }).join("");
 
     function fmtPts(p){
       const sign = p > 0 ? "+" : "";
       return `${sign}${p}`;
     }
 
-    function compute(list){
-      const out = list.map(y => {
-        const total = (y.events || []).reduce((s,e)=> s + (Number(e.p)||0), 0);
-        return { ...y, total, count: (y.events||[]).length };
-      });
+    const yearsEl = document.getElementById("years");
+    yearsEl.innerHTML = "";
 
-      const maxTotal = out.reduce((m,y)=> Math.max(m, y.total), 0);
-      let best = null;
-      for(const y of out){
-        if(!best || y.total > best.total) best = y;
-      }
-      return { out, maxTotal, bestYear: best ? best.year : null };
-    }
+    frise.forEach(y=>{
+      const total = (y.events || []).reduce((s,e)=> s + (Number(e.p)||0), 0);
 
-    function filterAndSort(out){
-      const q = String(qEl?.value || "").trim().toLowerCase();
+      const eventsHtml = (y.events || []).map(e=>{
+        const neg = (e.p < 0) ? "neg" : "";
+        return `
+          <div class="event">
+            <div class="evtText">${e.t}</div>
+            <div class="pts ${neg}">${fmtPts(e.p)}</div>
+          </div>
+        `;
+      }).join("");
 
-      let filtered = out.filter(y => {
-        if(!q) return true;
-        if(String(y.year).includes(q)) return true;
-        return (y.events || []).some(e => String(e.t || "").toLowerCase().includes(q));
-      });
-
-      const mode = String(sortEl?.value || "chrono");
-      if(mode === "total"){
-        filtered = filtered.slice().sort((a,b)=> (b.total||0) - (a.total||0));
-      }else{
-        filtered = filtered.slice().sort((a,b)=> (a.year||0) - (b.year||0));
-      }
-
-      return filtered;
-    }
-
-    function render(){
-      if(!yearsEl){
-        if(metaEl) metaEl.textContent = "Erreur: élément #years introuvable";
-        return;
-      }
-
-      const computed = compute(frise);
-      const list = filterAndSort(computed.out);
-
-      const q = String(qEl?.value || "").trim();
-      if(metaEl){
-        metaEl.textContent = q ? `${list.length} année(s) trouvée(s)` : `${list.length} année(s)`;
-      }
-
-      yearsEl.innerHTML = "";
-
-      if(!list.length){
-        yearsEl.innerHTML = `<div class="empty">Aucun résultat pour “${q}”.</div>`;
-        return;
-      }
-
-      list.forEach(y=>{
-        const total = y.total || 0;
-        const pct = computed.maxTotal > 0 ? Math.round((total / computed.maxTotal) * 100) : 0;
-
-        // si filtre, ne garder que les events match
-        const qLower = String(qEl?.value || "").trim().toLowerCase();
-        const evts = !qLower ? (y.events || []) : (y.events || []).filter(e => {
-          if(String(y.year).includes(qLower)) return true;
-          return String(e.t || "").toLowerCase().includes(qLower);
-        });
-
-        const eventsHtml = evts.map(e=>{
-          const neg = (e.p < 0) ? "neg" : "";
-          return `
-            <div class="event">
-              <div class="evtText">${e.t}</div>
-              <div class="pts ${neg}">${fmtPts(e.p)}</div>
+      yearsEl.insertAdjacentHTML("beforeend", `
+        <div class="year">
+          <div class="dot"></div>
+          <div class="card">
+            <div class="cardHead">
+              <div class="yearTitle">${y.year}</div>
+              <div class="totalPill">Total : <b>${total}</b> pts</div>
             </div>
-          `;
-        }).join("");
-
-        const clsTop = (computed.bestYear != null && y.year === computed.bestYear) ? " top" : "";
-
-        yearsEl.insertAdjacentHTML("beforeend", `
-          <div class="year${clsTop}">
-            <div class="dot"></div>
-            <div class="card">
-              <div class="cardHead">
-                <div class="yearTitle">
-                  ${y.year}
-                  <span class="small">• ${y.count} événement(s)</span>
-                </div>
-                <div class="rightBox">
-                  <div class="totalPill">Total : <b>${total}</b> pts</div>
-                  <div class="bar"><i style="width:${pct}%;"></i></div>
-                </div>
-              </div>
-              <div class="events">
-                ${eventsHtml || `<div class="note">Aucun événement ne correspond au filtre.</div>`}
-              </div>
+            <div class="events">
+              ${eventsHtml}
             </div>
           </div>
-        `);
-      });
-    }
-
-    // Events (robustes -> pas de crash si un élément manque)
-    if(clearEl){
-      clearEl.addEventListener("click", () => {
-        if(qEl) qEl.value = "";
-        render();
-      });
-    }
-    if(qEl) qEl.addEventListener("input", render);
-    if(sortEl) sortEl.addEventListener("change", render);
-
-    render();
+        </div>
+      `);
+    });
   </script>
 </body>
 </html>
