@@ -11,9 +11,6 @@
 
   <style>
     :root{
-      --bg1:#0a2332;
-      --bg2:#113b55;
-      --bg3:#1b6a8a;
       --panel:#ffffff;
       --text:#1a1a1a;
       --muted:#66707a;
@@ -133,8 +130,7 @@
       justify-content:center;
       gap:16px;
       min-height:340px;
-      background:
-        linear-gradient(to bottom, #f8fbfd 0%, #edf3f7 100%);
+      background:linear-gradient(to bottom, #f8fbfd 0%, #edf3f7 100%);
       border-bottom:1px solid var(--line);
     }
 
@@ -297,6 +293,7 @@
       background:#e9eef2;
       flex-shrink:0;
       box-shadow:0 4px 10px rgba(0,0,0,.08);
+      display:block;
     }
 
     .footnote{
@@ -359,16 +356,16 @@
       <h1>Palmarès & trophées des joueurs</h1>
       <p>
         Retrouve ici les plus grands exploits : premiers niveaux 100, records de vitesse,
-        règne au sommet, richesse, pauses marquantes et autres performances légendaires.
+        règnes au sommet, fortune, pauses marquantes et autres performances légendaires.
       </p>
     </section>
 
     <div id="trophiesGrid" class="grid"></div>
 
     <div class="footnote">
-      Certaines récompenses sont saisies manuellement selon ton historique.
+      Certaines récompenses sont renseignées manuellement.
       La <strong>plus longue pause</strong> et le <strong>plus grand nombre de pauses</strong>
-      sont calculés automatiquement depuis <strong>data.js</strong>.
+      sont calculés automatiquement à partir de <strong>data.js</strong>.
     </div>
   </div>
 
@@ -638,15 +635,22 @@
             { nom:"LargoJunior", detail:"3708 jeux notés" }
           ]
         },
+
         {
-          title: "Le plus riche en Karas",
-          sub: "Fortune totale accumulée",
+          title: "Premier niveau 100 sans snoki",
+          sub: "Classement des joueurs ayant réussi l’exploit",
           podium: [
-            { nom:"Talk Takashi", detail:"1 443 090 karas" },
-            { nom:"alex.c2109", detail:"1 142 425 karas" },
-            { nom:"francoeur", detail:"758 571 karas" }
+            { nom:"Golder", detail:"Le 30/03/2020" },
+            { nom:"TheGladiator", detail:"Le 16/07/2020" },
+            { nom:"redbot", detail:"Le 01/10/2022" }
+          ],
+          mentions: [
+            { text:`<strong>Mentions spéciales :</strong>` },
+            { text:`Pingu : 15/09/2024`, image:"avatar/111.jpg", alt:"Pingu" },
+            { text:`Ko0pa : 16/02/2026`, image:"avatar/29.jpg", alt:"Ko0pa" }
           ]
         },
+
         {
           title: "La plus longue pause",
           sub: "Calculée automatiquement depuis data.js",
@@ -686,29 +690,26 @@
             } : null
           ]
         },
-       {
-  title: "Premier niveau 100 sans snoki",
-  sub: "Classement des joueurs ayant réussi l’exploit",
-  podium: [
-    { nom:"Golder", detail:"Le 30/03/2020" },
-    { nom:"TheGladiator", detail:"Le 16/07/2020" },
-    { nom:"redbot", detail:"Le 01/10/2022" }
-  ],
-  mentions: [
-    { text:`<strong>Mentions spéciales :</strong>` },
-    { text:`Pingu : 15/09/2024`, image:"111.jpg", alt:"Pingu" },
-    { text:`Ko0pa : 16/02/2026`, image:"29.jpg", alt:"Ko0pa" }
-  ]
-},
         {
-  title: "Premier niveau 100 sans jeux notés",
-  sub: "Exploit réalisé sans note de jeu",
-  podium: [
-    { nom:"TheGladiator", detail:"Le 16/07/2020" },
-    { nom:"Pingu", detail:"Le 15/09/2024" },
-    null
-  ]
-},
+          title: "Premier niveau 100 sans jeux notés",
+          sub: "Exploit réalisé sans note de jeu",
+          podium: [
+            { nom:"TheGladiator", detail:"Le 16/07/2020" },
+            { nom:"Pingu", detail:"Le 15/09/2024" },
+            null
+          ]
+        },
+
+        {
+          title: "Le plus riche en Karas",
+          sub: "Fortune totale accumulée",
+          podium: [
+            { nom:"Talk Takashi", detail:"1 443 090 karas" },
+            { nom:"alex.c2109", detail:"1 142 425 karas" },
+            { nom:"francoeur", detail:"758 571 karas" }
+          ]
+        },
+
         {
           title: "Le plus d’EXP réalisées sur un an",
           sub: "Meilleure année individuelle",
