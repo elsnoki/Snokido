@@ -217,7 +217,7 @@
 <body>
   <script src="header.js"></script>
 
-  <!-- IMPORTANT : source partagée -->
+  <!-- ✅ AJOUT : données partagées -->
   <script src="frise_data.js"></script>
 
   <main class="wrap">
@@ -260,10 +260,10 @@
       ["Suppression joueur", -3]
     ];
 
-    // Utilise la source partagée
-    const frise = window.FRISE || [];
+    // ✅ IMPORTANT : frise vient du fichier partagé
+    const frise = Array.isArray(window.FRISE) ? window.FRISE : [];
 
-    // Barème affiché en haut
+    // Chips barème
     const chips = document.getElementById("chips");
     chips.innerHTML = bareme.map(([label,val]) => {
       const isNeg = (typeof val === "number" && val < 0);
@@ -299,9 +299,7 @@
               <div class="yearTitle">${y.year}</div>
               <div class="totalPill">Total : <b>${total}</b> pts</div>
             </div>
-            <div class="events">
-              ${eventsHtml}
-            </div>
+            <div class="events">${eventsHtml}</div>
           </div>
         </div>
       `);
