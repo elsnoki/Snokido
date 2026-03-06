@@ -349,7 +349,7 @@
     Certaines récompenses sont renseignées manuellement.
     La plus longue pause, le plus grand nombre de pauses,
     le classement Kara et le classement jeux notés
-    sont calculés automatiquement.
+    sont calculés automatiquement quand les données existent.
     -->
   </div>
 
@@ -465,7 +465,7 @@
 
     async function computeKaraTop3(){
       const top50 = await fetchJson("data/snokido_top50.json");
-      const pages = await fetchJson("data/players_pages.json");
+      const pages = await fetchJson("data/history_paris/players_pages.json");
 
       if(!Array.isArray(top50)) return [];
 
@@ -528,7 +528,7 @@
 
     async function computeRatedGamesTop3(){
       const top50 = await fetchJson("data/snokido_top50.json");
-      const pages = await fetchJson("data/players_pages.json");
+      const pages = await fetchJson("data/history_paris/players_pages.json");
 
       if(!Array.isArray(top50) || !Array.isArray(pages)) return [];
 
@@ -552,17 +552,21 @@
           prof.jeux_notes ??
           prof.nbJeuxNotes ??
           prof.nb_jeux_notes ??
-          prof.ratedGames ??
-          prof.rated_games ??
+          prof.jeux_notés ??
+          prof.jeuxNotesTotal ??
           prof.gamesRated ??
           prof.games_rated ??
+          prof.ratedGames ??
+          prof.rated_games ??
+          prof.nombreJeuxNotes ??
+          prof.nombre_jeux_notes ??
           null;
 
         list.push({
           nom: prof.nom || p.nom || k,
           slug: k,
           avatar: prof.avatar || p.avatar || playerAvatar(prof.nom || p.nom) || "avatar/1.jpg",
-          jeuxNotes: jeuxNotes != null ? Number(jeuxNotes) : null
+          jeuxNotes: (jeuxNotes == null || jeuxNotes === "") ? null : Number(jeuxNotes)
         });
       }
 
@@ -747,17 +751,17 @@
             ratedGamesTop3[0] ? {
               nom: ratedGamesTop3[0].nom,
               avatar: ratedGamesTop3[0].avatar,
-              detail: `${fmt(ratedGamesTop3[0].jeuxNotes)} jeux notés`
+              detail: ratedGamesTop3[0].jeuxNotes == null ? "—" : `${fmt(ratedGamesTop3[0].jeuxNotes)} jeux notés`
             } : null,
             ratedGamesTop3[1] ? {
               nom: ratedGamesTop3[1].nom,
               avatar: ratedGamesTop3[1].avatar,
-              detail: `${fmt(ratedGamesTop3[1].jeuxNotes)} jeux notés`
+              detail: ratedGamesTop3[1].jeuxNotes == null ? "—" : `${fmt(ratedGamesTop3[1].jeuxNotes)} jeux notés`
             } : null,
             ratedGamesTop3[2] ? {
               nom: ratedGamesTop3[2].nom,
               avatar: ratedGamesTop3[2].avatar,
-              detail: `${fmt(ratedGamesTop3[2].jeuxNotes)} jeux notés`
+              detail: ratedGamesTop3[2].jeuxNotes == null ? "—" : `${fmt(ratedGamesTop3[2].jeuxNotes)} jeux notés`
             } : null
           ]
         },
