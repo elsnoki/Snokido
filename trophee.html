@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trophées des joueurs</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="header.js" defer></script>
+  <script src="data.js" defer></script>
+
+  <style>
+    :root{
+      --bg1:#0a2332;
+      --bg2:#113b55;
+      --bg3:#1b6a8a;
+      --panel:#ffffff;
+      --text:#1a1a1a;
+      --muted:#66707a;
+      --line:#d8e0e6;
+      --gold1:#ffd56a;
+      --gold2:#c99b21;
+      --silver1:#eef3f8;
+      --silver2:#a8b5c2;
+      --bronze1:#efc29c;
+      --bronze2:#a96a37;
+      --shadow:0 18px 40px rgba(0,0,0,.28);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      color:#fff;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, #2d9bc1 0%, #144f70 40%, #0a2a3c 70%, #071c29 100%);
+      min-height:100vh;
+    }
+
+    .page{
+      width:min(1240px, calc(100% - 30px));
+      margin:34px auto 60px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border-radius:26px;
+      padding:34px 28px;
+      margin-bottom:24px;
+      background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      filter:blur(12px);
+      opacity:.28;
+    }
+
+    .hero::before{
+      width:240px;height:240px;
+      right:-70px;top:-70px;
+      background:radial-gradient(circle, #ffe18e 0%, rgba(255,225,142,0) 70%);
+    }
+
+    .hero::after{
+      width:220px;height:220px;
+      left:-60px;bottom:-90px;
+      background:radial-gradient(circle, #82d7ff 0%, rgba(130,215,255,0) 70%);
+    }
+
+    .hero h1{
+      margin:0 0 8px;
+      font-size:34px;
+      line-height:1.1;
+      letter-spacing:.2px;
+    }
+
+    .hero p{
+      margin:0;
+      max-width:900px;
+      color:rgba(255,255,255,.88);
+      font-size:15px;
+      line-height:1.6;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));
+      gap:22px;
+    }
+
+    .trophy-card{
+      background:var(--panel);
+      color:var(--text);
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(0,0,0,.04);
+    }
+
+    .trophy-head{
+      padding:18px 20px 16px;
+      background:linear-gradient(135deg, #2f2f2f, #4b4b4b);
+      color:#fff;
+      position:relative;
+    }
+
+    .trophy-head h2{
+      margin:0;
+      font-size:20px;
+      line-height:1.2;
+    }
+
+    .trophy-head .sub{
+      margin-top:5px;
+      font-size:13px;
+      color:rgba(255,255,255,.78);
+    }
+
+    .podium{
+      padding:22px 18px 16px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      gap:16px;
+      min-height:340px;
+      background:
+        linear-gradient(to bottom, #f8fbfd 0%, #edf3f7 100%);
+      border-bottom:1px solid var(--line);
+    }
+
+    .podium-item{
+      width:31%;
+      min-width:92px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .avatar-wrap{
+      position:relative;
+      margin-bottom:12px;
+    }
+
+    .medal{
+      position:absolute;
+      top:-10px;
+      right:-8px;
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:15px;
+      color:#fff;
+      border:2px solid rgba(255,255,255,.95);
+      box-shadow:0 8px 18px rgba(0,0,0,.18);
+    }
+
+    .medal.rank1{ background:linear-gradient(135deg, #f8d96a, #c08a14); }
+    .medal.rank2{ background:linear-gradient(135deg, #e8eef4, #91a0af); }
+    .medal.rank3{ background:linear-gradient(135deg, #efbd91, #995628); }
+
+    .skin-frame{
+      width:88px;
+      height:88px;
+      border-radius:16px;
+      padding:6px;
+      box-shadow:0 10px 20px rgba(0,0,0,.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#fff;
+    }
+
+    .rank1 .skin-frame{
+      background:linear-gradient(145deg, var(--gold1), var(--gold2));
+    }
+
+    .rank2 .skin-frame{
+      background:linear-gradient(145deg, var(--silver1), var(--silver2));
+    }
+
+    .rank3 .skin-frame{
+      background:linear-gradient(145deg, var(--bronze1), var(--bronze2));
+    }
+
+    .skin-frame img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      border-radius:12px;
+      border:3px solid rgba(255,255,255,.85);
+      background:#dfe6eb;
+      display:block;
+    }
+
+    .pseudo{
+      font-size:16px;
+      font-weight:800;
+      line-height:1.2;
+      margin-bottom:6px;
+      color:#24323c;
+      word-break:break-word;
+    }
+
+    .detail{
+      font-size:13px;
+      line-height:1.45;
+      color:var(--muted);
+      min-height:42px;
+      margin-bottom:12px;
+    }
+
+    .stand{
+      width:100%;
+      border-radius:14px 14px 0 0;
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      letter-spacing:.4px;
+      text-shadow:0 1px 1px rgba(0,0,0,.25);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+    }
+
+    .podium-item.rank1 .stand{
+      height:132px;
+      background:linear-gradient(180deg, #f4ce63, #bf8812);
+      font-size:32px;
+    }
+
+    .podium-item.rank2 .stand{
+      height:104px;
+      background:linear-gradient(180deg, #e7eef4, #8f9cac);
+      font-size:28px;
+    }
+
+    .podium-item.rank3 .stand{
+      height:86px;
+      background:linear-gradient(180deg, #edbd93, #a25d2d);
+      font-size:26px;
+    }
+
+    .mentions{
+      padding:14px 16px 18px;
+    }
+
+    .mention{
+      background:#f6f8fa;
+      border:1px solid #e0e6eb;
+      border-radius:12px;
+      padding:12px 13px;
+      font-size:14px;
+      line-height:1.5;
+      color:#33414b;
+      margin-top:10px;
+    }
+
+    .mention:first-child{ margin-top:0; }
+
+    .mention strong{
+      color:#18242c;
+    }
+
+    .footnote{
+      margin-top:24px;
+      padding:16px 18px;
+      border-radius:16px;
+      background:rgba(255,255,255,.1);
+      color:rgba(255,255,255,.88);
+      border:1px solid rgba(255,255,255,.1);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    a.player-link{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    a.player-link:hover .pseudo{
+      text-decoration:underline;
+    }
+
+    @media (max-width: 760px){
+      .hero h1{ font-size:28px; }
+      .podium{
+        gap:10px;
+        padding:18px 10px 14px;
+        min-height:310px;
+      }
+      .skin-frame{
+        width:72px;
+        height:72px;
+        border-radius:14px;
+      }
+      .pseudo{ font-size:14px; }
+      .detail{ font-size:12px; min-height:38px; }
+      .podium-item.rank1 .stand{ height:112px; font-size:28px; }
+      .podium-item.rank2 .stand{ height:88px; font-size:24px; }
+      .podium-item.rank3 .stand{ height:72px; font-size:22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+    <section class="hero">
+      <h1>Palmarès & trophées des joueurs</h1>
+      <p>
+        Retrouve ici les plus grands exploits : premiers niveaux 100, records de vitesse,
+        règne au sommet, richesse, pauses marquantes et autres performances légendaires.
+      </p>
+    </section>
+
+    <div id="trophiesGrid" class="grid"></div>
+
+    <div class="footnote">
+      Certaines récompenses sont saisies manuellement selon ton historique.  
+      La <strong>plus longue pause</strong> et le <strong>plus grand nombre de pauses</strong> sont calculés automatiquement depuis <strong>data.js</strong>.
+    </div>
+  </div>
+
+  <script>
+    function slugify2(name){
+      return String(name || "")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]/g, "")
+        .toLowerCase();
+    }
+
+    function findPlayer(name){
+      if(typeof joueurs === "undefined" || !Array.isArray(joueurs)) return null;
+      return joueurs.find(j => slugify2(j.nom) === slugify2(name)) || null;
+    }
+
+    function playerAvatar(name){
+      const p = findPlayer(name);
+      return p?.avatar || "avatar/1.jpg";
+    }
+
+    function playerLink(name){
+      const p = findPlayer(name);
+      if(!p) return "#";
+      return `profil.html?u=${encodeURIComponent(slugify2(p.nom))}`;
+    }
+
+    function formatPauseDays(days){
+      if(days == null) return "—";
+      if(days < 31) return days + " jours";
+      const mois = Math.floor(days / 30);
+      const reste = days % 30;
+      if(reste === 0) return `${mois} mois`;
+      return `${mois} mois et ${reste} jours`;
+    }
+
+    function computeLongestPause(){
+      if(typeof joueurs === "undefined" || !Array.isArray(joueurs)) return null;
+
+      let best = null;
+
+      joueurs.forEach(j => {
+        const modes = j.modes || {};
+        Object.keys(modes).forEach(modeKey => {
+          const mode = modes[modeKey];
+          const details = Array.isArray(mode?.pauses_detail) ? mode.pauses_detail : [];
+          details.forEach(d => {
+            const days = Number(d?.jours || 0);
+            if(!best || days > best.jours){
+              best = {
+                nom: j.nom,
+                avatar: j.avatar || "avatar/1.jpg",
+                mode: modeKey,
+                jours: days,
+                mois: Number(d?.mois || 0),
+                periode: d?.periode || "—",
+                xp: d?.xp ?? "—"
+              };
+            }
+          });
+        });
+      });
+
+      return best;
+    }
+
+    function computeMostPauses(){
+      if(typeof joueurs === "undefined" || !Array.isArray(joueurs)) return null;
+
+      let best = null;
+
+      joueurs.forEach(j => {
+        const modes = j.modes || {};
+        let totalNb = 0;
+        let totalJours = 0;
+
+        Object.values(modes).forEach(mode => {
+          const total = mode?.pauses_total || {};
+          totalNb += Number(total.nb || 0);
+          totalJours += Number(total.jours || 0);
+        });
+
+        if(!best || totalNb > best.nb || (totalNb === best.nb && totalJours > best.jours)){
+          best = {
+            nom: j.nom,
+            avatar: j.avatar || "avatar/1.jpg",
+            nb: totalNb,
+            jours: totalJours
+          };
+        }
+      });
+
+      return best;
+    }
+
+    function buildPodiumItem(entry, place){
+      if(!entry){
+        return `
+          <div class="podium-item rank${place}">
+            <div class="avatar-wrap">
+              <div class="skin-frame"><img src="avatar/1.jpg" alt="inconnu"></div>
+              <div class="medal rank${place}">${place}</div>
+            </div>
+            <div class="pseudo">—</div>
+            <div class="detail">Aucune donnée</div>
+            <div class="stand">${place}</div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="podium-item rank${place}">
+          <div class="avatar-wrap">
+            <div class="skin-frame">
+              <img src="${entry.avatar || playerAvatar(entry.nom)}" alt="${entry.nom}">
+            </div>
+            <div class="medal rank${place}">${place}</div>
+          </div>
+
+          <a class="player-link" href="${playerLink(entry.nom)}">
+            <div class="pseudo">${entry.nom}</div>
+          </a>
+
+          <div class="detail">${entry.detail || "—"}</div>
+          <div class="stand">${place}</div>
+        </div>
+      `;
+    }
+
+    function renderTrophyCard(trophy){
+      const mentions = (trophy.mentions || [])
+        .map(m => `<div class="mention">${m}</div>`)
+        .join("");
+
+      return `
+        <section class="trophy-card">
+          <div class="trophy-head">
+            <h2>${trophy.title}</h2>
+            ${trophy.sub ? `<div class="sub">${trophy.sub}</div>` : ``}
+          </div>
+
+          <div class="podium">
+            ${buildPodiumItem(trophy.podium[1], 2)}
+            ${buildPodiumItem(trophy.podium[0], 1)}
+            ${buildPodiumItem(trophy.podium[2], 3)}
+          </div>
+
+          ${mentions ? `<div class="mentions">${mentions}</div>` : ``}
+        </section>
+      `;
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const grid = document.getElementById("trophiesGrid");
+
+      if(typeof joueurs === "undefined" || !Array.isArray(joueurs)){
+        grid.innerHTML = `
+          <section class="trophy-card">
+            <div class="trophy-head"><h2>Erreur</h2></div>
+            <div style="padding:20px; color:#222;">
+              Impossible de charger <strong>data.js</strong>.
+            </div>
+          </section>
+        `;
+        return;
+      }
+
+      const longestPause = computeLongestPause();
+      const mostPauses = computeMostPauses();
+
+      const trophies = [
+        {
+          title: "Premier niveau 100",
+          sub: "Les premiers joueurs à atteindre le niveau 100",
+          podium: [
+            { nom:"Largo672", detail:"Le 10/10/2015" },
+            { nom:"djabrail", detail:"Le 30/06/2016" },
+            { nom:"josué455", detail:"Le 01/10/2016" }
+          ]
+        },
+        {
+          title: "Le plus rapide niveau 100",
+          sub: "Temps record pour atteindre le niveau 100",
+          podium: [
+            { nom:"Ko0pa", detail:"23 jours • 16/02/2026" },
+            { nom:"TheGladiator", detail:"54 jours • 16/07/2020" },
+            { nom:"redbot", detail:"55 jours • 01/10/2022" }
+          ]
+        },
+        {
+          title: "Premiers aux 100k",
+          sub: "Les pionniers des 100 000 EXP",
+          podium: [
+            { nom:"josué455", detail:"Le 05/08/2017" },
+            { nom:"Abelard", detail:"Le 16/09/2017" },
+            { nom:"Talk Takashi", detail:"Le 21/10/2017" }
+          ],
+          mentions: [
+            `<strong>Mention spéciale :</strong> cahincaha aurait pu être le 1er.`
+          ]
+        },
+        {
+          title: "Premiers aux 500k",
+          sub: "Cap symbolique des 500 000 EXP",
+          podium: [
+            { nom:"Talk Takashi", detail:"Le 16/06/2020" },
+            { nom:"alex.c2109", detail:"Le 28/07/2024" },
+            null
+          ]
+        },
+        {
+          title: "Premier au 1 000 000",
+          sub: "Le million d’EXP",
+          podium: [
+            { nom:"Talk Takashi", detail:"Le 19/07/2022" },
+            null,
+            null
+          ]
+        },
+        {
+          title: "Le plus de duels remportés",
+          sub: "Classement historique des victoires en duel",
+          podium: [
+            { nom:"TheGladiator", detail:"1re place au total" },
+            { nom:"alex.c2109", detail:"2e place au total" },
+            { nom:"Ko0pa", detail:"3e place au total" }
+          ]
+        },
+        {
+          title: "Le moins doublé du top 50",
+          sub: "Stabilité et domination dans le top",
+          podium: [
+            { nom:"Ko0pa", detail:"0 fois doublé" },
+            { nom:"TheGladiator", detail:"1 fois doublé" },
+            { nom:"alex.c2109", detail:"2 fois doublé" }
+          ]
+        },
+        {
+          title: "Le plus long règne de 1er",
+          sub: "Longévité au sommet du classement",
+          podium: [
+            { nom:"Talk Takashi", detail:"De janvier 2018 à maintenant" },
+            { nom:"Largo672", detail:"De mars 2014 à novembre 2016" },
+            { nom:"josué455", detail:"De novembre 2016 à janvier 2018" }
+          ]
+        },
+        {
+          title: "Le plus de jeux notés",
+          sub: "Les plus gros noteurs de jeux",
+          podium: [
+            { nom:"Talk Takashi", detail:"4000 jeux notés" },
+            { nom:"alex.c2109", detail:"3876 jeux notés" },
+            { nom:"LargoJunior", detail:"3708 jeux notés" }
+          ]
+        },
+        {
+          title: "Le plus riche en Karas",
+          sub: "Fortune totale accumulée",
+          podium: [
+            { nom:"Talk Takashi", detail:"1 443 090 karas" },
+            { nom:"alex.c2109", detail:"1 142 425 karas" },
+            { nom:"francoeur", detail:"758 571 karas" }
+          ]
+        },
+        {
+          title: "La plus longue pause",
+          sub: "Calculée automatiquement depuis data.js",
+          podium: longestPause ? [
+            {
+              nom: longestPause.nom,
+              detail: `${formatPauseDays(longestPause.jours)} • ${longestPause.periode}`
+            },
+            null,
+            null
+          ] : [null, null, null],
+          mentions: longestPause ? [
+            `<strong>Mode :</strong> ${longestPause.mode}`,
+            `<strong>XP au moment de la pause :</strong> ${longestPause.xp}`
+          ] : []
+        },
+        {
+          title: "Le plus grand nombre de pauses",
+          sub: "Total cumulé sur tous les modes",
+          podium: mostPauses ? [
+            {
+              nom: mostPauses.nom,
+              detail: `${mostPauses.nb} pauses • ${formatPauseDays(mostPauses.jours)} cumulés`
+            },
+            null,
+            null
+          ] : [null, null, null]
+        },
+        {
+          title: "Premier niveau 100 sans snoki",
+          sub: "Classement des joueurs ayant réussi l’exploit",
+          podium: [
+            { nom:"Golder", detail:"Le 30/03/2020" },
+            { nom:"TheGladiator", detail:"Le 16/07/2020" },
+            { nom:"redbot", detail:"Le 01/10/2022" }
+          ],
+          mentions: [
+            `<strong>Mention spéciale :</strong> Ko0pa le 16/02/2026.`
+          ]
+        },
+        {
+          title: "Premier niveau 100 sans jeux notés",
+          sub: "Exploit réalisé sans note de jeu",
+          podium: [
+            { nom:"TheGladiator", detail:"Le 16/07/2020" },
+            { nom:"Pingu", detail:"Le 15/09/2024" },
+            null
+          ]
+        },
+        {
+          title: "Le plus d’EXP réalisées sur un an",
+          sub: "Meilleure année individuelle",
+          podium: [
+            { nom:"Talk Takashi", detail:"349 000 EXP • 2020" },
+            { nom:"TheGladiator", detail:"246 000 EXP • 2020" },
+            { nom:"alex.c2109", detail:"184 000 EXP • 2025" }
+          ]
+        }
+      ];
+
+      grid.innerHTML = trophies.map(renderTrophyCard).join("");
+    });
+  </script>
+</body>
+</html>
