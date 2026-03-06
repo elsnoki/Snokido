@@ -8,70 +8,293 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
+:root{
+  --bg1:#2a88ad;
+  --bg2:#0b3551;
+  --bg3:#062638;
+
+  --panel:rgba(255,255,255,.12);
+  --panel-border:rgba(255,255,255,.18);
+
+  --card:#ffffff;
+  --card-soft:#f8fbfd;
+  --line:rgba(15,23,42,.08);
+  --line-strong:rgba(15,23,42,.14);
+
+  --text:#0f172a;
+  --muted:#5b677a;
+
+  --accent:#2a88ad;
+  --accent-2:#64c7ff;
+
+  --gold:#f4c542;
+  --silver:#c8d2dc;
+  --bronze:#d89a63;
+
+  --shadow:0 18px 48px rgba(0,0,0,.24);
+  --shadow-soft:0 10px 26px rgba(0,0,0,.12);
+
+  --radius:18px;
+  --radius-sm:12px;
+}
+
+*{ box-sizing:border-box; }
+
 body{
   margin:0;
-  font-family: Arial, sans-serif;
-  background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1100px 600px at 25% 15%, var(--bg1) 0%, var(--bg2) 60%, var(--bg3) 100%);
+}
+
+/* halo léger */
+body::before{
+  content:"";
+  position:fixed;
+  inset:-20%;
+  pointer-events:none;
+  background:
+    radial-gradient(380px 260px at 12% 12%, rgba(100,199,255,.20), transparent 60%),
+    radial-gradient(520px 340px at 88% 16%, rgba(255,255,255,.08), transparent 62%),
+    radial-gradient(460px 280px at 50% 85%, rgba(42,136,173,.16), transparent 60%);
+  z-index:0;
 }
 
 .wrap{
+  position:relative;
+  z-index:1;
   max-width:1180px;
-  margin:26px auto 40px;
-  padding:0 12px;
+  margin:28px auto 42px;
+  padding:0 14px;
 }
 
 .panel{
-  background:#fff;
-  border-radius:12px;
+  background:var(--panel);
+  border-radius:22px;
   overflow:hidden;
-  box-shadow:0 12px 30px rgba(0,0,0,.28);
-  border:1px solid rgba(0,0,0,.10);
+  box-shadow:var(--shadow);
+  border:1px solid var(--panel-border);
+  backdrop-filter:blur(10px);
 }
 
+/* Header */
 .titlebar{
-  background:#3b3b3b;
+  background:linear-gradient(135deg, rgba(17,78,106,.92), rgba(59,59,59,.92));
   color:#fff;
-  padding:14px 16px;
-  font-size:22px;
-  font-weight:900;
+  padding:18px 20px;
+  font-size:24px;
+  font-weight:1000;
+  letter-spacing:.2px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.titlebar::before{
+  content:"🏆";
+  font-size:24px;
+  line-height:1;
+}
+
+/* Tableau */
+.tableWrap{
+  background:rgba(255,255,255,.94);
 }
 
 table{
   width:100%;
-  border-collapse:collapse;
+  border-collapse:separate;
+  border-spacing:0;
 }
 
 thead th{
-  background:#f2f2f2;
-  padding:14px 10px;
-  font-size:14px;
+  position:sticky;
+  top:0;
+  z-index:1;
+  background:linear-gradient(180deg, #f8fbfd, #eef3f6);
+  padding:15px 12px;
+  font-size:13px;
   text-align:left;
-  border-bottom:2px solid #d9d9d9;
+  border-bottom:1px solid var(--line-strong);
+  color:#334155;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+thead th:first-child{ padding-left:18px; }
+tbody td:first-child{ padding-left:18px; }
+
+tbody tr{
+  background:rgba(255,255,255,.96);
+  transition:transform .14s ease, background .14s ease, box-shadow .14s ease;
+}
+
+tbody tr:nth-child(odd){
+  background:#fbfdff;
+}
+
+tbody tr:hover{
+  background:#f3fbff;
 }
 
 tbody td{
-  padding:16px 10px;
-  border-bottom:1px solid #e6e6e6;
+  padding:16px 12px;
+  border-bottom:1px solid var(--line);
   font-size:15px;
+  vertical-align:middle;
 }
 
-tbody tr:nth-child(odd){ background:#fafafa; }
-
+/* Colonnes */
 .rank{
-  font-weight:900;
+  font-weight:1000;
   font-size:18px;
-  width:80px;
+  width:90px;
 }
 
-.points{
-  font-weight:900;
-  font-size:16px;
-  color:#111;
+.rankBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:44px;
+  height:44px;
+  padding:0 12px;
+  border-radius:999px;
+  background:#eef4f8;
+  border:1px solid rgba(15,23,42,.10);
+  box-shadow:0 6px 16px rgba(0,0,0,.06);
+}
+
+.rank-1 .rankBadge{
+  background:linear-gradient(180deg, #fff5cc, #ffe28a);
+  border-color:rgba(244,197,66,.55);
+}
+.rank-2 .rankBadge{
+  background:linear-gradient(180deg, #f4f7fa, #dfe7ee);
+  border-color:rgba(148,163,184,.35);
+}
+.rank-3 .rankBadge{
+  background:linear-gradient(180deg, #f7dfcf, #e9b48b);
+  border-color:rgba(216,154,99,.45);
 }
 
 .year{
-  font-weight:900;
+  font-weight:1000;
   font-size:16px;
+  color:#0f172a;
+}
+
+.yearPill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:#ffffff;
+  border:1px solid rgba(15,23,42,.10);
+  box-shadow:0 6px 14px rgba(0,0,0,.05);
+}
+
+.points{
+  font-weight:1000;
+  font-size:16px;
+  color:#111827;
+}
+
+.pointsPill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:linear-gradient(180deg, #ecfbff, #dff6ff);
+  border:1px solid rgba(42,136,173,.22);
+  box-shadow:0 6px 14px rgba(0,0,0,.05);
+}
+
+.countPill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:46px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:#f8fafc;
+  border:1px solid rgba(15,23,42,.10);
+  font-weight:900;
+  color:#334155;
+  box-shadow:0 6px 14px rgba(0,0,0,.05);
+}
+
+/* mise en avant podium */
+.rank-1 td,
+.rank-2 td,
+.rank-3 td{
+  background-image:linear-gradient(90deg, rgba(255,255,255,.72), rgba(255,255,255,.96));
+}
+
+.rank-1{
+  box-shadow:inset 4px 0 0 rgba(244,197,66,.9);
+}
+.rank-2{
+  box-shadow:inset 4px 0 0 rgba(148,163,184,.85);
+}
+.rank-3{
+  box-shadow:inset 4px 0 0 rgba(216,154,99,.85);
+}
+
+/* footer note */
+.footerNote{
+  padding:12px 18px 16px;
+  background:rgba(255,255,255,.08);
+  color:rgba(255,255,255,.82);
+  font-size:12px;
+  border-top:1px solid rgba(255,255,255,.10);
+}
+
+/* Mobile */
+@media (max-width: 760px){
+  .wrap{
+    margin:18px auto 28px;
+    padding:0 10px;
+  }
+
+  .titlebar{
+    font-size:20px;
+    padding:16px 16px;
+  }
+
+  thead th{
+    font-size:12px;
+    padding:12px 8px;
+  }
+
+  tbody td{
+    padding:14px 8px;
+    font-size:14px;
+  }
+
+  .rank{
+    width:64px;
+    font-size:16px;
+  }
+
+  .rankBadge{
+    min-width:38px;
+    height:38px;
+    padding:0 10px;
+  }
+
+  .yearPill,
+  .pointsPill,
+  .countPill{
+    padding:7px 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; }
 }
 </style>
 </head>
@@ -87,17 +310,23 @@ tbody tr:nth-child(odd){ background:#fafafa; }
 <section class="panel">
   <div class="titlebar">Classement des années</div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Année</th>
-        <th>Total points</th>
-        <th>Événements</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+  <div class="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Année</th>
+          <th>Total points</th>
+          <th>Événements</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="footerNote">
+    Le classement est calculé automatiquement à partir des événements présents dans la source partagée.
+  </div>
 </section>
 </main>
 
@@ -117,7 +346,7 @@ const fallbackFrise = [
   { year:2023, events:[5,10,5,5,5] },
   { year:2024, events:[5,5,4,5,5,5,5] },
   { year:2025, events:[5,5,5,5] },
-  { year:2026, events:[5,5,15,2,2,5,5,10,2,4] } // on inclut tes ajouts dans le fallback
+  { year:2026, events:[5,5,15,2,2,5,5,10,2,4] }
 ];
 
 /* ===== SOURCE : frise_data.js si dispo ===== */
@@ -149,12 +378,23 @@ const tbody = document.getElementById("tbody");
 tbody.innerHTML = "";
 
 results.forEach((y,i)=>{
+  const rowClass = i === 0 ? "rank-1" : i === 1 ? "rank-2" : i === 2 ? "rank-3" : "";
+  const icon = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
+
   tbody.insertAdjacentHTML("beforeend",`
-    <tr>
-      <td class="rank">${i+1}</td>
-      <td class="year">${y.year}</td>
-      <td class="points">${y.total} pts</td>
-      <td>${y.count}</td>
+    <tr class="${rowClass}">
+      <td class="rank">
+        <span class="rankBadge">${icon ? icon + " " : ""}${i+1}</span>
+      </td>
+      <td class="year">
+        <span class="yearPill">${y.year}</span>
+      </td>
+      <td class="points">
+        <span class="pointsPill">${y.total} pts</span>
+      </td>
+      <td>
+        <span class="countPill">${y.count}</span>
+      </td>
     </tr>
   `);
 });
