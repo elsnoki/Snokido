@@ -28,7 +28,7 @@
       --radius:18px;
     }
 
-    *{box-sizing:border-box}
+    *{ box-sizing:border-box; }
 
     body{
       margin:0;
@@ -277,6 +277,28 @@
       color:#18242c;
     }
 
+    .mention-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+
+    .mention-text{
+      flex:1;
+    }
+
+    .mention-side-img{
+      width:58px;
+      height:58px;
+      object-fit:cover;
+      border-radius:12px;
+      border:2px solid #d7dde3;
+      background:#e9eef2;
+      flex-shrink:0;
+      box-shadow:0 4px 10px rgba(0,0,0,.08);
+    }
+
     .footnote{
       margin-top:24px;
       padding:16px 18px;
@@ -299,21 +321,34 @@
 
     @media (max-width: 760px){
       .hero h1{ font-size:28px; }
+
       .podium{
         gap:10px;
         padding:18px 10px 14px;
         min-height:310px;
       }
+
       .skin-frame{
         width:72px;
         height:72px;
         border-radius:14px;
       }
+
       .pseudo{ font-size:14px; }
       .detail{ font-size:12px; min-height:38px; }
+
       .podium-item.rank1 .stand{ height:112px; font-size:28px; }
       .podium-item.rank2 .stand{ height:88px; font-size:24px; }
       .podium-item.rank3 .stand{ height:72px; font-size:22px; }
+
+      .mention-row{
+        align-items:flex-start;
+      }
+
+      .mention-side-img{
+        width:50px;
+        height:50px;
+      }
     }
   </style>
 </head>
@@ -331,8 +366,9 @@
     <div id="trophiesGrid" class="grid"></div>
 
     <div class="footnote">
-      Certaines récompenses sont saisies manuellement selon ton historique.  
-      La <strong>plus longue pause</strong> et le <strong>plus grand nombre de pauses</strong> sont calculés automatiquement depuis <strong>data.js</strong>.
+      Certaines récompenses sont saisies manuellement selon ton historique.
+      La <strong>plus longue pause</strong> et le <strong>plus grand nombre de pauses</strong>
+      sont calculés automatiquement depuis <strong>data.js</strong>.
     </div>
   </div>
 
@@ -369,10 +405,10 @@
       return `${mois} mois et ${reste} jours`;
     }
 
-    function computeLongestPause(){
-      if(typeof joueurs === "undefined" || !Array.isArray(joueurs)) return null;
+    function computeLongestPauseTop3(){
+      if(typeof joueurs === "undefined" || !Array.isArray(joueurs)) return [];
 
-      let best = null;
+      const rows = [];
 
       joueurs.forEach(j => {
         const modes = j.modes || {};
@@ -381,8 +417,8 @@
           const details = Array.isArray(mode?.pauses_detail) ? mode.pauses_detail : [];
           details.forEach(d => {
             const days = Number(d?.jours || 0);
-            if(!best || days > best.jours){
-              best = {
+            if(days > 0){
+              rows.push({
                 nom: j.nom,
                 avatar: j.avatar || "avatar/1.jpg",
                 mode: modeKey,
@@ -390,21 +426,20 @@
                 mois: Number(d?.mois || 0),
                 periode: d?.periode || "—",
                 xp: d?.xp ?? "—"
-              };
+              });
             }
           });
         });
       });
 
-      return best;
+      rows.sort((a,b) => b.jours - a.jours);
+      return rows.slice(0, 3);
     }
 
-    function computeMostPauses(){
-      if(typeof joueurs === "undefined" || !Array.isArray(joueurs)) return null;
+    function computeMostPausesTop3(){
+      if(typeof joueurs === "undefined" || !Array.isArray(joueurs)) return [];
 
-      let best = null;
-
-      joueurs.forEach(j => {
+      const rows = joueurs.map(j => {
         const modes = j.modes || {};
         let totalNb = 0;
         let totalJours = 0;
@@ -415,17 +450,20 @@
           totalJours += Number(total.jours || 0);
         });
 
-        if(!best || totalNb > best.nb || (totalNb === best.nb && totalJours > best.jours)){
-          best = {
-            nom: j.nom,
-            avatar: j.avatar || "avatar/1.jpg",
-            nb: totalNb,
-            jours: totalJours
-          };
-        }
+        return {
+          nom: j.nom,
+          avatar: j.avatar || "avatar/1.jpg",
+          nb: totalNb,
+          jours: totalJours
+        };
       });
 
-      return best;
+      rows.sort((a,b) => {
+        if(b.nb !== a.nb) return b.nb - a.nb;
+        return b.jours - a.jours;
+      });
+
+      return rows.slice(0, 3);
     }
 
     function buildPodiumItem(entry, place){
@@ -462,10 +500,22 @@
       `;
     }
 
+    function renderMention(m){
+      if(m.image){
+        return `
+          <div class="mention">
+            <div class="mention-row">
+              <div class="mention-text">${m.text}</div>
+              <img class="mention-side-img" src="${m.image}" alt="${m.alt || "mention"}">
+            </div>
+          </div>
+        `;
+      }
+      return `<div class="mention">${m.text}</div>`;
+    }
+
     function renderTrophyCard(trophy){
-      const mentions = (trophy.mentions || [])
-        .map(m => `<div class="mention">${m}</div>`)
-        .join("");
+      const mentions = (trophy.mentions || []).map(renderMention).join("");
 
       return `
         <section class="trophy-card">
@@ -500,8 +550,8 @@
         return;
       }
 
-      const longestPause = computeLongestPause();
-      const mostPauses = computeMostPauses();
+      const longestPauseTop3 = computeLongestPauseTop3();
+      const mostPausesTop3 = computeMostPausesTop3();
 
       const trophies = [
         {
@@ -531,7 +581,7 @@
             { nom:"Talk Takashi", detail:"Le 21/10/2017" }
           ],
           mentions: [
-            `<strong>Mention spéciale :</strong> cahincaha aurait pu être le 1er.`
+            { text:`<strong>Mention spéciale :</strong> cahincaha aurait pu être le 1er.` }
           ]
         },
         {
@@ -600,52 +650,65 @@
         {
           title: "La plus longue pause",
           sub: "Calculée automatiquement depuis data.js",
-          podium: longestPause ? [
-            {
-              nom: longestPause.nom,
-              detail: `${formatPauseDays(longestPause.jours)} • ${longestPause.periode}`
-            },
-            null,
-            null
-          ] : [null, null, null],
-          mentions: longestPause ? [
-            `<strong>Mode :</strong> ${longestPause.mode}`,
-            `<strong>XP au moment de la pause :</strong> ${longestPause.xp}`
-          ] : []
+          podium: [
+            longestPauseTop3[0] ? {
+              nom: longestPauseTop3[0].nom,
+              detail: `${formatPauseDays(longestPauseTop3[0].jours)} • ${longestPauseTop3[0].periode}`
+            } : null,
+            longestPauseTop3[1] ? {
+              nom: longestPauseTop3[1].nom,
+              detail: `${formatPauseDays(longestPauseTop3[1].jours)} • ${longestPauseTop3[1].periode}`
+            } : null,
+            longestPauseTop3[2] ? {
+              nom: longestPauseTop3[2].nom,
+              detail: `${formatPauseDays(longestPauseTop3[2].jours)} • ${longestPauseTop3[2].periode}`
+            } : null
+          ],
+          mentions: longestPauseTop3.map((x, i) => ({
+            text:`<strong>#${i+1}</strong> — ${x.nom} • Mode : ${x.mode} • XP au moment de la pause : ${x.xp}`
+          }))
         },
         {
           title: "Le plus grand nombre de pauses",
           sub: "Total cumulé sur tous les modes",
-          podium: mostPauses ? [
-            {
-              nom: mostPauses.nom,
-              detail: `${mostPauses.nb} pauses • ${formatPauseDays(mostPauses.jours)} cumulés`
-            },
-            null,
-            null
-          ] : [null, null, null]
-        },
-        {
-          title: "Premier niveau 100 sans snoki",
-          sub: "Classement des joueurs ayant réussi l’exploit",
           podium: [
-            { nom:"Golder", detail:"Le 30/03/2020" },
-            { nom:"TheGladiator", detail:"Le 16/07/2020" },
-            { nom:"redbot", detail:"Le 01/10/2022" }
-          ],
-          mentions: [
-            `<strong>Mention spéciale :</strong> Ko0pa le 16/02/2026.`
+            mostPausesTop3[0] ? {
+              nom: mostPausesTop3[0].nom,
+              detail: `${mostPausesTop3[0].nb} pauses • ${formatPauseDays(mostPausesTop3[0].jours)} cumulés`
+            } : null,
+            mostPausesTop3[1] ? {
+              nom: mostPausesTop3[1].nom,
+              detail: `${mostPausesTop3[1].nb} pauses • ${formatPauseDays(mostPausesTop3[1].jours)} cumulés`
+            } : null,
+            mostPausesTop3[2] ? {
+              nom: mostPausesTop3[2].nom,
+              detail: `${mostPausesTop3[2].nb} pauses • ${formatPauseDays(mostPausesTop3[2].jours)} cumulés`
+            } : null
           ]
         },
+       {
+  title: "Premier niveau 100 sans snoki",
+  sub: "Classement des joueurs ayant réussi l’exploit",
+  podium: [
+    { nom:"Golder", detail:"Le 30/03/2020" },
+    { nom:"TheGladiator", detail:"Le 16/07/2020" },
+    { nom:"redbot", detail:"Le 01/10/2022" }
+  ],
+  mentions: [
+    { text:`<strong>Mentions spéciales :</strong>` },
+    { text:`Pingu : 15/09/2024`, image:"111.jpg", alt:"Pingu" },
+    { text:`Ko0pa : 16/02/2026`, image:"29.jpg", alt:"Ko0pa" }
+  ]
+},
         {
-          title: "Premier niveau 100 sans jeux notés",
-          sub: "Exploit réalisé sans note de jeu",
-          podium: [
-            { nom:"TheGladiator", detail:"Le 16/07/2020" },
-            { nom:"Pingu", detail:"Le 15/09/2024" },
-            null
-          ]
-        },
+  title: "Premier niveau 100 sans jeux notés",
+  sub: "Exploit réalisé sans note de jeu",
+  podium: [
+    { nom:"TheGladiator", detail:"Le 16/07/2020" },
+    { nom:"Pingu", detail:"Le 15/09/2024" },
+    null
+  ]
+},
         {
           title: "Le plus d’EXP réalisées sur un an",
           sub: "Meilleure année individuelle",
