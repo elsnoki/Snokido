@@ -778,29 +778,26 @@
           ]
         },
         {
-          title: "Le plus riche en Karas",
-          sub: "Calculé automatiquement depuis top50 + snokido + snokido-2",
-          podium: [
-            karaTop3[0] ? {
-              nom: karaTop3[0].nom,
-              avatar: karaTop3[0].avatar,
-              detail: `${fmt(karaTop3[0].karas)} karas`
-            } : null,
-            karaTop3[1] ? {
-              nom: karaTop3[1].nom,
-              avatar: karaTop3[1].avatar,
-              detail: `${fmt(karaTop3[1].karas)} karas`
-            } : null,
-            karaTop3[2] ? {
-              nom: karaTop3[2].nom,
-              avatar: karaTop3[2].avatar,
-              detail: `${fmt(karaTop3[2].karas)} karas`
-            } : null
-          ],
-          mentions: karaTop3.map((x, i) => ({
-            text:`<strong>#${i+1}</strong> — ${x.nom} • Niveau : ${fmt(x.niveau)} • XP : ${fmt(x.xp)}`
-          }))
-        },
+  title: "Le plus riche en Karas",
+  sub: "Fortune totale accumulée",
+  podium: [
+    karaTop3[0] ? {
+      nom: karaTop3[0].nom,
+      avatar: karaTop3[0].avatar,
+      detail: `${fmt(karaTop3[0].karas)} karas`
+    } : null,
+    karaTop3[1] ? {
+      nom: karaTop3[1].nom,
+      avatar: karaTop3[1].avatar,
+      detail: `${fmt(karaTop3[1].karas)} karas`
+    } : null,
+    karaTop3[2] ? {
+      nom: karaTop3[2].nom,
+      avatar: karaTop3[2].avatar,
+      detail: `${fmt(karaTop3[2].karas)} karas`
+    } : null
+  ]
+},
         {
           title: "Le plus d’EXP réalisées sur un an",
           sub: "Meilleure année individuelle",
