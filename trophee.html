@@ -83,7 +83,7 @@
 
     .hero p{
       margin:0;
-      max-width:900px;
+      max-width:920px;
       color:rgba(255,255,255,.88);
       font-size:15px;
       line-height:1.6;
@@ -108,7 +108,6 @@
       padding:18px 20px 16px;
       background:linear-gradient(135deg, #2f2f2f, #4b4b4b);
       color:#fff;
-      position:relative;
     }
 
     .trophy-head h2{
@@ -338,14 +337,8 @@
       .podium-item.rank2 .stand{ height:88px; font-size:24px; }
       .podium-item.rank3 .stand{ height:72px; font-size:22px; }
 
-      .mention-row{
-        align-items:flex-start;
-      }
-
-      .mention-side-img{
-        width:50px;
-        height:50px;
-      }
+      .mention-row{ align-items:flex-start; }
+      .mention-side-img{ width:50px; height:50px; }
     }
   </style>
 </head>
@@ -357,6 +350,7 @@
       <p>
         Retrouve ici les plus grands exploits : premiers niveaux 100, records de vitesse,
         règnes au sommet, fortune, pauses marquantes et autres performances légendaires.
+        Les Karas sont calculés automatiquement depuis les données scrapées.
       </p>
     </section>
 
@@ -364,8 +358,8 @@
 
     <div class="footnote">
       Certaines récompenses sont renseignées manuellement.
-      La <strong>plus longue pause</strong> et le <strong>plus grand nombre de pauses</strong>
-      sont calculés automatiquement à partir de <strong>data.js</strong>.
+      La <strong>plus longue pause</strong>, le <strong>plus grand nombre de pauses</strong>
+      et le <strong>classement Kara</strong> sont calculés automatiquement.
     </div>
   </div>
 
@@ -389,8 +383,14 @@
 
     function playerLink(name){
       const p = findPlayer(name);
-      if(!p) return "#";
-      return `profil.html?u=${encodeURIComponent(slugify2(p.nom))}`;
+      if(p) return `profil.html?u=${encodeURIComponent(slugify2(p.nom))}`;
+      return "#";
+    }
+
+    function fmt(n){
+      const v = Number(n);
+      if(!Number.isFinite(v)) return "—";
+      return v.toLocaleString("fr-FR");
     }
 
     function formatPauseDays(days){
@@ -400,6 +400,17 @@
       const reste = days % 30;
       if(reste === 0) return `${mois} mois`;
       return `${mois} mois et ${reste} jours`;
+    }
+
+    function bySlug(p){
+      return (p && p.slug) ? String(p.slug).toLowerCase().trim() : slugify2(p && p.nom);
+    }
+
+    async function fetchJson(path){
+      const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
+      const res = await fetch(url, { cache:"no-store" });
+      if(!res.ok) return null;
+      try { return await res.json(); } catch { return null; }
     }
 
     function computeLongestPauseTop3(){
@@ -420,7 +431,6 @@
                 avatar: j.avatar || "avatar/1.jpg",
                 mode: modeKey,
                 jours: days,
-                mois: Number(d?.mois || 0),
                 periode: d?.periode || "—",
                 xp: d?.xp ?? "—"
               });
@@ -461,6 +471,69 @@
       });
 
       return rows.slice(0, 3);
+    }
+
+    async function computeKaraTop3(){
+      const top50 = await fetchJson("data/snokido_top50.json");
+      const pages = await fetchJson("data/players_pages.json");
+
+      if(!Array.isArray(top50)) return [];
+
+      const pagesArr = Array.isArray(pages) ? pages : [];
+      const pagesMap = new Map();
+
+      for(const p of pagesArr){
+        pagesMap.set(bySlug(p), p);
+      }
+
+      const wanted = new Set(["snokido", "snokido-2"]);
+      const list = [];
+      const seen = new Set();
+
+      for(const p of top50){
+        const k = bySlug(p);
+        if(!k || seen.has(k)) continue;
+        seen.add(k);
+
+        const better = pagesMap.get(k) || p;
+
+        list.push({
+          nom: better.nom || p.nom || k,
+          slug: k,
+          avatar: better.avatar || p.avatar || playerAvatar(better.nom || p.nom) || "avatar/1.jpg",
+          karas: (better.karas != null) ? Number(better.karas) : ((p.karas != null) ? Number(p.karas) : null),
+          niveau: (better.niveau != null) ? Number(better.niveau) : ((p.niveau != null) ? Number(p.niveau) : null),
+          xp: (better.xp != null) ? Number(better.xp) : ((p.xp != null) ? Number(p.xp) : null)
+        });
+      }
+
+      for(const s of wanted){
+        if(seen.has(s)) continue;
+        const p = pagesMap.get(s);
+        if(!p) continue;
+        seen.add(s);
+
+        list.push({
+          nom: p.nom || s,
+          slug: s,
+          avatar: p.avatar || playerAvatar(p.nom || s) || "avatar/1.jpg",
+          karas: (p.karas != null) ? Number(p.karas) : null,
+          niveau: (p.niveau != null) ? Number(p.niveau) : null,
+          xp: (p.xp != null) ? Number(p.xp) : null
+        });
+      }
+
+      list.sort((a,b)=>{
+        const ak = (a.karas == null) ? -1 : a.karas;
+        const bk = (b.karas == null) ? -1 : b.karas;
+        if(bk !== ak) return bk - ak;
+
+        const ax = (a.xp == null) ? -1 : a.xp;
+        const bx = (b.xp == null) ? -1 : b.xp;
+        return bx - ax;
+      });
+
+      return list.slice(0, 3);
     }
 
     function buildPodiumItem(entry, place){
@@ -532,7 +605,7 @@
       `;
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", async () => {
       const grid = document.getElementById("trophiesGrid");
 
       if(typeof joueurs === "undefined" || !Array.isArray(joueurs)){
@@ -549,6 +622,7 @@
 
       const longestPauseTop3 = computeLongestPauseTop3();
       const mostPausesTop3 = computeMostPausesTop3();
+      const karaTop3 = await computeKaraTop3();
 
       const trophies = [
         {
@@ -635,7 +709,6 @@
             { nom:"LargoJunior", detail:"3708 jeux notés" }
           ]
         },
-
         {
           title: "Premier niveau 100 sans snoki",
           sub: "Classement des joueurs ayant réussi l’exploit",
@@ -650,21 +723,23 @@
             { text:`Ko0pa : 16/02/2026`, image:"avatar/29.jpg", alt:"Ko0pa" }
           ]
         },
-
         {
           title: "La plus longue pause",
           sub: "Calculée automatiquement depuis data.js",
           podium: [
             longestPauseTop3[0] ? {
               nom: longestPauseTop3[0].nom,
+              avatar: longestPauseTop3[0].avatar,
               detail: `${formatPauseDays(longestPauseTop3[0].jours)} • ${longestPauseTop3[0].periode}`
             } : null,
             longestPauseTop3[1] ? {
               nom: longestPauseTop3[1].nom,
+              avatar: longestPauseTop3[1].avatar,
               detail: `${formatPauseDays(longestPauseTop3[1].jours)} • ${longestPauseTop3[1].periode}`
             } : null,
             longestPauseTop3[2] ? {
               nom: longestPauseTop3[2].nom,
+              avatar: longestPauseTop3[2].avatar,
               detail: `${formatPauseDays(longestPauseTop3[2].jours)} • ${longestPauseTop3[2].periode}`
             } : null
           ],
@@ -678,14 +753,17 @@
           podium: [
             mostPausesTop3[0] ? {
               nom: mostPausesTop3[0].nom,
+              avatar: mostPausesTop3[0].avatar,
               detail: `${mostPausesTop3[0].nb} pauses • ${formatPauseDays(mostPausesTop3[0].jours)} cumulés`
             } : null,
             mostPausesTop3[1] ? {
               nom: mostPausesTop3[1].nom,
+              avatar: mostPausesTop3[1].avatar,
               detail: `${mostPausesTop3[1].nb} pauses • ${formatPauseDays(mostPausesTop3[1].jours)} cumulés`
             } : null,
             mostPausesTop3[2] ? {
               nom: mostPausesTop3[2].nom,
+              avatar: mostPausesTop3[2].avatar,
               detail: `${mostPausesTop3[2].nb} pauses • ${formatPauseDays(mostPausesTop3[2].jours)} cumulés`
             } : null
           ]
@@ -699,17 +777,30 @@
             null
           ]
         },
-
         {
           title: "Le plus riche en Karas",
-          sub: "Fortune totale accumulée",
+          sub: "Calculé automatiquement depuis top50 + snokido + snokido-2",
           podium: [
-            { nom:"Talk Takashi", detail:"1 443 090 karas" },
-            { nom:"alex.c2109", detail:"1 142 425 karas" },
-            { nom:"francoeur", detail:"758 571 karas" }
-          ]
+            karaTop3[0] ? {
+              nom: karaTop3[0].nom,
+              avatar: karaTop3[0].avatar,
+              detail: `${fmt(karaTop3[0].karas)} karas`
+            } : null,
+            karaTop3[1] ? {
+              nom: karaTop3[1].nom,
+              avatar: karaTop3[1].avatar,
+              detail: `${fmt(karaTop3[1].karas)} karas`
+            } : null,
+            karaTop3[2] ? {
+              nom: karaTop3[2].nom,
+              avatar: karaTop3[2].avatar,
+              detail: `${fmt(karaTop3[2].karas)} karas`
+            } : null
+          ],
+          mentions: karaTop3.map((x, i) => ({
+            text:`<strong>#${i+1}</strong> — ${x.nom} • Niveau : ${fmt(x.niveau)} • XP : ${fmt(x.xp)}`
+          }))
         },
-
         {
           title: "Le plus d’EXP réalisées sur un an",
           sub: "Meilleure année individuelle",
