@@ -29,6 +29,7 @@ const headerHTML = `
       <a class="tab tab-gang" href="gang.html">Gang</a>
       <a class="tab tab-graph" href="graphe.html">Graphe</a>
       <a class="tab tab-frise" href="frise.html">Frise</a>
+      <a class="tab tab-video" href="video.html">Vidéo</a>
 
       <span class="tab-sep">|</span>
 
@@ -101,3 +102,4 @@ document.addEventListener("keydown", (e) => {
   if(file === "pause.html" && linkUnique) linkUnique.classList.add("is-active");
   if((file === "pauses.html" || file === "pauses_total.html") && linkTotal) linkTotal.classList.add("is-active");
 })();
+
