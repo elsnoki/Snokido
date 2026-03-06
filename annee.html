@@ -8,296 +8,71 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
-  :root{
-    --bg1:#2a88ad;
-    --bg2:#0b3551;
-    --bg3:#062638;
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+}
 
-    --card:#ffffff;
-    --text:#111827;
-    --muted:#6b7280;
-    --line:rgba(17,24,39,.10);
+.wrap{
+  max-width:1180px;
+  margin:26px auto 40px;
+  padding:0 12px;
+}
 
-    --shadow: 0 16px 40px rgba(0,0,0,.28);
-    --shadow2: 0 10px 24px rgba(0,0,0,.18);
+.panel{
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,0,0,.28);
+  border:1px solid rgba(0,0,0,.10);
+}
 
-    --accent:#66ccff;
-    --gold:#ffd44d;
-  }
+.titlebar{
+  background:#3b3b3b;
+  color:#fff;
+  padding:14px 16px;
+  font-size:22px;
+  font-weight:900;
+}
 
-  body{
-    margin:0;
-    font-family: Arial, sans-serif;
-    background: radial-gradient(1100px 600px at 25% 15%, var(--bg1) 0%, var(--bg2) 60%, var(--bg3) 100%);
-    color:var(--text);
-  }
+table{
+  width:100%;
+  border-collapse:collapse;
+}
 
-  .wrap{
-    max-width:1180px;
-    margin:26px auto 40px;
-    padding:0 12px;
-  }
+thead th{
+  background:#f2f2f2;
+  padding:14px 10px;
+  font-size:14px;
+  text-align:left;
+  border-bottom:2px solid #d9d9d9;
+}
 
-  /* ===== NAV TOP (retour + lien) ===== */
-  .navYear{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-    margin-bottom:14px;
-    flex-wrap:wrap;
-  }
+tbody td{
+  padding:16px 10px;
+  border-bottom:1px solid #e6e6e6;
+  font-size:15px;
+}
 
-  .navBtn{
-    display:inline-block;
-    padding:10px 14px;
-    border-radius:12px;
-    border:1px solid rgba(255,255,255,.25);
-    background:rgba(255,255,255,.12);
-    color:#fff;
-    font-weight:900;
-    text-decoration:none;
-    cursor:pointer;
-    backdrop-filter: blur(4px);
-    box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
-  }
-  .navBtn:hover{ background:rgba(255,255,255,.18); }
-  .navBtn.primary{
-    background: var(--accent);
-    color:#003347;
-    border:1px solid rgba(0,0,0,.15);
-  }
+tbody tr:nth-child(odd){ background:#fafafa; }
 
-  /* ===== HERO ===== */
-  .hero{
-    border-radius:16px;
-    padding:16px;
-    background: rgba(255,255,255,.10);
-    border:1px solid rgba(255,255,255,.18);
-    box-shadow: 0 14px 40px rgba(0,0,0,.25);
-    backdrop-filter: blur(6px);
-    margin-bottom:14px;
-  }
+.rank{
+  font-weight:900;
+  font-size:18px;
+  width:80px;
+}
 
-  .heroTop{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:14px;
-    flex-wrap:wrap;
-  }
+.points{
+  font-weight:900;
+  font-size:16px;
+  color:#111;
+}
 
-  .heroTitle{
-    color:#fff;
-    font-weight:900;
-    font-size:22px;
-    letter-spacing:.2px;
-  }
-  .heroSub{
-    margin-top:4px;
-    color:rgba(255,255,255,.85);
-    font-weight:800;
-    font-size:13px;
-  }
-
-  .heroActions{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
-    justify-content:flex-end;
-  }
-
-  .ctrl{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    background:rgba(255,255,255,.12);
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:12px;
-    padding:8px 10px;
-    color:#fff;
-    font-weight:900;
-    box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
-  }
-
-  .ctrl input{
-    border:0;
-    outline:0;
-    background:transparent;
-    color:#fff;
-    font-weight:900;
-    width:180px;
-  }
-  .ctrl input::placeholder{ color:rgba(255,255,255,.70); font-weight:900; }
-
-  .stats{
-    display:grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap:10px;
-    margin-top:12px;
-  }
-
-  .stat{
-    background: rgba(255,255,255,.12);
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:14px;
-    padding:10px 12px;
-    color:#fff;
-    box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
-  }
-  .stat .k{ font-size:12px; font-weight:900; opacity:.9; }
-  .stat .v{ margin-top:2px; font-size:18px; font-weight:900; }
-
-  @media (max-width: 760px){
-    .stats{ grid-template-columns: 1fr; }
-    .ctrl input{ width:140px; }
-  }
-
-  /* ===== LISTE EN CARDS ===== */
-  .panel{
-    background:var(--card);
-    border-radius:16px;
-    overflow:hidden;
-    box-shadow: var(--shadow);
-    border:1px solid rgba(255,255,255,.20);
-  }
-
-  .panelHead{
-    padding:14px 16px;
-    background: linear-gradient(#3b3b3b,#2a2a2a);
-    color:#fff;
-    font-size:18px;
-    font-weight:900;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-  }
-
-  .panelHead small{
-    font-size:12px;
-    color:#cfeeff;
-    font-weight:900;
-  }
-
-  .content{
-    padding:14px;
-  }
-
-  .grid{
-    display:grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap:12px;
-  }
-  @media (max-width: 980px){
-    .grid{ grid-template-columns: 1fr; }
-  }
-
-  .card{
-    border:1px solid var(--line);
-    border-radius:16px;
-    overflow:hidden;
-    box-shadow: var(--shadow2);
-    background:#fff;
-  }
-
-  .cardTop{
-    padding:12px 14px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    background: linear-gradient(rgba(102,204,255,.14), rgba(255,255,255,.0));
-    border-bottom:1px solid var(--line);
-  }
-
-  .left{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-
-  .badge{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:34px; height:34px;
-    border-radius:12px;
-    font-weight:900;
-    background:#111;
-    color:#fff;
-  }
-
-  .meta .year{
-    font-size:18px;
-    font-weight:900;
-  }
-  .meta .sub{
-    margin-top:2px;
-    font-size:12px;
-    font-weight:900;
-    color:var(--muted);
-  }
-
-  .points{
-    text-align:right;
-    font-weight:900;
-  }
-  .points .v{
-    font-size:16px;
-  }
-  .points .k{
-    margin-top:2px;
-    font-size:12px;
-    color:var(--muted);
-    font-weight:900;
-  }
-
-  .cardBody{
-    padding:12px 14px 14px;
-  }
-
-  .bar{
-    height:10px;
-    background: rgba(17,24,39,.08);
-    border-radius:999px;
-    overflow:hidden;
-    border:1px solid rgba(17,24,39,.08);
-  }
-  .bar > i{
-    display:block;
-    height:100%;
-    width:0%;
-    background: linear-gradient(90deg, var(--accent), rgba(255,212,77,.95));
-  }
-
-  .note{
-    margin-top:10px;
-    font-size:12px;
-    font-weight:900;
-    color:var(--muted);
-  }
-
-  /* effet top1 */
-  .card.first{
-    border:1px solid rgba(255,212,77,.70);
-    box-shadow: 0 16px 42px rgba(255,212,77,.18), var(--shadow2);
-  }
-  .card.first .badge{
-    background: linear-gradient(var(--gold), #f0b300);
-    color:#111;
-  }
-
-  .empty{
-    padding:14px;
-    border:1px solid var(--line);
-    border-radius:14px;
-    font-weight:900;
-    color:#b00020;
-    background:#fff;
-  }
+.year{
+  font-weight:900;
+  font-size:16px;
+}
 </style>
 </head>
 
@@ -305,62 +80,30 @@
 
 <script src="header.js"></script>
 
+<!-- IMPORTANT : source partagée -->
+<script src="frise_data.js"></script>
+
 <main class="wrap">
+<section class="panel">
+  <div class="titlebar">Classement des années</div>
 
-  <div class="navYear">
-    <button class="navBtn" onclick="history.back()">← Retour</button>
-    <a class="navBtn primary" href="annee2.html">Aller sur XP par année →</a>
-  </div>
-
-  <section class="hero">
-    <div class="heroTop">
-      <div>
-        <div class="heroTitle">Classement des années</div>
-        <div class="heroSub">
-          Basé sur la somme des points des événements (données locales de ta frise).
-        </div>
-      </div>
-
-      <div class="heroActions">
-        <div class="ctrl" title="Filtrer par année">
-          🔎 <input id="q" type="text" placeholder="Ex: 2020">
-        </div>
-      </div>
-    </div>
-
-    <div class="stats">
-      <div class="stat">
-        <div class="k">Année #1</div>
-        <div class="v" id="statTop">—</div>
-      </div>
-      <div class="stat">
-        <div class="k">Points max</div>
-        <div class="v" id="statMax">—</div>
-      </div>
-      <div class="stat">
-        <div class="k">Nombre d’années</div>
-        <div class="v" id="statCount">—</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="panel">
-    <div class="panelHead">
-      <div>Classement</div>
-      <small id="meta">Chargement…</small>
-    </div>
-
-    <div class="content">
-      <div id="grid" class="grid"></div>
-    </div>
-  </section>
-
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Année</th>
+        <th>Total points</th>
+        <th>Événements</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</section>
 </main>
 
 <script>
-/* ===== DONNÉES (mêmes points que frise.html) ===== */
-
-const frise = [
+/* ===== FALLBACK (ancien format) : si frise_data.js est absent ===== */
+const fallbackFrise = [
   { year:2013, events:[4,5,5,2,3,1,1,6,2,1,4] },
   { year:2014, events:[6,5,3,6,2,6,4,5,10,2,2,2] },
   { year:2015, events:[2,5,4,2,2,2,6,5,5,5,-3] },
@@ -374,86 +117,47 @@ const frise = [
   { year:2023, events:[5,10,5,5,5] },
   { year:2024, events:[5,5,4,5,5,5,5] },
   { year:2025, events:[5,5,5,5] },
-  { year:2026, events:[5,5,15,2,2,5,5,5] } // inclut Dude + Korben nv100
+  { year:2026, events:[5,5,15,2,2,5,5,10,2,4] } // on inclut tes ajouts dans le fallback
 ];
 
-/* ===== Calcul ===== */
+/* ===== SOURCE : frise_data.js si dispo ===== */
+const frise = Array.isArray(window.FRISE) && window.FRISE.length ? window.FRISE : fallbackFrise;
 
+/* ===== Calcul compatible 2 formats =====
+   - ancien: events = [5,4,2]
+   - nouveau: events = [{t:"...", p:5}, ...]
+*/
 const results = frise.map(y => {
-  const total = y.events.reduce((a,b)=>a+b,0);
+  const total = (y.events || []).reduce((sum, e) => {
+    if (typeof e === "number") return sum + e;
+    const p = Number(e?.p);
+    return sum + (Number.isFinite(p) ? p : 0);
+  }, 0);
+
   return {
-    year:y.year,
+    year: y.year,
     total,
-    count:y.events.length
+    count: (y.events || []).length
   };
 });
 
 /* Tri décroissant */
 results.sort((a,b)=>b.total - a.total);
 
-function fmtInt(n){
-  try { return new Intl.NumberFormat("fr-FR").format(n); }
-  catch(e){ return String(n); }
-}
+/* Affichage */
+const tbody = document.getElementById("tbody");
+tbody.innerHTML = "";
 
-const meta = document.getElementById("meta");
-const grid = document.getElementById("grid");
-const qInput = document.getElementById("q");
-
-// stats
-document.getElementById("statTop").textContent = results[0] ? String(results[0].year) : "—";
-document.getElementById("statMax").textContent = results[0] ? (fmtInt(results[0].total) + " pts") : "—";
-document.getElementById("statCount").textContent = fmtInt(results.length);
-
-const maxTotal = results.reduce((m,r)=> Math.max(m, r.total), 0);
-
-function render(){
-  const q = String(qInput.value || "").trim();
-  const filtered = !q ? results : results.filter(r => String(r.year).includes(q));
-
-  meta.textContent = `${filtered.length} année(s) affichée(s)`;
-
-  grid.innerHTML = "";
-
-  if(!filtered.length){
-    grid.innerHTML = `<div class="empty">Aucune année ne correspond à “${q}”.</div>`;
-    return;
-  }
-
-  filtered.forEach((r, i) => {
-    const pct = maxTotal > 0 ? Math.round((r.total / maxTotal) * 100) : 0;
-
-    const card = document.createElement("div");
-    card.className = "card" + (i === 0 && !q ? " first" : "");
-
-    card.innerHTML = `
-      <div class="cardTop">
-        <div class="left">
-          <div class="badge">${i+1}</div>
-          <div class="meta">
-            <div class="year">${r.year}</div>
-            <div class="sub">${fmtInt(r.count)} événement(s)</div>
-          </div>
-        </div>
-
-        <div class="points">
-          <div class="v">${fmtInt(r.total)} pts</div>
-          <div class="k">${pct}% du #1</div>
-        </div>
-      </div>
-
-      <div class="cardBody">
-        <div class="bar"><i style="width:${pct}%;"></i></div>
-        <div class="note">Progression relative par rapport au meilleur total.</div>
-      </div>
-    `;
-
-    grid.appendChild(card);
-  });
-}
-
-qInput.addEventListener("input", render);
-render();
+results.forEach((y,i)=>{
+  tbody.insertAdjacentHTML("beforeend",`
+    <tr>
+      <td class="rank">${i+1}</td>
+      <td class="year">${y.year}</td>
+      <td class="points">${y.total} pts</td>
+      <td>${y.count}</td>
+    </tr>
+  `);
+});
 </script>
 
 </body>
