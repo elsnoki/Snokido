@@ -295,17 +295,6 @@
       display:block;
     }
 
-    .footnote{
-      margin-top:24px;
-      padding:16px 18px;
-      border-radius:16px;
-      background:rgba(255,255,255,.1);
-      color:rgba(255,255,255,.88);
-      border:1px solid rgba(255,255,255,.1);
-      font-size:14px;
-      line-height:1.6;
-    }
-
     a.player-link{
       color:inherit;
       text-decoration:none;
@@ -350,17 +339,18 @@
       <p>
         Retrouve ici les plus grands exploits : premiers niveaux 100, records de vitesse,
         règnes au sommet, fortune, pauses marquantes et autres performances légendaires.
-        Les Karas sont calculés automatiquement depuis les données scrapées.
       </p>
     </section>
 
     <div id="trophiesGrid" class="grid"></div>
 
-    <div class="footnote">
-      Certaines récompenses sont renseignées manuellement.
-      La <strong>plus longue pause</strong>, le <strong>plus grand nombre de pauses</strong>
-      et le <strong>classement Kara</strong> sont calculés automatiquement.
-    </div>
+    <!--
+    Note interne :
+    Certaines récompenses sont renseignées manuellement.
+    La plus longue pause, le plus grand nombre de pauses,
+    le classement Kara et le classement jeux notés
+    sont calculés automatiquement.
+    -->
   </div>
 
   <script>
@@ -536,6 +526,55 @@
       return list.slice(0, 3);
     }
 
+    async function computeRatedGamesTop3(){
+      const top50 = await fetchJson("data/snokido_top50.json");
+      const pages = await fetchJson("data/players_pages.json");
+
+      if(!Array.isArray(top50) || !Array.isArray(pages)) return [];
+
+      const pagesMap = new Map();
+      for(const p of pages){
+        pagesMap.set(bySlug(p), p);
+      }
+
+      const list = [];
+      const seen = new Set();
+
+      for(const p of top50){
+        const k = bySlug(p);
+        if(!k || seen.has(k)) continue;
+        seen.add(k);
+
+        const prof = pagesMap.get(k) || p;
+
+        const jeuxNotes =
+          prof.jeuxNotes ??
+          prof.jeux_notes ??
+          prof.nbJeuxNotes ??
+          prof.nb_jeux_notes ??
+          prof.ratedGames ??
+          prof.rated_games ??
+          prof.gamesRated ??
+          prof.games_rated ??
+          null;
+
+        list.push({
+          nom: prof.nom || p.nom || k,
+          slug: k,
+          avatar: prof.avatar || p.avatar || playerAvatar(prof.nom || p.nom) || "avatar/1.jpg",
+          jeuxNotes: jeuxNotes != null ? Number(jeuxNotes) : null
+        });
+      }
+
+      list.sort((a,b) => {
+        const aj = (a.jeuxNotes == null) ? -1 : a.jeuxNotes;
+        const bj = (b.jeuxNotes == null) ? -1 : b.jeuxNotes;
+        return bj - aj;
+      });
+
+      return list.slice(0, 3);
+    }
+
     function buildPodiumItem(entry, place){
       if(!entry){
         return `
@@ -623,6 +662,7 @@
       const longestPauseTop3 = computeLongestPauseTop3();
       const mostPausesTop3 = computeMostPausesTop3();
       const karaTop3 = await computeKaraTop3();
+      const ratedGamesTop3 = await computeRatedGamesTop3();
 
       const trophies = [
         {
@@ -704,9 +744,21 @@
           title: "Le plus de jeux notés",
           sub: "Les plus gros noteurs de jeux",
           podium: [
-            { nom:"Talk Takashi", detail:"4000 jeux notés" },
-            { nom:"alex.c2109", detail:"3876 jeux notés" },
-            { nom:"LargoJunior", detail:"3708 jeux notés" }
+            ratedGamesTop3[0] ? {
+              nom: ratedGamesTop3[0].nom,
+              avatar: ratedGamesTop3[0].avatar,
+              detail: `${fmt(ratedGamesTop3[0].jeuxNotes)} jeux notés`
+            } : null,
+            ratedGamesTop3[1] ? {
+              nom: ratedGamesTop3[1].nom,
+              avatar: ratedGamesTop3[1].avatar,
+              detail: `${fmt(ratedGamesTop3[1].jeuxNotes)} jeux notés`
+            } : null,
+            ratedGamesTop3[2] ? {
+              nom: ratedGamesTop3[2].nom,
+              avatar: ratedGamesTop3[2].avatar,
+              detail: `${fmt(ratedGamesTop3[2].jeuxNotes)} jeux notés`
+            } : null
           ]
         },
         {
@@ -725,7 +777,7 @@
         },
         {
           title: "La plus longue pause",
-          sub: "Calculée automatiquement depuis data.js",
+          sub: "Classement des pauses les plus longues",
           podium: [
             longestPauseTop3[0] ? {
               nom: longestPauseTop3[0].nom,
@@ -749,7 +801,7 @@
         },
         {
           title: "Le plus grand nombre de pauses",
-          sub: "Total cumulé sur tous les modes",
+          sub: "Classement des joueurs ayant pris le plus de pauses",
           podium: [
             mostPausesTop3[0] ? {
               nom: mostPausesTop3[0].nom,
@@ -778,26 +830,26 @@
           ]
         },
         {
-  title: "Le plus riche en Karas",
-  sub: "Fortune totale accumulée",
-  podium: [
-    karaTop3[0] ? {
-      nom: karaTop3[0].nom,
-      avatar: karaTop3[0].avatar,
-      detail: `${fmt(karaTop3[0].karas)} karas`
-    } : null,
-    karaTop3[1] ? {
-      nom: karaTop3[1].nom,
-      avatar: karaTop3[1].avatar,
-      detail: `${fmt(karaTop3[1].karas)} karas`
-    } : null,
-    karaTop3[2] ? {
-      nom: karaTop3[2].nom,
-      avatar: karaTop3[2].avatar,
-      detail: `${fmt(karaTop3[2].karas)} karas`
-    } : null
-  ]
-},
+          title: "Le plus riche en Karas",
+          sub: "Fortune totale accumulée",
+          podium: [
+            karaTop3[0] ? {
+              nom: karaTop3[0].nom,
+              avatar: karaTop3[0].avatar,
+              detail: `${fmt(karaTop3[0].karas)} karas`
+            } : null,
+            karaTop3[1] ? {
+              nom: karaTop3[1].nom,
+              avatar: karaTop3[1].avatar,
+              detail: `${fmt(karaTop3[1].karas)} karas`
+            } : null,
+            karaTop3[2] ? {
+              nom: karaTop3[2].nom,
+              avatar: karaTop3[2].avatar,
+              detail: `${fmt(karaTop3[2].karas)} karas`
+            } : null
+          ]
+        },
         {
           title: "Le plus d’EXP réalisées sur un an",
           sub: "Meilleure année individuelle",
