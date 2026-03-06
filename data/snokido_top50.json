@@ -15,11 +15,11 @@
     "nom": "alex.c2109",
     "slug": "alexc2109",
     "niveau": 100,
-    "xp": 830016,
+    "xp": 830160,
     "inscription": "24-06-2017",
     "avatar": "https://www.snokido.fr/images/snoki/medium/53.jpg",
     "profileHref": "https://www.snokido.fr/player/alexc2109",
-    "karas": 1142705
+    "karas": 1142849
   },
   {
     "rank": 3,
@@ -103,11 +103,11 @@
     "nom": "lumia",
     "slug": "lumia",
     "niveau": 100,
-    "xp": 124930,
+    "xp": 125118,
     "inscription": "01-01-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
     "profileHref": "https://www.snokido.fr/player/lumia",
-    "karas": 457279
+    "karas": 457467
   },
   {
     "rank": 11,
@@ -136,22 +136,22 @@
     "nom": "Ko0pa",
     "slug": "ko0pa",
     "niveau": 100,
-    "xp": 81474,
+    "xp": 81698,
     "inscription": "24-01-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/101.jpg",
     "profileHref": "https://www.snokido.fr/player/ko0pa",
-    "karas": 405903
+    "karas": 406127
   },
   {
     "rank": 14,
     "nom": "Unit",
     "slug": "unit",
     "niveau": 100,
-    "xp": 70128,
+    "xp": 70244,
     "inscription": "13-07-2018",
     "avatar": "https://www.snokido.fr/images/snoki/medium/133.jpg",
     "profileHref": "https://www.snokido.fr/player/unit",
-    "karas": 395677
+    "karas": 395793
   },
   {
     "rank": 15,
@@ -245,15 +245,26 @@
     "rank": 23,
     "nom": "Houka",
     "slug": "houka",
-    "niveau": 92,
-    "xp": 42700,
+    "niveau": 93,
+    "xp": 42796,
     "inscription": "18-11-2023",
     "avatar": "https://www.snokido.fr/images/snoki/medium/73.jpg",
     "profileHref": "https://www.snokido.fr/player/houka",
-    "karas": 306409
+    "karas": 315154
   },
   {
     "rank": 24,
+    "nom": "Justice-",
+    "slug": "justice",
+    "niveau": 92,
+    "xp": 42672,
+    "inscription": "29-02-2024",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/41.jpg",
+    "profileHref": "https://www.snokido.fr/player/justice-2",
+    "karas": 306381
+  },
+  {
+    "rank": 25,
     "nom": "seka",
     "slug": "seka",
     "niveau": 92,
@@ -262,17 +273,6 @@
     "avatar": "https://www.snokido.fr/images/snoki/medium/153.jpg",
     "profileHref": "https://www.snokido.fr/player/seka",
     "karas": 245018
-  },
-  {
-    "rank": 25,
-    "nom": "Justice-",
-    "slug": "justice",
-    "niveau": 92,
-    "xp": 42576,
-    "inscription": "29-02-2024",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/41.jpg",
-    "profileHref": "https://www.snokido.fr/player/justice-2",
-    "karas": 306285
   },
   {
     "rank": 26,
@@ -452,6 +452,17 @@
   },
   {
     "rank": 42,
+    "nom": "LargoJunior",
+    "slug": "largojunior",
+    "niveau": 73,
+    "xp": 26920,
+    "inscription": "10-02-2026",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/11.jpg",
+    "profileHref": "https://www.snokido.fr/player/largojunior",
+    "karas": 159168
+  },
+  {
+    "rank": 43,
     "nom": "tidadouslip",
     "slug": "tidadouslip",
     "niveau": 73,
@@ -462,7 +473,7 @@
     "karas": 143834
   },
   {
-    "rank": 43,
+    "rank": 44,
     "nom": "ariel005",
     "slug": "ariel005",
     "niveau": 73,
@@ -471,17 +482,6 @@
     "avatar": "https://www.snokido.fr/images/snoki/medium/140.jpg",
     "profileHref": "https://www.snokido.fr/player/ariel005",
     "karas": 128092
-  },
-  {
-    "rank": 44,
-    "nom": "LargoJunior",
-    "slug": "largojunior",
-    "niveau": 73,
-    "xp": 26776,
-    "inscription": "10-02-2026",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/11.jpg",
-    "profileHref": "https://www.snokido.fr/player/largojunior",
-    "karas": 159024
   },
   {
     "rank": 45,
