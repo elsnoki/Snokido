@@ -1,401 +1,401 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Classement — Meilleure année XP</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-  <link rel="stylesheet" href="style.css">
-  <script src="header.js" defer></script>
+<title>Record XP sur 1 an</title>
 
-  <style>
-    body{
-      margin:0;
-      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
-      font-family: Arial, sans-serif;
-    }
+<link rel="stylesheet" href="style.css">
+<script src="header.js" defer></script>
 
-    .wrap{
-      max-width:1280px;
-      margin:26px auto 40px;
-      padding:0 12px;
-    }
+<style>
 
-    .panel{
-      background:#fff;
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 12px 30px rgba(0,0,0,.28);
-      border:1px solid rgba(0,0,0,.10);
-    }
+body{
+margin:0;
+background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+font-family: Arial, sans-serif;
+}
 
-    .titlebar{
-      background:#3b3b3b;
-      color:#fff;
-      padding:14px 16px;
-      font-size:22px;
-      font-weight:900;
-    }
+.wrap{
+max-width:1180px;
+margin:26px auto 40px;
+padding:0 12px;
+}
 
-    .sub{
-      padding:10px 16px;
-      font-weight:900;
-      color:#444;
-      border-bottom:1px solid #e6e6e6;
-      background:#fafafa;
-    }
+.panel{
+background:#fff;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 12px 30px rgba(0,0,0,.28);
+border:1px solid rgba(0,0,0,.10);
+}
 
-    .warn{
-      margin:12px 16px 0;
-      padding:10px 12px;
-      background:#fff3cd;
-      border:1px solid #ffe69c;
-      border-radius:10px;
-      font-weight:900;
-      color:#664d03;
-      display:none;
-    }
+.titlebar{
+background:#3b3b3b;
+color:#fff;
+padding:14px 16px;
+font-size:22px;
+font-weight:900;
+}
 
-    .table-wrap{ overflow-x:auto; }
-    .table-wrap table{ min-width: 980px; }
+.sub{
+padding:10px 16px;
+font-weight:900;
+color:#444;
+border-bottom:1px solid #e6e6e6;
+background:#fafafa;
+}
 
-    table{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-    }
+.warn{
+margin:12px 16px 0;
+padding:10px 12px;
+background:#fff3cd;
+border:1px solid #ffe69c;
+border-radius:10px;
+font-weight:900;
+color:#664d03;
+display:none;
+}
 
-    thead th{
-      background:#fff;
-      padding:14px 12px;
-      text-align:left;
-      font-size:15px;
-      font-weight:900;
-      border-bottom:1px solid #cfcfcf;
-    }
+table{
+width:100%;
+border-collapse:separate;
+border-spacing:0;
+}
 
-    tbody td{
-      padding:18px 12px;
-      border-bottom:1px solid #cfcfcf;
-      vertical-align:middle;
-      font-size:16px;
-    }
+thead th{
+background:#fff;
+padding:14px 12px;
+text-align:left;
+font-size:15px;
+font-weight:900;
+border-bottom:1px solid #cfcfcf;
+}
 
-    tbody tr:nth-child(odd){ background:#f2f2f2; }
-    tbody tr:nth-child(even){ background:#ffffff; }
+tbody td{
+padding:18px 12px;
+border-bottom:1px solid #cfcfcf;
+vertical-align:middle;
+font-size:16px;
+}
 
-    .rank{
-      width:70px;
-      text-align:center;
-      font-weight:900;
-      font-size:26px;
-      color:#444;
-    }
+tbody tr:nth-child(odd){ background:#f2f2f2; }
 
-    .avatarCell{
-      width:110px;
-      text-align:center;
-    }
+.rank{
+width:70px;
+text-align:center;
+font-weight:900;
+font-size:26px;
+color:#444;
+}
 
-    .frame{
-      width:64px;
-      height:64px;
-      margin:0 auto;
-      background:#e9e9e9;
-      border:1px solid #bdbdbd;
-      border-radius:10px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
+.avatarCell{
+width:110px;
+text-align:center;
+}
 
-    .frame img{
-      width:56px;
-      height:56px;
-      object-fit:cover;
-      border:2px solid #8f8f8f;
-      border-radius:10px;
-      background:#ddd;
-      display:block;
-    }
+.frame{
+width:64px;
+height:64px;
+margin:0 auto;
+background:#e9e9e9;
+border:1px solid #bdbdbd;
+border-radius:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
 
-    .name a{
-      color:#2c6fb7;
-      font-weight:900;
-      text-decoration:none;
-      font-size:18px;
-    }
+.frame img{
+width:56px;
+height:56px;
+object-fit:cover;
+border:2px solid #8f8f8f;
+border-radius:10px;
+background:#ddd;
+display:block;
+}
 
-    .name a:hover{ text-decoration:underline; }
+.name a{
+color:#2c6fb7;
+font-weight:900;
+text-decoration:none;
+font-size:18px;
+}
 
-    .center{
-      text-align:center;
-      white-space:nowrap;
-      font-weight:900;
-    }
+.center{
+text-align:center;
+white-space:nowrap;
+font-weight:900;
+}
 
-    .small{
-      font-weight:700;
-      font-size:13px;
-      color:#666;
-      margin-top:4px;
-    }
-  </style>
+.small{
+font-weight:700;
+font-size:13px;
+color:#666;
+}
+
+</style>
 </head>
 
 <body>
-  <main class="wrap">
-    <section class="panel">
-      <div class="titlebar">Classement — Plus grosse XP gagnée sur un an</div>
-      <div class="sub" id="rangeTxt">Chargement…</div>
-      <div id="warn" class="warn"></div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th></th>
-              <th>Joueur</th>
-              <th class="center">XP gagnée</th>
-              <th class="center">Année</th>
-              <th class="center">XP début</th>
-              <th class="center">XP fin</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+<main class="wrap">
+<section class="panel">
+
+<div class="titlebar">Classement — Meilleure année XP</div>
+<div class="sub" id="rangeTxt">Chargement…</div>
+<div id="warn" class="warn"></div>
+
+<table>
+
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th>Joueur</th>
+<th class="center">XP gagnée</th>
+<th class="center">Année</th>
+<th class="center">XP début</th>
+<th class="center">XP fin</th>
+</tr>
+</thead>
+
+<tbody id="tbody"></tbody>
+
+</table>
+
+</section>
+</main>
 
 <script>
-  const HISTORY_BASE = "data/history_paris";
 
-  function warn(msg){
-    const w = document.getElementById("warn");
-    w.style.display = "block";
-    w.textContent = msg;
-  }
+const HISTORY_BASE = "data/history_paris";
 
-  function slugify(name){
-    return String(name || "")
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9]/g, "")
-      .toLowerCase();
-  }
+function warn(msg){
+const w = document.getElementById("warn");
+w.style.display="block";
+w.textContent=msg;
+}
 
-  function fmt(n){
-    const v = Number(n);
-    if(!Number.isFinite(v)) return "—";
-    return v.toLocaleString("fr-FR");
-  }
+function slugify(name){
+return String(name||"")
+.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+.replace(/[^a-zA-Z0-9]/g,"")
+.toLowerCase();
+}
 
-  async function fetchJson(path){
-    const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
-    let res;
-    try{
-      res = await fetch(url, { cache:"no-store" });
-    }catch{
-      return null;
-    }
-    if(!res.ok) return null;
+function fmt(n){
+return Number(n).toLocaleString("fr-FR");
+}
 
-    try{
-      return await res.json();
-    }catch{
-      return null;
-    }
-  }
+async function fetchJson(path){
+const res = await fetch(path+"?t="+Date.now());
+if(!res.ok) return null;
+try{return await res.json()}catch{return null}
+}
 
-  function extractPlayers(payload){
-    if(!payload) return null;
-    if(Array.isArray(payload)) return payload;
-    if(Array.isArray(payload.players)) return payload.players;
-    if(Array.isArray(payload.joueurs)) return payload.joueurs;
-    if(Array.isArray(payload.data)) return payload.data;
-    return null;
-  }
+function extractPlayers(d){
+if(!d) return null;
+if(Array.isArray(d)) return d;
+if(Array.isArray(d.players)) return d.players;
+if(Array.isArray(d.joueurs)) return d.joueurs;
+return null;
+}
 
-  function normalizeDay(s){
-    const str = String(s || "").trim();
-    const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
-    return m ? m[1] : null;
-  }
+function normalizeDay(s){
+const m=String(s).match(/^(\d{4}-\d{2}-\d{2})/);
+return m?m[1]:null;
+}
 
-  async function loadIndex(){
-    const idx = await fetchJson(HISTORY_BASE + "/index.json");
-    if(!Array.isArray(idx)) return null;
-    return idx.map(normalizeDay).filter(Boolean).sort();
-  }
+async function loadIndex(){
+const idx=await fetchJson(HISTORY_BASE+"/index.json");
+if(!Array.isArray(idx)) return null;
+return idx.map(normalizeDay).filter(Boolean).sort();
+}
 
-  async function loadSnapPlayers(day){
-    const raw = await fetchJson(HISTORY_BASE + "/" + day + ".json");
-    return extractPlayers(raw);
-  }
+async function loadSnapPlayers(day){
+const raw=await fetchJson(HISTORY_BASE+"/"+day+".json");
+return extractPlayers(raw);
+}
 
-  function buildPlayerMap(players){
-    const map = new Map();
+async function loadPlayersPages(){
 
-    for(const p of (players || [])){
-      const key = slugify(p.nom);
-      if(!key) continue;
+const data = await fetchJson("data/players_pages.json");
+const map = new Map();
 
-      map.set(key, {
-        nom: p.nom || "—",
-        xp: Number(p.xp || 0),
-        avatar: p.avatar || null,
-        profileHref: p.profileHref || null,
-        inscription: p.inscription || null
-      });
-    }
+if(Array.isArray(data)){
 
-    return map;
-  }
+data.forEach(p=>{
 
-  function findClosestLE(index, targetDay){
-    for(let i = index.length - 1; i >= 0; i--){
-      if(index[i] <= targetDay) return index[i];
-    }
-    return null;
-  }
+const key = slugify(p.slug || p.nom);
 
-  function buildYearPairs(index){
-    const janDays = index.filter(d => /^\d{4}-01-01$/.test(d)).sort();
-    if(janDays.length < 2) return [];
+map.set(key,{
+avatar:p.avatar||null,
+profileHref:p.profileHref||null
+});
 
-    const pairs = [];
+});
 
-    for(let i = 0; i < janDays.length - 1; i++){
-      pairs.push({
-        year: janDays[i].slice(0,4),
-        start: janDays[i],
-        end: janDays[i + 1],
-        dynamic: false
-      });
-    }
+}
 
-    const lastJan = janDays[janDays.length - 1];
-    const latestDay = index[index.length - 1];
+return map;
 
-    if(latestDay > lastJan){
-      pairs.push({
-        year: lastJan.slice(0,4),
-        start: lastJan,
-        end: latestDay,
-        dynamic: true
-      });
-    }
+}
 
-    return pairs;
-  }
+function buildPlayerMap(players){
 
-  async function computeBestYearXpTop50(){
-    const index = await loadIndex();
-    if(!index || index.length < 2) return { rows: [], pairs: [] };
+const map = new Map();
 
-    const yearPairs = buildYearPairs(index);
-    const bestByPlayer = new Map();
+(players||[]).forEach(p=>{
 
-    for(const pair of yearPairs){
-      const snapStart = await loadSnapPlayers(pair.start);
-      const snapEnd = await loadSnapPlayers(pair.end);
+map.set(slugify(p.nom),{
+nom:p.nom,
+xp:Number(p.xp||0),
+avatar:p.avatar||null,
+profileHref:p.profileHref||null
+});
 
-      if(!snapStart || !snapEnd) continue;
+});
 
-      const startMap = buildPlayerMap(snapStart);
-      const endMap = buildPlayerMap(snapEnd);
+return map;
 
-      for(const [key, endPlayer] of endMap.entries()){
-        const startPlayer = startMap.get(key);
-        if(!startPlayer) continue;
+}
 
-        const gain = Number(endPlayer.xp || 0) - Number(startPlayer.xp || 0);
-        if(gain <= 0) continue;
+function buildYearPairs(index){
 
-        const existing = bestByPlayer.get(key);
-        if(!existing || gain > existing.gain){
-          bestByPlayer.set(key, {
-            nom: endPlayer.nom,
-            avatar: endPlayer.avatar || startPlayer.avatar || null,
-            profileHref: endPlayer.profileHref || startPlayer.profileHref || null,
-            inscription: endPlayer.inscription || startPlayer.inscription || null,
-            gain,
-            year: pair.year,
-            xpStart: startPlayer.xp,
-            xpEnd: endPlayer.xp,
-            startDay: pair.start,
-            endDay: pair.end,
-            dynamic: pair.dynamic
-          });
-        }
-      }
-    }
+const jan=index.filter(d=>d.endsWith("-01-01")).sort();
+const pairs=[];
 
-    const rows = Array.from(bestByPlayer.values())
-      .sort((a,b) => {
-        if(b.gain !== a.gain) return b.gain - a.gain;
-        if(b.xpEnd !== a.xpEnd) return b.xpEnd - a.xpEnd;
-        return slugify(a.nom).localeCompare(slugify(b.nom));
-      })
-      .slice(0, 50);
+for(let i=0;i<jan.length-1;i++){
 
-    return { rows, pairs: yearPairs };
-  }
+pairs.push({
+year:jan[i].slice(0,4),
+start:jan[i],
+end:jan[i+1],
+dynamic:false
+});
 
-  function linkForPlayer(row){
-    if(row.profileHref) return row.profileHref;
-    return "profil.html?mode=nv100&u=" + encodeURIComponent(slugify(row.nom));
-  }
+}
 
-  window.addEventListener("DOMContentLoaded", async () => {
-    const tbody = document.getElementById("tbody");
-    const rangeTxt = document.getElementById("rangeTxt");
+const lastJan=jan[jan.length-1];
+const latest=index[index.length-1];
 
-    const result = await computeBestYearXpTop50();
-    const rows = result.rows;
-    const pairs = result.pairs;
+if(latest>lastJan){
 
-    if(!pairs.length){
-      warn("Impossible de construire les périodes annuelles depuis data/history_paris/index.json");
-      rangeTxt.textContent = "Données insuffisantes.";
-      return;
-    }
+pairs.push({
+year:lastJan.slice(0,4),
+start:lastJan,
+end:latest,
+dynamic:true
+});
 
-    const dynamicPair = pairs.find(p => p.dynamic);
-    if(dynamicPair){
-      rangeTxt.textContent =
-        `Années complètes calculées de janvier à janvier • ${dynamicPair.year} recalculée dynamiquement avec le dernier snapshot (${dynamicPair.start} → ${dynamicPair.end}).`;
-    }else{
-      rangeTxt.textContent =
-        "Années complètes calculées de janvier à janvier.";
-    }
+}
 
-    tbody.innerHTML = "";
+return pairs;
 
-    if(!rows.length){
-      tbody.innerHTML =
-        '<tr><td colspan="7" style="padding:16px;font-weight:900;color:#666;">Aucune progression annuelle trouvée.</td></tr>';
-      return;
-    }
+}
 
-    rows.forEach((r, i) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML =
-        '<td class="rank">' + (i + 1) + '</td>' +
-        '<td class="avatarCell"><div class="frame"><img loading="lazy" src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
-        '<td class="name">' +
-          '<a target="_blank" rel="noopener" href="' + linkForPlayer(r) + '">' + r.nom + '</a>' +
-          '<div class="small">' + (r.dynamic ? 'année en cours' : 'année complète') + '</div>' +
-        '</td>' +
-        '<td class="center">+' + fmt(r.gain) + '</td>' +
-        '<td class="center">' + r.year + '</td>' +
-        '<td class="center">' + fmt(r.xpStart) + '</td>' +
-        '<td class="center">' + fmt(r.xpEnd) + '</td>';
+async function computeBestYearXp(){
 
-      tbody.appendChild(tr);
-    });
-  });
+const index=await loadIndex();
+const pairs=buildYearPairs(index);
+
+const best=new Map();
+
+for(const p of pairs){
+
+const start=await loadSnapPlayers(p.start);
+const end=await loadSnapPlayers(p.end);
+
+if(!start||!end) continue;
+
+const startMap=buildPlayerMap(start);
+const endMap=buildPlayerMap(end);
+
+for(const [k,e] of endMap){
+
+const s=startMap.get(k);
+if(!s) continue;
+
+const gain=e.xp-s.xp;
+if(gain<=0) continue;
+
+const prev=best.get(k);
+
+if(!prev||gain>prev.gain){
+
+best.set(k,{
+nom:e.nom,
+avatar:e.avatar,
+profileHref:e.profileHref,
+gain,
+year:p.year,
+xpStart:s.xp,
+xpEnd:e.xp,
+dynamic:p.dynamic
+});
+
+}
+
+}
+
+}
+
+return Array.from(best.values())
+.sort((a,b)=>b.gain-a.gain)
+.slice(0,50);
+
+}
+
+function linkForPlayer(p){
+if(p.profileHref) return p.profileHref;
+return "profil.html?mode=nv100&u="+encodeURIComponent(slugify(p.nom));
+}
+
+window.addEventListener("DOMContentLoaded", async()=>{
+
+const tbody=document.getElementById("tbody");
+const rangeTxt=document.getElementById("rangeTxt");
+
+const playersPages=await loadPlayersPages();
+const rows=await computeBestYearXp();
+
+rangeTxt.textContent="Classement historique des plus grosses années d'XP";
+
+tbody.innerHTML="";
+
+rows.forEach((r,i)=>{
+
+const k=slugify(r.nom);
+const extra=playersPages.get(k);
+
+if(extra){
+
+if(!r.avatar) r.avatar=extra.avatar;
+if(!r.profileHref) r.profileHref=extra.profileHref;
+
+}
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=
+'<td class="rank">'+(i+1)+'</td>'+
+'<td class="avatarCell"><div class="frame"><img src="'+(r.avatar||"avatar/1.jpg")+'"></div></td>'+
+'<td class="name"><a target="_blank" href="'+linkForPlayer(r)+'">'+r.nom+'</a></td>'+
+'<td class="center">+'+fmt(r.gain)+'</td>'+
+'<td class="center">'+r.year+'</td>'+
+'<td class="center">'+fmt(r.xpStart)+'</td>'+
+'<td class="center">'+fmt(r.xpEnd)+'</td>';
+
+tbody.appendChild(tr);
+
+});
+
+});
+
 </script>
+
 </body>
 </html>
