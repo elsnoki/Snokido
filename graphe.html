@@ -83,32 +83,14 @@
     .canvas-wrap.short{ height:460px; }
     .canvas-wrap.medium{ height:520px; }
     .canvas-wrap.long{ height:650px; }
-
-    .img-block{
-      background:#ececec;
-      border-radius:18px;
-      box-shadow:0 10px 26px rgba(0,0,0,.14);
-      padding:18px;
-      margin-bottom:22px;
-    }
-
-    .img-block h2{
-      margin:0 0 12px;
-      font-size:22px;
-    }
-
-    .img-block img{
-      display:block;
-      width:100%;
-      height:auto;
-      border-radius:12px;
-    }
+    .canvas-wrap.xlong{ height:860px; }
 
     @media (max-width: 900px){
       .canvas-wrap{ height:460px; }
       .canvas-wrap.short{ height:390px; }
       .canvas-wrap.medium{ height:430px; }
       .canvas-wrap.long{ height:520px; }
+      .canvas-wrap.xlong{ height:900px; }
       .hero h1{ font-size:28px; }
     }
   </style>
@@ -119,8 +101,8 @@
       <h1>Graphes des progressions</h1>
       <p>
         Page des temps de progression générée automatiquement depuis <strong>data.js</strong>.
-        Les 5 premiers graphes reprennent la présentation par groupes. Plus bas, tu as l’emplacement
-        pour l’image 1, puis un grand graphe dynamique multi-paliers.
+        Les 5 premiers graphes reprennent la présentation par groupes. Plus bas, tu as le graphe
+        complet du niveau 100, puis le grand graphe dynamique multi-paliers.
       </p>
     </section>
 
@@ -151,15 +133,15 @@
       <div class="canvas-wrap short"><canvas id="graph5"></canvas></div>
     </section>
 
-    <h2 class="section-title">Image 1</h2>
-    <section class="img-block">
-      <h2>Image de référence</h2>
-      <img src="images/image1.png" alt="Image 1" />
+    <h2 class="section-title">Classement complet niveau 100</h2>
+    <section class="graph-card">
+      <h2>Temps pour atteindre le niveau 100</h2>
+      <div class="canvas-wrap xlong"><canvas id="graphAllNv100"></canvas></div>
     </section>
 
-    <h2 class="section-title">Image 2 en graphe dynamique</h2>
+    <h2 class="section-title">Grand graphe multi-paliers</h2>
     <section class="graph-card">
-      <h2>Grand graphe multi-paliers</h2>
+      <h2>Du niveau 100 jusqu’aux paliers supérieurs</h2>
       <div class="canvas-wrap long"><canvas id="graphMega"></canvas></div>
     </section>
   </div>
@@ -341,6 +323,131 @@
       });
     }
 
+    function createNv100RankingChart(){
+      const ctx = document.getElementById("graphAllNv100");
+      if(!ctx) return;
+
+      const list = [...joueurs]
+        .filter(p => p?.modes?.nv100?.jours != null)
+        .sort((a,b) => a.modes.nv100.jours - b.modes.nv100.jours);
+
+      const labels = list.map(p => p.nom);
+      const data = list.map(p => p.modes.nv100.jours);
+
+      const colors = [
+        "#14b8c9", "#8bd36b", "#7a54c7", "#2b6ca3", "#b6b6b6", "#555555",
+        "#14a889", "#1eb8cd", "#f1cc4b", "#2a6fa6", "#92d269", "#23b965",
+        "#a45712", "#f1cd47", "#000000", "#f2b24f", "#d29769", "#a9a9a9",
+        "#ef6a9d", "#1dbbca", "#000000", "#b3b3b3", "#f2cf46"
+      ];
+
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors.slice(0, data.length),
+            borderSkipped: false,
+            borderRadius: 0,
+            categoryPercentage: 0.92,
+            barPercentage: 0.96
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: "y",
+          animation: { duration: 700 },
+          layout: {
+            padding: { top: 8, right: 22, bottom: 8, left: 0 }
+          },
+          plugins: {
+            legend: {
+              position: "top",
+              labels: {
+                generateLabels(chart){
+                  const dataset = chart.data.datasets[0];
+                  return chart.data.labels.map((label, i) => ({
+                    text: label,
+                    fillStyle: dataset.backgroundColor[i],
+                    strokeStyle: dataset.backgroundColor[i],
+                    lineWidth: 0,
+                    hidden: false,
+                    index: i,
+                    pointStyle: "circle"
+                  }));
+                },
+                color: "#222",
+                usePointStyle: true,
+                pointStyle: "circle",
+                boxWidth: 14,
+                font: { size: 14, weight: "600" },
+                padding: 18
+              },
+              onClick: null
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.label} : ${ctx.raw} jours`
+              }
+            },
+            datalabels: {
+              formatter: (value) => value,
+              color: (ctx) => {
+                const color = ctx.dataset.backgroundColor[ctx.dataIndex];
+                return (color === "#2b6ca3" || color === "#555555" || color === "#000000") ? "#fff" : "#111";
+              },
+              anchor: "end",
+              align: "left",
+              offset: -8,
+              clamp: true,
+              font: {
+                size: 12,
+                weight: "600"
+              }
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              suggestedMax: 2000,
+              ticks: {
+                color: "#222",
+                font: { size: 13 }
+              },
+              title: {
+                display: true,
+                text: "JOURS",
+                color: "#222",
+                font: { size: 16, weight: "700" }
+              },
+              grid: {
+                color: "rgba(0,0,0,.12)"
+              },
+              border: { display: false }
+            },
+            y: {
+              ticks: {
+                color: "#222",
+                font: { size: 14 }
+              },
+              title: {
+                display: true,
+                text: "PSEUDO",
+                color: "#222",
+                font: { size: 16, weight: "700" }
+              },
+              grid: {
+                display: false
+              },
+              border: { display: false }
+            }
+          }
+        }
+      });
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       if(typeof joueurs === "undefined" || !Array.isArray(joueurs)) return;
 
@@ -381,6 +488,8 @@
         "Pingu",
         "Korben"
       ], BASE_STAGES);
+
+      createNv100RankingChart();
 
       createStackedChart("graphMega", [
         "TheGladiator",
