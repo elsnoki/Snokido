@@ -167,10 +167,9 @@ const joueurs = [
     "200k":{ jours:420, atteint_le:"15-12-2018", rang:"3/6", xp:200000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
     "300k": { jours:177, atteint_le:"10-06-2019", rang:"3/4", xp:300000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
     "400k": { jours:204, atteint_le:"31-12-2019", rang:"1/4", xp:400000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-
     "500k": { jours:178, atteint_le:"26-06-2020", rang:"—", xp:500000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
-    "600k": { jours:63,  atteint_le:"28-08-2020", rang:"—", xp:600000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
-    "700k": { jours:79,  atteint_le:"15-11-2020", rang:"—", xp:700000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "600k": { jours:73, atteint_le:"28-08-2020", rang:"—", xp:600000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "700k": { jours:79, atteint_le:"15-11-2020", rang:"—", xp:700000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
     "800k": { jours:133, atteint_le:"28-03-2021", rang:"—", xp:800000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
     "900k": { jours:227, atteint_le:"10-11-2021", rang:"—", xp:900000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
     "1m":   { jours:251, atteint_le:"19-07-2022", rang:"—", xp:1000000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
@@ -242,5 +241,6 @@ const joueurs = [
     }
   }
 ];
+
 
 
