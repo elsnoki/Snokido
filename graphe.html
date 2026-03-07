@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Graphes des progressions</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="header.js" defer></script>
+  <script src="data.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+    }
+
+    .wrap{
+      width:min(1280px, calc(100% - 30px));
+      margin:34px auto 60px;
+    }
+
+    .hero{
+      background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 18px 40px rgba(0,0,0,.28);
+      backdrop-filter: blur(8px);
+      border-radius:24px;
+      padding:28px 26px;
+      color:#fff;
+      margin-bottom:24px;
+    }
+
+    .hero h1{
+      margin:0 0 8px;
+      font-size:34px;
+      line-height:1.1;
+    }
+
+    .hero p{
+      margin:0;
+      font-size:15px;
+      line-height:1.6;
+      color:rgba(255,255,255,.9);
+      max-width:980px;
+    }
+
+    .section-title{
+      color:#fff;
+      margin:26px 4px 14px;
+      font-size:24px;
+      font-weight:900;
+      text-shadow:0 2px 8px rgba(0,0,0,.2);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:22px;
+    }
+
+    .card{
+      background:#ececec;
+      border-radius:16px;
+      box-shadow:0 12px 28px rgba(0,0,0,.28);
+      padding:18px 18px 8px;
+      overflow:hidden;
+    }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:22px;
+      color:#222;
+    }
+
+    .card p{
+      margin:0 0 14px;
+      font-size:14px;
+      color:#555;
+    }
+
+    .canvas-wrap{
+      position:relative;
+      width:100%;
+      height:430px;
+    }
+
+    @media (max-width: 900px){
+      .canvas-wrap{ height:360px; }
+      .hero h1{ font-size:28px; }
+    }
+
+    @media (max-width: 600px){
+      .canvas-wrap{ height:320px; }
+      .card h2{ font-size:18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <section class="hero">
+      <h1>Graphes des progressions</h1>
+      <p>
+        Visualisation du temps mis par les joueurs pour atteindre les différents paliers.
+        Les graphes sont générés automatiquement depuis <strong>data.js</strong>.
+      </p>
+    </section>
+
+    <h2 class="section-title">Les plus longs parcours</h2>
+    <div class="grid">
+      <section class="card">
+        <h2>Joueurs aux progressions les plus longues</h2>
+        <p>Affiche les joueurs ayant mis le plus de temps sur le niveau 100 et les paliers suivants.</p>
+        <div class="canvas-wrap"><canvas id="chartLongest"></canvas></div>
+      </section>
+
+      <section class="card">
+        <h2>Parcours longs avec 100k et 200k</h2>
+        <p>Focus sur les joueurs dont la progression s’est prolongée au-delà du niveau 100.</p>
+        <div class="canvas-wrap"><canvas id="chartLongMixed"></canvas></div>
+      </section>
+    </div>
+
+    <h2 class="section-title">Les plus rapides</h2>
+    <div class="grid">
+      <section class="card">
+        <h2>Les plus rapides au niveau 100</h2>
+        <p>Les meilleurs départs et les progressions les plus efficaces.</p>
+        <div class="canvas-wrap"><canvas id="chartFast"></canvas></div>
+      </section>
+
+      <section class="card">
+        <h2>Les rapides avec plusieurs paliers</h2>
+        <p>Met en avant ceux qui ont enchaîné rapidement sur 100k, 200k et plus.</p>
+        <div class="canvas-wrap"><canvas id="chartFastMixed"></canvas></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const COLORS = {
+      nv100: "#63cbd1",
+      k100:  "#42aecb",
+      k200:  "#5a97be",
+      k300:  "#5a7db8",
+      k400:  "#6a63b7"
+    };
+
+    function getStageValue(player, key){
+      if(key === "nv100") return player?.modes?.nv100?.jours ?? null;
+      if(key === "100k") return player?.modes?.["100k"]?.jours ?? null;
+      if(key === "200k") return player?.modes?.["200k"]?.jours ?? null;
+      if(key === "300k") return player?.modes?.["300k"]?.jours ?? null;
+      if(key === "400k") return player?.modes?.["400k"]?.jours ?? null;
+      return null;
+    }
+
+    function buildDatasets(list){
+      return [
+        {
+          label:"49 500",
+          data:list.map(p => getStageValue(p, "nv100")),
+          backgroundColor: COLORS.nv100,
+          borderRadius: 12,
+          borderSkipped: false,
+          stack: "stack1"
+        },
+        {
+          label:"100 000",
+          data:list.map(p => getStageValue(p, "100k")),
+          backgroundColor: COLORS.k100,
+          borderRadius: 12,
+          borderSkipped: false,
+          stack: "stack1"
+        },
+        {
+          label:"200 000",
+          data:list.map(p => getStageValue(p, "200k")),
+          backgroundColor: COLORS.k200,
+          borderRadius: 12,
+          borderSkipped: false,
+          stack: "stack1"
+        },
+        {
+          label:"300 000",
+          data:list.map(p => getStageValue(p, "300k")),
+          backgroundColor: COLORS.k300,
+          borderRadius: 12,
+          borderSkipped: false,
+          stack: "stack1"
+        },
+        {
+          label:"400 000",
+          data:list.map(p => getStageValue(p, "400k")),
+          backgroundColor: COLORS.k400,
+          borderRadius: 12,
+          borderSkipped: false,
+          stack: "stack1"
+        }
+      ];
+    }
+
+    function createHorizontalChart(canvasId, title, list){
+      const ctx = document.getElementById(canvasId);
+      if(!ctx) return;
+
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: list.map(p => p.nom),
+          datasets: buildDatasets(list)
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: "y",
+          animation: {
+            duration: 800
+          },
+          layout: {
+            padding: {
+              left: 4,
+              right: 14,
+              top: 6,
+              bottom: 4
+            }
+          },
+          plugins: {
+            title: {
+              display: false,
+              text: title
+            },
+            legend: {
+              position: "top",
+              labels: {
+                color: "#222",
+                usePointStyle: true,
+                pointStyle: "circle",
+                boxWidth: 14,
+                font: {
+                  size: 14,
+                  weight: "600"
+                }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context){
+                  const value = context.raw;
+                  if(value == null) return `${context.dataset.label} : —`;
+                  return `${context.dataset.label} : ${value} jours`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              beginAtZero: true,
+              ticks: {
+                color: "#222",
+                font: {
+                  size: 13
+                }
+              },
+              title: {
+                display: true,
+                text: "JOURS",
+                color: "#222",
+                font: {
+                  size: 16,
+                  weight: "700"
+                }
+              },
+              grid: {
+                color: "rgba(0,0,0,.12)"
+              },
+              border: {
+                display: false
+              }
+            },
+            y: {
+              stacked: true,
+              ticks: {
+                color: "#222",
+                font: {
+                  size: 16
+                }
+              },
+              grid: {
+                display: false
+              },
+              border: {
+                display: false
+              }
+            }
+          }
+        },
+        plugins: [valueLabelPlugin]
+      });
+    }
+
+    const valueLabelPlugin = {
+      id: "valueLabelPlugin",
+      afterDatasetsDraw(chart){
+        const { ctx } = chart;
+        ctx.save();
+
+        chart.data.datasets.forEach((dataset, datasetIndex) => {
+          const meta = chart.getDatasetMeta(datasetIndex);
+          if (meta.hidden) return;
+
+          meta.data.forEach((bar, index) => {
+            const value = dataset.data[index];
+            if (value == null) return;
+
+            const isDark =
+              dataset.backgroundColor === COLORS.k200 ||
+              dataset.backgroundColor === COLORS.k300 ||
+              dataset.backgroundColor === COLORS.k400;
+
+            ctx.fillStyle = isDark ? "#ffffff" : "#111111";
+            ctx.font = "600 13px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            const width = Math.abs(bar.base - bar.x);
+            if(width < 34) return;
+
+            const x = (bar.base + bar.x) / 2;
+            const y = bar.y;
+
+            ctx.fillText(String(value), x, y);
+          });
+        });
+
+        ctx.restore();
+      }
+    };
+
+    function getLongestPlayers(){
+      return [...joueurs]
+        .filter(p => p?.modes?.nv100?.jours != null)
+        .sort((a,b) => (b.modes.nv100.jours - a.modes.nv100.jours))
+        .slice(0, 5);
+    }
+
+    function getFastestPlayers(){
+      return [...joueurs]
+        .filter(p => p?.modes?.nv100?.jours != null)
+        .sort((a,b) => (a.modes.nv100.jours - b.modes.nv100.jours))
+        .slice(0, 5);
+    }
+
+    function getLongestWithProgress(){
+      return [...joueurs]
+        .filter(p =>
+          p?.modes?.nv100?.jours != null &&
+          (
+            p?.modes?.["100k"]?.jours != null ||
+            p?.modes?.["200k"]?.jours != null ||
+            p?.modes?.["300k"]?.jours != null ||
+            p?.modes?.["400k"]?.jours != null
+          )
+        )
+        .sort((a,b) => {
+          const ta =
+            (a?.modes?.nv100?.jours || 0) +
+            (a?.modes?.["100k"]?.jours || 0) +
+            (a?.modes?.["200k"]?.jours || 0) +
+            (a?.modes?.["300k"]?.jours || 0) +
+            (a?.modes?.["400k"]?.jours || 0);
+
+          const tb =
+            (b?.modes?.nv100?.jours || 0) +
+            (b?.modes?.["100k"]?.jours || 0) +
+            (b?.modes?.["200k"]?.jours || 0) +
+            (b?.modes?.["300k"]?.jours || 0) +
+            (b?.modes?.["400k"]?.jours || 0);
+
+          return tb - ta;
+        })
+        .slice(0, 4);
+    }
+
+    function getFastWithProgress(){
+      return [...joueurs]
+        .filter(p =>
+          p?.modes?.nv100?.jours != null &&
+          (
+            p?.modes?.["100k"]?.jours != null ||
+            p?.modes?.["200k"]?.jours != null ||
+            p?.modes?.["300k"]?.jours != null ||
+            p?.modes?.["400k"]?.jours != null
+          )
+        )
+        .sort((a,b) => {
+          const ta =
+            (a?.modes?.nv100?.jours || 0) +
+            (a?.modes?.["100k"]?.jours || 0) +
+            (a?.modes?.["200k"]?.jours || 0) +
+            (a?.modes?.["300k"]?.jours || 0) +
+            (a?.modes?.["400k"]?.jours || 0);
+
+          const tb =
+            (b?.modes?.nv100?.jours || 0) +
+            (b?.modes?.["100k"]?.jours || 0) +
+            (b?.modes?.["200k"]?.jours || 0) +
+            (b?.modes?.["300k"]?.jours || 0) +
+            (b?.modes?.["400k"]?.jours || 0);
+
+          return ta - tb;
+        })
+        .slice(0, 5);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if(typeof joueurs === "undefined" || !Array.isArray(joueurs)) return;
+
+      const longest = getLongestPlayers();
+      const longestProgress = getLongestWithProgress();
+      const fastest = getFastestPlayers();
+      const fastProgress = getFastWithProgress();
+
+      createHorizontalChart("chartLongest", "Les plus longs", longest);
+      createHorizontalChart("chartLongMixed", "Longs avec progression", longestProgress);
+      createHorizontalChart("chartFast", "Les plus rapides", fastest);
+      createHorizontalChart("chartFastMixed", "Rapides avec plusieurs paliers", fastProgress);
+    });
+  </script>
+</body>
+</html>
