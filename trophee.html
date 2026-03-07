@@ -203,14 +203,21 @@
       display:block;
     }
 
+    .skin-frame.is-empty{
+      background:transparent !important;
+      box-shadow:none;
+      padding:0;
+      border:none;
+    }
+
     .pseudo{
-  font-size:15px;
-  font-weight:800;
-  line-height:1.2;
-  margin-bottom:6px;
-  color:#24323c;
-  word-break:break-word;
-}
+      font-size:15px;
+      font-weight:800;
+      line-height:1.2;
+      margin-bottom:6px;
+      color:#24323c;
+      word-break:break-word;
+    }
 
     .detail{
       font-size:13px;
@@ -584,7 +591,7 @@
         return `
           <div class="podium-item rank${place}">
             <div class="avatar-wrap">
-              <div class="skin-frame"><img src="avatar/1.jpg" alt="inconnu"></div>
+              <div class="skin-frame is-empty"></div>
               <div class="medal rank${place}">${place}</div>
             </div>
             <div class="pseudo">—</div>
@@ -745,14 +752,14 @@
           ]
         },
         {
-  title: "Le plus de jeux notés",
-  sub: "Les plus gros noteurs de jeux",
-  podium: [
-    { nom:"Talk Takashi", detail:"4000 jeux notés" },
-    { nom:"alex.c2109", detail:"3876 jeux notés" },
-    { nom:"LargoJunior", detail:"3708 jeux notés" }
-  ]
-},
+          title: "Le plus de jeux notés",
+          sub: "Les plus gros noteurs de jeux",
+          podium: [
+            { nom:"Talk Takashi", detail:"4000 jeux notés" },
+            { nom:"alex.c2109", detail:"3876 jeux notés" },
+            { nom:"LargoJunior", detail:"3708 jeux notés" }
+          ]
+        },
         {
           title: "Premier niveau 100 sans snoki",
           sub: "Classement des joueurs ayant réussi l’exploit",
