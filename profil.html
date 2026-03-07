@@ -1,460 +1,250 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profil joueur</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Profil</title>
 
-<style>
-body{
-  margin:0;
-  background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
-  font-family: Arial, sans-serif;
-}
+  <link rel="stylesheet" href="style.css">
+  <script src="header.js" defer></script>
+  <script src="data.js" defer></script>
 
-.wrap{
-  width:1100px;
-  max-width:calc(100% - 24px);
-  margin:30px auto 40px;
-}
+  <style>
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+    }
+    .wrap{ max-width:1180px; margin:26px auto 40px; padding:0 12px; }
+    .panel{
+      background:#fff;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 12px 30px rgba(0,0,0,.28);
+      border:1px solid rgba(0,0,0,.10);
+    }
+    .titlebar{
+      background:#3b3b3b;
+      color:#fff;
+      padding:12px 14px;
+      font-size:18px;
+      font-weight:900;
+    }
+    .content{ display:flex; gap:16px; padding:16px; align-items:flex-start; }
+    .avatarBox{
+      width:290px; background:#f6f6f6; border:1px solid #d9d9d9;
+      border-radius:12px; padding:12px;
+    }
+    .avatarBox img{ width:100%; border-radius:10px; border:2px solid #bdbdbd; background:#eee; display:block; }
 
-.card{
-  background:#fff;
-  border-radius:10px;
-  overflow:hidden;
-  box-shadow:0 8px 20px rgba(0,0,0,.25);
-}
+    .main{ flex:1; min-width:460px; }
+    .headerRow{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .badge100{
+      width:46px; height:46px; border-radius:10px;
+      display:grid; place-items:center; font-weight:900;
+      background:linear-gradient(#ffd44d,#f0b300);
+      border:2px solid rgba(0,0,0,.12);
+      box-shadow:0 2px 0 rgba(0,0,0,.12);
+      color:#111;
+    }
+    .name{ font-size:28px; font-weight:900; margin:0; }
 
-.head{
-  background:#3a3a3a;
-  color:#fff;
-  padding:18px 20px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  flex-wrap:wrap;
-}
+    .xpRow{ margin:6px 0 12px; }
+    .xpWrap{
+      position:relative; height:20px; border-radius:10px;
+      overflow:hidden; background:#d9d9d9; border:1px solid #cfcfcf;
+    }
+    .xpFill{ height:100%; width:100%; background:#78b72d; }
+    .xpText{
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      font-weight:900; color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.35);
+      font-size:13px;
+    }
 
-.head-left{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
+    .cols{ display:flex; gap:14px; align-items:flex-start; }
+    .col-left{ flex:1.25; }
+    .col-right{ flex:0.75; }
 
-.avatar-frame{
-  width:76px;
-  height:76px;
-  border-radius:10px;
-  background:#e8e8e8;
-  border:1px solid rgba(255,255,255,.15);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex:0 0 auto;
-}
+    .item{
+      display:flex; align-items:center; gap:12px;
+      font-size:14px; border-bottom:1px solid #e6e6e6; padding:10px 0;
+    }
+    .label{ width:160px; flex:0 0 auto; color:#444; }
+    .value{ font-weight:900; color:#000; }
 
-.avatar-frame img{
-  width:66px;
-  height:66px;
-  object-fit:cover;
-  border-radius:8px;
-  border:2px solid #8f8f8f;
-  background:#ddd;
-}
+    .rightTitle{ font-size:14px; font-weight:900; border-bottom:1px solid #e6e6e6; padding:10px 0; }
+    .pauseLine{ font-size:14px; border-bottom:1px solid #e6e6e6; padding:10px 0; }
+    .pauseLine b{ font-weight:900; }
 
-.head-meta h1{
-  margin:0 0 6px 0;
-  font-size:28px;
-  line-height:1.1;
-}
+    .linkRow{ margin-top:10px; font-size:14px; padding-top:10px; border-bottom:none; }
+    .linkRow a{ color:#2c6fb7; text-decoration:none; font-weight:900; }
+    .linkRow a:hover{ text-decoration:underline; }
 
-.mode-pill{
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:999px;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.12);
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:.3px;
-}
-
-.head-actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.btn{
-  display:inline-block;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:900;
-  font-size:14px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.10);
-  color:#fff;
-}
-
-.btn:hover{
-  background:rgba(255,255,255,.16);
-}
-
-.section{
-  padding:18px 20px;
-  border-top:1px solid #ececec;
-}
-
-.section-title{
-  margin:0 0 14px 0;
-  font-size:18px;
-  color:#222;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns: repeat(4, minmax(0,1fr));
-  gap:12px;
-}
-
-.stat{
-  background:#f7f7f7;
-  border:1px solid #e4e4e4;
-  border-radius:10px;
-  padding:14px;
-}
-
-.stat-label{
-  font-size:12px;
-  font-weight:900;
-  color:#666;
-  text-transform:uppercase;
-  letter-spacing:.4px;
-  margin-bottom:8px;
-}
-
-.stat-value{
-  font-size:22px;
-  font-weight:900;
-  color:#222;
-}
-
-.stat-sub{
-  margin-top:6px;
-  font-size:12px;
-  color:#666;
-}
-
-.pause-box{
-  background:#fafafa;
-  border:1px solid #e5e5e5;
-  border-radius:10px;
-  padding:14px;
-}
-
-.pause-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:7px 10px;
-  border-radius:999px;
-  font-weight:900;
-  font-size:12px;
-  border:1px solid rgba(0,0,0,.08);
-}
-
-.pause-badge.no{
-  background:#e8f8ee;
-  color:#187a39;
-}
-
-.pause-badge.yes{
-  background:#fff1f1;
-  color:#b42318;
-}
-
-.pause-badge.unknown{
-  background:#f1f1f1;
-  color:#666;
-}
-
-.pause-summary{
-  margin-top:10px;
-  color:#444;
-  font-size:14px;
-}
-
-.pause-list{
-  margin:14px 0 0 0;
-  padding-left:18px;
-}
-
-.pause-list li{
-  margin:10px 0;
-  color:#333;
-  line-height:1.45;
-}
-
-.muted{
-  color:#666;
-}
-
-.error-box{
-  background:#fff;
-  border-radius:10px;
-  box-shadow:0 8px 20px rgba(0,0,0,.25);
-  padding:22px;
-  font-weight:700;
-}
-
-@media (max-width: 900px){
-  .grid{
-    grid-template-columns: repeat(2, minmax(0,1fr));
-  }
-}
-
-@media (max-width: 640px){
-  .head{
-    align-items:flex-start;
-  }
-
-  .head-left{
-    width:100%;
-  }
-
-  .head-actions{
-    width:100%;
-  }
-
-  .btn{
-    width:100%;
-    text-align:center;
-  }
-
-  .grid{
-    grid-template-columns: 1fr;
-  }
-
-  .head-meta h1{
-    font-size:24px;
-  }
-}
-</style>
+    @media (max-width:1020px){
+      .content{ flex-direction:column; }
+      .avatarBox{ width:auto; }
+      .main{ min-width:auto; }
+      .cols{ flex-direction:column; }
+    }
+  </style>
 </head>
 
 <body>
+  <main class="wrap">
+    <section class="panel">
+      <div class="titlebar" id="pageTitle">Profil</div>
+      <div class="content" id="content"></div>
+    </section>
+  </main>
 
-<script src="header.js"></script>
-<script src="data.js"></script>
+  <script>
+    // attend que data.js soit chargé (defer)
+    window.addEventListener("DOMContentLoaded", () => {
 
-<div class="wrap" id="app"></div>
+      function slugify2(name){
+        return String(name || "")
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-zA-Z0-9]/g, "")
+          .toLowerCase();
+      }
 
-<script>
-function slugifyLocal(name){
-  return String(name || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .toLowerCase();
-}
+      const params = new URLSearchParams(location.search);
+      const u = params.get("u");
+      const mode = (params.get("mode") || "nv100").toLowerCase();
 
-function modeLabel(mode){
-  const labels = {
-    nv100: "NV100",
-    "100k": "100K",
-    "200k": "200K",
-    "300k": "300K",
-    "400k": "400K",
-    "500k": "500K",
-    "600k": "600K",
-    "700k": "700K",
-    "800k": "800K",
-    "900k": "900K",
-    "1m": "1M",
-    "1m1": "1M1",
-    "1m2": "1M2"
-  };
-  return labels[mode] || mode;
-}
+      const pageTitle = document.getElementById("pageTitle");
+      const content = document.getElementById("content");
 
-function getClassementHref(mode){
-  const groupedModes = ["500k", "600k", "700k", "800k", "900k", "1m", "1m1", "1m2"];
+      function backHref(m){
+        if(m === "100k") return "100k.html";
+        if(m === "200k") return "200k.html";
+        if(m === "300k") return "300k.html";
+        if(m === "400k") return "400k.html";
+        if(m === "500k") return "500k.html";
+        return "rank.html";
+      }
 
-  if(groupedModes.includes(mode)) return "500k.html?mode=" + encodeURIComponent(mode);
-  if(mode === "400k") return "400k.html";
-  if(mode === "300k") return "300k.html";
-  if(mode === "200k") return "200k.html";
-  if(mode === "100k") return "100k.html";
-  if(mode === "nv100") return "nv100.html";
+      function progressLabel(m){
+        if(m === "100k") return "100K en :";
+        if(m === "200k") return "200K en :";
+        if(m === "300k") return "300K en :";
+        if(m === "400k") return "400K en :";
+        if(m === "500k") return "500K en :";
+        return "Niveau 100 en :";
+      }
 
-  return "index.html";
-}
+      function defaultXpForMode(m){
+        if(m === "100k") return 100000;
+        if(m === "200k") return 200000;
+        if(m === "300k") return 300000;
+        if(m === "400k") return 400000;
+        if(m === "500k") return 500000;
+        return 49500;
+      }
 
-function formatPauseBadge(pauses_total){
-  if(!pauses_total || pauses_total.nb === null || pauses_total.nb === undefined){
-    return {
-      cls: "unknown",
-      text: "Pause inconnue",
-      summary: ""
-    };
-  }
+      function plural(n, one, many){ return n === 1 ? one : many; }
 
-  if(pauses_total.nb === 0){
-    return {
-      cls: "no",
-      text: "Aucune pause",
-      summary: "Aucune pause enregistrée sur ce palier."
-    };
-  }
+      if(!u){
+        pageTitle.textContent = "Profil";
+        content.innerHTML = "<p style='padding:18px'>Lien invalide (paramètre u manquant).</p>";
+        return;
+      }
 
-  const nb = pauses_total.nb || 0;
-  const mois = pauses_total.mois || 0;
-  const jours = pauses_total.jours || 0;
+      if(typeof joueurs === "undefined" || !Array.isArray(joueurs)){
+        pageTitle.textContent = "Erreur data.js";
+        content.innerHTML = "<p style='padding:18px'>data.js ne s'est pas chargé.</p>";
+        return;
+      }
 
-  let parts = [];
-  if(mois) parts.push(mois + " mois");
-  if(jours) parts.push(jours + " jours");
+      const player = joueurs.find(p => slugify2(p.nom) === u);
 
-  return {
-    cls: "yes",
-    text: nb + " pause" + (nb > 1 ? "s" : ""),
-    summary: parts.length ? ("Durée totale : " + parts.join(" • ")) : "Durée totale inconnue."
-  };
-}
+      if(!player){
+        pageTitle.textContent = "Joueur introuvable";
+        content.innerHTML = "<p style='padding:18px'>Ce profil n'existe pas.</p>";
+        return;
+      }
 
-const app = document.getElementById("app");
-const params = new URLSearchParams(window.location.search);
-const mode = (params.get("mode") || "nv100").toLowerCase();
-const userSlug = (params.get("u") || "").toLowerCase();
+      const stats = player.modes?.[mode] || null;
 
-if(typeof joueurs === "undefined" || !Array.isArray(joueurs)){
-  app.innerHTML = "<div class='error-box'>Erreur : data.js ne s'est pas chargé.</div>";
-} else {
-  const joueur = joueurs.find(j => slugifyLocal(j.nom) === userSlug);
+      if(!stats){
+        pageTitle.textContent = "Mode introuvable";
+        content.innerHTML = `<p style='padding:18px'>Ce joueur n'a pas de données pour le mode "${mode}".</p>`;
+        return;
+      }
 
-  if(!joueur){
-    app.innerHTML = "<div class='error-box'>Joueur introuvable.</div>";
-  } else {
-    const stats = joueur.modes && joueur.modes[mode] ? joueur.modes[mode] : null;
+      pageTitle.textContent = "Profil de " + player.nom;
 
-    if(!stats){
-      app.innerHTML = "<div class='error-box'>Aucune donnée disponible pour le mode " + modeLabel(mode) + ".</div>";
-    } else {
-      const badge = formatPauseBadge(stats.pauses_total);
+      const xpValue = (stats.xp != null) ? stats.xp : defaultXpForMode(mode);
+      const xpText = Number(xpValue).toLocaleString("fr-FR") + " xp";
+
+      const maxXp = defaultXpForMode(mode);
+      const percent = Math.max(0, Math.min(100, (Number(xpValue) / Number(maxXp)) * 100));
+
+      const t = stats.pauses_total || {nb:0, mois:0, jours:0};
       const details = Array.isArray(stats.pauses_detail) ? stats.pauses_detail : [];
-      const avatar = joueur.avatar || "avatar/1.jpg";
-      const classementHref = getClassementHref(mode);
 
-      document.title = joueur.nom + " — " + modeLabel(mode);
+      let rightCol = `
+        <div class="col-right">
+          <div class="rightTitle">Pauses</div>
+          <div class="pauseLine">—</div>
+        </div>
+      `;
 
-      app.innerHTML = `
-        <div class="card">
-          <div class="head">
-            <div class="head-left">
-              <div class="avatar-frame">
-                <img src="${avatar}" alt="${joueur.nom}" id="profil-avatar">
-              </div>
+      if((t.nb ?? 0) > 0){
+        const nb = Number(t.nb || 0);
+        const jours = (t.jours != null) ? Number(t.jours) : null;
 
-              <div class="head-meta">
-                <h1 id="profil-nom">${joueur.nom}</h1>
-                <span class="mode-pill" id="profil-mode">${modeLabel(mode)}</span>
-              </div>
+        rightCol = `
+          <div class="col-right">
+            <div class="rightTitle">
+              ${nb} ${plural(nb,"pause","pauses")} : ${t.mois ?? "?"} mois (${jours ?? "?"} ${plural(jours ?? 2,"jour","jours")})
             </div>
+            ${
+              details.length
+                ? details.map(p => `
+                    <div class="pauseLine">
+                      <b>${Number(p.xp).toLocaleString("fr-FR")}</b> :
+                      ${p.periode} (${p.mois} mois${p.jours != null ? `, ${p.jours} jours` : ""})
+                    </div>
+                  `).join("")
+                : `<div class="pauseLine">—</div>`
+            }
+          </div>
+        `;
+      }
 
-            <div class="head-actions">
-              <a href="${classementHref}" id="btn-classement" class="btn">Classement</a>
+      content.innerHTML = `
+        <div class="avatarBox">
+          <img src="${player.avatar || "avatar/1.jpg"}" alt="${player.nom}">
+        </div>
+
+        <div class="main">
+          <div class="headerRow">
+            <div class="badge100">100</div>
+            <h1 class="name">${player.nom}</h1>
+          </div>
+
+          <div class="xpRow">
+            <div class="xpWrap">
+              <div class="xpFill" style="width:${percent}%;"></div>
+              <div class="xpText">${xpText}</div>
             </div>
           </div>
 
-          <div class="section">
-            <h2 class="section-title">Statistiques</h2>
-
-            <div class="grid">
-              <div class="stat">
-                <div class="stat-label">${modeLabel(mode)} en</div>
-                <div class="stat-value" id="profil-jours">${typeof stats.jours === "number" ? stats.jours + " jours" : "—"}</div>
-              </div>
-
-              <div class="stat">
-                <div class="stat-label">Atteint le</div>
-                <div class="stat-value" id="profil-date">${stats.atteint_le || "—"}</div>
-              </div>
-
-              <div class="stat">
-                <div class="stat-label">Rang</div>
-                <div class="stat-value" id="profil-rang">${stats.rang || "—"}</div>
-              </div>
-
-              <div class="stat">
-                <div class="stat-label">XP palier</div>
-                <div class="stat-value">${typeof stats.xp === "number" ? stats.xp.toLocaleString("fr-FR") : "—"}</div>
-                <div class="stat-sub">Objectif du palier</div>
-              </div>
+          <div class="cols">
+            <div class="col-left">
+              <div class="item"><span class="label">${progressLabel(mode)}</span><span class="value">${stats.jours == null ? "—" : (stats.jours + " jours")}</span></div>
+              <div class="item"><span class="label">Atteint le :</span><span class="value">${stats.atteint_le ?? "—"}</span></div>
+              <div class="item"><span class="label">Rang :</span><span class="value">${stats.rang ?? "—"}</span></div>
+              <div class="item"><span class="label">Inscription :</span><span class="value">${player.inscription ?? "—"}</span></div>
+              <div class="linkRow"><a href="${backHref(mode)}">Classement</a></div>
             </div>
-          </div>
 
-          <div class="section">
-            <h2 class="section-title">Pauses</h2>
-
-            <div class="pause-box">
-              <div class="pause-badge ${badge.cls}" id="profil-pause">${badge.text}</div>
-              <div class="pause-summary">${badge.summary}</div>
-
-              ${
-                details.length
-                  ? `
-                    <ul class="pause-list">
-                      ${details.map(d => `
-                        <li>
-                          <strong>XP :</strong> ${d.xp != null ? Number(d.xp).toLocaleString("fr-FR") : "—"}<br>
-                          <strong>Période :</strong> ${d.periode || "—"}<br>
-                          <strong>Durée :</strong> ${[
-                            d.mois ? (d.mois + " mois") : null,
-                            d.jours ? (d.jours + " jours") : null
-                          ].filter(Boolean).join(" • ") || "—"}
-                        </li>
-                      `).join("")}
-                    </ul>
-                  `
-                  : `<div class="pause-summary muted">Aucun détail de pause enregistré.</div>`
-              }
-            </div>
-          </div>
-
-          <div class="section">
-            <h2 class="section-title">Infos joueur</h2>
-
-            <div class="grid">
-              <div class="stat">
-                <div class="stat-label">Inscription</div>
-                <div class="stat-value">${joueur.inscription || "—"}</div>
-              </div>
-
-              <div class="stat">
-                <div class="stat-label">Génération</div>
-                <div class="stat-value">${joueur.gen !== undefined && joueur.gen !== null ? joueur.gen : "—"}</div>
-              </div>
-
-              <div class="stat">
-                <div class="stat-label">Pseudo</div>
-                <div class="stat-value">${joueur.nom}</div>
-              </div>
-
-              <div class="stat">
-                <div class="stat-label">Mode affiché</div>
-                <div class="stat-value">${modeLabel(mode)}</div>
-              </div>
-            </div>
+            ${rightCol}
           </div>
         </div>
       `;
-    }
-  }
-}
-</script>
-
+    });
+  </script>
 </body>
 </html>
