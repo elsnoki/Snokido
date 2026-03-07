@@ -16,7 +16,7 @@ body{
 }
 
 .wrap{
-  max-width:1180px;
+  max-width:1280px;
   margin:26px auto 40px;
   padding:0 12px;
 }
@@ -78,7 +78,9 @@ tbody td{
   font-size:16px;
 }
 
-tbody tr:nth-child(odd){ background:#f2f2f2; }
+tbody tr:nth-child(odd){
+  background:#f2f2f2;
+}
 
 .rank{
   width:70px;
@@ -157,7 +159,7 @@ tbody tr:nth-child(odd){ background:#f2f2f2; }
           <th class="center">Année</th>
           <th class="center">XP début</th>
           <th class="center">XP fin</th>
-          <th class="center">Inscription</th>
+          <th class="center">Date d'inscription</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -176,7 +178,8 @@ function warn(msg){
 
 function slugify(name){
   return String(name || "")
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9]/g, "")
     .toLowerCase();
 }
@@ -188,9 +191,13 @@ function fmt(n){
 }
 
 async function fetchJson(path){
-  const res = await fetch(path + "?t=" + Date.now(), { cache:"no-store" });
-  if(!res.ok) return null;
-  try { return await res.json(); } catch { return null; }
+  try{
+    const res = await fetch(path + "?t=" + Date.now(), { cache:"no-store" });
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){
+    return null;
+  }
 }
 
 function extractPlayers(d){
@@ -225,10 +232,9 @@ async function loadPlayersPages(){
     data.forEach(p => {
       const key = slugify(p.slug || p.nom);
       map.set(key, {
-  avatar: p.avatar || null,
-  profileHref: p.profileHref || null,
-  inscription: p.inscription || null
-});
+        avatar: p.avatar || null,
+        profileHref: p.profileHref || null,
+        inscription: p.inscription || p.dateInscription || p.date_inscription || null
       });
     });
   }
@@ -267,7 +273,7 @@ function buildYearPairs(index){
   const lastJan = jan[jan.length - 1];
   const latest = index[index.length - 1];
 
-  if(latest > lastJan){
+  if(lastJan && latest && latest > lastJan){
     pairs.push({
       year: lastJan.slice(0,4),
       start: lastJan,
@@ -334,7 +340,7 @@ async function computeBestYearXp(){
   });
 
   return Array.from(best.values())
-    .sort((a,b) => {
+    .sort((a, b) => {
       if(b.gain !== a.gain) return b.gain - a.gain;
       if(String(a.year) !== String(b.year)) return String(a.year).localeCompare(String(b.year));
       return slugify(a.nom).localeCompare(slugify(b.nom));
@@ -351,39 +357,42 @@ window.addEventListener("DOMContentLoaded", async () => {
   const tbody = document.getElementById("tbody");
   const rangeTxt = document.getElementById("rangeTxt");
 
+  tbody.innerHTML = "";
+  rangeTxt.textContent = "Chargement…";
+
   const playersPages = await loadPlayersPages();
   const rows = await computeBestYearXp();
 
   rangeTxt.textContent = "Classement historique des plus grosses années d'XP";
 
-  tbody.innerHTML = "";
-
   if(!rows.length){
     warn("Aucune donnée trouvée.");
-    tbody.innerHTML = '<tr><td colspan="7" style="padding:16px;font-weight:900;color:#666;">Aucune donnée.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="padding:16px;font-weight:900;color:#666;">Aucune donnée.</td></tr>';
     return;
   }
 
   rows.forEach((r, i) => {
     const k = slugify(r.nom);
-    const extra = playersPages.get(k);
+    const extra = playersPages.get(k) || null;
 
     if(extra){
       if(!r.avatar) r.avatar = extra.avatar;
       if(!r.profileHref) r.profileHref = extra.profileHref;
     }
 
+    const inscription = extra && extra.inscription ? extra.inscription : "—";
+
     const tr = document.createElement("tr");
 
     tr.innerHTML =
       '<td class="rank">' + (i + 1) + '</td>' +
       '<td class="avatarCell"><div class="frame"><img src="' + (r.avatar || "avatar/1.jpg") + '" alt="' + r.nom + '"></div></td>' +
-      '<td class="name"><a target="_blank" rel="noopener" href="' + linkForPlayer(r) + '">' + r.nom + '</a><div class="small">' + (r.dynamic ? 'année en cours' : 'année complète') + '</div></td>' +
+      '<td class="name"><a target="_blank" rel="noopener" href="' + linkForPlayer(r) + '">' + r.nom + '</a><div class="small">' + (r.dynamic ? "année en cours" : "année complète") + '</div></td>' +
       '<td class="center">+' + fmt(r.gain) + '</td>' +
       '<td class="center">' + r.year + '</td>' +
       '<td class="center">' + fmt(r.xpStart) + '</td>' +
       '<td class="center">' + fmt(r.xpEnd) + '</td>' +
-      '<td class="center">' + (extra && extra.inscription ? extra.inscription : "—") + '</td>';
+      '<td class="center">' + inscription + '</td>';
 
     tbody.appendChild(tr);
   });
