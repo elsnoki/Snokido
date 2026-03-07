@@ -114,20 +114,46 @@
       const pageTitle = document.getElementById("pageTitle");
       const content = document.getElementById("content");
 
-      function backHref(m){
-        if (/^\d+k$/.test(m)) return m + ".html";
+      function backHref(){
+        const ref = document.referrer;
+
+        if(ref){
+          try{
+            const refUrl = new URL(ref);
+            if(refUrl.origin === location.origin){
+              return refUrl.href;
+            }
+          }catch(e){}
+        }
+
         return "rank.html";
       }
 
       function progressLabel(m){
-        if (/^\d+k$/.test(m)) return m.toUpperCase() + " en :";
+        if(m === "100k") return "100K en :";
+        if(m === "200k") return "200K en :";
+        if(m === "300k") return "300K en :";
+        if(m === "400k") return "400K en :";
+        if(m === "500k") return "500K en :";
+        if(m === "600k") return "600K en :";
+        if(m === "700k") return "700K en :";
+        if(m === "800k") return "800K en :";
+        if(m === "900k") return "900K en :";
+        if(m === "1000k") return "1000K en :";
         return "Niveau 100 en :";
       }
 
       function defaultXpForMode(m){
-        if (/^\d+k$/.test(m)) {
-          return parseInt(m, 10) * 1000;
-        }
+        if(m === "100k") return 100000;
+        if(m === "200k") return 200000;
+        if(m === "300k") return 300000;
+        if(m === "400k") return 400000;
+        if(m === "500k") return 500000;
+        if(m === "600k") return 600000;
+        if(m === "700k") return 700000;
+        if(m === "800k") return 800000;
+        if(m === "900k") return 900000;
+        if(m === "1000k") return 1000000;
         return 49500;
       }
 
@@ -226,7 +252,7 @@
               <div class="item"><span class="label">Atteint le :</span><span class="value">${stats.atteint_le ?? "—"}</span></div>
               <div class="item"><span class="label">Rang :</span><span class="value">${stats.rang ?? "—"}</span></div>
               <div class="item"><span class="label">Inscription :</span><span class="value">${player.inscription ?? "—"}</span></div>
-              <div class="linkRow"><a href="${backHref(mode)}">Classement</a></div>
+              <div class="linkRow"><a href="${backHref()}">Classement</a></div>
             </div>
 
             ${rightCol}
