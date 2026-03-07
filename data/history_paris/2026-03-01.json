@@ -25030,7 +25030,10 @@
       "inscription": "14-02-2026",
       "avatar": "https://www.snokido.fr/images/snoki/2.jpg",
       "profileHref": "https://www.snokido.fr/player/clovis1er",
-      "karas": 0
-    }
+      "karas": null
+    },
+    { "nom": "Gangster2019", "slug": "gangster2019", "xp": 2080, "niveau": null, "avatar": "https://www.snokido.fr/images/snoki/150.jpg", "profileHref": "https://www.snokido.fr/player/gangster2019", "karas": null },
+    { "nom": "Elena21", "slug": "elena21", "xp": 480, "niveau": null, "avatar": "https://www.snokido.fr/images/snoki/15.jpg", "profileHref": "https://www.snokido.fr/player/elena21", "karas": null },
+    { "nom": "Shadow321", "slug": "shadow321", "xp": 1208, "niveau": null, "avatar": "https://www.snokido.fr/images/snoki/100.jpg", "profileHref": "https://www.snokido.fr/player/shadow321", "karas": null }
   ]
 }
