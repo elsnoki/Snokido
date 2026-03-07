@@ -393,21 +393,21 @@
               }
             },
             datalabels: {
-  formatter: (value) => value,
-  color: (ctx) => {
-    const color = ctx.dataset.backgroundColor[ctx.dataIndex];
-    return (color === "#2b6ca3" || color === "#555555" || color === "#000000") ? "#fff" : "#111";
-  },
-  anchor: "end",
-  align: "right",
-  offset: -6,
-  clamp: true,
-  clip: true,
-  font: {
-    size: 12,
-    weight: "600"
-  }
-}
+              formatter: (value) => value,
+              color: (ctx) => {
+                const color = ctx.dataset.backgroundColor[ctx.dataIndex];
+                return (color === "#2b6ca3" || color === "#555555" || color === "#000000") ? "#fff" : "#111";
+              },
+              anchor: "center",
+              align: "center",
+              offset: 0,
+              clamp: true,
+              clip: true,
+              font: {
+                size: 12,
+                weight: "600"
+              }
+            }
           },
           scales: {
             x: {
@@ -511,4 +511,3 @@
   </script>
 </body>
 </html>
-
