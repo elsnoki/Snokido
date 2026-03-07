@@ -108,15 +108,22 @@ const joueurs = [
     }
   },
   {
-    nom:"alex.c2109", avatar:"avatar/2.jpg", gen:3, inscription:"24-06-2017",
-    modes:{
-      nv100:{ jours:645, atteint_le:"31-03-2019", rang:"12/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-      "100k":{ jours:116, atteint_le:"25-07-2019", rang:"5/14", xp:100000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-      "200k":{ jours:232, atteint_le:"13-03-2020", rang:"2/6", xp:200000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-      "300k": { jours:292, atteint_le:"30-12-2020", rang:"4/4", xp:300000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-      "400k": { jours:776, atteint_le:"14-02-2023", rang:"2/4", xp:400000, pauses_total:{nb:1, mois:8, jours:242}, pauses_detail:[{xp:325500, periode:"09/2021 -> 05/2022", mois:8, jours:242}] },
-    }
-  },
+  nom:"alex.c2109", avatar:"avatar/2.jpg", gen:3, inscription:"24-06-2017",
+  modes:{
+    nv100:{ jours:645, atteint_le:"31-03-2019", rang:"12/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
+    "100k":{ jours:116, atteint_le:"25-07-2019", rang:"5/14", xp:100000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
+    "200k":{ jours:232, atteint_le:"13-03-2020", rang:"2/6", xp:200000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
+    "300k": { jours:292, atteint_le:"30-12-2020", rang:"4/4", xp:300000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
+    "400k": { jours:776, atteint_le:"14-02-2023", rang:"2/4", xp:400000, pauses_total:{nb:1, mois:8, jours:242}, pauses_detail:[
+      {xp:325500, periode:"09/2021 -> 05/2022", mois:8, jours:242}
+    ] },
+
+    "500k": { jours:530, atteint_le:"28-07-2024", rang:"—", xp:500000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "600k": { jours:167, atteint_le:"11-01-2025", rang:"—", xp:600000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "700k": { jours:158, atteint_le:"18-06-2025", rang:"—", xp:700000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "800k": { jours:224, atteint_le:"28-01-2026", rang:"—", xp:800000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] }
+  }
+},
   {
     nom:"djabrail", avatar:"avatar/16.jpg", gen:1, inscription:"07-08-2014",
     modes:{
@@ -150,19 +157,27 @@ const joueurs = [
     }
   },
   {
-    nom:"Talk Takashi", avatar:"avatar/1.jpg", gen:2, inscription:"13-04-2014",
-    modes:{
-      nv100:{ jours:1013, atteint_le:"20-01-2017", rang:"17/23", xp:49500, pauses_total:{nb:2, mois:22, jours:670}, pauses_detail:[
-        {xp:640, periode:"07/2014 -> 03/2015", mois:8, jours:243},
-        {xp:928, periode:"03/2015 -> 05/2016", mois:14, jours:427}
-      ]},
-      "100k":{ jours:274, atteint_le:"21-10-2017", rang:"10/14", xp:100000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-      "200k":{ jours:420, atteint_le:"15-12-2018", rang:"3/6", xp:200000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-      "300k": { jours:177, atteint_le:"10-06-2019", rang:"3/4", xp:300000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-      "400k": { jours:204, atteint_le:"31-12-2019", rang:"1/4", xp:400000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[],
-}
-    }
-  },
+  nom:"Talk Takashi", avatar:"avatar/1.jpg", gen:2, inscription:"13-04-2014",
+  modes:{
+    nv100:{ jours:1013, atteint_le:"20-01-2017", rang:"17/23", xp:49500, pauses_total:{nb:2, mois:22, jours:670}, pauses_detail:[
+      {xp:640, periode:"07/2014 -> 03/2015", mois:8, jours:243},
+      {xp:928, periode:"03/2015 -> 05/2016", mois:14, jours:427}
+    ]},
+    "100k":{ jours:274, atteint_le:"21-10-2017", rang:"10/14", xp:100000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
+    "200k":{ jours:420, atteint_le:"15-12-2018", rang:"3/6", xp:200000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
+    "300k": { jours:177, atteint_le:"10-06-2019", rang:"3/4", xp:300000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
+    "400k": { jours:204, atteint_le:"31-12-2019", rang:"1/4", xp:400000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
+
+    "500k": { jours:178, atteint_le:"26-06-2020", rang:"—", xp:500000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "600k": { jours:63,  atteint_le:"28-08-2020", rang:"—", xp:600000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "700k": { jours:79,  atteint_le:"15-11-2020", rang:"—", xp:700000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "800k": { jours:133, atteint_le:"28-03-2021", rang:"—", xp:800000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "900k": { jours:227, atteint_le:"10-11-2021", rang:"—", xp:900000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "1m":   { jours:251, atteint_le:"19-07-2022", rang:"—", xp:1000000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "1m1":  { jours:419, atteint_le:"11-09-2023", rang:"—", xp:1100000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] },
+    "1m2":  { jours:680, atteint_le:"22-07-2025", rang:"—", xp:1200000, pauses_total:{nb:null, mois:null, jours:null}, pauses_detail:[] }
+  }
+},
   {
     nom:"francoeur", avatar:"avatar/3.jpg", gen:3, inscription:"18-12-2015",
     modes:{
@@ -227,4 +242,5 @@ const joueurs = [
     }
   }
 ];
+
 
