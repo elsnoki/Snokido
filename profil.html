@@ -98,7 +98,6 @@
   </main>
 
   <script>
-    // attend que data.js soit chargé (defer)
     window.addEventListener("DOMContentLoaded", () => {
 
       function slugify2(name){
@@ -121,6 +120,7 @@
         if(m === "300k") return "300k.html";
         if(m === "400k") return "400k.html";
         if(m === "500k") return "500k.html";
+        if(m === "600k") return "600k.html";
         return "rank.html";
       }
 
@@ -130,6 +130,7 @@
         if(m === "300k") return "300K en :";
         if(m === "400k") return "400K en :";
         if(m === "500k") return "500K en :";
+        if(m === "600k") return "600K en :";
         return "Niveau 100 en :";
       }
 
@@ -139,6 +140,7 @@
         if(m === "300k") return 300000;
         if(m === "400k") return 400000;
         if(m === "500k") return 500000;
+        if(m === "600k") return 600000;
         return 49500;
       }
 
