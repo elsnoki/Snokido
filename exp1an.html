@@ -157,6 +157,7 @@ tbody tr:nth-child(odd){ background:#f2f2f2; }
           <th class="center">Année</th>
           <th class="center">XP début</th>
           <th class="center">XP fin</th>
+          <th class="center">Inscription</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -224,8 +225,10 @@ async function loadPlayersPages(){
     data.forEach(p => {
       const key = slugify(p.slug || p.nom);
       map.set(key, {
-        avatar: p.avatar || null,
-        profileHref: p.profileHref || null
+  avatar: p.avatar || null,
+  profileHref: p.profileHref || null,
+  inscription: p.inscription || null
+});
       });
     });
   }
@@ -379,7 +382,8 @@ window.addEventListener("DOMContentLoaded", async () => {
       '<td class="center">+' + fmt(r.gain) + '</td>' +
       '<td class="center">' + r.year + '</td>' +
       '<td class="center">' + fmt(r.xpStart) + '</td>' +
-      '<td class="center">' + fmt(r.xpEnd) + '</td>';
+      '<td class="center">' + fmt(r.xpEnd) + '</td>' +
+      '<td class="center">' + (extra && extra.inscription ? extra.inscription : "—") + '</td>';
 
     tbody.appendChild(tr);
   });
