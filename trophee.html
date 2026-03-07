@@ -745,26 +745,14 @@
           ]
         },
         {
-          title: "Le plus de jeux notés",
-          sub: "Les plus gros noteurs de jeux",
-          podium: [
-            ratedGamesTop3[0] ? {
-              nom: ratedGamesTop3[0].nom,
-              avatar: ratedGamesTop3[0].avatar,
-              detail: ratedGamesTop3[0].jeuxNotes == null ? "—" : `${fmt(ratedGamesTop3[0].jeuxNotes)} jeux notés`
-            } : null,
-            ratedGamesTop3[1] ? {
-              nom: ratedGamesTop3[1].nom,
-              avatar: ratedGamesTop3[1].avatar,
-              detail: ratedGamesTop3[1].jeuxNotes == null ? "—" : `${fmt(ratedGamesTop3[1].jeuxNotes)} jeux notés`
-            } : null,
-            ratedGamesTop3[2] ? {
-              nom: ratedGamesTop3[2].nom,
-              avatar: ratedGamesTop3[2].avatar,
-              detail: ratedGamesTop3[2].jeuxNotes == null ? "—" : `${fmt(ratedGamesTop3[2].jeuxNotes)} jeux notés`
-            } : null
-          ]
-        },
+  title: "Le plus de jeux notés",
+  sub: "Les plus gros noteurs de jeux",
+  podium: [
+    { nom:"Talk Takashi", detail:"4000 jeux notés" },
+    { nom:"alex.c2109", detail:"3876 jeux notés" },
+    { nom:"LargoJunior", detail:"3708 jeux notés" }
+  ]
+},
         {
           title: "Premier niveau 100 sans snoki",
           sub: "Classement des joueurs ayant réussi l’exploit",
