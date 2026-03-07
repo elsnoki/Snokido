@@ -115,32 +115,19 @@
       const content = document.getElementById("content");
 
       function backHref(m){
-        if(m === "100k") return "100k.html";
-        if(m === "200k") return "200k.html";
-        if(m === "300k") return "300k.html";
-        if(m === "400k") return "400k.html";
-        if(m === "500k") return "500k.html";
-        if(m === "600k") return "600k.html";
+        if (/^\d+k$/.test(m)) return m + ".html";
         return "rank.html";
       }
 
       function progressLabel(m){
-        if(m === "100k") return "100K en :";
-        if(m === "200k") return "200K en :";
-        if(m === "300k") return "300K en :";
-        if(m === "400k") return "400K en :";
-        if(m === "500k") return "500K en :";
-        if(m === "600k") return "600K en :";
+        if (/^\d+k$/.test(m)) return m.toUpperCase() + " en :";
         return "Niveau 100 en :";
       }
 
       function defaultXpForMode(m){
-        if(m === "100k") return 100000;
-        if(m === "200k") return 200000;
-        if(m === "300k") return 300000;
-        if(m === "400k") return 400000;
-        if(m === "500k") return 500000;
-        if(m === "600k") return 600000;
+        if (/^\d+k$/.test(m)) {
+          return parseInt(m, 10) * 1000;
+        }
         return 49500;
       }
 
