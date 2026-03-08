@@ -7,18 +7,45 @@
 
   <link rel="stylesheet" href="style.css">
   <script src="header.js" defer></script>
+  <script src="data.js" defer></script>
+  <script src="gangdata.js" defer></script>
 
   <style>
     body{
       margin:0;
       font-family:Arial, sans-serif;
-      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+      background:radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
     }
 
     .wrap{
       max-width:1180px;
       margin:26px auto 40px;
       padding:0 12px;
+    }
+
+    .navRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:14px;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .navBtn{
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.25);
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      font-weight:900;
+      text-decoration:none;
+      backdrop-filter:blur(4px);
+    }
+
+    .navBtn:hover{
+      background:rgba(255,255,255,.18);
     }
 
     .hero{
@@ -64,7 +91,7 @@
       border:1px solid rgba(255,255,255,.18);
       border-radius:14px;
       padding:10px 12px;
-      box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+      box-shadow:inset 0 -3px 0 rgba(255,255,255,.10);
     }
 
     .stat .k{
@@ -164,11 +191,16 @@
       font-weight:900;
     }
 
-    .xpBarRow{
+    .roleBadge.max{
+      background:#fff4d7;
+      color:#8a6300;
+    }
+
+    .gangRoleXpRow{
       padding:14px 14px 0;
     }
 
-    .xpBarWrap{
+    .gangRoleXpWrap{
       position:relative;
       width:100%;
       height:22px;
@@ -178,12 +210,12 @@
       border:1px solid #c3c3c3;
     }
 
-    .xpBarFill{
+    .gangRoleXpFill{
       height:100%;
       background:#7fb52d;
     }
 
-    .xpBarText{
+    .gangRoleXpText{
       position:absolute;
       inset:0;
       display:flex;
@@ -241,30 +273,16 @@
       opacity:.85;
     }
 
-    .navRow{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:14px;
-    }
-
-    .navBtn{
-      display:inline-block;
-      padding:10px 14px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.25);
-      background:rgba(255,255,255,.12);
-      color:#fff;
+    .errorBox{
+      padding:18px;
       font-weight:900;
-      text-decoration:none;
-      backdrop-filter:blur(4px);
+      color:#b00020;
+      background:#fff;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.12);
     }
 
-    .navBtn:hover{
-      background:rgba(255,255,255,.18);
-    }
-
-    @media (max-width: 900px){
+    @media (max-width:900px){
       .membersGrid{
         grid-template-columns:1fr;
       }
@@ -279,14 +297,14 @@
 
 <main class="wrap">
   <div class="navRow">
-    <a class="navBtn" href="gang.html">← Retour aux gangs</a>
+    <a class="navBtn" id="backGangLink" href="gang.html">← Retour aux gangs</a>
   </div>
 
   <section class="hero">
     <div class="heroTop">
       <div>
-        <div class="heroTitle">Rôles du gang</div>
-        <div class="heroSub">Progression des membres selon leurs paliers d’XP.</div>
+        <div class="heroTitle" id="pageTitle">Rôles du gang</div>
+        <div class="heroSub" id="pageSub">Progression des membres selon leurs paliers d’XP.</div>
       </div>
     </div>
 
@@ -327,15 +345,38 @@
       .toLowerCase();
   }
 
+  const alias = {
+    "talk":"talktakashi",
+    "talktakashi":"talktakashi",
+    "talk takashi":"talktakashi",
+    "jordan.io":"jordanio",
+    "jordanio":"jordanio",
+    "josue":"josue455",
+    "josué":"josue455",
+    "josue455":"josue455",
+    "josué455":"josue455",
+    "alex":"alexc2109",
+    "alexc":"alexc2109",
+    "alex.c":"alexc2109",
+    "alexc2109":"alexc2109",
+    "thegladiator":"thegladiator"
+  };
+
+  function keyOf(name){
+    const s = slugify(name);
+    return alias[s] || s;
+  }
+
   const ROLE_STEPS = [
     { xp: 0, label: "Recrue" },
-    { xp: 100000, label: "Soldat" },
-    { xp: 200000, label: "Caporal" },
-    { xp: 300000, label: "Sergent" },
-    { xp: 400000, label: "Lieutenant" },
-    { xp: 500000, label: "Capitaine" },
-    { xp: 700000, label: "Commandant" },
-    { xp: 1000000, label: "Général" }
+    { xp: 1000, label: "Novice" },
+    { xp: 5000, label: "Soldat" },
+    { xp: 10000, label: "Caporal" },
+    { xp: 25000, label: "Sergent" },
+    { xp: 50000, label: "Lieutenant" },
+    { xp: 100000, label: "Capitaine" },
+    { xp: 200000, label: "Commandant" },
+    { xp: 400000, label: "Général" }
   ];
 
   function getCurrentRole(xp){
@@ -346,37 +387,82 @@
     return current;
   }
 
-  function getBestXp(member){
-    return Number(member.xp || 0);
+  function getMaxXp(player){
+    if(player && player.modes && typeof player.modes === "object"){
+      let best = 0;
+      for(const key of Object.keys(player.modes)){
+        const m = player.modes[key];
+        const xp = Number(m?.xp || 0);
+        if(xp > best) best = xp;
+      }
+      return best;
+    }
+    return 0;
   }
 
-  const params = new URLSearchParams(location.search);
-  const gangSlug = params.get("g");
+  function resolveGangMembers(gang, joueursList){
+    const playerMap = new Map();
+    (joueursList || []).forEach(p => {
+      playerMap.set(keyOf(p.nom), p);
+    });
 
-  const gangs = JSON.parse(localStorage.getItem("gangsResolved") || "[]");
-  const gang = gangs.find(x => slugify(x.name) === gangSlug);
+    return (gang.members || []).map(m => {
+      const k = keyOf(m.nom || "");
+      const player = playerMap.get(k);
 
-  const membersGrid = document.getElementById("membersGrid");
+      const xpFromData = player ? getMaxXp(player) : 0;
+      const xp = (typeof m.xp === "number") ? m.xp : xpFromData;
+      const avatar = m.avatar || player?.avatar || "avatar/1.jpg";
+      const karas = (typeof m.karas === "number") ? m.karas : 0;
 
-  if(!gang){
-    membersGrid.innerHTML = `
-      <div style="padding:14px;font-weight:900;color:#b00020;">
-        Gang introuvable. Ouvre d’abord gang.html pour charger les données.
-      </div>
-    `;
-  } else {
+      return {
+        nom: m.nom || "—",
+        avatar,
+        xp,
+        karas
+      };
+    }).sort((a, b) => (b.xp || 0) - (a.xp || 0));
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(location.search);
+    const gangSlug = params.get("g");
+
+    const pageTitle = document.getElementById("pageTitle");
+    const pageSub = document.getElementById("pageSub");
+    const membersGrid = document.getElementById("membersGrid");
+    const backGangLink = document.getElementById("backGangLink");
+
+    if(!Array.isArray(window.gangsData)){
+      membersGrid.innerHTML = `<div class="errorBox">gangdata.js ne s'est pas chargé.</div>`;
+      return;
+    }
+
+    const gang = window.gangsData.find(g => slugify(g.name) === gangSlug);
+
+    if(!gang){
+      membersGrid.innerHTML = `<div class="errorBox">Gang introuvable.</div>`;
+      return;
+    }
+
+    backGangLink.href = "gang_profil.html?g=" + encodeURIComponent(slugify(gang.name));
+    pageTitle.textContent = "Rôles du gang : " + gang.name;
+    pageSub.textContent = "Progression des membres selon leurs paliers d’XP.";
+
+    const joueursList = Array.isArray(window.joueurs) ? window.joueurs : [];
+    const members = resolveGangMembers(gang, joueursList);
+
+    const totalXp = members.reduce((s, m) => s + (m.xp || 0), 0);
+
     document.getElementById("statGang").textContent = gang.name;
-    document.getElementById("statMembers").textContent = fmtInt(gang.count || 0);
-    document.getElementById("statXp").textContent = fmtInt(gang.totalXp || 0) + " xp";
+    document.getElementById("statMembers").textContent = fmtInt(members.length);
+    document.getElementById("statXp").textContent = fmtInt(totalXp) + " xp";
 
-    const members = (gang.membersResolved || [])
-      .slice()
-      .sort((a, b) => (b.xp || 0) - (a.xp || 0));
+    const maxXp = ROLE_STEPS[ROLE_STEPS.length - 1].xp;
 
     membersGrid.innerHTML = members.map(member => {
-      const xp = getBestXp(member);
+      const xp = Number(member.xp || 0);
       const currentRole = getCurrentRole(xp);
-      const maxXp = ROLE_STEPS[ROLE_STEPS.length - 1].xp;
       const percent = Math.max(0, Math.min(100, (xp / maxXp) * 100));
 
       const stepsHtml = ROLE_STEPS.map(step => {
@@ -395,18 +481,18 @@
       return `
         <div class="memberCard">
           <div class="memberTop">
-            <img src="${member.avatar || 'avatar/1.jpg'}" alt="${member.nom}">
+            <img src="${member.avatar}" alt="${member.nom}">
             <div class="memberInfo">
               <div class="memberName">${member.nom}</div>
               <div class="memberMeta">${fmtInt(xp)} xp</div>
-              <div class="roleBadge">Rôle actuel : ${currentRole.label}</div>
+              <div class="roleBadge${xp >= maxXp ? " max" : ""}">Rôle actuel : ${currentRole.label}</div>
             </div>
           </div>
 
-          <div class="xpBarRow">
-            <div class="xpBarWrap">
-              <div class="xpBarFill" style="width:${percent}%;"></div>
-              <div class="xpBarText">${fmtInt(xp)} xp</div>
+          <div class="gangRoleXpRow">
+            <div class="gangRoleXpWrap">
+              <div class="gangRoleXpFill" style="width:${percent}%;"></div>
+              <div class="gangRoleXpText">${fmtInt(xp)} xp</div>
             </div>
           </div>
 
@@ -419,7 +505,7 @@
         </div>
       `;
     }).join("");
-  }
+  });
 </script>
 </body>
 </html>
