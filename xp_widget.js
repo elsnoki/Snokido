@@ -1,11 +1,34 @@
-// xp_widget.js — Widget Jour/Hebdo/Mensuel (incassable)
-// Navigation: ◂ et ▸, et reset auto si valeur invalide
+// xp_widget.js — Widget Jour / Hebdo / Mensuel
+// Réécrit pour coller à classement.html
+// - mêmes périodes
+// - mêmes règles de tri
+// - pas de négatifs
+// - tie-break uniquement à dx égal
+// - chargement live robuste
 
 (function () {
   const STORAGE_KEY = "xpWidgetMode";
   const MODES = ["jour", "hebdo", "mensuel"];
+  const HISTORY_BASE = "data/history_paris";
 
-  function safeMode(m){ return MODES.includes(m) ? m : "jour"; }
+  const LIVE_CANDIDATES = [
+    "period/players_pages.json",
+    "./period/players_pages.json",
+    "../period/players_pages.json",
+    "data/players_pages.json",
+    "./data/players_pages.json",
+    "../data/players_pages.json",
+    "data/period/players_pages.json",
+    "./data/period/players_pages.json",
+    "../data/period/players_pages.json",
+    "data/snokido_top50.json",
+    "./data/snokido_top50.json",
+    "../data/snokido_top50.json"
+  ];
+
+  function safeMode(m) {
+    return MODES.includes(m) ? m : "jour";
+  }
 
   function slugify(name) {
     return String(name || "")
@@ -14,84 +37,248 @@
       .toLowerCase();
   }
 
-  function getName(p){ return p?.nom ?? p?.name ?? p?.username ?? p?.pseudo ?? "—"; }
-  function getAvatar(p){ return p?.avatar ?? null; }
-  function getXp(p){ return Number(p?.xp ?? p?.exp ?? 0); }
-  function getKara(p){ return (p?.karas == null ? null : Number(p.karas)); }
-
-  async function fetchJson(path){
-    const res = await fetch(path, { cache: "no-store" });
-    if(!res.ok) return null;
-    try { return await res.json(); } catch { return null; }
+  function nameLower(p) {
+    return String(getName(p)).toLowerCase().trim();
   }
 
-  async function loadCurrentPlayers(){
-    const big = await fetchJson("data/players_pages.json");
-    if(Array.isArray(big)) return big;
+  function getName(p) {
+    return p?.nom ?? p?.name ?? p?.username ?? p?.pseudo ?? "—";
+  }
 
-    const top = await fetchJson("data/snokido_top50.json");
-    if(Array.isArray(top)) return top;
+  function getAvatar(p) {
+    return p?.avatar ?? null;
+  }
 
+  function getXp(p) {
+    return Number(p?.xp ?? p?.exp ?? 0);
+  }
+
+  function getKara(p) {
+    return (p?.karas == null ? null : Number(p.karas));
+  }
+
+  function getProfileHref(p) {
+    return p?.profileHref ?? p?.href ?? null;
+  }
+
+  function profileIdFromHref(href) {
+    if (!href) return null;
+    try {
+      const u = new URL(href, location.origin);
+      const m = u.pathname.match(/\/player\/([^\/?#]+)/i);
+      return m ? m[1].toLowerCase() : null;
+    } catch {
+      const m = String(href).match(/\/player\/([^\/?#]+)/i);
+      return m ? m[1].toLowerCase() : null;
+    }
+  }
+
+  function playerKeysMulti(p) {
+    const keys = [];
+    if (!p) return keys;
+
+    const id = profileIdFromHref(getProfileHref(p));
+    if (id) keys.push("id:" + id);
+
+    const s = String(p?.slug || "").toLowerCase().trim();
+    if (s) {
+      keys.push("slug:" + s);
+      keys.push("id:" + s);
+    }
+
+    const n1 = nameLower(p);
+    if (n1) keys.push("n1:" + n1);
+
+    const n2 = slugify(getName(p));
+    if (n2) keys.push("n2:" + n2);
+
+    return Array.from(new Set(keys));
+  }
+
+  function fmtSigned(n) {
+    const v = Number(n || 0);
+    return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
+  }
+
+  function extractPlayers(payload) {
+    if (!payload) return null;
+    if (Array.isArray(payload)) return payload;
+    if (payload && typeof payload === "object") {
+      if (Array.isArray(payload.joueurs)) return payload.joueurs;
+      if (Array.isArray(payload.players)) return payload.players;
+      if (Array.isArray(payload.top50)) return payload.top50;
+      if (Array.isArray(payload.data)) return payload.data;
+    }
     return null;
   }
 
-  async function loadIndex(){
-    const idx = await fetchJson("data/history_paris/index.json");
-    if(!Array.isArray(idx)) return null;
-    return idx
-      .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
-      .filter(d => d !== "YYYY-MM-DD")
-      .sort();
+  async function fetchJson(path) {
+    const url = path + (path.includes("?") ? "&" : "?") + "t=" + Date.now();
+
+    let res;
+    try {
+      res = await fetch(url, { cache: "no-store" });
+    } catch {
+      return null;
+    }
+    if (!res.ok) return null;
+
+    let txt;
+    try {
+      txt = await res.text();
+    } catch {
+      return null;
+    }
+
+    txt = String(txt || "").replace(/^\uFEFF/, "").trim();
+    if (!txt) return null;
+
+    try {
+      return JSON.parse(txt);
+    } catch {}
+
+    try {
+      let clean = txt;
+      clean = clean.replace(/\/\/[^\n\r]*/g, "");
+      clean = clean.replace(/\/\*[\s\S]*?\*\//g, "");
+      clean = clean.replace(/,\s*([}\]])/g, "$1");
+      return JSON.parse(clean);
+    } catch {
+      return null;
+    }
   }
 
-  async function loadSnap(day){
-    const snap = await fetchJson(`data/history_paris/${day}.json`);
-    if(!snap) return null;
-    if(Array.isArray(snap)) return snap;
-    if(Array.isArray(snap.players)) return snap.players;
+  async function loadCurrentPlayers() {
+    for (const p of LIVE_CANDIDATES) {
+      const raw = await fetchJson(p);
+      const arr = extractPlayers(raw);
+      if (Array.isArray(arr) && arr.length) return arr;
+    }
     return null;
   }
 
-  function toUTCDate(dayStr){
-    const [y,m,d] = dayStr.split("-").map(Number);
-    return new Date(Date.UTC(y, m-1, d));
+  function normalizeDay(s) {
+    const str = String(s || "").trim();
+    const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:\.json)?$/);
+    return m ? m[1] : null;
   }
-  function fromUTCDate(dt){
+
+  async function loadIndex() {
+    const idx = await fetchJson(HISTORY_BASE + "/index.json");
+    if (!Array.isArray(idx)) return null;
+    return idx.map(normalizeDay).filter(Boolean).sort();
+  }
+
+  async function loadSnap(day) {
+    const raw = await fetchJson(`${HISTORY_BASE}/${day}.json`);
+    return extractPlayers(raw);
+  }
+
+  function toUTCDate(dayStr) {
+    const [y, m, d] = dayStr.split("-").map(Number);
+    return new Date(Date.UTC(y, m - 1, d));
+  }
+
+  function fromUTCDate(dt) {
     const yy = dt.getUTCFullYear();
-    const mm = String(dt.getUTCMonth()+1).padStart(2,"0");
-    const dd = String(dt.getUTCDate()).padStart(2,"0");
+    const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(dt.getUTCDate()).padStart(2, "0");
     return `${yy}-${mm}-${dd}`;
   }
-  function dayMinus(dayStr, delta){
-    const d = toUTCDate(dayStr);
-    d.setUTCDate(d.getUTCDate() - delta);
-    return fromUTCDate(d);
-  }
-  function mondayOfWeek(dayStr){
+
+  function mondayOfWeek(dayStr) {
     const d = toUTCDate(dayStr);
     const wd = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() - (wd - 1));
     return fromUTCDate(d);
   }
-  function firstOfMonth(dayStr){
-    const d = toUTCDate(dayStr);
-    d.setUTCDate(1);
-    return fromUTCDate(d);
+
+  function firstOfMonth(dayStr) {
+    return `${dayStr.slice(0, 4)}-${dayStr.slice(5, 7)}-01`;
   }
-  function findClosestLE(index, targetDay){
-    for(let i=index.length-1;i>=0;i--){
-      if(index[i] <= targetDay) return index[i];
+
+  function findClosestLE(index, targetDay) {
+    for (let i = index.length - 1; i >= 0; i--) {
+      if (index[i] <= targetDay) return index[i];
     }
     return null;
   }
 
-  function fmtSigned(n){
-    const v = Number(n || 0);
-    return (v >= 0 ? "+" : "") + v.toLocaleString("fr-FR");
+  function buildMapFromSnap(players) {
+    const map = new Map();
+    for (const p of (players || [])) {
+      const meta = {
+        xp: getXp(p),
+        kara: getKara(p),
+        nom: getName(p),
+        avatar: getAvatar(p),
+        profileHref: getProfileHref(p)
+      };
+      for (const k of playerKeysMulti(p)) {
+        if (!map.has(k)) map.set(k, meta);
+      }
+    }
+    return map;
   }
 
-  function ensureWidget(){
-    if(document.getElementById("xpSide")) return;
+  function findBaseByKeys(baseMap, p) {
+    const keys = playerKeysMulti(p);
+    for (const k of keys) {
+      if (baseMap.has(k)) return baseMap.get(k);
+    }
+    return null;
+  }
+
+  function applyDxTieBreakPlus12Over500(rows) {
+    const byDx = new Map();
+
+    for (const r of rows) {
+      const k = String(r.dx);
+      if (!byDx.has(k)) byDx.set(k, []);
+      byDx.get(k).push(r);
+    }
+
+    for (const [, group] of byDx) {
+      if (group.length <= 1) {
+        group[0].dxAdj = group[0].dx;
+        continue;
+      }
+
+      const dxVal = Number(group[0].dx || 0);
+      if (dxVal < 500) {
+        group.forEach(r => r.dxAdj = r.dx);
+        continue;
+      }
+
+      const sorted = group.slice().sort((a, b) => slugify(a.nom).localeCompare(slugify(b.nom)));
+      const n = sorted.length;
+      for (let i = 0; i < n; i++) {
+        const bonus = 12 * (n - 1 - i);
+        sorted[i].dxAdj = sorted[i].dx + bonus;
+      }
+    }
+
+    for (const r of rows) {
+      if (typeof r.dxAdj !== "number") r.dxAdj = r.dx;
+    }
+  }
+
+  function sortRowsForRanking(rows) {
+    rows.sort((a, b) =>
+      (Number(b.dx || 0) - Number(a.dx || 0)) ||
+      (Number(b.dxAdj ?? b.dx ?? 0) - Number(a.dxAdj ?? a.dx ?? 0)) ||
+      (Number(b.xpEnd || 0) - Number(a.xpEnd || 0)) ||
+      slugify(a.nom).localeCompare(slugify(b.nom))
+    );
+    return rows;
+  }
+
+  function linkForPlayer(nom, profileHref) {
+    return profileHref ? profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(nom)));
+  }
+
+  function ensureWidget() {
+    if (document.getElementById("xpSide")) return;
 
     const box = document.createElement("aside");
     box.id = "xpSide";
@@ -112,42 +299,51 @@
     document.body.appendChild(box);
   }
 
-  function renderEmpty(msg){
-    document.getElementById("xpSideBody").innerHTML = `<div class="xpSideEmpty">${msg}</div>`;
-  }
-
-  function computeDeltaRows(currentPlayers, baselinePlayers){
-    const baseMap = new Map();
-    baselinePlayers.forEach(p => {
-      baseMap.set(slugify(getName(p)), { xp: getXp(p), kara: getKara(p) });
-    });
-
-    const rows = [];
-    currentPlayers.forEach(p => {
-      const name = getName(p);
-      const key = slugify(name);
-      const base = baseMap.get(key);
-      if(!base) return;
-
-      const dx = getXp(p) - base.xp;
-      if(dx === 0) return;
-
-      const curK = getKara(p);
-      const dkara = (curK == null || base.kara == null) ? null : (curK - base.kara);
-
-      rows.push({ nom: name, avatar: getAvatar(p), dx, dkara });
-    });
-
-    rows.sort((a,b)=> b.dx - a.dx);
-    return rows.slice(0, 10);
-  }
-
-  function setTitle(mode){
+  function setTitle(mode) {
     const title = document.getElementById("xpSideTitle");
     title.textContent = mode === "mensuel" ? "Mensuel" : (mode === "hebdo" ? "Hebdo" : "Jour");
   }
 
-  async function refresh(mode){
+  function renderEmpty(msg) {
+    document.getElementById("xpSideBody").innerHTML = `<div class="xpSideEmpty">${msg}</div>`;
+  }
+
+  function computeRowsLikeClassement(currentPlayers, baselinePlayers, mode) {
+    const baseMap = buildMapFromSnap(baselinePlayers);
+    const rows = [];
+
+    for (const p of (currentPlayers || [])) {
+      const base = findBaseByKeys(baseMap, p);
+      if (!base) continue;
+
+      const xpEnd = getXp(p);
+      const dx = xpEnd - Number(base.xp || 0);
+
+      // Comme dans classement.html demandé par toi :
+      // on ne garde que les positifs pour jour / hebdo / mensuel
+      if (dx <= 0) continue;
+
+      const curK = getKara(p);
+      const dkara = (curK == null || base.kara == null) ? null : (curK - base.kara);
+
+      rows.push({
+        nom: getName(p),
+        avatar: getAvatar(p),
+        profileHref: getProfileHref(p),
+        dx,
+        dxAdj: null,
+        xpEnd,
+        dkara
+      });
+    }
+
+    applyDxTieBreakPlus12Over500(rows);
+    sortRowsForRanking(rows);
+
+    return rows.slice(0, 10);
+  }
+
+  async function refresh(mode) {
     mode = safeMode(mode);
     localStorage.setItem(STORAGE_KEY, mode);
 
@@ -159,59 +355,71 @@
     body.innerHTML = `<div class="xpSideLoading">Chargement…</div>`;
 
     const current = await loadCurrentPlayers();
-    if(!current){
+    if (!current) {
       sub.textContent = "—";
-      renderEmpty("Impossible de charger data/players_pages.json ou data/snokido_top50.json.");
+      renderEmpty("Impossible de charger les joueurs live.");
       return;
     }
 
     const index = await loadIndex();
-    if(!index || index.length < 2){
+    if (!index || index.length < 2) {
       sub.textContent = "—";
-      renderEmpty("Pas assez d'historique (history_paris). Attends le snapshot 23h59.");
+      renderEmpty("Pas assez d'historique (history_paris).");
       return;
     }
 
-    const today = index[index.length - 1];
+    const latestDay = index[index.length - 1];
 
     let baseTarget;
-    if(mode === "jour") baseTarget = dayMinus(today, 1);
-    else if(mode === "hebdo") baseTarget = mondayOfWeek(today);
-    else baseTarget = firstOfMonth(today);
+    if (mode === "jour") {
+      // comme classement.html version actuelle :
+      // jour = dernier snapshot -> live
+      baseTarget = latestDay;
+    } else if (mode === "hebdo") {
+      baseTarget = mondayOfWeek(latestDay);
+    } else {
+      baseTarget = firstOfMonth(latestDay);
+    }
 
     const baseDay = findClosestLE(index, baseTarget);
-    if(!baseDay){
+    if (!baseDay) {
       sub.textContent = "—";
       renderEmpty("Baseline introuvable.");
       return;
     }
 
-    sub.textContent = `${baseDay} → ${today}`;
-
     const baseline = await loadSnap(baseDay);
-    if(!baseline){
+    if (!baseline) {
+      sub.textContent = "—";
       renderEmpty("Snapshot baseline introuvable.");
       return;
     }
 
-    const rows = computeDeltaRows(current, baseline);
-    if(!rows.length){
+    sub.textContent = `${baseDay} → live`;
+
+    const rows = computeRowsLikeClassement(current, baseline, mode);
+    if (!rows.length) {
       renderEmpty("Personne n’a gagné d’XP sur la période.");
       return;
     }
 
-    body.innerHTML = rows.map((r,i)=>`
-      <div class="xpRow">
-        <div class="xpRk">${i+1}</div>
-        <div class="xpWho">
-          <img class="xpAv" src="${r.avatar || "avatar/1.jpg"}" alt="${r.nom}">
-          <div class="xpName" title="${r.nom}">${r.nom}</div>
+    body.innerHTML = rows.map((r, i) => {
+      const href = linkForPlayer(r.nom, r.profileHref);
+      return `
+        <div class="xpRow">
+          <div class="xpRk">${i + 1}</div>
+          <div class="xpWho">
+            <a class="xpWhoLink" href="${href}" target="_blank" rel="noopener">
+              <img class="xpAv" src="${r.avatar || "avatar/1.jpg"}" alt="${r.nom}">
+            </a>
+            <a class="xpName" href="${href}" target="_blank" rel="noopener" title="${r.nom}">${r.nom}</a>
+          </div>
+          <div class="xpDx">${fmtSigned(r.dx)}</div>
+          <div class="xpKara">${r.dkara == null ? "—" : fmtSigned(r.dkara)}</div>
+          <div class="xpMv"><span class="xpMove same">—</span></div>
         </div>
-        <div class="xpDx">${fmtSigned(r.dx)}</div>
-        <div class="xpKara">${r.dkara == null ? "—" : fmtSigned(r.dkara)}</div>
-        <div class="xpMv"><span class="xpMove same">—</span></div>
-      </div>
-    `).join("");
+      `;
+    }).join("");
 
     body.insertAdjacentHTML("beforeend", `
       <div class="xpSideFoot">
@@ -220,13 +428,17 @@
     `);
   }
 
-  function wireButtons(){
-    document.getElementById("xpSidePrev").onclick = () => {
+  function wireButtons() {
+    const prev = document.getElementById("xpSidePrev");
+    const next = document.getElementById("xpSideNext");
+
+    prev.onclick = () => {
       const cur = safeMode(localStorage.getItem(STORAGE_KEY));
       const i = MODES.indexOf(cur);
       refresh(MODES[(i - 1 + MODES.length) % MODES.length]);
     };
-    document.getElementById("xpSideNext").onclick = () => {
+
+    next.onclick = () => {
       const cur = safeMode(localStorage.getItem(STORAGE_KEY));
       const i = MODES.indexOf(cur);
       refresh(MODES[(i + 1) % MODES.length]);
@@ -234,13 +446,12 @@
   }
 
   window.addEventListener("DOMContentLoaded", () => {
-    const p = (location.pathname || "").toLowerCase();
+    const p = String(location.pathname || "").toLowerCase();
     if (p.includes("gang")) return;
 
     ensureWidget();
     wireButtons();
 
-    // reset si valeur cassée
     const mode = safeMode(localStorage.getItem(STORAGE_KEY));
     refresh(mode);
   });
