@@ -440,6 +440,11 @@ function formatInscription(d){
   return String(d);
 }
 
+/*
+  Tie-break UNIQUEMENT à dx égal.
+  On garde dxAdj, mais le tri final compare TOUJOURS d'abord dx brut.
+  Comme ça un 1112 ne pourra jamais passer devant un 1124.
+*/
 function applyDxTieBreakPlus12Over500(rows){
   const byDx = new Map();
   for(const r of rows){
@@ -467,6 +472,16 @@ function applyDxTieBreakPlus12Over500(rows){
   for(const r of rows){
     if(typeof r.dxAdj !== "number") r.dxAdj = r.dx;
   }
+}
+
+function sortRowsForRanking(rows){
+  rows.sort((a,b) =>
+    (Number(b.dx || 0) - Number(a.dx || 0)) ||
+    (Number(b.dxAdj ?? b.dx ?? 0) - Number(a.dxAdj ?? a.dx ?? 0)) ||
+    (Number(b.xpEnd || 0) - Number(a.xpEnd || 0)) ||
+    slugify(a.nom).localeCompare(slugify(b.nom))
+  );
+  return rows;
 }
 
 /* ================= DATA ================= */
@@ -689,7 +704,7 @@ function computeGainsBetweenSnaps(snapStart, snapEnd, opts){
   }
 
   applyDxTieBreakPlus12Over500(rows);
-  rows.sort((a,b)=> (b.dxAdj - a.dxAdj) || (b.xpEnd - a.xpEnd));
+  sortRowsForRanking(rows);
   return rows.slice(0, limit);
 }
 
@@ -745,7 +760,8 @@ async function runJour(){
       rows.push(row);
     }
 
-    rows.sort((a,b)=> b.dx - a.dx);
+    applyDxTieBreakPlus12Over500(rows);
+    sortRowsForRanking(rows);
 
     tbody.innerHTML = "";
     if(!rows.length){
@@ -840,15 +856,22 @@ async function runHier(){
   }
 
   rows.forEach((p, i) => {
-    const link = linkForPlayer(p.nom, p.profileHref);
+    const full = enrichRowFromPlayer({
+      ...p,
+      avatar: p.avatar || null,
+      profileHref: p.profileHref || null,
+      karas: p.karas
+    }, p, enrichMap);
+
+    const link = linkForPlayer(full.nom, full.profileHref);
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="rank">${i+1}</td>
-      <td class="avatarCell"><div class="frame"><img loading="lazy" src="${p.avatar || "avatar/1.jpg"}" alt="${p.nom}"></div></td>
-      <td class="name"><a target="_blank" rel="noopener" href="${link}">${p.nom}</a></td>
-      <td class="center">+${p.dx.toLocaleString("fr-FR")} XP</td>
-      <td class="center">${p.xpEnd.toLocaleString("fr-FR")}</td>
-      <td class="center">${((p.karas||0)).toLocaleString("fr-FR")}</td>
+      <td class="avatarCell"><div class="frame"><img loading="lazy" src="${full.avatar || "avatar/1.jpg"}" alt="${full.nom}"></div></td>
+      <td class="name"><a target="_blank" rel="noopener" href="${link}">${full.nom}</a></td>
+      <td class="center">+${full.dx.toLocaleString("fr-FR")} XP</td>
+      <td class="center">${full.xpEnd.toLocaleString("fr-FR")}</td>
+      <td class="center">${((full.karas||0)).toLocaleString("fr-FR")}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -904,7 +927,9 @@ async function runHebdo(){
       if(!base) continue;
       const curXp = Number(p?.xp || 0);
       const dx = curXp - Number(base.xp || 0);
-      if(dx === 0) continue;
+
+      // ✅ on cache les négatifs et les 0 en hebdo
+      if(dx <= 0) continue;
 
       let row = { nom:p.nom||"—", avatar:p.avatar||null, profileHref:p.profileHref||null, xpEnd:curXp, dx, dxAdj:null };
       row = enrichRowFromPlayer(row, p, enrichMap);
@@ -912,7 +937,7 @@ async function runHebdo(){
     }
 
     applyDxTieBreakPlus12Over500(rows);
-    rows.sort((a,b)=> b.dxAdj - a.dxAdj);
+    sortRowsForRanking(rows);
 
     tbody.innerHTML = "";
     if(!rows.length){
@@ -996,7 +1021,9 @@ async function runMensuel(){
       if(!base) continue;
       const curXp = Number(p?.xp || 0);
       const dx = curXp - Number(base.xp || 0);
-      if(dx === 0) continue;
+
+      // ✅ on cache les négatifs et les 0 en mensuel
+      if(dx <= 0) continue;
 
       let row = { nom:p.nom||"—", avatar:p.avatar||null, profileHref:p.profileHref||null, xpEnd:curXp, dx, dxAdj:null };
       row = enrichRowFromPlayer(row, p, enrichMap);
@@ -1004,7 +1031,7 @@ async function runMensuel(){
     }
 
     applyDxTieBreakPlus12Over500(rows);
-    rows.sort((a,b)=> b.dxAdj - a.dxAdj);
+    sortRowsForRanking(rows);
 
     const shown = rows.slice(0, 300);
     tbody.innerHTML = "";
@@ -1183,7 +1210,7 @@ async function runAns(){
   }
 
   applyDxTieBreakPlus12Over500(rows);
-  rows.sort((a,b)=> b.dxAdj - a.dxAdj);
+  sortRowsForRanking(rows);
 
   tbody.innerHTML = "";
   const shown = rows.slice(0, 50);
@@ -1411,7 +1438,7 @@ async function runAnnee(year){
   }
 
   applyDxTieBreakPlus12Over500(rows);
-  rows.sort((a,b)=> (b.dxAdj - a.dxAdj) || (b.xpEnd - a.xpEnd));
+  sortRowsForRanking(rows);
 
   tbody.innerHTML = "";
   const shown = rows.slice(0, 300);
