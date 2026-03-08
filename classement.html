@@ -745,7 +745,7 @@ async function runJour(){
       if(!base) continue;
       const curXp = Number(p?.xp || 0);
       const dx = curXp - Number(base.xp || 0);
-      if(dx === 0) continue;
+      if(dx <= 0) continue;
 
       let row = {
         nom: p.nom || "—",
@@ -799,7 +799,7 @@ async function runJour(){
   rangeTxt.textContent = `Période : ${dateStart} → ${dateEnd} (fallback sans live)`;
 
   const rows = computeGainsBetweenSnaps(snapStart, snapEnd, { onlyPositive:false, limit:300 });
-  const shown = rows.filter(r => r.dx !== 0);
+  const shown = rows.filter(r => r.dx > 0);
 
   tbody.innerHTML = "";
   if(!shown.length){
