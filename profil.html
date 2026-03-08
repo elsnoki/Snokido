@@ -12,10 +12,16 @@
   <style>
     body{
       margin:0;
-      font-family: Arial, sans-serif;
-      background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+      font-family:Arial, sans-serif;
+      background:radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
     }
-    .wrap{ max-width:1180px; margin:26px auto 40px; padding:0 12px; }
+
+    .wrap{
+      max-width:1180px;
+      margin:26px auto 40px;
+      padding:0 12px;
+    }
+
     .panel{
       background:#fff;
       border-radius:12px;
@@ -23,6 +29,7 @@
       box-shadow:0 12px 30px rgba(0,0,0,.28);
       border:1px solid rgba(0,0,0,.10);
     }
+
     .titlebar{
       background:#3b3b3b;
       color:#fff;
@@ -30,61 +37,213 @@
       font-size:18px;
       font-weight:900;
     }
-    .content{ display:flex; gap:16px; padding:16px; align-items:flex-start; }
-    .avatarBox{
-      width:290px; background:#f6f6f6; border:1px solid #d9d9d9;
-      border-radius:12px; padding:12px;
-    }
-    .avatarBox img{ width:100%; border-radius:10px; border:2px solid #bdbdbd; background:#eee; display:block; }
 
-    .main{ flex:1; min-width:460px; }
-    .headerRow{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .content{
+      display:flex;
+      gap:16px;
+      padding:16px;
+      align-items:flex-start;
+    }
+
+    .avatarBox{
+      width:290px;
+      background:#f6f6f6;
+      border:1px solid #d9d9d9;
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .avatarBox img{
+      width:100%;
+      border-radius:10px;
+      border:2px solid #bdbdbd;
+      background:#eee;
+      display:block;
+    }
+
+    .main{
+      flex:1;
+      min-width:0;
+    }
+
+    .headerRow{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:10px;
+    }
+
     .badge100{
-      width:46px; height:46px; border-radius:10px;
-      display:grid; place-items:center; font-weight:900;
+      width:46px;
+      height:46px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      font-weight:900;
       background:linear-gradient(#ffd44d,#f0b300);
       border:2px solid rgba(0,0,0,.12);
       box-shadow:0 2px 0 rgba(0,0,0,.12);
       color:#111;
+      flex:0 0 auto;
     }
-    .name{ font-size:28px; font-weight:900; margin:0; }
 
-    .xpRow{ margin:6px 0 12px; }
-    .xpWrap{
-      position:relative; height:20px; border-radius:10px;
-      overflow:hidden; background:#d9d9d9; border:1px solid #cfcfcf;
+    .name{
+      font-size:28px;
+      font-weight:900;
+      margin:0;
+      color:#000;
     }
-    .xpFill{ height:100%; width:100%; background:#78b72d; }
-    .xpText{
-      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-      font-weight:900; color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.35);
+
+    /* BARRE XP PROFIL : noms uniques pour éviter le conflit avec style.css */
+    .profileXpRow{
+      margin:8px 0 14px;
+      width:100%;
+    }
+
+    .profileXpWrap{
+      position:relative;
+      display:block;
+      width:100%;
+      height:24px;
+      border-radius:4px;
+      overflow:hidden;
+      background:#d2d2d2;
+      border:1px solid #bdbdbd;
+    }
+
+    .profileXpFill{
+      display:block;
+      height:100%;
+      background:#8dac2a;
+    }
+
+    .profileXpText{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      color:#fff;
+      text-shadow:0 1px 0 rgba(0,0,0,.35);
       font-size:13px;
+      pointer-events:none;
     }
 
-    .cols{ display:flex; gap:14px; align-items:flex-start; }
-    .col-left{ flex:1.25; }
-    .col-right{ flex:0.75; }
+    .cols{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+    }
+
+    .col-left{
+      flex:1.25;
+      min-width:0;
+    }
+
+    .col-right{
+      flex:0.75;
+      min-width:0;
+    }
 
     .item{
-      display:flex; align-items:center; gap:12px;
-      font-size:14px; border-bottom:1px solid #e6e6e6; padding:10px 0;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-size:14px;
+      border-bottom:1px solid #e6e6e6;
+      padding:10px 0;
     }
-    .label{ width:160px; flex:0 0 auto; color:#444; }
-    .value{ font-weight:900; color:#000; }
 
-    .rightTitle{ font-size:14px; font-weight:900; border-bottom:1px solid #e6e6e6; padding:10px 0; }
-    .pauseLine{ font-size:14px; border-bottom:1px solid #e6e6e6; padding:10px 0; }
-    .pauseLine b{ font-weight:900; }
+    .label{
+      width:160px;
+      flex:0 0 auto;
+      color:#444;
+    }
 
-    .linkRow{ margin-top:10px; font-size:14px; padding-top:10px; border-bottom:none; }
-    .linkRow a{ color:#2c6fb7; text-decoration:none; font-weight:900; }
-    .linkRow a:hover{ text-decoration:underline; }
+    .value{
+      font-weight:900;
+      color:#000;
+      min-width:0;
+    }
+
+    .rightTitle{
+      font-size:14px;
+      font-weight:900;
+      border-bottom:1px solid #e6e6e6;
+      padding:10px 0;
+      color:#111;
+    }
+
+    .pauseLine{
+      font-size:14px;
+      border-bottom:1px solid #e6e6e6;
+      padding:10px 0;
+      color:#222;
+    }
+
+    .pauseLine b{
+      font-weight:900;
+    }
+
+    .linkRow{
+      margin-top:10px;
+      font-size:14px;
+      padding-top:10px;
+      border-bottom:none;
+    }
+
+    .linkRow a{
+      color:#2c6fb7;
+      text-decoration:none;
+      font-weight:900;
+    }
+
+    .linkRow a:hover{
+      text-decoration:underline;
+    }
 
     @media (max-width:1020px){
-      .content{ flex-direction:column; }
-      .avatarBox{ width:auto; }
-      .main{ min-width:auto; }
-      .cols{ flex-direction:column; }
+      .content{
+        flex-direction:column;
+      }
+
+      .avatarBox{
+        width:auto;
+      }
+
+      .main{
+        min-width:auto;
+      }
+
+      .cols{
+        flex-direction:column;
+      }
+
+      .col-left,
+      .col-right{
+        width:100%;
+      }
+    }
+
+    @media (max-width:640px){
+      .headerRow{
+        align-items:flex-start;
+      }
+
+      .name{
+        font-size:24px;
+      }
+
+      .item{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:4px;
+      }
+
+      .label{
+        width:auto;
+      }
     }
   </style>
 </head>
@@ -106,13 +265,6 @@
           .replace(/[^a-zA-Z0-9]/g, "")
           .toLowerCase();
       }
-
-      const params = new URLSearchParams(location.search);
-      const u = params.get("u");
-      const mode = (params.get("mode") || "nv100").toLowerCase();
-
-      const pageTitle = document.getElementById("pageTitle");
-      const content = document.getElementById("content");
 
       function backHref(){
         const ref = document.referrer;
@@ -139,7 +291,9 @@
         if(m === "700k") return "700K en :";
         if(m === "800k") return "800K en :";
         if(m === "900k") return "900K en :";
-        if(m === "1000k") return "1000K en :";
+        if(m === "1000k" || m === "1m") return "1M en :";
+        if(m === "1m1") return "1M1 en :";
+        if(m === "1m2") return "1M2 en :";
         return "Niveau 100 en :";
       }
 
@@ -153,11 +307,38 @@
         if(m === "700k") return 700000;
         if(m === "800k") return 800000;
         if(m === "900k") return 900000;
-        if(m === "1000k") return 1000000;
+        if(m === "1000k" || m === "1m") return 1000000;
+        if(m === "1m1") return 1100000;
+        if(m === "1m2") return 1200000;
         return 49500;
       }
 
-      function plural(n, one, many){ return n === 1 ? one : many; }
+      function plural(n, one, many){
+        return n === 1 ? one : many;
+      }
+
+      function modeBadgeText(m){
+        if(m === "100k") return "100K";
+        if(m === "200k") return "200K";
+        if(m === "300k") return "300K";
+        if(m === "400k") return "400K";
+        if(m === "500k") return "500K";
+        if(m === "600k") return "600K";
+        if(m === "700k") return "700K";
+        if(m === "800k") return "800K";
+        if(m === "900k") return "900K";
+        if(m === "1000k" || m === "1m") return "1M";
+        if(m === "1m1") return "1M1";
+        if(m === "1m2") return "1M2";
+        return "100";
+      }
+
+      const params = new URLSearchParams(location.search);
+      const u = params.get("u");
+      const mode = (params.get("mode") || "nv100").toLowerCase();
+
+      const pageTitle = document.getElementById("pageTitle");
+      const content = document.getElementById("content");
 
       if(!u){
         pageTitle.textContent = "Profil";
@@ -189,13 +370,17 @@
 
       pageTitle.textContent = "Profil de " + player.nom;
 
-      const xpValue = (stats.xp != null) ? stats.xp : defaultXpForMode(mode);
-      const xpText = Number(xpValue).toLocaleString("fr-FR") + " xp";
-
       const maxXp = defaultXpForMode(mode);
-      const percent = Math.max(0, Math.min(100, (Number(xpValue) / Number(maxXp)) * 100));
+      const xpValue = (stats.xp != null) ? Number(stats.xp) : maxXp;
+      const xpText = xpValue.toLocaleString("fr-FR") + " xp";
 
-      const t = stats.pauses_total || {nb:0, mois:0, jours:0};
+      const isCompleted = stats.jours != null && stats.atteint_le && stats.atteint_le !== "—";
+
+      const percent = isCompleted
+        ? 100
+        : Math.max(0, Math.min(100, (xpValue / maxXp) * 100));
+
+      const t = stats.pauses_total || { nb:0, mois:0, jours:0 };
       const details = Array.isArray(stats.pauses_detail) ? stats.pauses_detail : [];
 
       let rightCol = `
@@ -212,7 +397,7 @@
         rightCol = `
           <div class="col-right">
             <div class="rightTitle">
-              ${nb} ${plural(nb,"pause","pauses")} : ${t.mois ?? "?"} mois (${jours ?? "?"} ${plural(jours ?? 2,"jour","jours")})
+              ${nb} ${plural(nb, "pause", "pauses")} : ${t.mois ?? "?"} mois (${jours ?? "?"} ${plural(jours ?? 2, "jour", "jours")})
             </div>
             ${
               details.length
@@ -235,24 +420,42 @@
 
         <div class="main">
           <div class="headerRow">
-            <div class="badge100">100</div>
+            <div class="badge100">${modeBadgeText(mode)}</div>
             <h1 class="name">${player.nom}</h1>
           </div>
 
-          <div class="xpRow">
-            <div class="xpWrap">
-              <div class="xpFill" style="width:${percent}%;"></div>
-              <div class="xpText">${xpText}</div>
+          <div class="profileXpRow">
+            <div class="profileXpWrap">
+              <div class="profileXpFill" style="width:${percent}%;"></div>
+              <div class="profileXpText">${xpText}</div>
             </div>
           </div>
 
           <div class="cols">
             <div class="col-left">
-              <div class="item"><span class="label">${progressLabel(mode)}</span><span class="value">${stats.jours == null ? "—" : (stats.jours + " jours")}</span></div>
-              <div class="item"><span class="label">Atteint le :</span><span class="value">${stats.atteint_le ?? "—"}</span></div>
-              <div class="item"><span class="label">Rang :</span><span class="value">${stats.rang ?? "—"}</span></div>
-              <div class="item"><span class="label">Inscription :</span><span class="value">${player.inscription ?? "—"}</span></div>
-              <div class="linkRow"><a href="${backHref()}">Classement</a></div>
+              <div class="item">
+                <span class="label">${progressLabel(mode)}</span>
+                <span class="value">${stats.jours == null ? "—" : (stats.jours + " jours")}</span>
+              </div>
+
+              <div class="item">
+                <span class="label">Atteint le :</span>
+                <span class="value">${stats.atteint_le ?? "—"}</span>
+              </div>
+
+              <div class="item">
+                <span class="label">Rang :</span>
+                <span class="value">${stats.rang ?? "—"}</span>
+              </div>
+
+              <div class="item">
+                <span class="label">Inscription :</span>
+                <span class="value">${player.inscription ?? "—"}</span>
+              </div>
+
+              <div class="linkRow">
+                <a href="${backHref()}">Classement</a>
+              </div>
             </div>
 
             ${rightCol}
