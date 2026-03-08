@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Hommes Humbles</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="header.js" defer></script>
+
+  <style>
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      background:radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+    }
+
+    .wrap{
+      max-width:1100px;
+      margin:26px auto 40px;
+      padding:0 12px;
+    }
+
+    .hero{
+      border-radius:16px;
+      padding:16px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 14px 40px rgba(0,0,0,.25);
+      backdrop-filter:blur(6px);
+      margin-bottom:16px;
+      color:#fff;
+    }
+
+    .heroTitle{
+      font-size:24px;
+      font-weight:900;
+    }
+
+    .heroSub{
+      margin-top:6px;
+      color:rgba(255,255,255,.88);
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .panel{
+      background:#fff;
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 18px 48px rgba(0,0,0,.30);
+      border:1px solid rgba(255,255,255,.20);
+    }
+
+    .panelHead{
+      padding:14px 16px;
+      background:linear-gradient(#3b3b3b,#2a2a2a);
+      color:#fff;
+      font-size:18px;
+      font-weight:900;
+    }
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+    }
+
+    thead th{
+      background:#fff;
+      padding:14px 12px;
+      text-align:left;
+      font-size:14px;
+      font-weight:900;
+      border-bottom:1px solid #cfcfcf;
+    }
+
+    tbody td{
+      padding:16px 12px;
+      border-bottom:1px solid #d8d8d8;
+      vertical-align:middle;
+      font-size:14px;
+    }
+
+    tbody tr:nth-child(odd){
+      background:#f4f4f4;
+    }
+
+    .rank{
+      width:60px;
+      text-align:center;
+      color:#444;
+      font-weight:900;
+      font-size:20px;
+    }
+
+    .avatar{
+      width:86px;
+      text-align:center;
+    }
+
+    .avatar .frame{
+      width:58px;
+      height:58px;
+      margin:0 auto;
+      background:#e9e9e9;
+      border:1px solid #bdbdbd;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:inset 0 0 0 2px rgba(255,255,255,.6);
+    }
+
+    .avatar img{
+      width:50px;
+      height:50px;
+      object-fit:cover;
+      border:2px solid #8f8f8f;
+      border-radius:12px;
+      background:#ddd;
+      display:block;
+    }
+
+    .name a{
+      color:#2c6fb7;
+      font-weight:900;
+      text-decoration:none;
+      font-size:16px;
+    }
+
+    .name a:hover{
+      text-decoration:underline;
+    }
+
+    .center{
+      text-align:center;
+      white-space:nowrap;
+    }
+
+    .medal{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:30px;
+      height:30px;
+      padding:0 8px;
+      border-radius:999px;
+      background:#ececec;
+      border:1px solid #cfcfcf;
+      font-size:13px;
+      font-weight:900;
+      line-height:1;
+    }
+
+    .top1 .medal{
+      background:linear-gradient(#ffd44d,#f0b300);
+      color:#111;
+      border-color:rgba(0,0,0,.14);
+    }
+
+    .top2 .medal{
+      background:linear-gradient(#f0f0f0,#cfcfcf);
+      color:#111;
+      border-color:rgba(0,0,0,.14);
+    }
+
+    .top3 .medal{
+      background:linear-gradient(#d79b62,#b8743c);
+      color:#111;
+      border-color:rgba(0,0,0,.14);
+    }
+
+    .note{
+      margin-top:14px;
+      background:#fff;
+      border-radius:14px;
+      padding:12px 14px;
+      box-shadow:0 10px 24px rgba(0,0,0,.18);
+      border:1px solid rgba(0,0,0,.10);
+      color:#333;
+      font-weight:900;
+      font-size:13px;
+    }
+
+    @media (max-width:760px){
+      .wrap{
+        padding:0 8px;
+      }
+
+      thead th,
+      tbody td{
+        padding:12px 8px;
+        font-size:13px;
+      }
+
+      .rank{
+        width:48px;
+        font-size:16px;
+      }
+
+      .avatar{
+        width:70px;
+      }
+
+      .avatar .frame{
+        width:50px;
+        height:50px;
+      }
+
+      .avatar img{
+        width:42px;
+        height:42px;
+      }
+
+      .name a{
+        font-size:14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="heroTitle">Hommes Humbles</div>
+    <div class="heroSub">
+      Classement des premiers joueurs à avoir atteint le niveau 100 sans Snoki.
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panelHead">Classement</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:60px;"></th>
+          <th style="width:86px;"></th>
+          <th>Nom du joueur</th>
+          <th class="center">Niveau 100 atteint le</th>
+          <th class="center">Date d'inscription</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="top1">
+          <td class="rank"><span class="medal">1</span></td>
+          <td class="avatar">
+            <div class="frame">
+              <img src="avatar/13.jpg" alt="Golder">
+            </div>
+          </td>
+          <td class="name">
+            <a href="profil.html?mode=nv100&u=golder">Golder</a>
+          </td>
+          <td class="center">30-03-2020</td>
+          <td class="center">24-07-2017</td>
+        </tr>
+
+        <tr class="top2">
+          <td class="rank"><span class="medal">2</span></td>
+          <td class="avatar">
+            <div class="frame">
+              <img src="avatar/4.jpg" alt="TheGladiator">
+            </div>
+          </td>
+          <td class="name">
+            <a href="profil.html?mode=nv100&u=thegladiator">TheGladiator</a>
+          </td>
+          <td class="center">16-07-2020</td>
+          <td class="center">23-05-2020</td>
+        </tr>
+
+        <tr class="top3">
+          <td class="rank"><span class="medal">3</span></td>
+          <td class="avatar">
+            <div class="frame">
+              <img src="avatar/20.jpg" alt="redbot">
+            </div>
+          </td>
+          <td class="name">
+            <a href="profil.html?mode=nv100&u=redbot">redbot</a>
+          </td>
+          <td class="center">01-10-2022</td>
+          <td class="center">07-08-2022</td>
+        </tr>
+
+        <tr>
+          <td class="rank"><span class="medal">4</span></td>
+          <td class="avatar">
+            <div class="frame">
+              <img src="avatar/13.jpg" alt="Pingu">
+            </div>
+          </td>
+          <td class="name">
+            <a href="profil.html?mode=nv100&u=pingu">Pingu</a>
+          </td>
+          <td class="center">15-09-2024</td>
+          <td class="center">12-05-2019</td>
+        </tr>
+
+        <tr>
+          <td class="rank"><span class="medal">5</span></td>
+          <td class="avatar">
+            <div class="frame">
+              <img src="avatar/123.jpg" alt="Ko0pa">
+            </div>
+          </td>
+          <td class="name">
+            <a href="profil.html?mode=nv100&u=ko0pa">Ko0pa</a>
+          </td>
+          <td class="center">16-02-2026</td>
+          <td class="center">24-01-2026</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="note">
+    Les 3 premiers sont mis en avant. Les profils renvoient vers la fiche joueur.
+  </div>
+</main>
+
+</body>
+</html>
