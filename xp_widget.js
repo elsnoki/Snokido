@@ -4,7 +4,7 @@
 // - mêmes règles de tri
 // - pas de négatifs
 // - tie-break uniquement à dx égal
-// - chargement live robuste
+// - affiche : rang widget / pseudo / ΔXP / place classement général
 
 (function () {
   const STORAGE_KEY = "xpWidgetMode";
@@ -37,10 +37,6 @@
       .toLowerCase();
   }
 
-  function nameLower(p) {
-    return String(getName(p)).toLowerCase().trim();
-  }
-
   function getName(p) {
     return p?.nom ?? p?.name ?? p?.username ?? p?.pseudo ?? "—";
   }
@@ -53,12 +49,17 @@
     return Number(p?.xp ?? p?.exp ?? 0);
   }
 
-  function getKara(p) {
-    return (p?.karas == null ? null : Number(p.karas));
-  }
-
   function getProfileHref(p) {
     return p?.profileHref ?? p?.href ?? null;
+  }
+
+  function getGlobalRank(p) {
+    const v = Number(p?.rang ?? p?.rank ?? p?.place ?? p?.position ?? p?.classement ?? 0);
+    return Number.isFinite(v) && v > 0 ? v : null;
+  }
+
+  function nameLower(p) {
+    return String(getName(p)).toLowerCase().trim();
   }
 
   function profileIdFromHref(href) {
@@ -209,7 +210,6 @@
     for (const p of (players || [])) {
       const meta = {
         xp: getXp(p),
-        kara: getKara(p),
         nom: getName(p),
         avatar: getAvatar(p),
         profileHref: getProfileHref(p)
@@ -308,8 +308,28 @@
     document.getElementById("xpSideBody").innerHTML = `<div class="xpSideEmpty">${msg}</div>`;
   }
 
-  function computeRowsLikeClassement(currentPlayers, baselinePlayers, mode) {
+  function computeGlobalRanks(players) {
+    const sorted = (players || []).slice().sort((a, b) => {
+      const dx = getXp(b) - getXp(a);
+      if (dx !== 0) return dx;
+      return slugify(getName(a)).localeCompare(slugify(getName(b)));
+    });
+
+    const rankMap = new Map();
+    for (let i = 0; i < sorted.length; i++) {
+      const p = sorted[i];
+      const explicitRank = getGlobalRank(p);
+      const rank = explicitRank || (i + 1);
+      for (const k of playerKeysMulti(p)) {
+        if (!rankMap.has(k)) rankMap.set(k, rank);
+      }
+    }
+    return rankMap;
+  }
+
+  function computeRowsLikeClassement(currentPlayers, baselinePlayers) {
     const baseMap = buildMapFromSnap(baselinePlayers);
+    const globalRankMap = computeGlobalRanks(currentPlayers);
     const rows = [];
 
     for (const p of (currentPlayers || [])) {
@@ -319,12 +339,16 @@
       const xpEnd = getXp(p);
       const dx = xpEnd - Number(base.xp || 0);
 
-      // Comme dans classement.html demandé par toi :
-      // on ne garde que les positifs pour jour / hebdo / mensuel
+      // on masque les négatifs et les 0
       if (dx <= 0) continue;
 
-      const curK = getKara(p);
-      const dkara = (curK == null || base.kara == null) ? null : (curK - base.kara);
+      let globalRank = null;
+      for (const k of playerKeysMulti(p)) {
+        if (globalRankMap.has(k)) {
+          globalRank = globalRankMap.get(k);
+          break;
+        }
+      }
 
       rows.push({
         nom: getName(p),
@@ -333,7 +357,7 @@
         dx,
         dxAdj: null,
         xpEnd,
-        dkara
+        globalRank
       });
     }
 
@@ -372,8 +396,6 @@
 
     let baseTarget;
     if (mode === "jour") {
-      // comme classement.html version actuelle :
-      // jour = dernier snapshot -> live
       baseTarget = latestDay;
     } else if (mode === "hebdo") {
       baseTarget = mondayOfWeek(latestDay);
@@ -397,7 +419,7 @@
 
     sub.textContent = `${baseDay} → live`;
 
-    const rows = computeRowsLikeClassement(current, baseline, mode);
+    const rows = computeRowsLikeClassement(current, baseline);
     if (!rows.length) {
       renderEmpty("Personne n’a gagné d’XP sur la période.");
       return;
@@ -415,15 +437,14 @@
             <a class="xpName" href="${href}" target="_blank" rel="noopener" title="${r.nom}">${r.nom}</a>
           </div>
           <div class="xpDx">${fmtSigned(r.dx)}</div>
-          <div class="xpKara">${r.dkara == null ? "—" : fmtSigned(r.dkara)}</div>
-          <div class="xpMv"><span class="xpMove same">—</span></div>
+          <div class="xpPlace">${r.globalRank == null ? "—" : "#" + Number(r.globalRank).toLocaleString("fr-FR")}</div>
         </div>
       `;
     }).join("");
 
     body.insertAdjacentHTML("beforeend", `
       <div class="xpSideFoot">
-        <span>ΔXP</span><span>ΔKara</span><span>ΔPlace</span>
+        <span>ΔXP</span><span>Place</span>
       </div>
     `);
   }
