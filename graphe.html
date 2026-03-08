@@ -82,15 +82,16 @@
 
     .canvas-wrap.short{ height:460px; }
     .canvas-wrap.medium{ height:520px; }
-    .canvas-wrap.long{ height:650px; }
+    .canvas-wrap.long{ height:700px; }
     .canvas-wrap.xlong{ height:860px; }
 
     @media (max-width: 900px){
       .canvas-wrap{ height:460px; }
       .canvas-wrap.short{ height:390px; }
       .canvas-wrap.medium{ height:430px; }
-      .canvas-wrap.long{ height:520px; }
+      .canvas-wrap.long{ height:560px; }
       .canvas-wrap.xlong{ height:900px; }
+
       .hero h1{ font-size:28px; }
     }
   </style>
@@ -102,7 +103,8 @@
       <p>
         Page des temps de progression générée automatiquement depuis <strong>data.js</strong>.
         Les 5 premiers graphes reprennent la présentation par groupes. Plus bas, tu as le graphe
-        complet du niveau 100, puis le grand graphe dynamique multi-paliers.
+        complet du niveau 100, puis le grand graphe dynamique multi-paliers calculé automatiquement
+        à partir des données disponibles, sans compter les pauses.
       </p>
     </section>
 
@@ -141,7 +143,7 @@
 
     <h2 class="section-title">Grand graphe multi-paliers</h2>
     <section class="graph-card">
-      <h2>Du niveau 100 jusqu’aux paliers supérieurs</h2>
+      <h2>Du niveau 100 jusqu’aux paliers supérieurs — sans pauses</h2>
       <div class="canvas-wrap long"><canvas id="graphMega"></canvas></div>
     </section>
   </div>
@@ -157,19 +159,19 @@
     ];
 
     const MEGA_STAGES = [
-      { key:"nv100",  label:"Niv 100", color:"#a63f00" },
-      { key:"100k",   label:"100 000", color:"#d75a00" },
-      { key:"200k",   label:"200 000", color:"#f17810" },
-      { key:"300k",   label:"300 000", color:"#f89b26" },
-      { key:"400k",   label:"400 000", color:"#f73827" },
-      { key:"500k",   label:"500 000", color:"#d9161f" },
-      { key:"600k",   label:"600 000", color:"#cf3942" },
-      { key:"700k",   label:"700 000", color:"#e45d73" },
-      { key:"800k",   label:"800 000", color:"#eb7db4" },
-      { key:"900k",   label:"900 000", color:"#d58bd1" },
-      { key:"1M",     label:"1M",      color:"#c3aae8" },
-      { key:"1M100",  label:"1M100",   color:"#a7b3dd" },
-      { key:"1M200",  label:"1M200",   color:"#76a6cc" }
+      { key:"nv100", label:"Niv 100", color:"#a63f00" },
+      { key:"100k",  label:"100 000", color:"#d75a00" },
+      { key:"200k",  label:"200 000", color:"#f17810" },
+      { key:"300k",  label:"300 000", color:"#f89b26" },
+      { key:"400k",  label:"400 000", color:"#f73827" },
+      { key:"500k",  label:"500 000", color:"#d9161f" },
+      { key:"600k",  label:"600 000", color:"#cf3942" },
+      { key:"700k",  label:"700 000", color:"#e45d73" },
+      { key:"800k",  label:"800 000", color:"#eb7db4" },
+      { key:"900k",  label:"900 000", color:"#d58bd1" },
+      { key:"1m",    label:"1M",      color:"#c3aae8" },
+      { key:"1m1",   label:"1M100",   color:"#a7b3dd" },
+      { key:"1m2",   label:"1M200",   color:"#76a6cc" }
     ];
 
     function findPlayerByName(name){
@@ -178,24 +180,39 @@
 
     function getStageValue(player, stageKey){
       if(!player || !player.modes) return null;
-      if(stageKey === "nv100") return player.modes?.nv100?.jours ?? null;
       return player.modes?.[stageKey]?.jours ?? null;
+    }
+
+    function getPauseDays(player, stageKey){
+      if(!player || !player.modes?.[stageKey]?.pauses_total) return 0;
+      return Number(player.modes[stageKey].pauses_total.jours || 0);
+    }
+
+    function getStageValueWithoutPause(player, stageKey){
+      const value = getStageValue(player, stageKey);
+      if(value == null) return null;
+
+      const result = Number(value) - getPauseDays(player, stageKey);
+      return result < 0 ? 0 : result;
     }
 
     function stageTextColor(hex){
       const darkColors = [
-        "#5f97bd","#5a7db8","#6a63b7",
-        "#a63f00","#d75a00","#d9161f","#cf3942","#76a6cc"
+        "#5f97bd", "#5a7db8", "#6a63b7",
+        "#a63f00", "#d75a00", "#d9161f", "#cf3942", "#76a6cc"
       ];
       return darkColors.includes(hex) ? "#fff" : "#111";
     }
 
-    function buildStackedDatasets(playersList, stages){
+    function buildStackedDatasets(playersList, stages, withoutPause = false){
       return stages.map(stage => ({
         label: stage.label,
         data: playersList.map(player => {
-          const val = getStageValue(player, stage.key);
-          return val == null ? null : Number(val);
+          const value = withoutPause
+            ? getStageValueWithoutPause(player, stage.key)
+            : getStageValue(player, stage.key);
+
+          return value == null ? null : Number(value);
         }),
         backgroundColor: stage.color,
         borderSkipped: false,
@@ -206,15 +223,19 @@
       }));
     }
 
-    function computeSuggestedMax(playersList, stages){
+    function computeSuggestedMax(playersList, stages, withoutPause = false){
       const totals = playersList.map(player => {
         return stages.reduce((sum, stage) => {
-          const v = getStageValue(player, stage.key);
-          return sum + (Number.isFinite(Number(v)) ? Number(v) : 0);
+          const value = withoutPause
+            ? getStageValueWithoutPause(player, stage.key)
+            : getStageValue(player, stage.key);
+
+          return sum + (Number.isFinite(Number(value)) ? Number(value) : 0);
         }, 0);
       });
 
       const max = Math.max(...totals, 0);
+
       if(max <= 350) return 350;
       if(max <= 1500) return Math.ceil(max / 100) * 100;
       if(max <= 5000) return Math.ceil(max / 250) * 250;
@@ -232,8 +253,8 @@
       new Chart(ctx, {
         type: "bar",
         data: {
-          labels: playersList.map(p => p.nom),
-          datasets: buildStackedDatasets(playersList, stages)
+          labels: playersList.map(player => player.nom),
+          datasets: buildStackedDatasets(playersList, stages, false)
         },
         options: {
           responsive: true,
@@ -258,9 +279,9 @@
             tooltip: {
               callbacks: {
                 label: (ctx) => {
-                  const v = ctx.raw;
-                  if(v == null) return `${ctx.dataset.label} : —`;
-                  return `${ctx.dataset.label} : ${v} jours`;
+                  const value = ctx.raw;
+                  if(value == null) return `${ctx.dataset.label} : —`;
+                  return `${ctx.dataset.label} : ${value} jours`;
                 }
               }
             },
@@ -275,12 +296,14 @@
                 weight: "600"
               },
               display: (ctx) => {
-                const v = ctx.dataset.data[ctx.dataIndex];
-                if(v == null) return false;
+                const value = ctx.dataset.data[ctx.dataIndex];
+                if(value == null) return false;
+
                 const chart = ctx.chart;
                 const meta = chart.getDatasetMeta(ctx.datasetIndex);
                 const bar = meta.data[ctx.dataIndex];
                 if(!bar) return false;
+
                 const width = Math.abs(bar.x - bar.base);
                 return width > 28;
               }
@@ -290,7 +313,7 @@
             x: {
               stacked: true,
               beginAtZero: true,
-              suggestedMax: computeSuggestedMax(playersList, stages),
+              suggestedMax: computeSuggestedMax(playersList, stages, false),
               ticks: {
                 color: "#222",
                 font: { size: 13 }
@@ -327,11 +350,11 @@
       if(!ctx) return;
 
       const list = [...joueurs]
-        .filter(p => p?.modes?.nv100?.jours != null)
-        .sort((a,b) => a.modes.nv100.jours - b.modes.nv100.jours);
+        .filter(player => player?.modes?.nv100?.jours != null)
+        .sort((a, b) => a.modes.nv100.jours - b.modes.nv100.jours);
 
-      const labels = list.map(p => p.nom);
-      const data = list.map(p => p.modes.nv100.jours);
+      const labels = list.map(player => player.nom);
+      const data = list.map(player => player.modes.nv100.jours);
 
       const colors = [
         "#14b8c9", "#8bd36b", "#7a54c7", "#2b6ca3", "#b6b6b6", "#555555",
@@ -367,13 +390,13 @@
               labels: {
                 generateLabels(chart){
                   const dataset = chart.data.datasets[0];
-                  return chart.data.labels.map((label, i) => ({
+                  return chart.data.labels.map((label, index) => ({
                     text: label,
-                    fillStyle: dataset.backgroundColor[i],
-                    strokeStyle: dataset.backgroundColor[i],
+                    fillStyle: dataset.backgroundColor[index],
+                    strokeStyle: dataset.backgroundColor[index],
                     lineWidth: 0,
                     hidden: false,
-                    index: i,
+                    index,
                     pointStyle: "circle"
                   }));
                 },
@@ -448,6 +471,144 @@
       });
     }
 
+    function getMegaPlayersAuto(){
+      return [...joueurs]
+        .filter(player => {
+          if(!player?.modes?.nv100) return false;
+
+          return MEGA_STAGES.slice(1).some(stage => {
+            return player.modes?.[stage.key]?.jours != null;
+          });
+        })
+        .sort((a, b) => {
+          const furthestStageA = Math.max(
+            ...MEGA_STAGES.map((stage, index) => a.modes?.[stage.key]?.jours != null ? index : -1)
+          );
+
+          const furthestStageB = Math.max(
+            ...MEGA_STAGES.map((stage, index) => b.modes?.[stage.key]?.jours != null ? index : -1)
+          );
+
+          if(furthestStageA !== furthestStageB){
+            return furthestStageB - furthestStageA;
+          }
+
+          const totalA = MEGA_STAGES.reduce((sum, stage) => {
+            const value = getStageValueWithoutPause(a, stage.key);
+            return sum + (value ?? 0);
+          }, 0);
+
+          const totalB = MEGA_STAGES.reduce((sum, stage) => {
+            const value = getStageValueWithoutPause(b, stage.key);
+            return sum + (value ?? 0);
+          }, 0);
+
+          return totalA - totalB;
+        });
+    }
+
+    function createMegaChartAuto(){
+      const ctx = document.getElementById("graphMega");
+      if(!ctx) return;
+
+      const playersList = getMegaPlayersAuto();
+      if(playersList.length === 0) return;
+
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: playersList.map(player => player.nom),
+          datasets: buildStackedDatasets(playersList, MEGA_STAGES, true)
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: "y",
+          animation: { duration: 800 },
+          layout: {
+            padding: { top: 8, right: 18, bottom: 8, left: 0 }
+          },
+          plugins: {
+            legend: {
+              position: "top",
+              labels: {
+                color: "#222",
+                usePointStyle: true,
+                pointStyle: "circle",
+                boxWidth: 14,
+                font: { size: 15, weight: "600" },
+                padding: 18
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const value = ctx.raw;
+                  if(value == null) return `${ctx.dataset.label} : —`;
+                  return `${ctx.dataset.label} : ${value} jours`;
+                }
+              }
+            },
+            datalabels: {
+              formatter: (value) => value == null ? null : value,
+              color: (ctx) => stageTextColor(ctx.dataset.backgroundColor),
+              anchor: "center",
+              align: "center",
+              clamp: true,
+              font: {
+                size: 12,
+                weight: "600"
+              },
+              display: (ctx) => {
+                const value = ctx.dataset.data[ctx.dataIndex];
+                if(value == null) return false;
+
+                const chart = ctx.chart;
+                const meta = chart.getDatasetMeta(ctx.datasetIndex);
+                const bar = meta.data[ctx.dataIndex];
+                if(!bar) return false;
+
+                const width = Math.abs(bar.x - bar.base);
+                return width > 26;
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              beginAtZero: true,
+              suggestedMax: computeSuggestedMax(playersList, MEGA_STAGES, true),
+              ticks: {
+                color: "#222",
+                font: { size: 13 }
+              },
+              title: {
+                display: true,
+                text: "JOURS",
+                color: "#222",
+                font: { size: 16, weight: "700" }
+              },
+              grid: {
+                color: "rgba(0,0,0,.12)"
+              },
+              border: { display: false }
+            },
+            y: {
+              stacked: true,
+              ticks: {
+                color: "#222",
+                font: { size: 15 }
+              },
+              grid: {
+                display: false
+              },
+              border: { display: false }
+            }
+          }
+        }
+      });
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       if(typeof joueurs === "undefined" || !Array.isArray(joueurs)) return;
 
@@ -490,24 +651,8 @@
       ], BASE_STAGES);
 
       createNv100RankingChart();
-
-      createStackedChart("graphMega", [
-        "TheGladiator",
-        "cirpacha",
-        "Abelard",
-        "Jordan.io",
-        "Alexis279",
-        "alex.c2109",
-        "Esdras950",
-        "josué455",
-        "Talk Takashi",
-        "francoeur",
-        "lumia",
-        "hoopa",
-        "dude"
-      ], MEGA_STAGES);
+      createMegaChartAuto();
     });
   </script>
 </body>
 </html>
-
