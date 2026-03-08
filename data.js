@@ -199,7 +199,7 @@ const joueurs = [
         {xp:61666, periode:"07/2022 -> 11/2022", mois:4, jours:123},
         {xp:76050, periode:"05/2023 -> 03/2024", mois:10, jours:305}
       ]},
-      "200k":{ jours: 335, atteint_le:"/* ta date */", rang:"/* ton rang */", xp:200000, pauses_total:{nb:2, mois:11, jours:335}, pauses_detail:[
+      "200k":{ jours: null, atteint_le:"/* ta date */", rang:"/* ton rang */", xp:200000, pauses_total:{nb:2, mois:11, jours:335}, pauses_detail:[
     {xp:107590, periode:"01/2025 -> 07/2025", mois:6, jours:182},
     {xp:107774, periode:"08/2025 -> 01/2026", mois:5, jours:153}
   ]
@@ -241,6 +241,7 @@ const joueurs = [
     }
   }
 ];
+
 
 
 
