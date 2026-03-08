@@ -82,16 +82,15 @@
 
     .canvas-wrap.short{ height:460px; }
     .canvas-wrap.medium{ height:520px; }
-    .canvas-wrap.long{ height:700px; }
+    .canvas-wrap.long{ height:650px; }
     .canvas-wrap.xlong{ height:860px; }
 
     @media (max-width: 900px){
       .canvas-wrap{ height:460px; }
       .canvas-wrap.short{ height:390px; }
       .canvas-wrap.medium{ height:430px; }
-      .canvas-wrap.long{ height:560px; }
+      .canvas-wrap.long{ height:520px; }
       .canvas-wrap.xlong{ height:900px; }
-
       .hero h1{ font-size:28px; }
     }
   </style>
@@ -103,8 +102,8 @@
       <p>
         Page des temps de progression générée automatiquement depuis <strong>data.js</strong>.
         Les 5 premiers graphes reprennent la présentation par groupes. Plus bas, tu as le graphe
-        complet du niveau 100, puis le grand graphe dynamique multi-paliers calculé automatiquement
-        à partir des données disponibles, sans compter les pauses.
+        complet du niveau 100, le grand graphe multi-paliers original, puis un nouveau grand graphe
+        multi-paliers calculé sans les pauses.
       </p>
     </section>
 
@@ -143,8 +142,18 @@
 
     <h2 class="section-title">Grand graphe multi-paliers</h2>
     <section class="graph-card">
-      <h2>Du niveau 100 jusqu’aux paliers supérieurs — sans pauses</h2>
+      <h2>Du niveau 100 jusqu’aux paliers supérieurs</h2>
       <div class="canvas-wrap long"><canvas id="graphMega"></canvas></div>
+    </section>
+
+    <h2 class="section-title">Grand graphe multi-paliers sans pauses</h2>
+    <section class="graph-card">
+      <h2>Du niveau 100 jusqu’aux paliers supérieurs — calcul sans pauses</h2>
+      <p>
+        Chaque palier est recalculé automatiquement avec la formule :
+        <strong>jours affichés = jours du palier - pauses_total.jours</strong>.
+      </p>
+      <div class="canvas-wrap xlong"><canvas id="graphMegaNoPause"></canvas></div>
     </section>
   </div>
 
@@ -185,34 +194,38 @@
 
     function getPauseDays(player, stageKey){
       if(!player || !player.modes?.[stageKey]?.pauses_total) return 0;
-      return Number(player.modes[stageKey].pauses_total.jours || 0);
+      const pauseDays = Number(player.modes[stageKey].pauses_total.jours);
+      return Number.isFinite(pauseDays) ? pauseDays : 0;
     }
 
     function getStageValueWithoutPause(player, stageKey){
-      const value = getStageValue(player, stageKey);
-      if(value == null) return null;
+      const raw = getStageValue(player, stageKey);
+      if(raw == null) return null;
 
-      const result = Number(value) - getPauseDays(player, stageKey);
-      return result < 0 ? 0 : result;
+      const value = Number(raw);
+      if(!Number.isFinite(value)) return null;
+
+      const noPause = value - getPauseDays(player, stageKey);
+      return noPause < 0 ? 0 : noPause;
     }
 
     function stageTextColor(hex){
       const darkColors = [
-        "#5f97bd", "#5a7db8", "#6a63b7",
-        "#a63f00", "#d75a00", "#d9161f", "#cf3942", "#76a6cc"
+        "#5f97bd","#5a7db8","#6a63b7",
+        "#a63f00","#d75a00","#d9161f","#cf3942","#76a6cc"
       ];
       return darkColors.includes(hex) ? "#fff" : "#111";
     }
 
-    function buildStackedDatasets(playersList, stages, withoutPause = false){
+    function buildStackedDatasets(playersList, stages, removePauses = false){
       return stages.map(stage => ({
         label: stage.label,
         data: playersList.map(player => {
-          const value = withoutPause
+          const val = removePauses
             ? getStageValueWithoutPause(player, stage.key)
             : getStageValue(player, stage.key);
 
-          return value == null ? null : Number(value);
+          return val == null ? null : Number(val);
         }),
         backgroundColor: stage.color,
         borderSkipped: false,
@@ -223,19 +236,18 @@
       }));
     }
 
-    function computeSuggestedMax(playersList, stages, withoutPause = false){
+    function computeSuggestedMax(playersList, stages, removePauses = false){
       const totals = playersList.map(player => {
         return stages.reduce((sum, stage) => {
-          const value = withoutPause
+          const v = removePauses
             ? getStageValueWithoutPause(player, stage.key)
             : getStageValue(player, stage.key);
 
-          return sum + (Number.isFinite(Number(value)) ? Number(value) : 0);
+          return sum + (Number.isFinite(Number(v)) ? Number(v) : 0);
         }, 0);
       });
 
       const max = Math.max(...totals, 0);
-
       if(max <= 350) return 350;
       if(max <= 1500) return Math.ceil(max / 100) * 100;
       if(max <= 5000) return Math.ceil(max / 250) * 250;
@@ -253,7 +265,7 @@
       new Chart(ctx, {
         type: "bar",
         data: {
-          labels: playersList.map(player => player.nom),
+          labels: playersList.map(p => p.nom),
           datasets: buildStackedDatasets(playersList, stages, false)
         },
         options: {
@@ -279,9 +291,9 @@
             tooltip: {
               callbacks: {
                 label: (ctx) => {
-                  const value = ctx.raw;
-                  if(value == null) return `${ctx.dataset.label} : —`;
-                  return `${ctx.dataset.label} : ${value} jours`;
+                  const v = ctx.raw;
+                  if(v == null) return `${ctx.dataset.label} : —`;
+                  return `${ctx.dataset.label} : ${v} jours`;
                 }
               }
             },
@@ -296,14 +308,12 @@
                 weight: "600"
               },
               display: (ctx) => {
-                const value = ctx.dataset.data[ctx.dataIndex];
-                if(value == null) return false;
-
+                const v = ctx.dataset.data[ctx.dataIndex];
+                if(v == null) return false;
                 const chart = ctx.chart;
                 const meta = chart.getDatasetMeta(ctx.datasetIndex);
                 const bar = meta.data[ctx.dataIndex];
                 if(!bar) return false;
-
                 const width = Math.abs(bar.x - bar.base);
                 return width > 28;
               }
@@ -350,11 +360,11 @@
       if(!ctx) return;
 
       const list = [...joueurs]
-        .filter(player => player?.modes?.nv100?.jours != null)
-        .sort((a, b) => a.modes.nv100.jours - b.modes.nv100.jours);
+        .filter(p => p?.modes?.nv100?.jours != null)
+        .sort((a,b) => a.modes.nv100.jours - b.modes.nv100.jours);
 
-      const labels = list.map(player => player.nom);
-      const data = list.map(player => player.modes.nv100.jours);
+      const labels = list.map(p => p.nom);
+      const data = list.map(p => p.modes.nv100.jours);
 
       const colors = [
         "#14b8c9", "#8bd36b", "#7a54c7", "#2b6ca3", "#b6b6b6", "#555555",
@@ -390,13 +400,13 @@
               labels: {
                 generateLabels(chart){
                   const dataset = chart.data.datasets[0];
-                  return chart.data.labels.map((label, index) => ({
+                  return chart.data.labels.map((label, i) => ({
                     text: label,
-                    fillStyle: dataset.backgroundColor[index],
-                    strokeStyle: dataset.backgroundColor[index],
+                    fillStyle: dataset.backgroundColor[i],
+                    strokeStyle: dataset.backgroundColor[i],
                     lineWidth: 0,
                     hidden: false,
-                    index,
+                    index: i,
                     pointStyle: "circle"
                   }));
                 },
@@ -476,9 +486,7 @@
         .filter(player => {
           if(!player?.modes?.nv100) return false;
 
-          return MEGA_STAGES.slice(1).some(stage => {
-            return player.modes?.[stage.key]?.jours != null;
-          });
+          return MEGA_STAGES.some(stage => player.modes?.[stage.key]?.jours != null);
         })
         .sort((a, b) => {
           const furthestStageA = Math.max(
@@ -489,9 +497,7 @@
             ...MEGA_STAGES.map((stage, index) => b.modes?.[stage.key]?.jours != null ? index : -1)
           );
 
-          if(furthestStageA !== furthestStageB){
-            return furthestStageB - furthestStageA;
-          }
+          if(furthestStageB !== furthestStageA) return furthestStageB - furthestStageA;
 
           const totalA = MEGA_STAGES.reduce((sum, stage) => {
             const value = getStageValueWithoutPause(a, stage.key);
@@ -507,8 +513,8 @@
         });
     }
 
-    function createMegaChartAuto(){
-      const ctx = document.getElementById("graphMega");
+    function createMegaNoPauseChart(){
+      const ctx = document.getElementById("graphMegaNoPause");
       if(!ctx) return;
 
       const playersList = getMegaPlayersAuto();
@@ -517,14 +523,14 @@
       new Chart(ctx, {
         type: "bar",
         data: {
-          labels: playersList.map(player => player.nom),
+          labels: playersList.map(p => p.nom),
           datasets: buildStackedDatasets(playersList, MEGA_STAGES, true)
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           indexAxis: "y",
-          animation: { duration: 800 },
+          animation: { duration: 700 },
           layout: {
             padding: { top: 8, right: 18, bottom: 8, left: 0 }
           },
@@ -536,16 +542,25 @@
                 usePointStyle: true,
                 pointStyle: "circle",
                 boxWidth: 14,
-                font: { size: 15, weight: "600" },
-                padding: 18
+                font: { size: 16, weight: "600" },
+                padding: 22
               }
             },
             tooltip: {
               callbacks: {
                 label: (ctx) => {
-                  const value = ctx.raw;
-                  if(value == null) return `${ctx.dataset.label} : —`;
-                  return `${ctx.dataset.label} : ${value} jours`;
+                  const v = ctx.raw;
+                  if(v == null) return `${ctx.dataset.label} : —`;
+                  return `${ctx.dataset.label} : ${v} jours`;
+                },
+                afterLabel: (ctx) => {
+                  const player = playersList[ctx.dataIndex];
+                  const stage = MEGA_STAGES[ctx.datasetIndex];
+                  const raw = getStageValue(player, stage.key);
+                  const pause = getPauseDays(player, stage.key);
+
+                  if(raw == null) return "";
+                  return `calcul : ${raw} - ${pause} = ${ctx.raw}`;
                 }
               }
             },
@@ -560,14 +575,12 @@
                 weight: "600"
               },
               display: (ctx) => {
-                const value = ctx.dataset.data[ctx.dataIndex];
-                if(value == null) return false;
-
+                const v = ctx.dataset.data[ctx.dataIndex];
+                if(v == null) return false;
                 const chart = ctx.chart;
                 const meta = chart.getDatasetMeta(ctx.datasetIndex);
                 const bar = meta.data[ctx.dataIndex];
                 if(!bar) return false;
-
                 const width = Math.abs(bar.x - bar.base);
                 return width > 26;
               }
@@ -584,7 +597,7 @@
               },
               title: {
                 display: true,
-                text: "JOURS",
+                text: "JOURS SANS PAUSES",
                 color: "#222",
                 font: { size: 16, weight: "700" }
               },
@@ -651,7 +664,26 @@
       ], BASE_STAGES);
 
       createNv100RankingChart();
-      createMegaChartAuto();
+
+      // TON GRAPHE ORIGINAL : on le laisse tel quel
+      createStackedChart("graphMega", [
+        "TheGladiator",
+        "cirpacha",
+        "Abelard",
+        "Jordan.io",
+        "Alexis279",
+        "alex.c2109",
+        "Esdras950",
+        "josué455",
+        "Talk Takashi",
+        "francoeur",
+        "lumia",
+        "hoopa",
+        "dude"
+      ], MEGA_STAGES);
+
+      // NOUVEAU GRAPHE AJOUTÉ : calcul automatique sans pauses
+      createMegaNoPauseChart();
     });
   </script>
 </body>
