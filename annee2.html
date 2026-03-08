@@ -38,7 +38,6 @@
     padding:0 12px;
   }
 
-  /* ===== HERO / HEADER ===== */
   .hero{
     border-radius:16px;
     padding:16px;
@@ -63,6 +62,7 @@
     font-size:22px;
     letter-spacing:.2px;
   }
+
   .heroSub{
     margin-top:4px;
     color:rgba(255,255,255,.85);
@@ -99,7 +99,11 @@
     font-weight:900;
     width:210px;
   }
-  .ctrl input::placeholder{ color:rgba(255,255,255,.70); font-weight:900; }
+
+  .ctrl input::placeholder{
+    color:rgba(255,255,255,.70);
+    font-weight:900;
+  }
 
   .ctrl select{
     border:0;
@@ -121,7 +125,10 @@
     border:1px solid rgba(255,255,255,.18);
     box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
   }
-  .btn:hover{ background: rgba(255,255,255,.18); }
+
+  .btn:hover{
+    background: rgba(255,255,255,.18);
+  }
 
   .stats{
     display:grid;
@@ -138,15 +145,24 @@
     color:#fff;
     box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
   }
-  .stat .k{ font-size:12px; font-weight:900; opacity:.9; }
-  .stat .v{ margin-top:2px; font-size:18px; font-weight:900; }
+
+  .stat .k{
+    font-size:12px;
+    font-weight:900;
+    opacity:.9;
+  }
+
+  .stat .v{
+    margin-top:2px;
+    font-size:18px;
+    font-weight:900;
+  }
 
   @media (max-width: 760px){
     .ctrl input{ width:160px; }
     .stats{ grid-template-columns: 1fr; }
   }
 
-  /* ===== PANELS / CARDS ===== */
   .panel{
     background:var(--card);
     border-radius:16px;
@@ -216,7 +232,8 @@
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    width:34px; height:34px;
+    width:34px;
+    height:34px;
     border-radius:12px;
     font-weight:900;
     background:#111;
@@ -227,6 +244,7 @@
     font-size:18px;
     font-weight:900;
   }
+
   .yearMeta .s{
     margin-top:2px;
     font-size:12px;
@@ -238,9 +256,11 @@
     text-align:right;
     font-weight:900;
   }
+
   .yearTotal .t{
     font-size:16px;
   }
+
   .yearTotal .sub{
     margin-top:2px;
     font-size:12px;
@@ -273,6 +293,7 @@
     white-space:nowrap;
     transition: transform .08s ease, box-shadow .08s ease;
   }
+
   .pill:hover{
     transform: translateY(-1px);
     box-shadow:0 8px 18px rgba(0,0,0,.12);
@@ -301,45 +322,45 @@
     font-size:12px;
   }
 
-  /* effet #1 */
   .yearCard.first{
     border:1px solid rgba(255,212,77,.70);
     box-shadow: 0 16px 42px rgba(255,212,77,.18), var(--shadow2);
   }
+
   .yearCard.first .badge{
     background: linear-gradient(#ffd44d,#f0b300);
     color:#111;
   }
 
   .navYear{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:14px;
-}
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+  }
 
-.navBtn{
-  display:inline-block;
-  padding:10px 14px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.12);
-  color:#fff;
-  font-weight:900;
-  text-decoration:none;
-  cursor:pointer;
-  backdrop-filter: blur(4px);
-}
+  .navBtn{
+    display:inline-block;
+    padding:10px 14px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.25);
+    background:rgba(255,255,255,.12);
+    color:#fff;
+    font-weight:900;
+    text-decoration:none;
+    cursor:pointer;
+    backdrop-filter: blur(4px);
+  }
 
-.navBtn:hover{
-  background:rgba(255,255,255,.18);
-}
+  .navBtn:hover{
+    background:rgba(255,255,255,.18);
+  }
 
-.navBtn.primary{
-  background:#66ccff;
-  color:#003347;
-  border:1px solid rgba(0,0,0,.15);
-}
+  .navBtn.primary{
+    background:#66ccff;
+    color:#003347;
+    border:1px solid rgba(0,0,0,.15);
+  }
 </style>
 </head>
 
@@ -349,16 +370,19 @@
 <main class="wrap">
 
   <div class="navYear">
-  <button class="navBtn" onclick="history.back()">← Retour</button>
+    <button class="navBtn" onclick="history.back()">← Retour</button>
 
-  <a class="navBtn primary" href="annee.html">
-    Classement des années →
-  </a>
-</div>
+    <a class="navBtn primary" href="annee.html">
+      Classement des années →
+    </a>
+  </div>
 
   <section class="hero">
     <div class="heroTop">
+      <div>
         <div class="heroTitle">XP par année (générations)</div>
+        <div class="heroSub"></div>
+      </div>
 
       <div class="heroActions">
         <div class="ctrl" title="Rechercher un joueur">
@@ -409,10 +433,8 @@
 </main>
 
 <script>
-  // NOTE: On ne touche pas à rankyear.html. Ici on lit le même JSON scrapé.
   const DATA_URL = "data/players_pages.json";
 
-  // (Legacy) on garde des données manuelles, mais non utilisées désormais (on ne supprime pas)
   const years = [
     { year: 2013, total: 192596, players: [ { nom: "Dude", xp: 100258 }, { nom: "Korben", xp: 92406 } ] },
   ];
@@ -472,14 +494,12 @@
     if(!inscription) return null;
     const s = String(inscription).trim();
 
-    // "DD-MM-YYYY"
     const parts = s.split("-");
     if(parts.length === 3){
       const y = Number(parts[2]);
       return Number.isFinite(y) ? y : null;
     }
 
-    // "YYYY-MM-DD" ou autre
     const m = s.match(/(19\d{2}|20\d{2}|2100)/);
     return m ? Number(m[1]) : null;
   }
@@ -589,7 +609,6 @@
     const q = String(query || "").trim().toLowerCase();
     if(!q) return yearsArr;
 
-    // on garde l'année si au moins 1 joueur match, et on filtre les pills
     return yearsArr.map(y => {
       const players = (y.players || []).filter(p => String(p.nom||"").toLowerCase().includes(q));
       const total = players.reduce((s,p)=> s + (p.xp||0), 0);
@@ -649,12 +668,9 @@
     const q = document.getElementById("q").value || "";
     const minxp = Number(document.getElementById("minxp").value || 40000);
 
-    document.getElementById("minXpLabel").textContent = fmtInt(minxp);
-
     const built = buildYearsFromPlayers(RAW_PLAYERS, minxp);
     const searched = applySearch(built.years, q);
 
-    // stats
     const totalAll = searched.reduce((s,y)=> s + (y.total||0), 0);
     const playersCount = searched.reduce((s,y)=> s + ((y.players||[]).length), 0);
 
@@ -697,6 +713,3 @@
 
 </body>
 </html>
-
-
-
