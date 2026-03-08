@@ -40,7 +40,8 @@ window.gangsData = [
       { nom: "hoopa" },
       { nom: "Tellor" },
       { nom: "Golder" },
-      { nom: "cirpacha" }
+      { nom: "cirpacha" },
+      { nom: "LargoJunior" }
     ],
   },
 
@@ -250,11 +251,11 @@ window.gangsData = [
       { nom: "Napoléon.1er" },
       { nom: "venom2" },
       { nom: "Clovis1er" },
-      { nom: "Polyy" },
-      { nom: "LargoJunior" }
+      { nom: "Polyy" }
     ],
   },
 ];
+
 
 
 
