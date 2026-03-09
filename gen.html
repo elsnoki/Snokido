@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Générations</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="header.js" defer></script>
+  <script src="data.js" defer></script>
+
+  <style>
+    :root{
+      --bg1:#2a88ad;
+      --bg2:#0b3551;
+      --bg3:#062638;
+      --card:#ffffff;
+      --text:#101418;
+      --muted:#667085;
+      --line:rgba(16,24,40,.10);
+      --shadow:0 18px 48px rgba(0,0,0,.30);
+      --shadow2:0 10px 24px rgba(0,0,0,.16);
+    }
+
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      background:radial-gradient(1100px 600px at 25% 15%, var(--bg1) 0%, var(--bg2) 60%, var(--bg3) 100%);
+      color:var(--text);
+    }
+
+    .wrap{
+      max-width:1180px;
+      margin:26px auto 40px;
+      padding:0 12px;
+    }
+
+    .hero{
+      border-radius:16px;
+      padding:16px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 14px 40px rgba(0,0,0,.25);
+      backdrop-filter:blur(6px);
+      margin-bottom:16px;
+      color:#fff;
+    }
+
+    .heroTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .heroTitle{
+      font-size:24px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+
+    .heroSub{
+      margin-top:6px;
+      color:rgba(255,255,255,.88);
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .stat{
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:14px;
+      padding:10px 12px;
+      box-shadow:inset 0 -3px 0 rgba(255,255,255,.10);
+      color:#fff;
+    }
+
+    .stat .k{
+      font-size:12px;
+      font-weight:900;
+      opacity:.9;
+    }
+
+    .stat .v{
+      margin-top:3px;
+      font-size:18px;
+      font-weight:900;
+    }
+
+    .panel{
+      background:var(--card);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.20);
+    }
+
+    .panelHead{
+      padding:14px 16px;
+      background:linear-gradient(#3b3b3b,#2a2a2a);
+      color:#fff;
+      font-size:18px;
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .panelHead small{
+      font-size:12px;
+      color:#cfeeff;
+      font-weight:900;
+    }
+
+    .content{
+      padding:14px;
+    }
+
+    .genGrid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:14px;
+    }
+
+    .genCard{
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      background:#fff;
+      box-shadow:var(--shadow2);
+    }
+
+    .genTop{
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      background:linear-gradient(rgba(102,204,255,.14), rgba(255,255,255,0));
+      border-bottom:1px solid var(--line);
+    }
+
+    .genLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:42px;
+      height:42px;
+      padding:0 10px;
+      border-radius:12px;
+      font-weight:900;
+      background:#111;
+      color:#fff;
+      font-size:15px;
+    }
+
+    .genMeta .title{
+      font-size:18px;
+      font-weight:900;
+      color:#111;
+    }
+
+    .genMeta .sub{
+      margin-top:2px;
+      font-size:12px;
+      font-weight:900;
+      color:var(--muted);
+    }
+
+    .genCount{
+      text-align:right;
+      font-size:13px;
+      font-weight:900;
+      color:#444;
+    }
+
+    .players{
+      padding:14px;
+    }
+
+    .playersGrid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+
+    .playerCard{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px;
+      border-radius:14px;
+      background:#fff;
+      border:1px solid rgba(0,0,0,.10);
+      box-shadow:0 2px 0 rgba(0,0,0,.04);
+      text-decoration:none;
+      color:#111;
+      transition:transform .08s ease, box-shadow .08s ease;
+    }
+
+    .playerCard:hover{
+      transform:translateY(-1px);
+      box-shadow:0 8px 18px rgba(0,0,0,.12);
+    }
+
+    .playerCard img{
+      width:54px;
+      height:54px;
+      object-fit:cover;
+      border-radius:12px;
+      border:2px solid #bdbdbd;
+      background:#ddd;
+      flex:0 0 auto;
+    }
+
+    .playerInfo{
+      min-width:0;
+      flex:1;
+    }
+
+    .playerName{
+      font-size:15px;
+      font-weight:900;
+      color:#2c6fb7;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .playerMeta{
+      margin-top:4px;
+      font-size:12px;
+      font-weight:900;
+      color:#666;
+      line-height:1.35;
+    }
+
+    .muted{
+      color:#888;
+    }
+
+    .errorBox{
+      padding:14px;
+      font-weight:900;
+      color:#b00020;
+      background:#fff;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.12);
+    }
+
+    .genCard.gen0 .badge{ background:#5c5c5c; }
+    .genCard.gen1 .badge{ background:#2f7d32; }
+    .genCard.gen2 .badge{ background:#1565c0; }
+    .genCard.gen3 .badge{ background:#6a1b9a; }
+    .genCard.gen4 .badge{ background:#ef6c00; }
+    .genCard.gen5 .badge{ background:#00838f; }
+    .genCard.gen6 .badge{ background:#c62828; }
+
+    @media (max-width:980px){
+      .genGrid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:760px){
+      .stats{
+        grid-template-columns:1fr;
+      }
+
+      .playersGrid{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="heroTop">
+      <div>
+        <div class="heroTitle">Générations</div>
+        <div class="heroSub">Les joueurs sont regroupés par génération, sans classement.</div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="k">Joueurs</div>
+        <div class="v" id="statPlayers">—</div>
+      </div>
+      <div class="stat">
+        <div class="k">Générations</div>
+        <div class="v" id="statGens">—</div>
+      </div>
+      <div class="stat">
+        <div class="k">Dernière génération</div>
+        <div class="v" id="statLastGen">—</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panelHead">
+      <div>Joueurs par génération</div>
+      <small id="meta">Chargement…</small>
+    </div>
+
+    <div class="content">
+      <div id="grid" class="genGrid"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+  function slugify2(name){
+    return String(name || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toLowerCase();
+  }
+
+  function fmtInt(n){
+    if(n == null) return "—";
+    try{
+      return new Intl.NumberFormat("fr-FR").format(n);
+    }catch(e){
+      return String(n);
+    }
+  }
+
+  function getBestXp(player){
+    if(!player || !player.modes || typeof player.modes !== "object") return null;
+
+    let best = null;
+    for(const modeKey of Object.keys(player.modes)){
+      const xp = Number(player.modes[modeKey]?.xp || 0);
+      if(!Number.isFinite(xp)) continue;
+      if(best == null || xp > best) best = xp;
+    }
+    return best;
+  }
+
+  function getBestMode(player){
+    if(!player || !player.modes || typeof player.modes !== "object") return null;
+
+    let bestXp = null;
+    let bestMode = null;
+    for(const modeKey of Object.keys(player.modes)){
+      const xp = Number(player.modes[modeKey]?.xp || 0);
+      if(!Number.isFinite(xp)) continue;
+      if(bestXp == null || xp > bestXp){
+        bestXp = xp;
+        bestMode = modeKey;
+      }
+    }
+    return bestMode;
+  }
+
+  function renderGenerations(){
+    const grid = document.getElementById("grid");
+    const meta = document.getElementById("meta");
+
+    if(typeof joueurs === "undefined" || !Array.isArray(joueurs)){
+      grid.innerHTML = `<div class="errorBox">Erreur : data.js ne s'est pas chargé.</div>`;
+      meta.textContent = "Erreur";
+      return;
+    }
+
+    const rows = joueurs.map(p => ({
+      nom: p.nom || "—",
+      avatar: p.avatar || "avatar/1.jpg",
+      inscription: p.inscription || "—",
+      gen: (p.gen != null ? Number(p.gen) : null),
+      bestXp: getBestXp(p),
+      bestMode: getBestMode(p)
+    })).filter(p => p.gen != null && Number.isFinite(p.gen));
+
+    const byGen = new Map();
+    rows.forEach(p => {
+      if(!byGen.has(p.gen)) byGen.set(p.gen, []);
+      byGen.get(p.gen).push(p);
+    });
+
+    const gens = Array.from(byGen.keys()).sort((a, b) => a - b);
+
+    document.getElementById("statPlayers").textContent = fmtInt(rows.length);
+    document.getElementById("statGens").textContent = fmtInt(gens.length);
+    document.getElementById("statLastGen").textContent = gens.length ? `Gen ${gens[gens.length - 1]}` : "—";
+
+    meta.textContent = `${fmtInt(rows.length)} joueur(s) réparti(s) sur ${fmtInt(gens.length)} génération(s)`;
+
+    grid.innerHTML = "";
+
+    gens.forEach(gen => {
+      const members = byGen.get(gen) || [];
+
+      members.sort((a, b) => {
+        const ax = a.bestXp == null ? -Infinity : a.bestXp;
+        const bx = b.bestXp == null ? -Infinity : b.bestXp;
+        if(bx !== ax) return bx - ax;
+        return String(a.nom).localeCompare(String(b.nom), "fr", { sensitivity: "base" });
+      });
+
+      const card = document.createElement("div");
+      card.className = `genCard gen${gen}`;
+
+      card.innerHTML = `
+        <div class="genTop">
+          <div class="genLeft">
+            <div class="badge">G${gen}</div>
+            <div class="genMeta">
+              <div class="title">Génération ${gen}</div>
+              <div class="sub">${members.length} joueur(s)</div>
+            </div>
+          </div>
+          <div class="genCount">${members.length} membre(s)</div>
+        </div>
+
+        <div class="players">
+          <div class="playersGrid">
+            ${members.map(p => `
+              <a class="playerCard" href="profil.html?u=${encodeURIComponent(slugify2(p.nom))}">
+                <img src="${p.avatar}" alt="${p.nom}">
+                <div class="playerInfo">
+                  <div class="playerName">${p.nom}</div>
+                  <div class="playerMeta">
+                    Inscription : ${p.inscription ?? "—"}<br>
+                    Meilleure XP : ${p.bestXp == null ? "—" : fmtInt(p.bestXp) + " xp"}
+                  </div>
+                </div>
+              </a>
+            `).join("")}
+          </div>
+        </div>
+      `;
+
+      grid.appendChild(card);
+    });
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    renderGenerations();
+    document.querySelector(".tab-gen")?.classList.add("is-active");
+  });
+</script>
+
+</body>
+</html>
