@@ -18,7 +18,8 @@ window.gangsData = [
       { nom: "lumia" },
       { nom: "Unit" },
       { nom: "redbot" },
-      { nom: "Jordan.io" }
+      { nom: "Jordan.io" },
+      { nom: "Houka" },
     ],
   },
 
@@ -41,7 +42,8 @@ window.gangsData = [
       { nom: "Tellor" },
       { nom: "Golder" },
       { nom: "cirpacha" },
-      { nom: "LargoJunior" }
+      { nom: "LargoJunior" },
+      { nom: "Justice-" },
     ],
   },
 
@@ -240,8 +242,6 @@ window.gangsData = [
     trophees: "—",
     members: [
       { nom: "cahincaha" },
-      { nom: "Houka" },
-      { nom: "Justice-" },
       { nom: "UY-Scuty" },
       { nom: "Bételgeuse" },
       { nom: "Aldébaran" },
@@ -255,6 +255,7 @@ window.gangsData = [
     ],
   },
 ];
+
 
 
 
