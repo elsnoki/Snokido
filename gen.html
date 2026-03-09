@@ -374,15 +374,7 @@
     if(mode === "1000k" || mode === "1m") return "1M";
     if(mode === "1m1") return "1M1";
     if(mode === "1m2") return "1M2";
-    return mode || "—";
-  }
-
-  function getDisplayXp(player){
-    if(typeof player.current_xp === "number") return player.current_xp;
-    if(typeof player.xp_total === "number") return player.xp_total;
-    if(typeof player.totalXp === "number") return player.totalXp;
-    if(typeof player.exp === "number") return player.exp;
-    return null;
+    return "—";
   }
 
   function renderGenerations(){
@@ -411,7 +403,7 @@
       avatar: p.avatar || "avatar/1.jpg",
       inscription: p.inscription || "—",
       gen: (p.gen != null ? Number(p.gen) : null),
-      xp_display: getDisplayXp(p),
+      xp_display: null,
       bestMode: getBestMode(p)
     })).filter(p => p.gen != null && Number.isFinite(p.gen));
 
@@ -473,7 +465,7 @@
                   <div class="playerName">${p.nom}</div>
                   <div class="playerMeta">
                     Inscription : ${p.inscription ?? "—"}<br>
-                    XP : ${p.xp_display == null ? "—" : fmtInt(p.xp_display) + " xp"}<br>
+                    ${p.xp_display != null ? `XP : ${fmtInt(p.xp_display)} xp<br>` : ""}
                     Palier : ${formatModeLabel(p.bestMode)}
                   </div>
                 </div>
