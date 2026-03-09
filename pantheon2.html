@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Panthéon de la honte</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="header.js" defer></script>
+
+  <style>
+    :root{
+      --bg1:#0a0b0d;
+      --bg2:#151210;
+      --bg3:#211813;
+
+      --ash1:#2a2521;
+      --ash2:#3a322b;
+      --ash3:#5c4c3d;
+
+      --bone:#d9ccb7;
+      --dust:#b49d7d;
+      --rust:#7f3f27;
+      --ruin:#1a1613;
+
+      --text:#efe2c9;
+      --muted:#bfa88a;
+      --border:rgba(191,168,138,.16);
+      --shadow:0 24px 60px rgba(0,0,0,.48);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 420px at 50% 0%, rgba(180,120,60,.12), transparent 60%),
+        linear-gradient(180deg, #171310 0%, #0f0d0c 38%, #070707 100%);
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto 50px;
+      padding:0 14px;
+    }
+
+    /* ================= HERO RUINES ================= */
+
+    .ruinHero{
+      position:relative;
+      margin:20px auto 20px;
+      padding-top:24px;
+    }
+
+    .pediment{
+      position:relative;
+      max-width:1080px;
+      margin:0 auto;
+      height:120px;
+      background:
+        linear-gradient(180deg, #5f4d3f 0%, #3a2d24 55%, #241b16 100%);
+      clip-path:polygon(50% 0, 100% 100%, 0 100%);
+      border:1px solid rgba(0,0,0,.32);
+      box-shadow:0 18px 28px rgba(0,0,0,.32);
+      overflow:hidden;
+    }
+
+    .pediment::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,.08), transparent 20%),
+        radial-gradient(circle at 80% 40%, rgba(255,255,255,.06), transparent 18%),
+        linear-gradient(135deg, transparent 0 48%, rgba(0,0,0,.22) 48% 52%, transparent 52% 100%);
+      opacity:.9;
+    }
+
+    .pediment::after{
+      content:"";
+      position:absolute;
+      left:40px;
+      right:40px;
+      bottom:18px;
+      height:2px;
+      background:rgba(0,0,0,.28);
+      box-shadow:0 -10px 0 rgba(255,255,255,.04);
+    }
+
+    .entablature{
+      max-width:1080px;
+      margin:0 auto;
+      height:22px;
+      background:linear-gradient(180deg, #4f4035 0%, #2f241d 100%);
+      border-left:1px solid rgba(0,0,0,.28);
+      border-right:1px solid rgba(0,0,0,.28);
+      border-bottom:1px solid rgba(0,0,0,.28);
+      box-shadow:0 10px 18px rgba(0,0,0,.24);
+    }
+
+    .columns{
+      max-width:1080px;
+      margin:0 auto;
+      padding:0 28px 16px;
+      display:grid;
+      grid-template-columns:repeat(7, minmax(0,1fr));
+      gap:18px;
+    }
+
+    .col{
+      height:168px;
+      border-radius:16px;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          #4d4137 0 8px,
+          #3e342d 8px 12px
+        );
+      border:1px solid rgba(0,0,0,.28);
+      box-shadow:
+        inset 0 0 0 2px rgba(255,255,255,.03),
+        0 14px 24px rgba(0,0,0,.24);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .col::before,
+    .col::after{
+      content:"";
+      position:absolute;
+      left:-4px;
+      right:-4px;
+      height:18px;
+      border-radius:8px;
+      background:linear-gradient(180deg, #594a3d 0%, #332821 100%);
+      border:1px solid rgba(0,0,0,.25);
+    }
+
+    .col::before{ top:-8px; }
+    .col::after{ bottom:-8px; }
+
+    .col.break1{
+      transform:translateY(6px) rotate(-1deg);
+      opacity:.88;
+    }
+
+    .col.break2{
+      transform:translateY(16px) rotate(1.5deg);
+      opacity:.72;
+    }
+
+    .heroText{
+      position:relative;
+      z-index:2;
+      max-width:940px;
+      margin:-120px auto 0;
+      text-align:center;
+      padding:0 18px 10px;
+    }
+
+    .heroBadge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:190px;
+      padding:10px 18px;
+      border-radius:999px;
+      background:rgba(13,11,10,.82);
+      border:1px solid rgba(180,120,60,.25);
+      color:#d6b38b;
+      font-weight:900;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      box-shadow:0 10px 24px rgba(0,0,0,.35);
+    }
+
+    .heroTitle{
+      margin:16px 0 8px;
+      font-family:Georgia, "Times New Roman", serif;
+      font-size:54px;
+      line-height:1;
+      color:#f1dfc0;
+      text-shadow:0 4px 18px rgba(0,0,0,.50);
+      letter-spacing:.02em;
+    }
+
+    .heroSub{
+      max-width:760px;
+      margin:0 auto;
+      color:#ceb294;
+      font-size:16px;
+      font-weight:700;
+      line-height:1.55;
+      text-shadow:0 2px 8px rgba(0,0,0,.40);
+    }
+
+    .heroLine{
+      width:160px;
+      height:3px;
+      margin:18px auto 0;
+      border-radius:999px;
+      background:linear-gradient(90deg, transparent, #8c5337, transparent);
+    }
+
+    /* ================= PANEL ================= */
+
+    .panel{
+      margin-top:22px;
+      background:rgba(13,11,10,.56);
+      border:1px solid var(--border);
+      border-radius:24px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(5px);
+    }
+
+    .panelHead{
+      padding:16px 20px;
+      background:linear-gradient(180deg, rgba(127,63,39,.18), rgba(255,255,255,0));
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .panelHeadTitle{
+      font-family:Georgia, "Times New Roman", serif;
+      font-size:22px;
+      font-weight:900;
+      color:#ead8bc;
+    }
+
+    .panelHeadSub{
+      font-size:12px;
+      font-weight:900;
+      color:#b99773;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .content{
+      padding:18px;
+    }
+
+    .pantheonList{
+      display:grid;
+      gap:18px;
+    }
+
+    /* ================= ENTRY ================= */
+
+    .entry{
+      display:grid;
+      grid-template-columns:320px 1fr;
+      gap:18px;
+      align-items:stretch;
+      background:
+        linear-gradient(180deg, rgba(255,248,230,.03), rgba(255,248,230,.015));
+      border:1px solid rgba(191,168,138,.14);
+      border-radius:24px;
+      overflow:hidden;
+      box-shadow:0 14px 30px rgba(0,0,0,.28);
+      position:relative;
+    }
+
+    .entry::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(135deg, transparent 0 46%, rgba(255,255,255,.02) 46% 47%, transparent 47% 100%);
+      pointer-events:none;
+      opacity:.5;
+    }
+
+    .statueSide{
+      position:relative;
+      padding:20px;
+      background:
+        radial-gradient(300px 180px at 50% 18%, rgba(255,255,255,.08), rgba(255,255,255,0) 65%),
+        linear-gradient(180deg, rgba(127,63,39,.14), rgba(255,255,255,.01));
+      border-right:1px solid rgba(191,168,138,.14);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+    }
+
+    .rankSeal{
+      position:absolute;
+      top:16px;
+      left:16px;
+      min-width:44px;
+      height:44px;
+      padding:0 12px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg, #8c5337 0%, #4d2618 100%);
+      color:#f0dcc2;
+      font-weight:900;
+      border:1px solid rgba(0,0,0,.22);
+      box-shadow:0 8px 18px rgba(0,0,0,.22);
+      z-index:3;
+    }
+
+    .statueFrame{
+      width:100%;
+      max-width:240px;
+      aspect-ratio:4 / 3;
+      border-radius:24px;
+      background:#2d2620;
+      border:1px solid rgba(0,0,0,.22);
+      box-shadow:
+        inset 0 0 0 2px rgba(255,255,255,.04),
+        0 18px 28px rgba(0,0,0,.24);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .statueFrame img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      filter:saturate(.9) contrast(1.02);
+    }
+
+    .namePlate{
+      margin-top:14px;
+      padding:12px 18px;
+      border-radius:999px;
+      background:rgba(10,10,10,.78);
+      color:#ead8bc;
+      border:1px solid rgba(127,63,39,.26);
+      font-size:16px;
+      font-weight:900;
+      box-shadow:0 10px 18px rgba(0,0,0,.22);
+    }
+
+    .textSide{
+      padding:22px 22px 20px 4px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    .entryTitle{
+      margin:0;
+      font-family:Georgia, "Times New Roman", serif;
+      color:#efdfc4;
+      font-size:30px;
+      font-weight:900;
+      line-height:1.1;
+    }
+
+    .entrySubtitle{
+      margin-top:6px;
+      color:#bfa07e;
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .entryText{
+      margin-top:14px;
+      color:#f0e5d5;
+      font-size:17px;
+      line-height:1.8;
+      font-weight:700;
+    }
+
+    .entryText strong{
+      color:#f3c49a;
+    }
+
+    .ashes{
+      margin-top:16px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .ashes span{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,248,230,.05);
+      border:1px solid rgba(127,63,39,.22);
+      color:#d3b18d;
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .footerNote{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,248,230,.05);
+      border:1px solid rgba(127,63,39,.18);
+      color:#cdb190;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.6;
+      text-align:center;
+    }
+
+    @media (max-width:980px){
+      .columns{
+        gap:12px;
+        padding:0 16px 12px;
+      }
+
+      .heroTitle{
+        font-size:42px;
+      }
+
+      .entry{
+        grid-template-columns:1fr;
+      }
+
+      .statueSide{
+        border-right:0;
+        border-bottom:1px solid rgba(191,168,138,.14);
+      }
+
+      .textSide{
+        padding:18px;
+      }
+    }
+
+    @media (max-width:700px){
+      .pediment{
+        height:90px;
+      }
+
+      .entablature{
+        height:18px;
+      }
+
+      .columns{
+        grid-template-columns:repeat(4, minmax(0,1fr));
+      }
+
+      .col:nth-child(n+5){
+        display:none;
+      }
+
+      .heroText{
+        margin:-86px auto 0;
+      }
+
+      .heroTitle{
+        font-size:34px;
+      }
+
+      .heroSub{
+        font-size:14px;
+      }
+
+      .statueFrame{
+        max-width:190px;
+      }
+
+      .entryTitle{
+        font-size:24px;
+      }
+
+      .entryText{
+        font-size:15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<main class="wrap">
+  <section class="ruinHero">
+    <div class="pediment"></div>
+    <div class="entablature"></div>
+
+    <div class="heroText">
+      <div class="heroBadge">Ruines et disgrâce</div>
+      <h1 class="heroTitle">Panthéon de la honte</h1>
+      <div class="heroSub">
+        Ici ne sont pas honorés des exploits, mais conservées les traces des chutes, des illusions, des échecs et des fautes qui ont marqué la mémoire du site.
+      </div>
+      <div class="heroLine"></div>
+    </div>
+
+    <div class="columns">
+      <div class="col"></div>
+      <div class="col break1"></div>
+      <div class="col"></div>
+      <div class="col break2"></div>
+      <div class="col"></div>
+      <div class="col break1"></div>
+      <div class="col"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panelHead">
+      <div class="panelHeadTitle">Les Déchus</div>
+      <div class="panelHeadSub">Ce n’est pas un classement</div>
+    </div>
+
+    <div class="content">
+      <div class="pantheonList">
+
+        <article class="entry">
+          <div class="statueSide">
+            <div class="rankSeal">I</div>
+            <div class="statueFrame">
+              <img src="avatar/q1.png" alt="djabrail">
+            </div>
+            <div class="namePlate">djabrail</div>
+          </div>
+          <div class="textSide">
+            <h2 class="entryTitle">djabrail</h2>
+            <div class="entrySubtitle">Le second sans couronne</div>
+            <div class="entryText">
+              Il n’atteignit jamais la première place.<br>
+              Longtemps second, puis lentement dépassé.<br>
+              Quand il a vu plus grand que lui,<br>
+              il n’a pas grandi.<br>
+              Il a menacé.<br>
+              Par ses menaces et son harcèlement,<br>
+              il n’a pas seulement chuté :<br>
+              il a fait taire plus grand que lui.<br>
+              Toujours second.<br>
+              Jamais digne.<br>
+              Il se croyait poursuivi par des ennemis.<br>
+              Il n’a fui que ses propres limites.
+            </div>
+            <div class="ashes">
+              <span>Longtemps second</span>
+              <span>Menaces</span>
+              <span>Jamais premier</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="entry">
+          <div class="statueSide">
+            <div class="rankSeal">II</div>
+            <div class="statueFrame">
+              <img src="avatar/q2.png" alt="francoeur">
+            </div>
+            <div class="namePlate">francoeur</div>
+          </div>
+          <div class="textSide">
+            <h2 class="entryTitle">francoeur</h2>
+            <div class="entrySubtitle">Le mutisme et le déni</div>
+            <div class="entryText">
+              Incapable de comprendre,<br>
+              il choisit de bloquer.<br>
+              Quand les questions vinrent,<br>
+              il répondit par le silence.<br>
+              Quand la honte monta,<br>
+              il répondit par le mensonge.<br>
+              Il isola tout le monde,<br>
+              non par stratégie,<br>
+              mais par bêtise.<br>
+              Ce qu’il ne comprenait pas,<br>
+              il l’a détruit.<br>
+              Ce qu’il ne pouvait assumer,<br>
+              il l’a nié.
+            </div>
+            <div class="ashes">
+              <span>Silence</span>
+              <span>Mensonge</span>
+              <span>Destruction</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="entry">
+          <div class="statueSide">
+            <div class="rankSeal">III</div>
+            <div class="statueFrame">
+              <img src="avatar/q3.png" alt="hoopa">
+            </div>
+            <div class="namePlate">hoopa</div>
+          </div>
+          <div class="textSide">
+            <h2 class="entryTitle">hoopa</h2>
+            <div class="entrySubtitle">La fuite après la faute</div>
+            <div class="entryText">
+              Il a triché.<br>
+              Quand la vérité approcha,<br>
+              il ne reconnut rien.<br>
+              Au lieu d’avouer,<br>
+              il se tut.<br>
+              Au lieu d’assumer, il disparut.<br>
+              Il quitta le site sans explication,<br>
+              laissant derrière lui le doute et le vide.<br>
+              La faute demeura.<br>
+              L’absence aussi.
+            </div>
+            <div class="ashes">
+              <span>Triche</span>
+              <span>Disparition</span>
+              <span>Doute laissé derrière lui</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="entry">
+          <div class="statueSide">
+            <div class="rankSeal">IV</div>
+            <div class="statueFrame">
+              <img src="avatar/q4.png" alt="x934">
+            </div>
+            <div class="namePlate">x934</div>
+          </div>
+          <div class="textSide">
+            <h2 class="entryTitle">x934</h2>
+            <div class="entrySubtitle">L’illusion de grandeur</div>
+            <div class="entryText">
+              Il annonçait la première place,<br>
+              Il n’atteignit jamais le top 1000.<br>
+              Il parlait de domination,<br>
+              mais perdit une simple baston<br>
+              face à Benoit,<br>
+              Ses ambitions étaient immenses,<br>
+              ses moyens inexistants.<br>
+              Il rêvait d’être premier<br>
+              par des voies irréalistes,<br>
+              impossibles,<br>
+              et finalement ridicules,<br>
+              Il confondit volonté et illusion.<br>
+              Le classement, lui, ne se trompa jamais.
+            </div>
+            <div class="ashes">
+              <span>Ambition vide</span>
+              <span>Top 1000 jamais atteint</span>
+              <span>Illusion</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="entry">
+          <div class="statueSide">
+            <div class="rankSeal">V</div>
+            <div class="statueFrame">
+              <img src="avatar/q5.png" alt="Esdras950">
+            </div>
+            <div class="namePlate">Esdras950</div>
+          </div>
+          <div class="textSide">
+            <h2 class="entryTitle">Esdras950</h2>
+            <div class="entrySubtitle">Le sommet trop bref</div>
+            <div class="entryText">
+              Il atteignit le top 10 avec difficulté,<br>
+              pour en être écarté peu de temps après.<br>
+              Il supplia pour ne pas être effacé,<br>
+              pleura plus qu’il ne progressa.<br>
+              Pendant que les autres avançaient, il stagnait.<br>
+              Toujours en retard, souvent absent,<br>
+              il dormait à l’heure des bourges<br>
+              et couvrait son inertie<br>
+              d’excuses inventées.<br>
+              Le sommet fut bref.<br>
+              Le déclin, durable.
+            </div>
+            <div class="ashes">
+              <span>Top 10 éphémère</span>
+              <span>Stagnation</span>
+              <span>Déclin durable</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="footerNote">
+        Le Panthéon de la honte ne glorifie rien. Il conserve les ruines des illusions, des fautes et des chutes que le site n’a pas oubliées.
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>
