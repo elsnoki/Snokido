@@ -50,6 +50,7 @@ const headerHTML = `
       <a class="tab tab-record" href="exp1an.html">Record 1 an</a>
       <a class="tab tab-role" href="role.html">Rôles</a>
       <a class="tab tab-humble" href="humble.html">Hommes Humbles</a>
+      <a class="tab tab-gen" href="gen.html">Générations</a>
 
     </nav>
   </div>
@@ -106,6 +107,7 @@ document.addEventListener("keydown", (e) => {
   if(file === "pause.html" && linkUnique) linkUnique.classList.add("is-active");
   if((file === "pauses.html" || file === "pauses_total.html") && linkTotal) linkTotal.classList.add("is-active");
 })();
+
 
 
 
