@@ -11,19 +11,21 @@
   <style>
     :root{
       --bg1:#0f1720;
-      --bg2:#1c2430;
+      --bg2:#1a2330;
       --bg3:#0a0f16;
+
       --gold1:#f4d27a;
-      --gold2:#c7a44b;
-      --gold3:#8b6a28;
-      --stone1:#f0ece3;
-      --stone2:#d5cdc0;
-      --stone3:#a79c8a;
-      --ink:#171717;
-      --text:#f7f2e8;
-      --muted:#d7c9aa;
-      --panel:#f7f2e8;
-      --shadow:0 22px 60px rgba(0,0,0,.45);
+      --gold2:#c89f4a;
+      --gold3:#8d6724;
+
+      --stone1:#f1ece2;
+      --stone2:#d7cdbd;
+      --stone3:#aa9e89;
+
+      --text:#f7f1e5;
+      --muted:#dccda8;
+      --panelBorder:rgba(244,210,122,.16);
+      --shadow:0 22px 60px rgba(0,0,0,.42);
     }
 
     *{
@@ -36,7 +38,7 @@
       color:var(--text);
       background:
         radial-gradient(900px 420px at 50% 0%, rgba(244,210,122,.18), transparent 60%),
-        linear-gradient(180deg, #1a2330 0%, #101720 30%, #0a0f16 100%);
+        linear-gradient(180deg, var(--bg2) 0%, #101720 30%, var(--bg3) 100%);
     }
 
     .wrap{
@@ -45,11 +47,12 @@
       padding:0 14px;
     }
 
-    /* HERO / TEMPLE */
+    /* ================= TEMPLE HERO ================= */
+
     .templeHero{
       position:relative;
-      margin:22px auto 18px;
-      padding-top:26px;
+      margin:20px auto 20px;
+      padding-top:24px;
     }
 
     .pediment{
@@ -57,10 +60,10 @@
       max-width:1080px;
       margin:0 auto;
       height:120px;
-      background:linear-gradient(180deg, #efe3ba 0%, #d2b36a 55%, #b68b3d 100%);
+      background:linear-gradient(180deg, #f0dfb6 0%, #d7b56f 58%, #b88b3e 100%);
       clip-path:polygon(50% 0, 100% 100%, 0 100%);
-      box-shadow:0 20px 30px rgba(0,0,0,.25);
       border:1px solid rgba(0,0,0,.18);
+      box-shadow:0 18px 28px rgba(0,0,0,.24);
     }
 
     .pediment::after{
@@ -70,46 +73,43 @@
       right:40px;
       bottom:18px;
       height:2px;
-      background:rgba(110,78,20,.55);
-      box-shadow:0 -10px 0 rgba(110,78,20,.25);
+      background:rgba(102,73,20,.48);
+      box-shadow:0 -10px 0 rgba(102,73,20,.20);
     }
 
-    .templeEntablature{
+    .entablature{
       max-width:1080px;
       margin:0 auto;
       height:22px;
-      background:linear-gradient(180deg, #e6d6aa 0%, #c29b4f 100%);
+      background:linear-gradient(180deg, #ead8aa 0%, #c79d51 100%);
       border-left:1px solid rgba(0,0,0,.18);
       border-right:1px solid rgba(0,0,0,.18);
       border-bottom:1px solid rgba(0,0,0,.18);
-      box-shadow:0 10px 20px rgba(0,0,0,.22);
+      box-shadow:0 10px 18px rgba(0,0,0,.18);
     }
 
     .columns{
       max-width:1080px;
       margin:0 auto;
-      padding:0 30px 14px;
+      padding:0 28px 16px;
       display:grid;
       grid-template-columns:repeat(7, minmax(0,1fr));
-      gap:20px;
-      background:linear-gradient(180deg, rgba(244,232,201,.10), rgba(255,255,255,0));
-      border-left:1px solid rgba(255,255,255,.06);
-      border-right:1px solid rgba(255,255,255,.06);
+      gap:18px;
     }
 
     .col{
-      height:170px;
+      height:168px;
       border-radius:16px;
       background:
         repeating-linear-gradient(
           90deg,
-          #ede6da 0 8px,
+          #ece4d7 0 8px,
           #d8d0c2 8px 12px
         );
       border:1px solid rgba(0,0,0,.18);
       box-shadow:
-        inset 0 0 0 2px rgba(255,255,255,.32),
-        0 16px 24px rgba(0,0,0,.18);
+        inset 0 0 0 2px rgba(255,255,255,.26),
+        0 14px 24px rgba(0,0,0,.18);
       position:relative;
     }
 
@@ -129,36 +129,35 @@
     .col::after{ bottom:-8px; }
 
     .heroText{
-      max-width:980px;
-      margin:-120px auto 0;
       position:relative;
-      z-index:3;
+      z-index:2;
+      max-width:940px;
+      margin:-120px auto 0;
       text-align:center;
-      padding:0 18px 12px;
+      padding:0 18px 10px;
     }
 
     .heroBadge{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-width:150px;
+      min-width:160px;
       padding:10px 18px;
       border-radius:999px;
-      background:rgba(15,18,25,.72);
-      border:1px solid rgba(244,210,122,.45);
+      background:rgba(15,18,25,.78);
+      border:1px solid rgba(244,210,122,.40);
       color:var(--gold1);
       font-weight:900;
-      letter-spacing:.14em;
       font-size:12px;
       text-transform:uppercase;
+      letter-spacing:.14em;
       box-shadow:0 10px 24px rgba(0,0,0,.35);
-      backdrop-filter:blur(4px);
     }
 
     .heroTitle{
       margin:16px 0 8px;
       font-family:Georgia, "Times New Roman", serif;
-      font-size:52px;
+      font-size:54px;
       line-height:1;
       color:#fff4d0;
       text-shadow:0 4px 18px rgba(0,0,0,.45);
@@ -168,26 +167,27 @@
     .heroSub{
       max-width:760px;
       margin:0 auto;
-      color:#f1e2b5;
+      color:#f0e0b6;
       font-size:16px;
       font-weight:700;
-      line-height:1.5;
+      line-height:1.55;
       text-shadow:0 2px 8px rgba(0,0,0,.35);
     }
 
     .heroLine{
-      width:150px;
+      width:160px;
       height:3px;
       margin:18px auto 0;
       border-radius:999px;
       background:linear-gradient(90deg, transparent, var(--gold1), transparent);
     }
 
-    /* PANEL */
+    /* ================= PANEL ================= */
+
     .panel{
       margin-top:22px;
       background:rgba(15,18,25,.46);
-      border:1px solid rgba(244,210,122,.16);
+      border:1px solid var(--panelBorder);
       border-radius:24px;
       overflow:hidden;
       box-shadow:var(--shadow);
@@ -197,7 +197,7 @@
     .panelHead{
       padding:16px 20px;
       background:linear-gradient(180deg, rgba(244,210,122,.16), rgba(255,255,255,0));
-      border-bottom:1px solid rgba(244,210,122,.16);
+      border-bottom:1px solid var(--panelBorder);
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -206,10 +206,10 @@
     }
 
     .panelHeadTitle{
+      font-family:Georgia, "Times New Roman", serif;
       font-size:22px;
       font-weight:900;
       color:#fff1c7;
-      font-family:Georgia, "Times New Roman", serif;
     }
 
     .panelHeadSub{
@@ -229,9 +229,11 @@
       gap:18px;
     }
 
+    /* ================= ENTRY ================= */
+
     .entry{
       display:grid;
-      grid-template-columns:280px 1fr;
+      grid-template-columns:320px 1fr;
       gap:18px;
       align-items:stretch;
       background:linear-gradient(180deg, rgba(255,248,230,.06), rgba(255,248,230,.03));
@@ -245,8 +247,8 @@
       position:relative;
       padding:20px;
       background:
-        radial-gradient(300px 180px at 50% 18%, rgba(255,255,255,.32), rgba(255,255,255,0) 65%),
-        linear-gradient(180deg, rgba(244,210,122,.20), rgba(255,255,255,.02));
+        radial-gradient(300px 180px at 50% 18%, rgba(255,255,255,.16), rgba(255,255,255,0) 65%),
+        linear-gradient(180deg, rgba(244,210,122,.14), rgba(255,255,255,.02));
       border-right:1px solid rgba(244,210,122,.16);
       display:flex;
       flex-direction:column;
@@ -259,8 +261,8 @@
       position:absolute;
       top:16px;
       left:16px;
-      min-width:42px;
-      height:42px;
+      min-width:44px;
+      height:44px;
       padding:0 12px;
       border-radius:999px;
       display:inline-flex;
@@ -271,53 +273,38 @@
       font-weight:900;
       border:1px solid rgba(0,0,0,.18);
       box-shadow:0 8px 18px rgba(0,0,0,.18);
+      z-index:3;
     }
 
     .statueFrame{
-      width:180px;
-      height:220px;
-      border-radius:28px 28px 18px 18px;
-      background:
-        linear-gradient(180deg, #f4efe5 0%, #d7cfc3 100%);
-      border:1px solid rgba(0,0,0,.16);
+      width:100%;
+      max-width:240px;
+      aspect-ratio:4 / 3;
+      border-radius:24px;
+      background:#ddd;
+      border:1px solid rgba(0,0,0,.18);
       box-shadow:
-        inset 0 0 0 2px rgba(255,255,255,.35),
-        0 16px 26px rgba(0,0,0,.18);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:10px;
+        inset 0 0 0 2px rgba(255,255,255,.16),
+        0 18px 28px rgba(0,0,0,.22);
       position:relative;
       overflow:hidden;
-    }
-
-    .statueFrame::after{
-      content:"";
-      position:absolute;
-      left:16px;
-      right:16px;
-      bottom:10px;
-      height:10px;
-      border-radius:999px;
-      background:rgba(80,60,20,.16);
-      filter:blur(6px);
     }
 
     .statueFrame img{
       width:100%;
       height:100%;
-      object-fit:contain;
+      object-fit:cover;
       display:block;
     }
 
     .namePlate{
       margin-top:14px;
-      padding:10px 14px;
+      padding:12px 18px;
       border-radius:999px;
-      background:rgba(17,18,20,.70);
+      background:rgba(17,18,20,.82);
       color:#fff0c4;
       border:1px solid rgba(244,210,122,.28);
-      font-size:18px;
+      font-size:16px;
       font-weight:900;
       box-shadow:0 10px 18px rgba(0,0,0,.22);
     }
@@ -330,12 +317,12 @@
     }
 
     .entryTitle{
+      margin:0;
       font-family:Georgia, "Times New Roman", serif;
       color:#fff0c8;
       font-size:30px;
       font-weight:900;
       line-height:1.1;
-      margin:0;
     }
 
     .entrySubtitle{
@@ -395,7 +382,7 @@
     @media (max-width:980px){
       .columns{
         gap:12px;
-        padding:0 16px 10px;
+        padding:0 16px 12px;
       }
 
       .heroTitle{
@@ -421,7 +408,7 @@
         height:90px;
       }
 
-      .templeEntablature{
+      .entablature{
         height:18px;
       }
 
@@ -446,8 +433,7 @@
       }
 
       .statueFrame{
-        width:150px;
-        height:190px;
+        max-width:180px;
       }
 
       .entryTitle{
@@ -465,7 +451,7 @@
 <main class="wrap">
   <section class="templeHero">
     <div class="pediment"></div>
-    <div class="templeEntablature"></div>
+    <div class="entablature"></div>
 
     <div class="heroText">
       <div class="heroBadge">Mémoire des légendes</div>
