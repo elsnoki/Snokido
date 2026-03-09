@@ -251,10 +251,6 @@
       line-height:1.35;
     }
 
-    .muted{
-      color:#888;
-    }
-
     .errorBox{
       padding:14px;
       font-weight:900;
@@ -296,7 +292,7 @@
     <div class="heroTop">
       <div>
         <div class="heroTitle">Générations</div>
-        <div class="heroSub">Les joueurs sont regroupés par génération, sans classement.</div>
+        <div class="heroSub">Les joueurs sont regroupés par génération.</div>
       </div>
     </div>
 
@@ -345,32 +341,48 @@
     }
   }
 
-  function getBestXp(player){
-    if(!player || !player.modes || typeof player.modes !== "object") return null;
-
-    let best = null;
-    for(const modeKey of Object.keys(player.modes)){
-      const xp = Number(player.modes[modeKey]?.xp || 0);
-      if(!Number.isFinite(xp)) continue;
-      if(best == null || xp > best) best = xp;
-    }
-    return best;
-  }
-
   function getBestMode(player){
     if(!player || !player.modes || typeof player.modes !== "object") return null;
 
     let bestXp = null;
     let bestMode = null;
+
     for(const modeKey of Object.keys(player.modes)){
       const xp = Number(player.modes[modeKey]?.xp || 0);
       if(!Number.isFinite(xp)) continue;
+
       if(bestXp == null || xp > bestXp){
         bestXp = xp;
         bestMode = modeKey;
       }
     }
+
     return bestMode;
+  }
+
+  function formatModeLabel(mode){
+    if(mode === "nv100") return "Niveau 100";
+    if(mode === "100k") return "100K";
+    if(mode === "200k") return "200K";
+    if(mode === "300k") return "300K";
+    if(mode === "400k") return "400K";
+    if(mode === "500k") return "500K";
+    if(mode === "600k") return "600K";
+    if(mode === "700k") return "700K";
+    if(mode === "800k") return "800K";
+    if(mode === "900k") return "900K";
+    if(mode === "1000k" || mode === "1m") return "1M";
+    if(mode === "1m1") return "1M1";
+    if(mode === "1m2") return "1M2";
+    return mode || "—";
+  }
+
+  function getDisplayXp(player){
+    if(typeof player.current_xp === "number") return player.current_xp;
+    if(typeof player.xp_total === "number") return player.xp_total;
+    if(typeof player.totalXp === "number") return player.totalXp;
+    if(typeof player.exp === "number") return player.exp;
+    return null;
   }
 
   function renderGenerations(){
@@ -383,28 +395,47 @@
       return;
     }
 
-    const rows = joueurs.map(p => ({
+    const extraPlayers = [
+      {
+        nom: "cahincaha",
+        avatar: "avatar/24.jpg",
+        inscription: "22/04/2015",
+        gen: 2,
+        xp_display: 42000,
+        bestMode: null
+      }
+    ];
+
+    const baseRows = joueurs.map(p => ({
       nom: p.nom || "—",
       avatar: p.avatar || "avatar/1.jpg",
       inscription: p.inscription || "—",
       gen: (p.gen != null ? Number(p.gen) : null),
-      bestXp: getBestXp(p),
+      xp_display: getDisplayXp(p),
       bestMode: getBestMode(p)
     })).filter(p => p.gen != null && Number.isFinite(p.gen));
 
+    const existingKeys = new Set(baseRows.map(p => slugify2(p.nom)));
+
+    extraPlayers.forEach(p => {
+      if(!existingKeys.has(slugify2(p.nom))){
+        baseRows.push(p);
+      }
+    });
+
     const byGen = new Map();
-    rows.forEach(p => {
+    baseRows.forEach(p => {
       if(!byGen.has(p.gen)) byGen.set(p.gen, []);
       byGen.get(p.gen).push(p);
     });
 
     const gens = Array.from(byGen.keys()).sort((a, b) => a - b);
 
-    document.getElementById("statPlayers").textContent = fmtInt(rows.length);
+    document.getElementById("statPlayers").textContent = fmtInt(baseRows.length);
     document.getElementById("statGens").textContent = fmtInt(gens.length);
     document.getElementById("statLastGen").textContent = gens.length ? `Gen ${gens[gens.length - 1]}` : "—";
 
-    meta.textContent = `${fmtInt(rows.length)} joueur(s) réparti(s) sur ${fmtInt(gens.length)} génération(s)`;
+    meta.textContent = `${fmtInt(baseRows.length)} joueur(s) réparti(s) sur ${fmtInt(gens.length)} génération(s)`;
 
     grid.innerHTML = "";
 
@@ -412,8 +443,8 @@
       const members = byGen.get(gen) || [];
 
       members.sort((a, b) => {
-        const ax = a.bestXp == null ? -Infinity : a.bestXp;
-        const bx = b.bestXp == null ? -Infinity : b.bestXp;
+        const ax = a.xp_display == null ? -Infinity : a.xp_display;
+        const bx = b.xp_display == null ? -Infinity : b.xp_display;
         if(bx !== ax) return bx - ax;
         return String(a.nom).localeCompare(String(b.nom), "fr", { sensitivity: "base" });
       });
@@ -442,7 +473,8 @@
                   <div class="playerName">${p.nom}</div>
                   <div class="playerMeta">
                     Inscription : ${p.inscription ?? "—"}<br>
-                    Meilleure XP : ${p.bestXp == null ? "—" : fmtInt(p.bestXp) + " xp"}
+                    XP : ${p.xp_display == null ? "—" : fmtInt(p.xp_display) + " xp"}<br>
+                    Palier : ${formatModeLabel(p.bestMode)}
                   </div>
                 </div>
               </a>
