@@ -251,10 +251,14 @@ window.gangsData = [
       { nom: "Napoléon.1er" },
       { nom: "venom2" },
       { nom: "Clovis1er" },
-      { nom: "Polyy" }
+      { nom: "Polyy" },
+      { nom: "Gangster2019" },
+      { nom: "Elena21" },
+      { nom: "Shadow321" }
     ],
   },
 ];
+
 
 
 
