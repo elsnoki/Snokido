@@ -345,7 +345,7 @@ async function computeBestYearXp(){
       if(String(a.year) !== String(b.year)) return String(a.year).localeCompare(String(b.year));
       return slugify(a.nom).localeCompare(slugify(b.nom));
     })
-    .slice(0, 50);
+    .slice(0, 100);
 }
 
 function linkForPlayer(p){
