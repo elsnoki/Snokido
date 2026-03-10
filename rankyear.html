@@ -130,7 +130,7 @@
     color:#b00020;
   }
 
-  /* AJOUT : styles pour la colonne évolution */
+  /* Colonne évolution */
   .moveCell{
     text-align:center;
     white-space:nowrap;
@@ -193,8 +193,6 @@
 
 <script>
   const DATA_URL = "data/players_pages.json";
-
-  /* AJOUT : config historique */
   const HISTORY_BASE_URL = "data/history_paris";
   const HISTORY_MANIFEST_CANDIDATES = [
     `${HISTORY_BASE_URL}/index.json`,
@@ -222,7 +220,6 @@
     const s = String(v).trim();
     if(!s) return null;
 
-    // Supporte "12 345", "#123", "123/2500" (on récupère le 1er nombre)
     const m = s.replace(/\u00A0/g, " ").match(/-?\d[\d\s]*/);
     if(!m) return null;
 
@@ -231,7 +228,6 @@
     return Number.isFinite(n) ? n : null;
   }
 
-  // Trouve la première valeur (pas forcément numérique) pour un set de clés, en profondeur
   function deepFindValue(obj, keyNames, maxDepth = 7){
     const keysSet = new Set(keyNames.map(k => String(k).toLowerCase()));
     const seen = new Set();
@@ -257,37 +253,29 @@
       }
       return null;
     }
+
     return walk(obj, 0);
   }
 
   function deepFindNumber(obj, keyNames, maxDepth = 7){
     const v = deepFindValue(obj, keyNames, maxDepth);
-    const n = toNumber(v);
-    return n;
+    return toNumber(v);
   }
 
   function extractYear(inscription){
     if(!inscription) return null;
     const s = String(inscription).trim();
 
-    // "DD-MM-YYYY"
     const parts = s.split("-");
     if(parts.length === 3){
-      const y = Number(parts[2]);
-      return Number.isFinite(y) ? y : null;
+      const maybeYear = Number(parts[2]);
+      if(Number.isFinite(maybeYear) && maybeYear >= 1900) return maybeYear;
     }
 
-    // "YYYY-MM-DD" ou autre
     const m = s.match(/(19\d{2}|20\d{2}|2100)/);
     return m ? Number(m[1]) : null;
   }
 
-  // Supporte beaucoup de formats possibles:
-  // - [players]
-  // - {players:[...]}
-  // - {pages:[[...],[...]]}
-  // - {pages:[{players:[...]}, ...]}
-  // - {"page1":[...], "page2":[...]}
   function normalizePlayers(json){
     if(Array.isArray(json)) return json;
     if(json && Array.isArray(json.players)) return json.players;
@@ -323,10 +311,7 @@
     return list;
   }
 
-  // 1) Si "modes" existe: meilleur xp = max(modes[*].xp), rang = modes[*].rang
-  // 2) Sinon: XP via deepFindNumber("xp","exp","experience"...), rang via ("rank","rang","classement"...)
   function bestXP(player){
-    // Cas data.js-like
     if(player && player.modes && typeof player.modes === "object"){
       let best = { xp: null, mode: null, rang: null };
       for(const modeKey of Object.keys(player.modes)){
@@ -342,7 +327,6 @@
       if(best.xp != null) return best;
     }
 
-    // Cas players_pages.json (structure différente)
     const xp = deepFindNumber(player, [
       "xp","xptotal","xp_total","total_xp","totalxp",
       "experience","exp","points_xp","pointsxp"
@@ -361,22 +345,17 @@
   }
 
   function getInscription(player){
-    return deepFindValue(player, ["inscription","registered","register_date","registration","created","created_at","createdAt","date_inscription"]) ?? null;
+    return deepFindValue(player, [
+      "inscription","registered","register_date","registration",
+      "created","created_at","createdAt","date_inscription"
+    ]) ?? null;
   }
 
   function getLevel(player){
-    // Ton data.js: gen
     const n1 = deepFindNumber(player, ["gen"]);
     if(n1 != null) return n1;
-
-    // Autres formats possibles
-    const n2 = deepFindNumber(player, ["niveau","level","lvl","nv","tier"]);
-    return n2;
+    return deepFindNumber(player, ["niveau","level","lvl","nv","tier"]);
   }
-
-  /* =========================
-     AJOUTS POUR L'HISTORIQUE
-     ========================= */
 
   function escapeHtml(s){
     return String(s ?? "")
@@ -447,6 +426,7 @@
             const vd = parseHistoryDateFromString(v);
             if(vd) out.add(vd);
           }
+
           walk(v, depth + 1);
         }
       }
@@ -457,7 +437,6 @@
   }
 
   async function loadHistoryDateList(years){
-    // 1) On tente d'abord un manifest/index
     for(const manifestUrl of HISTORY_MANIFEST_CANDIDATES){
       const json = await tryFetchJson(manifestUrl);
       if(!json) continue;
@@ -472,8 +451,6 @@
       }
     }
 
-    // 2) Fallback : on sonde les dates du 1er janvier au 31 décembre
-    //    C'est plus lourd, mais ça marche sans manifest.
     const today = new Date();
     const all = [];
 
@@ -491,30 +468,19 @@
     const found = [];
     for(const dateStr of all){
       const urls = candidateSnapshotUrlsForDate(dateStr);
-      let ok = false;
+      let loaded = false;
 
       for(const url of urls){
-        try{
-          const res = await fetch(url, { method: "HEAD", cache: "no-store" });
-          if(res.ok){
-            found.push(dateStr);
-            ok = true;
-            break;
-          }
-        }catch(e){}
+        const json = await tryFetchJson(url);
+        if(json){
+          found.push(dateStr);
+          loaded = true;
+          break;
+        }
       }
 
-      if(!ok){
-        // Certains serveurs refusent HEAD : on tente un GET léger
-        for(const url of urls){
-          try{
-            const res = await fetch(url, { cache: "no-store" });
-            if(res.ok){
-              found.push(dateStr);
-              break;
-            }
-          }catch(e){}
-        }
+      if(!loaded){
+        // rien
       }
     }
 
@@ -572,37 +538,45 @@
     return list;
   }
 
+  function getReferenceYearForInscriptionYear(inscriptionYear){
+    const y = Number(inscriptionYear);
+    if(!Number.isFinite(y)) return null;
+    return y - 1;
+  }
+
   function buildYearlyBaselineMap(historySnapshots){
-    // Map<year, Map<playerKey, firstSeenPosition>>
-    const baselineByYear = new Map();
+    // Map<refYear, Map<playerKey, firstSeenGlobalPosition>>
+    const baselineByRefYear = new Map();
 
     const ordered = [...historySnapshots].sort((a,b) => String(a.date).localeCompare(String(b.date)));
 
     for(const snap of ordered){
+      const snapYear = Number(String(snap.date).slice(0, 4));
+      if(!Number.isFinite(snapYear)) continue;
+
       const rows = sortRowsForRanking(rowsFromPlayers(snap.players));
 
-      const byYear = new Map();
-      for(const row of rows){
-        if(!byYear.has(row.year)) byYear.set(row.year, []);
-        byYear.get(row.year).push(row);
+      if(!baselineByRefYear.has(snapYear)){
+        baselineByRefYear.set(snapYear, new Map());
       }
 
-      for(const [year, list] of byYear.entries()){
-        if(!baselineByYear.has(year)) baselineByYear.set(year, new Map());
-        const yearMap = baselineByYear.get(year);
+      const refMap = baselineByRefYear.get(snapYear);
 
-        list.forEach((row, idx) => {
-          if(!yearMap.has(row.key)){
-            yearMap.set(row.key, idx + 1);
-          }
-        });
-      }
+      rows.forEach((row, idx) => {
+        if(!refMap.has(row.key)){
+          refMap.set(row.key, idx + 1);
+        }
+      });
     }
 
-    return baselineByYear;
+    return baselineByRefYear;
   }
 
   function getMovementInfo(currentPos, baselinePos){
+    if(currentPos == null){
+      return { type: "flat", label: "0", value: 0 };
+    }
+
     if(baselinePos == null){
       return {
         type: "entry",
@@ -637,7 +611,9 @@
   }
 
   function renderMovementBadge(mv){
-    if(!mv) return `<span class="moveBadge move-flat">0</span>`;
+    if(!mv){
+      return `<span class="moveBadge move-flat">0</span>`;
+    }
 
     if(mv.type === "up"){
       return `
@@ -659,7 +635,7 @@
 
     if(mv.type === "entry"){
       return `
-        <span class="moveBadge move-entry" title="Première apparition dans le classement annuel">
+        <span class="moveBadge move-entry" title="Absent du classement global de l'année précédente">
           <span>Entrée</span>
         </span>
       `;
@@ -696,8 +672,22 @@
     const rows = rowsFromPlayers(players);
     meta.textContent = `${rows.length} joueurs`;
 
-    const yearsSet = new Set(rows.map(r => r.year).filter(y => y != null));
-    const baselineByYear = await loadHistoryBaselinesForYears(yearsSet);
+    // Classement global actuel
+    const globalRows = sortRowsForRanking([...rows]);
+    const currentGlobalPosByKey = new Map();
+    globalRows.forEach((r, idx) => {
+      currentGlobalPosByKey.set(r.key, idx + 1);
+    });
+
+    // Années historiques nécessaires = année d'inscription - 1
+    const inscriptionYears = new Set(rows.map(r => r.year).filter(y => y != null));
+    const historyYears = new Set(
+      Array.from(inscriptionYears)
+        .map(y => getReferenceYearForInscriptionYear(y))
+        .filter(y => y != null)
+    );
+
+    const baselineByRefYear = await loadHistoryBaselinesForYears(historyYears);
 
     const byYear = new Map();
     for(const r of rows){
@@ -717,11 +707,13 @@
       const list = byYear.get(year) || [];
       sortRowsForRanking(list);
 
-      // position actuelle complète (pas seulement le top 10)
-      list.forEach((r, index) => {
-        r.currentPos = index + 1;
-        const yearBaseline = baselineByYear.get(year) || new Map();
-        const baselinePos = yearBaseline.get(r.key);
+      list.forEach((r) => {
+        r.currentPos = currentGlobalPosByKey.get(r.key) ?? null;
+
+        const referenceYear = getReferenceYearForInscriptionYear(r.year);
+        const refBaseline = baselineByRefYear.get(referenceYear) || new Map();
+        const baselinePos = refBaseline.get(r.key);
+
         r.movement = getMovementInfo(r.currentPos, baselinePos);
       });
 
@@ -800,7 +792,7 @@
 
     console.log("[rankyear] sample player raw:", players[0]);
     console.log("[rankyear] parsed sample:", rows[0]);
-    console.log("[rankyear] baselineByYear:", baselineByYear);
+    console.log("[rankyear] baselineByRefYear:", baselineByRefYear);
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
