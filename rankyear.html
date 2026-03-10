@@ -130,7 +130,6 @@
     color:#b00020;
   }
 
-  /* Colonne évolution */
   .moveCell{
     text-align:center;
     white-space:nowrap;
@@ -194,11 +193,6 @@
 <script>
   const DATA_URL = "data/players_pages.json";
   const HISTORY_BASE_URL = "data/history_paris";
-  const HISTORY_MANIFEST_CANDIDATES = [
-    `${HISTORY_BASE_URL}/index.json`,
-    `${HISTORY_BASE_URL}/manifest.json`,
-    `period/players_pages.json`
-  ];
 
   function slugify2(name){
     return String(name || "")
@@ -244,6 +238,7 @@
           if(v != null && v !== "") return v;
         }
       }
+
       for(const k of Object.keys(node)){
         const v = node[k];
         if(v && typeof v === "object"){
@@ -266,11 +261,11 @@
     if(!inscription) return null;
     const s = String(inscription).trim();
 
-    const parts = s.split("-");
-    if(parts.length === 3){
-      const maybeYear = Number(parts[2]);
-      if(Number.isFinite(maybeYear) && maybeYear >= 1900) return maybeYear;
-    }
+    const mIso = s.match(/\b(19\d{2}|20\d{2}|2100)-\d{2}-\d{2}\b/);
+    if(mIso) return Number(mIso[1]);
+
+    const mFr = s.match(/\b\d{2}-\d{2}-(19\d{2}|20\d{2}|2100)\b/);
+    if(mFr) return Number(mFr[1]);
 
     const m = s.match(/(19\d{2}|20\d{2}|2100)/);
     return m ? Number(m[1]) : null;
@@ -366,8 +361,12 @@
       .replace(/'/g, "&#039;");
   }
 
+  function playerKeyFromName(name){
+    return slugify2(name);
+  }
+
   function playerKey(player){
-    return slugify2(getName(player));
+    return playerKeyFromName(getName(player));
   }
 
   function dateToIso(d){
@@ -375,11 +374,6 @@
     const m = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${day}`;
-  }
-
-  function parseHistoryDateFromString(str){
-    const m = String(str || "").match(/\b(20\d{2}-\d{2}-\d{2})\b/);
-    return m ? m[1] : null;
   }
 
   function candidateSnapshotUrlsForDate(dateStr){
@@ -400,94 +394,6 @@
     }
   }
 
-  function extractDateStringsFromManifestLike(json){
-    const out = new Set();
-
-    function walk(node, depth = 0){
-      if(depth > 8 || node == null) return;
-
-      if(typeof node === "string"){
-        const d = parseHistoryDateFromString(node);
-        if(d) out.add(d);
-        return;
-      }
-
-      if(Array.isArray(node)){
-        for(const item of node) walk(item, depth + 1);
-        return;
-      }
-
-      if(typeof node === "object"){
-        for(const [k, v] of Object.entries(node)){
-          const kd = parseHistoryDateFromString(k);
-          if(kd) out.add(kd);
-
-          if(typeof v === "string"){
-            const vd = parseHistoryDateFromString(v);
-            if(vd) out.add(vd);
-          }
-
-          walk(v, depth + 1);
-        }
-      }
-    }
-
-    walk(json);
-    return Array.from(out).sort();
-  }
-
-  async function loadHistoryDateList(years){
-    for(const manifestUrl of HISTORY_MANIFEST_CANDIDATES){
-      const json = await tryFetchJson(manifestUrl);
-      if(!json) continue;
-
-      const dates = extractDateStringsFromManifestLike(json)
-        .filter(d => years.has(Number(String(d).slice(0, 4))))
-        .sort();
-
-      if(dates.length){
-        console.log("[rankyear] manifest historique trouvé:", manifestUrl, dates);
-        return dates;
-      }
-    }
-
-    const today = new Date();
-    const all = [];
-
-    for(const year of Array.from(years).sort((a,b) => a - b)){
-      const start = new Date(year, 0, 1);
-      const end = (year === today.getFullYear())
-        ? new Date(today.getFullYear(), today.getMonth(), today.getDate())
-        : new Date(year, 11, 31);
-
-      for(let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)){
-        all.push(dateToIso(d));
-      }
-    }
-
-    const found = [];
-    for(const dateStr of all){
-      const urls = candidateSnapshotUrlsForDate(dateStr);
-      let loaded = false;
-
-      for(const url of urls){
-        const json = await tryFetchJson(url);
-        if(json){
-          found.push(dateStr);
-          loaded = true;
-          break;
-        }
-      }
-
-      if(!loaded){
-        // rien
-      }
-    }
-
-    console.log("[rankyear] dates historiques détectées par fallback:", found);
-    return found;
-  }
-
   async function loadSnapshotByDate(dateStr){
     const urls = candidateSnapshotUrlsForDate(dateStr);
 
@@ -504,7 +410,27 @@
     return null;
   }
 
-  function rowsFromPlayers(players){
+  async function findExistingSnapshotDatesForYear(year){
+    const today = new Date();
+    const start = new Date(year, 0, 1);
+    const end = (year === today.getFullYear())
+      ? new Date(today.getFullYear(), today.getMonth(), today.getDate())
+      : new Date(year, 11, 31);
+
+    const found = [];
+
+    for(let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)){
+      const dateStr = dateToIso(d);
+      const snap = await loadSnapshotByDate(dateStr);
+      if(snap){
+        found.push(snap);
+      }
+    }
+
+    return found;
+  }
+
+  function rowsFromCurrentPlayers(players){
     return players.map(pl => {
       const name = getName(pl);
       const avatar = getAvatar(pl);
@@ -528,6 +454,20 @@
     }).filter(r => r.year != null && r.key);
   }
 
+  function rowsFromSnapshotPlayers(players){
+    return players.map(pl => {
+      const name = getName(pl);
+      const best = bestXP(pl);
+
+      return {
+        raw: pl,
+        key: playerKey(pl),
+        nom: name,
+        xp: best.xp
+      };
+    }).filter(r => r.key && r.xp != null);
+  }
+
   function sortRowsForRanking(list){
     list.sort((a,b) => {
       const ax = (a.xp == null) ? -Infinity : a.xp;
@@ -544,29 +484,27 @@
     return y - 1;
   }
 
-  function buildYearlyBaselineMap(historySnapshots){
-    // Map<refYear, Map<playerKey, firstSeenGlobalPosition>>
+  async function loadHistoryBaselinesForYears(years){
     const baselineByRefYear = new Map();
 
-    const ordered = [...historySnapshots].sort((a,b) => String(a.date).localeCompare(String(b.date)));
+    for(const year of Array.from(years).sort((a,b) => a - b)){
+      const snaps = await findExistingSnapshotDatesForYear(year);
+      const refMap = new Map();
 
-    for(const snap of ordered){
-      const snapYear = Number(String(snap.date).slice(0, 4));
-      if(!Number.isFinite(snapYear)) continue;
+      snaps.sort((a,b) => String(a.date).localeCompare(String(b.date)));
 
-      const rows = sortRowsForRanking(rowsFromPlayers(snap.players));
-
-      if(!baselineByRefYear.has(snapYear)){
-        baselineByRefYear.set(snapYear, new Map());
+      for(const snap of snaps){
+        const rows = sortRowsForRanking(rowsFromSnapshotPlayers(snap.players));
+        rows.forEach((row, idx) => {
+          if(!refMap.has(row.key)){
+            refMap.set(row.key, idx + 1);
+          }
+        });
       }
 
-      const refMap = baselineByRefYear.get(snapYear);
+      baselineByRefYear.set(year, refMap);
 
-      rows.forEach((row, idx) => {
-        if(!refMap.has(row.key)){
-          refMap.set(row.key, idx + 1);
-        }
-      });
+      console.log(`[rankyear] année historique ${year} : ${snaps.length} snapshot(s), ${refMap.size} joueur(s) indexé(s)`);
     }
 
     return baselineByRefYear;
@@ -578,36 +516,20 @@
     }
 
     if(baselinePos == null){
-      return {
-        type: "entry",
-        label: "Entrée",
-        value: null
-      };
+      return { type: "entry", label: "Entrée", value: null };
     }
 
     const delta = baselinePos - currentPos;
 
     if(delta > 0){
-      return {
-        type: "up",
-        label: `+${delta}`,
-        value: delta
-      };
+      return { type: "up", label: `+${delta}`, value: delta };
     }
 
     if(delta < 0){
-      return {
-        type: "down",
-        label: String(delta),
-        value: delta
-      };
+      return { type: "down", label: String(delta), value: delta };
     }
 
-    return {
-      type: "flat",
-      label: "0",
-      value: 0
-    };
+    return { type: "flat", label: "0", value: 0 };
   }
 
   function renderMovementBadge(mv){
@@ -648,38 +570,19 @@
     `;
   }
 
-  async function loadHistoryBaselinesForYears(years){
-    const dateList = await loadHistoryDateList(years);
-    if(!dateList.length){
-      console.warn("[rankyear] aucun snapshot historique trouvé");
-      return new Map();
-    }
-
-    const snapshots = [];
-    for(const dateStr of dateList){
-      const snap = await loadSnapshotByDate(dateStr);
-      if(snap) snapshots.push(snap);
-    }
-
-    console.log("[rankyear] snapshots historiques chargés:", snapshots.map(s => s.date));
-    return buildYearlyBaselineMap(snapshots);
-  }
-
   async function renderByYear(players){
     const host = document.getElementById("years");
     const meta = document.getElementById("meta");
 
-    const rows = rowsFromPlayers(players);
+    const rows = rowsFromCurrentPlayers(players);
     meta.textContent = `${rows.length} joueurs`;
 
-    // Classement global actuel
     const globalRows = sortRowsForRanking([...rows]);
     const currentGlobalPosByKey = new Map();
     globalRows.forEach((r, idx) => {
       currentGlobalPosByKey.set(r.key, idx + 1);
     });
 
-    // Années historiques nécessaires = année d'inscription - 1
     const inscriptionYears = new Set(rows.map(r => r.year).filter(y => y != null));
     const historyYears = new Set(
       Array.from(inscriptionYears)
@@ -757,7 +660,7 @@
       top.forEach((r, i) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="rank">${i+1}</td>
+          <td class="rank">${i + 1}</td>
           <td class="avatar">
             <div class="frame">
               <img src="${r.avatar}" alt="${escapeHtml(r.nom)}">
@@ -790,8 +693,8 @@
     const tab = document.querySelector(".tab-year");
     if(tab) tab.classList.add("is-active");
 
-    console.log("[rankyear] sample player raw:", players[0]);
-    console.log("[rankyear] parsed sample:", rows[0]);
+    console.log("[rankyear] sample current player raw:", players[0]);
+    console.log("[rankyear] sample parsed current row:", rows[0]);
     console.log("[rankyear] baselineByRefYear:", baselineByRefYear);
   }
 
