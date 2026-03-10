@@ -47,6 +47,8 @@
       padding:0 14px;
     }
 
+    /* ================= HERO EN RUINE ================= */
+
     .ruinHero{
       position:relative;
       margin:20px auto 20px;
@@ -179,6 +181,8 @@
       background:linear-gradient(90deg, transparent, #8c5337, transparent);
     }
 
+    /* ================= PANEL ================= */
+
     .panel{
       margin-top:22px;
       background:rgba(13,11,10,.56);
@@ -223,6 +227,8 @@
       display:grid;
       gap:18px;
     }
+
+    /* ================= ENTRY ================= */
 
     .entry{
       display:grid;
@@ -279,6 +285,7 @@
         inset 0 0 0 2px rgba(255,255,255,.04),
         0 12px 22px rgba(0,0,0,.24);
       overflow:hidden;
+      flex:0 0 auto;
     }
 
     .avatarFrame img{
@@ -286,6 +293,19 @@
       height:100%;
       object-fit:cover;
       display:block;
+    }
+
+    .duoAvatars{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .duoAvatars .avatarFrame{
+      width:74px;
+      height:74px;
+      border-radius:16px;
     }
 
     .namePlate{
@@ -351,6 +371,17 @@
       height:180px;
       object-fit:cover;
       display:block;
+    }
+
+    .duoImages{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .duoImages .illustration{
+      margin-top:0;
     }
 
     .ashes{
@@ -450,6 +481,10 @@
       .illustration img{
         height:150px;
       }
+
+      .duoImages{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -509,7 +544,7 @@
               <span>Folklore du site</span>
             </div>
             <div class="illustration">
-              <img src="avatar/1.jpg" alt="Illustration Tabass">
+              <img src="avatar/z1.png" alt="Illustration Tabass">
             </div>
           </div>
         </article>
@@ -534,7 +569,7 @@
               <span>Ambition évaporée</span>
             </div>
             <div class="illustration">
-              <img src="avatar/156.jpg" alt="Illustration acrogamer">
+              <img src="avatar/z2.png" alt="Illustration acrogamer">
             </div>
           </div>
         </article>
@@ -559,7 +594,7 @@
               <span>Tempête numérique</span>
             </div>
             <div class="illustration">
-              <img src="avatar/101.jpg" alt="Illustration error004">
+              <img src="avatar/z3.png" alt="Illustration error004">
             </div>
           </div>
         </article>
@@ -584,7 +619,7 @@
               <span>Atmosphère à lui tout seul</span>
             </div>
             <div class="illustration">
-              <img src="avatar/154.jpg" alt="Illustration ChatonViolet">
+              <img src="avatar/z4.png" alt="Illustration ChatonViolet">
             </div>
           </div>
         </article>
@@ -592,8 +627,13 @@
         <article class="entry">
           <div class="statueSide">
             <div class="rankSeal">V</div>
-            <div class="avatarFrame">
-              <img src="avatar/110.jpg" alt="contéras et Bittergiggel">
+            <div class="duoAvatars">
+              <div class="avatarFrame">
+                <img src="avatar/110.jpg" alt="contéras">
+              </div>
+              <div class="avatarFrame">
+                <img src="avatar/22.jpg" alt="Bittergiggel">
+              </div>
             </div>
             <div class="namePlate">contéras + Bittergiggel</div>
           </div>
@@ -609,7 +649,7 @@
               <span>Mythologie du n’importe quoi</span>
             </div>
             <div class="illustration">
-              <img src="avatar/22.jpg" alt="Illustration contéras et Bittergiggel">
+              <img src="avatar/z5.png" alt="Illustration contéras et Bittergiggel">
             </div>
           </div>
         </article>
@@ -617,8 +657,13 @@
         <article class="entry">
           <div class="statueSide">
             <div class="rankSeal">VI</div>
-            <div class="avatarFrame">
-              <img src="avatar/103.jpg" alt="altesse10 et nadal51">
+            <div class="duoAvatars">
+              <div class="avatarFrame">
+                <img src="avatar/101.jpg" alt="altesse10">
+              </div>
+              <div class="avatarFrame">
+                <img src="avatar/103.jpg" alt="nadal51">
+              </div>
             </div>
             <div class="namePlate">altesse10 + nadal51</div>
           </div>
@@ -633,8 +678,13 @@
               <span>Confusion durable</span>
               <span>Énergie étrange</span>
             </div>
-            <div class="illustration">
-              <img src="avatar/101.jpg" alt="Illustration altesse10 et nadal51">
+            <div class="duoImages">
+              <div class="illustration">
+                <img src="avatar/z6.png" alt="Illustration altesse10">
+              </div>
+              <div class="illustration">
+                <img src="avatar/z7.png" alt="Illustration nadal51">
+              </div>
             </div>
           </div>
         </article>
@@ -642,24 +692,29 @@
         <article class="entry">
           <div class="statueSide">
             <div class="rankSeal">VII</div>
-            <div class="avatarFrame">
-              <img src="avatar/5.jpg" alt="Leolepro">
+            <div class="duoAvatars">
+              <div class="avatarFrame">
+                <img src="avatar/5.jpg" alt="Leolepro">
+              </div>
+              <div class="avatarFrame">
+                <img src="avatar/157.jpg" alt="Friendfire">
+              </div>
             </div>
-            <div class="namePlate">Leolepro</div>
+            <div class="namePlate">Leolepro + Friendfire</div>
           </div>
           <div class="textSide">
-            <h2 class="entryTitle">Leolepro</h2>
-            <div class="entrySubtitle">L’oracle du clavier perdu</div>
+            <h2 class="entryTitle">Leolepro + Friendfire</h2>
+            <div class="entrySubtitle">L’oracle du clavier perdu et le chasseur de first</div>
             <div class="entryText">
-              Leolepro occupait un espace très particulier dans les commentaires : celui où la phrase commençait avec courage, puis disparaissait mystérieusement avant d’avoir atteint sa destination. Il écrivait comme si le clavier décidait parfois seul du chemin, ajoutant des lettres au hasard, coupant des idées en plein vol et abandonnant ses propres messages au milieu d’une tentative d’expression. Le résultat avait quelque chose de fascinant, presque artistique malgré lui : on ne lisait pas ses commentaires comme on lit une phrase, mais comme on contemple une énigme en essayant de deviner ce qui a bien pu se passer en route. Il fut moins un auteur qu’un accident récurrent du langage.
+              Leolepro et Friendfire forment un duo aussi improbable qu’inépuisable. Le premier s’est fait connaître pour ses phrases mystérieuses, souvent commencées avec courage mais abandonnées quelque part au milieu du clavier, laissant derrière elles des combinaisons de lettres que personne n’a jamais réussi à interpréter complètement. Friendfire, lui, a choisi une autre voie pour marquer les commentaires : celle de la chasse éternelle au “first”. Peu importe l’article, le sujet ou la discussion, il apparaissait souvent avec un “first”, “deuse”, “troise”, parfois même une série interminable allant jusqu’à dix ou plus, comme si le classement des commentaires était devenu sa propre compétition parallèle. Ensemble, ils représentent une alliance unique : l’un perdu dans les méandres de l’écriture, l’autre lancé dans une course sans fin vers des places imaginaires.
             </div>
             <div class="ashes">
-              <span>Phrases inachevées</span>
               <span>Clavier possédé</span>
-              <span>Énigme linguistique</span>
+              <span>Quête infinie du first</span>
+              <span>Duo du commentaire perdu</span>
             </div>
             <div class="illustration">
-              <img src="avatar/5.jpg" alt="Illustration Leolepro">
+              <img src="avatar/z8.png" alt="Illustration Leolepro et Friendfire">
             </div>
           </div>
         </article>
