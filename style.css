@@ -4,6 +4,8 @@
   background: linear-gradient(#3a3a3a,#232323);
   border-bottom: 4px solid #1b7aa1;
   box-shadow: 0 3px 0 rgba(0,0,0,.25);
+  position: relative;
+  z-index: 1000;
 }
 
 .topbar-inner{
@@ -19,6 +21,7 @@
   display:flex;
   align-items:center;
   text-decoration:none;
+  flex:0 0 auto;
 }
 
 .logo img{
@@ -46,10 +49,18 @@
   background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.10);
   box-shadow: inset 0 -3px 0 rgba(255,255,255,.10);
+  display:inline-flex;
+  align-items:center;
+  white-space:nowrap;
 }
 
 .nav a.tab:hover{
   background:rgba(255,255,255,.10);
+}
+
+.nav a.tab.active{
+  background:rgba(255,255,255,.14);
+  border-color:rgba(255,255,255,.16);
 }
 
 .tab-sep{
@@ -57,6 +68,42 @@
   font-weight:900;
   margin:0 6px;
   user-select:none;
+}
+
+/* ================= MENUS CATÉGORIES ================= */
+
+.menuWrap{
+  position:relative;
+  display:inline-block;
+}
+
+.menuBtn{
+  cursor:pointer;
+}
+
+.dropMenu{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  min-width:280px;
+  background:#2a2a2a;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  box-shadow:0 14px 30px rgba(0,0,0,.35);
+  padding:8px;
+  display:none;
+  z-index:9999;
+}
+
+.menuWrap.is-open .dropMenu{
+  display:block;
+}
+
+.dropMenu a.tab{
+  display:flex;
+  width:100%;
+  margin:4px 0;
+  box-sizing:border-box;
 }
 
 /* Onglets colorés */
@@ -71,11 +118,15 @@
 .nav a.tab-graph{ box-shadow: inset 0 -3px 0 #a6ff4d; }
 .nav a.tab-pause{ box-shadow: inset 0 -3px 0 #ff3b3b; } /* rouge vif */
 .nav a.tab-chrono{ box-shadow: inset 0 -3px 0 #00ffaa; }
-.nav a.tab-frise{
-  box-shadow: inset 0 -3px 0 #00ffaa;
-}
+.nav a.tab-frise{ box-shadow: inset 0 -3px 0 #00ffaa; }
 .nav a.tab-niveau{ box-shadow: inset 0 -3px 0 #ffd44d; }
 .nav a.tab-year{ box-shadow: inset 0 -3px 0 #66ccff; }
+
+/* Couleurs des catégories */
+.nav a.tab-menu-classements{ box-shadow: inset 0 -3px 0 #3498db; }
+.nav a.tab-menu-analyses{ box-shadow: inset 0 -3px 0 #2ecc71; }
+.nav a.tab-menu-records{ box-shadow: inset 0 -3px 0 #e74c3c; }
+.nav a.tab-menu-pantheon{ box-shadow: inset 0 -3px 0 #9b59b6; }
 
 /* ================= TIMELINE / EFFET 1ER ================= */
 
@@ -107,8 +158,14 @@
 /* ================= SOUS-MENU PAUSES ================= */
 
 .pauseWrap{
-  position: relative;
-  display: inline-block;
+  position:relative;
+  display:block;
+}
+
+.subMenuBtn{
+  width:100%;
+  box-sizing:border-box;
+  justify-content:space-between;
 }
 
 .caret{
@@ -117,19 +174,18 @@
   opacity:.9;
 }
 
-/* caché par défaut, montré par JS avec .is-open */
 .pauseMenu{
   position:absolute;
-  top: 42px;
-  left: 0;
-  min-width: 260px;
-  background: #2a2a2a;
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 10px;
-  box-shadow: 0 14px 30px rgba(0,0,0,.35);
-  padding: 8px;
+  top:0;
+  left:calc(100% + 8px);
+  min-width:260px;
+  background:#2a2a2a;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  box-shadow:0 14px 30px rgba(0,0,0,.35);
+  padding:8px;
   display:none;
-  z-index:9999;
+  z-index:10000;
 }
 
 .pauseWrap.is-open .pauseMenu{
@@ -159,36 +215,36 @@
 .name span{
   color:#2c6fb7;
   font-weight:700;
-
 }
 
-  .subnav{
-    display:flex;
-    gap:10px;
-    padding:12px 18px;
-    border-top:1px solid #e5e5e5;
-    border-bottom:1px solid #e5e5e5;
-    background:#fafafa;
-    align-items:center;
-    flex-wrap:wrap;
-  }
+.subnav{
+  display:flex;
+  gap:10px;
+  padding:12px 18px;
+  border-top:1px solid #e5e5e5;
+  border-bottom:1px solid #e5e5e5;
+  background:#fafafa;
+  align-items:center;
+  flex-wrap:wrap;
+}
 
-  .subnav-btn{
-    display:inline-block;
-    padding:8px 12px;
-    border-radius:10px;
-    font-weight:900;
-    text-decoration:none;
-    color:#2c6fb7;
-    background:#fff;
-    border:1px solid rgba(0,0,0,.12);
-  }
+.subnav-btn{
+  display:inline-block;
+  padding:8px 12px;
+  border-radius:10px;
+  font-weight:900;
+  text-decoration:none;
+  color:#2c6fb7;
+  background:#fff;
+  border:1px solid rgba(0,0,0,.12);
+}
 
-  .subnav-btn:hover{
-    background:#f1f1f1;
-  }
+.subnav-btn:hover{
+  background:#f1f1f1;
+}
 
 /* ===== Mini classement Hebdo/Mensuel (gauche) ===== */
+
 .xpSide{
   position: fixed;
   left: 12px;
@@ -221,7 +277,10 @@
   padding:6px 10px;
   cursor:pointer;
 }
-.xpSideToggle:hover{ background: rgba(255,255,255,.18); }
+
+.xpSideToggle:hover{
+  background: rgba(255,255,255,.18);
+}
 
 .xpSideSub{
   padding:8px 12px;
@@ -232,9 +291,12 @@
   background:#fafafa;
 }
 
-.xpSideBody{ padding:8px 10px; }
+.xpSideBody{
+  padding:8px 10px;
+}
 
-.xpSideLoading, .xpSideEmpty{
+.xpSideLoading,
+.xpSideEmpty{
   padding:10px 6px;
   font-weight:900;
   color:#666;
@@ -250,20 +312,24 @@
   border-bottom:1px solid #eee;
   font-size:12px;
 }
+
 .xpWho{
   display:flex;
   align-items:center;
   gap:8px;
   min-width:0;
 }
+
 .xpAv{
-  width:26px; height:26px;
+  width:26px;
+  height:26px;
   border-radius:8px;
   object-fit:cover;
   border:1px solid #bbb;
   background:#ddd;
   flex:0 0 auto;
 }
+
 .xpName{
   font-weight:900;
   color:#222;
@@ -271,14 +337,35 @@
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-.xpDx, .xpKara{ text-align:right; font-weight:900; color:#111; }
-.xpMv{ text-align:right; }
 
-.xpMove{ font-weight:900; }
-.xpMove.up{ color:#1a8f3a; }
-.xpMove.down{ color:#c0392b; }
-.xpMove.same{ color:#777; }
+.xpDx,
+.xpKara{
+  text-align:right;
+  font-weight:900;
+  color:#111;
+}
 
+.xpMv{
+  text-align:right;
+}
+
+.xpMove{
+  font-weight:900;
+}
+
+.xpMove.up{
+  color:#1a8f3a;
+}
+
+.xpMove.down{
+  color:#c0392b;
+}
+
+.xpMove.same{
+  color:#777;
+}
+
+/* pied du petit classement */
 .xpSideFoot{
   display:flex;
   justify-content:flex-end;
@@ -289,8 +376,30 @@
   font-weight:900;
 }
 
+/* ================= RESPONSIVE HEADER ================= */
+
+@media (max-width: 900px){
+  .topbar-inner{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .nav{
+    width:100%;
+    margin-left:0;
+  }
+
+  .dropMenu{
+    min-width:240px;
+  }
+
+  .pauseMenu{
+    left:0;
+    top:calc(100% + 8px);
+  }
+}
+
 /* Sur mobile : on cache */
 @media (max-width: 1100px){
   .xpSide{ display:none; }
 }
-
