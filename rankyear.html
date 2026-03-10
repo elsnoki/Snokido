@@ -129,49 +129,6 @@
     font-weight:900;
     color:#b00020;
   }
-
-  .moveCell{
-    text-align:center;
-    white-space:nowrap;
-  }
-  .moveBadge{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    min-width:82px;
-    padding:6px 10px;
-    border-radius:999px;
-    font-weight:900;
-    font-size:12px;
-    border:1px solid rgba(0,0,0,.08);
-    line-height:1;
-  }
-  .moveBadge .arrow{
-    font-size:14px;
-    font-weight:900;
-    line-height:1;
-  }
-  .move-up{
-    color:#0f7a2a;
-    background:#e8f8ec;
-    border-color:#bde7c7;
-  }
-  .move-down{
-    color:#c62828;
-    background:#fdecec;
-    border-color:#f3bbbb;
-  }
-  .move-flat{
-    color:#757575;
-    background:#efefef;
-    border-color:#dadada;
-  }
-  .move-entry{
-    color:#0b57d0;
-    background:#e8f0fe;
-    border-color:#bdd3ff;
-  }
 </style>
 </head>
 
@@ -180,9 +137,7 @@
   <div class="hint">
     Classement XP par <b>année d'inscription</b> (Top 10 max par année).
     <small>
-      Tri : XP décroissante (la meilleure XP trouvée par année d'inscription).<br>
-      Évolution : comparaison entre le <b>classement global actuel</b> et le <b>snapshot de départ de la même année</b> (priorité à <code>01-01</code>, sinon premier snapshot trouvé).<br>
-      Si le joueur est absent du snapshot de départ, ou présent avec <b>0 XP</b>, il est marqué <b>Entrée</b>.
+      Tri : XP décroissante (la meilleure XP trouvée par année d'inscription).
     </small>
   </div>
 
@@ -194,8 +149,6 @@
 
 <script>
   const DATA_URL = "data/players_pages.json";
-  const HISTORY_INDEX_URL = "data/history_paris/index.json";
-  const HISTORY_BASE_DIR = "data/history_paris";
 
   function slugify2(name){
     return String(name || "")
@@ -217,6 +170,7 @@
     const s = String(v).trim();
     if(!s) return null;
 
+    // Supporte "12 345", "#123", "123/2500" (on récupère le 1er nombre)
     const m = s.replace(/\u00A0/g, " ").match(/-?\d[\d\s]*/);
     if(!m) return null;
 
@@ -225,15 +179,7 @@
     return Number.isFinite(n) ? n : null;
   }
 
-  function escapeHtml(s){
-    return String(s ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
+  // Trouve la première valeur (pas forcément numérique) pour un set de clés, en profondeur
   function deepFindValue(obj, keyNames, maxDepth = 7){
     const keysSet = new Set(keyNames.map(k => String(k).toLowerCase()));
     const seen = new Set();
@@ -272,19 +218,24 @@
     if(!inscription) return null;
     const s = String(inscription).trim();
 
+    // "DD-MM-YYYY"
     const parts = s.split("-");
     if(parts.length === 3){
-      const p0 = Number(parts[0]);
-      const p2 = Number(parts[2]);
-
-      if(Number.isFinite(p2) && p2 >= 1900) return p2;
-      if(Number.isFinite(p0) && p0 >= 1900) return p0;
+      const y = Number(parts[2]);
+      return Number.isFinite(y) ? y : null;
     }
 
+    // "YYYY-MM-DD" ou autre
     const m = s.match(/(19\d{2}|20\d{2}|2100)/);
     return m ? Number(m[1]) : null;
   }
 
+  // Supporte beaucoup de formats possibles:
+  // - [players]
+  // - {players:[...]}
+  // - {pages:[[...],[...]]}
+  // - {pages:[{players:[...]}, ...]}
+  // - {"page1":[...], "page2":[...]}
   function normalizePlayers(json){
     if(Array.isArray(json)) return json;
     if(json && Array.isArray(json.players)) return json.players;
@@ -311,75 +262,19 @@
     return [];
   }
 
-  async function fetchJson(url){
-    const res = await fetch(url, { cache: "no-store" });
-    if(!res.ok) throw new Error(`HTTP ${res.status} sur ${url}`);
-    return await res.json();
-  }
-
   async function loadAllPlayers(){
-    const json = await fetchJson(DATA_URL);
+    const res = await fetch(DATA_URL, { cache: "no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
     const list = normalizePlayers(json);
     if(!list.length) throw new Error("Format JSON non reconnu ou liste vide");
     return list;
   }
 
-  async function loadHistoryIndex(){
-    const json = await fetchJson(HISTORY_INDEX_URL);
-
-    if(Array.isArray(json)) return json;
-    if(json && Array.isArray(json.files)) return json.files;
-    if(json && Array.isArray(json.snapshots)) return json.snapshots;
-    if(json && Array.isArray(json.items)) return json.items;
-
-    throw new Error("Format de data/history_paris/index.json non reconnu");
-  }
-
-  function historyIndexEntryToMeta(entry){
-    if(typeof entry !== "string") return null;
-
-    const m = String(entry).match(/\b(19\d{2}|20\d{2})-\d{2}-\d{2}\b/);
-    if(!m) return null;
-
-    const date = m[0];
-    return {
-      date,
-      year: Number(date.slice(0, 4)),
-      url: `${HISTORY_BASE_DIR}/${date}.json`
-    };
-  }
-
-  async function loadHistorySnapshotsForYears(yearsNeeded){
-    const indexEntries = await loadHistoryIndex();
-
-    const metas = indexEntries
-      .map(historyIndexEntryToMeta)
-      .filter(Boolean)
-      .filter(meta => yearsNeeded.has(meta.year))
-      .sort((a,b) => String(a.date).localeCompare(String(b.date)));
-
-    const snapshots = [];
-    for(const meta of metas){
-      try{
-        const json = await fetchJson(meta.url);
-        const players = normalizePlayers(json);
-        if(!players.length) continue;
-
-        snapshots.push({
-          date: meta.date,
-          year: meta.year,
-          url: meta.url,
-          players
-        });
-      }catch(e){
-        console.warn("[rankyear] snapshot ignoré :", meta.url, e);
-      }
-    }
-
-    return snapshots;
-  }
-
+  // 1) Si "modes" existe: meilleur xp = max(modes[*].xp), rang = modes[*].rang
+  // 2) Sinon: XP via deepFindNumber("xp","exp","experience"...), rang via ("rank","rang","classement"...)
   function bestXP(player){
+    // Cas data.js-like
     if(player && player.modes && typeof player.modes === "object"){
       let best = { xp: null, mode: null, rang: null };
       for(const modeKey of Object.keys(player.modes)){
@@ -395,6 +290,7 @@
       if(best.xp != null) return best;
     }
 
+    // Cas players_pages.json (structure différente)
     const xp = deepFindNumber(player, [
       "xp","xptotal","xp_total","total_xp","totalxp",
       "experience","exp","points_xp","pointsxp"
@@ -417,24 +313,20 @@
   }
 
   function getLevel(player){
+    // Ton data.js: gen
     const n1 = deepFindNumber(player, ["gen"]);
     if(n1 != null) return n1;
 
+    // Autres formats possibles
     const n2 = deepFindNumber(player, ["niveau","level","lvl","nv","tier"]);
     return n2;
   }
 
-  function getRank(player){
-    const n = deepFindNumber(player, ["rank","rang","classement","position","top2500","top_2500"]);
-    return n;
-  }
+  function renderByYear(players){
+    const host = document.getElementById("years");
+    const meta = document.getElementById("meta");
 
-  function playerKeyFromName(name){
-    return slugify2(name);
-  }
-
-  function rowsFromCurrentPlayers(players){
-    return players.map(pl => {
+    const rows = players.map(pl => {
       const name = getName(pl);
       const avatar = getAvatar(pl);
       const inscriptionRaw = getInscription(pl);
@@ -444,171 +336,18 @@
 
       return {
         raw: pl,
-        key: playerKeyFromName(name),
         nom: name,
         avatar,
         inscription: inscriptionRaw,
         year,
         xp: best.xp,
         bestMode: best.mode,
-        rang: getRank(pl) ?? best.rang,
+        rang: best.rang,
         niveau: level
       };
-    }).filter(r => r.year != null && r.key && r.xp != null);
-  }
+    }).filter(r => r.year != null);
 
-  function rowsFromHistoryPlayers(players){
-    return players.map(pl => {
-      const name = getName(pl);
-      const best = bestXP(pl);
-
-      return {
-        raw: pl,
-        key: playerKeyFromName(name),
-        nom: name,
-        xp: best.xp
-      };
-    }).filter(r => r.key);
-  }
-
-  function sortRowsForRanking(list){
-    list.sort((a,b) => {
-      const ax = (a.xp == null) ? -Infinity : a.xp;
-      const bx = (b.xp == null) ? -Infinity : b.xp;
-      if(bx !== ax) return bx - ax;
-      return String(a.nom).localeCompare(String(b.nom), "fr", { sensitivity:"base" });
-    });
-    return list;
-  }
-
-  function pickStartSnapshotForYear(snaps){
-    if(!snaps || !snaps.length) return null;
-
-    const ordered = [...snaps].sort((a,b) => String(a.date).localeCompare(String(b.date)));
-    const jan1 = ordered.find(s => String(s.date).endsWith("-01-01"));
-    return jan1 || ordered[0];
-  }
-
-  function buildBaselineByYear(historySnapshots){
-    const snapsByYear = new Map();
-
-    for(const snap of historySnapshots){
-      if(!snapsByYear.has(snap.year)) snapsByYear.set(snap.year, []);
-      snapsByYear.get(snap.year).push(snap);
-    }
-
-    const baselineByYear = new Map();
-
-    for(const [year, snaps] of snapsByYear.entries()){
-      const startSnap = pickStartSnapshotForYear(snaps);
-      if(!startSnap) continue;
-
-      const rows = sortRowsForRanking(rowsFromHistoryPlayers(startSnap.players));
-      const yearMap = new Map();
-
-      rows.forEach((row, idx) => {
-        yearMap.set(row.key, {
-          pos: idx + 1,
-          xp: row.xp ?? null
-        });
-      });
-
-      baselineByYear.set(year, {
-        date: startSnap.date,
-        players: yearMap
-      });
-
-      console.log("[rankyear] baseline année", year, "=>", startSnap.date, "(", rows.length, "joueurs )");
-    }
-
-    return baselineByYear;
-  }
-
-  function getMovementInfo(currentPos, baselineEntry){
-    if(currentPos == null){
-      return { type: "flat", label: "0", value: 0 };
-    }
-
-    if(!baselineEntry){
-      return { type: "entry", label: "Entrée", value: null };
-    }
-
-    if((baselineEntry.xp ?? null) === 0){
-      return { type: "entry", label: "Entrée", value: null };
-    }
-
-    const baselinePos = baselineEntry.pos;
-    if(baselinePos == null){
-      return { type: "entry", label: "Entrée", value: null };
-    }
-
-    const delta = baselinePos - currentPos;
-
-    if(delta > 0){
-      return { type: "up", label: `+${delta}`, value: delta };
-    }
-
-    if(delta < 0){
-      return { type: "down", label: String(delta), value: delta };
-    }
-
-    return { type: "flat", label: "0", value: 0 };
-  }
-
-  function renderMovementBadge(mv){
-    if(!mv){
-      return `<span class="moveBadge move-flat">0</span>`;
-    }
-
-    if(mv.type === "up"){
-      return `
-        <span class="moveBadge move-up" title="A gagné ${mv.value} place(s)">
-          <span class="arrow">↑</span>
-          <span>${escapeHtml(mv.label)}</span>
-        </span>
-      `;
-    }
-
-    if(mv.type === "down"){
-      return `
-        <span class="moveBadge move-down" title="A perdu ${Math.abs(mv.value)} place(s)">
-          <span class="arrow">↓</span>
-          <span>${escapeHtml(mv.label)}</span>
-        </span>
-      `;
-    }
-
-    if(mv.type === "entry"){
-      return `
-        <span class="moveBadge move-entry" title="Absent du snapshot de départ annuel, ou présent à 0 XP">
-          <span>Entrée</span>
-        </span>
-      `;
-    }
-
-    return `
-      <span class="moveBadge move-flat" title="Aucun changement">
-        <span>0</span>
-      </span>
-    `;
-  }
-
-  async function renderByYear(players){
-    const host = document.getElementById("years");
-    const meta = document.getElementById("meta");
-
-    const rows = rowsFromCurrentPlayers(players);
     meta.textContent = `${rows.length} joueurs`;
-
-    const globalRows = sortRowsForRanking([...rows]);
-    const currentGlobalPosByKey = new Map();
-    globalRows.forEach((r, idx) => {
-      currentGlobalPosByKey.set(r.key, idx + 1);
-    });
-
-    const yearsNeeded = new Set(rows.map(r => r.year).filter(y => y != null));
-    const historySnapshots = await loadHistorySnapshotsForYears(yearsNeeded);
-    const baselineByYear = buildBaselineByYear(historySnapshots);
 
     const byYear = new Map();
     for(const r of rows){
@@ -626,15 +365,12 @@
 
     years.forEach((year, idx) => {
       const list = byYear.get(year) || [];
-      sortRowsForRanking(list);
 
-      const yearBaseline = baselineByYear.get(year);
-      const yearBaselinePlayers = yearBaseline?.players || new Map();
-
-      list.forEach((r) => {
-        r.currentPos = currentGlobalPosByKey.get(r.key) ?? null;
-        r.baselineEntry = yearBaselinePlayers.get(r.key) ?? null;
-        r.movement = getMovementInfo(r.currentPos, r.baselineEntry);
+      list.sort((a,b) => {
+        const ax = (a.xp == null) ? -Infinity : a.xp;
+        const bx = (b.xp == null) ? -Infinity : b.xp;
+        if(bx !== ax) return bx - ax;
+        return String(a.nom).localeCompare(String(b.nom), "fr", { sensitivity:"base" });
       });
 
       const top = list.slice(0, 10);
@@ -642,16 +378,12 @@
       const box = document.createElement("div");
       box.className = "yearBox" + (idx === 0 ? " open" : "");
 
-      const startDateText = yearBaseline?.date
-        ? ` • départ: ${yearBaseline.date}`
-        : ` • départ: introuvable`;
-
       const head = document.createElement("div");
       head.className = "yearHead";
       head.innerHTML = `
         <div>
           Année ${year}
-          <span class="yearMeta">(Top ${Math.min(10, list.length)} / ${list.length}${startDateText})</span>
+          <span class="yearMeta">(Top ${Math.min(10, list.length)} / ${list.length})</span>
         </div>
         <div class="caret">${idx === 0 ? "▾" : "▸"}</div>
       `;
@@ -668,7 +400,6 @@
               <th class="center">XP</th>
               <th class="center">Niveau</th>
               <th class="center">Rang (Top 2500)</th>
-              <th class="center">Évolution</th>
               <th class="center">Inscription</th>
             </tr>
           </thead>
@@ -684,18 +415,17 @@
           <td class="rank">${i+1}</td>
           <td class="avatar">
             <div class="frame">
-              <img src="${escapeHtml(r.avatar)}" alt="${escapeHtml(r.nom)}">
+              <img src="${r.avatar}" alt="${r.nom}">
             </div>
           </td>
           <td class="name">
             <a href="profil.html?u=${encodeURIComponent(slugify2(r.nom))}">
-              ${escapeHtml(r.nom)}
+              ${r.nom}
             </a>
           </td>
           <td class="center">${fmtInt(r.xp)}</td>
           <td class="center">${r.niveau == null ? "—" : fmtInt(r.niveau)}</td>
           <td class="center">${r.rang ?? "—"}</td>
-          <td class="moveCell">${renderMovementBadge(r.movement)}</td>
           <td class="center">${r.inscription ?? "—"}</td>
         `;
         tbody.appendChild(tr);
@@ -714,13 +444,9 @@
     const tab = document.querySelector(".tab-year");
     if(tab) tab.classList.add("is-active");
 
-    console.log("[rankyear] current rows:", rows.length);
-    console.log("[rankyear] history snapshots loaded:", historySnapshots.map(s => s.url));
-    console.log("[rankyear] baseline years:", Array.from(baselineByYear.entries()).map(([year, info]) => ({
-      year,
-      date: info?.date,
-      count: info?.players?.size ?? 0
-    })));
+    // Debug utile (tu peux supprimer après)
+    console.log("[rankyear] sample player raw:", players[0]);
+    console.log("[rankyear] parsed sample:", rows[0]);
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
@@ -729,11 +455,11 @@
 
     try{
       const players = await loadAllPlayers();
-      await renderByYear(players);
+      renderByYear(players);
     }catch(e){
       host.innerHTML = `
         <div class="errorBox">
-          Impossible de charger les données : ${escapeHtml(String(e.message || e))}
+          Impossible de charger <code>${DATA_URL}</code> : ${String(e.message || e)}
         </div>
       `;
       console.error(e);
