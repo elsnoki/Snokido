@@ -1,758 +1,289 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
 <title>Classement XP par année d'inscription</title>
 
-<link rel="stylesheet" href="style.css" />
-<script src="header.js" defer></script>
-<script src="xp_widget.js" defer></script>
-
 <style>
-  body{
-    margin:0;
-    font-family: Arial, sans-serif;
-    background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
-  }
-  .wrap{
-    width:1100px;
-    max-width: calc(100% - 40px);
-    margin:60px auto;
-  }
-  .panel{
-    background:#fff;
-    border-radius:10px;
-    overflow:hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,.35);
-    margin-bottom:16px;
-  }
-  .title{
-    background:#3a3a3a;
-    color:#fff;
-    padding:14px 16px;
-    font-size:20px;
-    font-weight:900;
-  }
-  .hint{
-    background:#ffffff;
-    border-radius:10px;
-    padding:12px 14px;
-    margin-bottom:14px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.20);
-    border:1px solid rgba(0,0,0,.10);
-    color:#222;
-    font-weight:900;
-  }
-  .hint small{
-    display:block;
-    margin-top:4px;
-    font-weight:900;
-    color:#666;
-  }
-  .pill{
-    display:inline-block;
-    padding:2px 8px;
-    border-radius:999px;
-    font-weight:900;
-    font-size:12px;
-    background:#efefef;
-    border:1px solid rgba(0,0,0,.10);
-    color:#333;
-    margin-left:8px;
-  }
+body{
+margin:0;
+font-family:Arial;
+background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+}
 
-  .yearBox{
-    background:#fff;
-    border-radius:10px;
-    overflow:hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,.22);
-    border:1px solid rgba(0,0,0,.10);
-    margin-bottom:14px;
-  }
-  .yearHead{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:12px 16px;
-    background:#f6f6f6;
-    border-bottom:1px solid #e2e2e2;
-    cursor:pointer;
-    user-select:none;
-    font-weight:900;
-    color:#222;
-  }
-  .yearMeta{
-    font-weight:900;
-    color:#666;
-    font-size:12px;
-    margin-left:10px;
-  }
-  .caret{
-    font-weight:900;
-    color:#333;
-    margin-left:10px;
-  }
-  .yearBody{ display:none; }
-  .yearBox.open .yearBody{ display:block; }
+.wrap{
+width:1100px;
+max-width:calc(100% - 40px);
+margin:60px auto;
+}
 
-  table{
-    width:100%;
-    border-collapse:separate;
-    border-spacing:0;
-  }
-  thead th{
-    background:#fff;
-    padding:12px 10px;
-    text-align:left;
-    font-size:13px;
-    font-weight:900;
-    border-bottom:1px solid #cfcfcf;
-  }
-  tbody td{
-    padding:14px 10px;
-    border-bottom:1px solid #cfcfcf;
-    vertical-align:middle;
-    font-size:14px;
-  }
-  tbody tr:nth-child(odd){ background:#f2f2f2; }
+.panel{
+background:#fff;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 10px 25px rgba(0,0,0,.35);
+}
 
-  .rank{
-    font-weight:900;
-    font-size:18px;
-    width:60px;
-    text-align:center;
-    color:#444;
-  }
-  .avatar{
-    width:70px;
-    text-align:center;
-  }
-  .avatar .frame{
-    width:44px;
-    height:44px;
-    margin:0 auto;
-    background:#e9e9e9;
-    border:1px solid #bdbdbd;
-    border-radius:10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .avatar img{
-    width:38px;
-    height:38px;
-    object-fit:cover;
-    border:2px solid #8f8f8f;
-    border-radius:10px;
-    background:#ddd;
-    display:block;
-  }
+.title{
+background:#3a3a3a;
+color:#fff;
+padding:14px 16px;
+font-size:20px;
+font-weight:900;
+}
 
-  .name a{
-    color:#2c6fb7;
-    font-weight:900;
-    text-decoration:none;
-  }
-  .name a:hover{
-    text-decoration:underline;
-  }
+table{
+width:100%;
+border-collapse:collapse;
+}
 
-  .center{
-    text-align:center;
-    white-space:nowrap;
-  }
+thead th{
+padding:12px;
+border-bottom:1px solid #ccc;
+font-weight:900;
+}
 
-  .errorBox{
-    padding:14px 16px;
-    font-weight:900;
-    color:#b00020;
-  }
+tbody td{
+padding:12px;
+border-bottom:1px solid #ccc;
+}
 
-  .moveCell{
-    text-align:center;
-    white-space:nowrap;
-  }
-  .moveBadge{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    min-width:76px;
-    padding:6px 10px;
-    border-radius:999px;
-    font-weight:900;
-    font-size:12px;
-    border:1px solid rgba(0,0,0,.08);
-    line-height:1;
-  }
-  .moveBadge .arrow{
-    font-size:14px;
-    font-weight:900;
-    line-height:1;
-  }
-  .move-up{
-    color:#0f7a2a;
-    background:#e8f8ec;
-    border-color:#bde7c7;
-  }
-  .move-down{
-    color:#c62828;
-    background:#fdecec;
-    border-color:#f3bbbb;
-  }
-  .move-flat{
-    color:#757575;
-    background:#efefef;
-    border-color:#dadada;
-  }
-  .move-entry{
-    color:#0b57d0;
-    background:#e8f0fe;
-    border-color:#bdd3ff;
-  }
+tbody tr:nth-child(odd){
+background:#f2f2f2;
+}
+
+.rank{
+font-weight:900;
+font-size:18px;
+text-align:center;
+}
+
+.center{
+text-align:center;
+}
+
+.move-up{color:#0a7c2f;font-weight:900;}
+.move-down{color:#c62828;font-weight:900;}
+.move-entry{color:#1565c0;font-weight:900;}
+.move-flat{color:#777;font-weight:900;}
+
+.avatar img{
+width:38px;
+height:38px;
+border-radius:10px;
+}
 </style>
 </head>
 
 <body>
-<div class="wrap">
-  <div class="hint">
-    Classement XP par <b>année d'inscription</b> (Top 10 max par année).
-    <small>
-      Évolution = comparaison entre le <b>classement global actuel</b> et la <b>première position connue</b> dans les snapshots <b>de la même année</b>.
-    </small>
-  </div>
 
-  <div class="panel">
-    <div class="title">
-      Classement XP — par année d'inscription
-      <span id="meta" class="pill">…</span>
-    </div>
-    <div id="years" style="padding:14px;"></div>
-  </div>
+<div class="wrap">
+<div class="panel">
+<div class="title">Classement XP — évolution annuelle</div>
+<div id="years"></div>
+</div>
 </div>
 
 <script>
-  const CURRENT_URL = "data/players_pages.json";
-  const HISTORY_INDEX_URL = "data/history_paris/index.json";
-  const FULL_SNAPSHOT_MIN_SIZE = 1000;
-
-  function slugify2(name){
-    return String(name || "")
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9]/g, "")
-      .toLowerCase();
-  }
-
-  function escapeHtml(s){
-    return String(s ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function fmtInt(n){
-    if(n == null) return "—";
-    try{
-      return new Intl.NumberFormat("fr-FR").format(n);
-    }catch(e){
-      return String(n);
-    }
-  }
-
-  function toNumber(v){
-    if(v == null) return null;
-    if(typeof v === "number" && Number.isFinite(v)) return v;
-
-    const s = String(v).trim();
-    if(!s) return null;
-
-    const m = s.replace(/\u00A0/g, " ").match(/-?\d[\d\s]*/);
-    if(!m) return null;
-
-    const cleaned = m[0].replace(/\s/g, "");
-    const n = Number(cleaned);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  function deepFindValue(obj, keyNames, maxDepth = 7){
-    const keysSet = new Set(keyNames.map(k => String(k).toLowerCase()));
-    const seen = new Set();
-
-    function walk(node, depth){
-      if(!node || depth > maxDepth) return null;
-      if(typeof node !== "object") return null;
-      if(seen.has(node)) return null;
-      seen.add(node);
-
-      for(const k of Object.keys(node)){
-        if(keysSet.has(k.toLowerCase())){
-          const v = node[k];
-          if(v != null && v !== "") return v;
-        }
-      }
-
-      for(const k of Object.keys(node)){
-        const v = node[k];
-        if(v && typeof v === "object"){
-          const r = walk(v, depth + 1);
-          if(r != null) return r;
-        }
-      }
-
-      return null;
-    }
-
-    return walk(obj, 0);
-  }
-
-  function deepFindNumber(obj, keyNames, maxDepth = 7){
-    return toNumber(deepFindValue(obj, keyNames, maxDepth));
-  }
-
-  function normalizePlayers(json){
-    if(Array.isArray(json)) return json;
-    if(json && Array.isArray(json.players)) return json.players;
-
-    if(json && Array.isArray(json.pages)){
-      const out = [];
-      for(const p of json.pages){
-        if(Array.isArray(p)) out.push(...p);
-        else if(p && Array.isArray(p.players)) out.push(...p.players);
-        else if(p && Array.isArray(p.joueurs)) out.push(...p.joueurs);
-        else if(p && Array.isArray(p.items)) out.push(...p.items);
-      }
-      return out;
-    }
-
-    if(json && typeof json === "object"){
-      const out = [];
-      for(const k of Object.keys(json)){
-        if(Array.isArray(json[k])) out.push(...json[k]);
-      }
-      if(out.length) return out;
-    }
-
-    return [];
-  }
-
-  function extractYear(inscription){
-    if(!inscription) return null;
-    const s = String(inscription).trim();
-
-    const fr = s.match(/\b\d{2}-\d{2}-(19\d{2}|20\d{2}|2100)\b/);
-    if(fr) return Number(fr[1]);
-
-    const iso = s.match(/\b(19\d{2}|20\d{2}|2100)-\d{2}-\d{2}\b/);
-    if(iso) return Number(iso[1]);
-
-    const any = s.match(/(19\d{2}|20\d{2}|2100)/);
-    return any ? Number(any[1]) : null;
-  }
-
-  function getName(player){
-    return deepFindValue(player, [
-      "nom","name","pseudo","username","player","player_name"
-    ]) ?? "—";
-  }
-
-  function getAvatar(player){
-    return deepFindValue(player, [
-      "avatar","img","image","photo","pfp","avatar_url","avatarUrl"
-    ]) ?? "avatar/1.jpg";
-  }
-
-  function getInscription(player){
-    return deepFindValue(player, [
-      "inscription","registered","register_date","registration",
-      "created","created_at","createdAt","date_inscription"
-    ]) ?? null;
-  }
-
-  function getLevel(player){
-    const n1 = deepFindNumber(player, ["gen"]);
-    if(n1 != null) return n1;
-    return deepFindNumber(player, ["niveau","level","lvl","nv","tier"]);
-  }
-
-  function getRank(player){
-    return deepFindNumber(player, ["rank","rang","classement","position"]);
-  }
-
-  function bestXP(player){
-    if(player && player.modes && typeof player.modes === "object"){
-      let best = { xp: null, mode: null, rang: null };
-      for(const modeKey of Object.keys(player.modes)){
-        const m = player.modes[modeKey];
-        const xp = (m && typeof m.xp === "number") ? m.xp : toNumber(m?.xp);
-        if(xp == null) continue;
-        if(best.xp == null || xp > best.xp){
-          best.xp = xp;
-          best.mode = modeKey;
-          best.rang = m?.rang ?? null;
-        }
-      }
-      if(best.xp != null) return best;
-    }
-
-    return {
-      xp: deepFindNumber(player, [
-        "xp","xptotal","xp_total","total_xp","totalxp",
-        "experience","exp","points_xp","pointsxp"
-      ]),
-      mode: deepFindValue(player, ["mode","bestMode","best_mode","category","categorie"]),
-      rang: deepFindValue(player, ["rang","rank","classement","position","top2500","top_2500"])
-    };
-  }
-
-  function playerKeyFromName(name){
-    return slugify2(name);
-  }
-
-  function playerKey(player){
-    return playerKeyFromName(getName(player));
-  }
-
-  function sortRowsForRanking(list){
-    list.sort((a,b) => {
-      const ax = (a.xp == null) ? -Infinity : a.xp;
-      const bx = (b.xp == null) ? -Infinity : b.xp;
-      if(bx !== ax) return bx - ax;
-      return String(a.nom).localeCompare(String(b.nom), "fr", { sensitivity: "base" });
-    });
-    return list;
-  }
-
-  async function loadJson(url){
-    const res = await fetch(url, { cache: "no-store" });
-    if(!res.ok) throw new Error(`HTTP ${res.status} sur ${url}`);
-    return await res.json();
-  }
-
-  async function loadCurrentPlayers(){
-    const json = await loadJson(CURRENT_URL);
-    const players = normalizePlayers(json);
-    if(!players.length) throw new Error(`Aucun joueur trouvé dans ${CURRENT_URL}`);
-    return players;
-  }
-
-  async function loadHistoryIndex(){
-    const json = await loadJson(HISTORY_INDEX_URL);
-
-    if(Array.isArray(json)) return json;
-    if(Array.isArray(json.files)) return json.files;
-    if(Array.isArray(json.snapshots)) return json.snapshots;
-    if(Array.isArray(json.items)) return json.items;
-
-    throw new Error("Format de index.json non reconnu");
-  }
-
-  function historyEntryToFile(entry){
-    if(typeof entry !== "string") return null;
-
-    const m = entry.match(/(20\d{2}-\d{2}-\d{2}|19\d{2}-\d{2}-\d{2})/);
-    if(!m) return null;
-
-    const date = m[1];
-    return {
-      date,
-      year: Number(date.slice(0, 4)),
-      url: `data/history_paris/${date}.json`
-    };
-  }
-
-  async function loadHistorySnapshotsForYears(yearsNeeded){
-    const rawIndex = await loadHistoryIndex();
-
-    const files = rawIndex
-      .map(historyEntryToFile)
-      .filter(Boolean)
-      .filter(f => yearsNeeded.has(f.year))
-      .sort((a,b) => String(a.date).localeCompare(String(b.date)));
-
-    const snapshots = [];
-
-    for(const f of files){
-      try{
-        const json = await loadJson(f.url);
-        const players = normalizePlayers(json);
-        if(!players.length) continue;
-
-        snapshots.push({
-          date: f.date,
-          year: f.year,
-          url: f.url,
-          players,
-          size: players.length
-        });
-      }catch(e){
-        console.warn("[rankyear] snapshot ignoré :", f.url, e);
-      }
-    }
-
-    return snapshots;
-  }
-
-  function rowsFromCurrentPlayers(players){
-    return players.map(pl => {
-      const name = getName(pl);
-      const inscription = getInscription(pl);
-      const best = bestXP(pl);
-
-      return {
-        raw: pl,
-        key: playerKey(pl),
-        nom: name,
-        avatar: getAvatar(pl),
-        inscription,
-        year: extractYear(inscription),
-        xp: best.xp,
-        bestMode: best.mode,
-        rang: getRank(pl) ?? best.rang,
-        niveau: getLevel(pl)
-      };
-    }).filter(r => r.key && r.year != null && r.xp != null);
-  }
-
-  function rowsFromHistoryPlayers(players){
-    return players.map(pl => {
-      const name = getName(pl);
-      const best = bestXP(pl);
-
-      return {
-        raw: pl,
-        key: playerKey(pl),
-        nom: name,
-        xp: best.xp
-      };
-    }).filter(r => r.key && r.xp != null);
-  }
-
-  function buildBaselineByYear(historySnapshots){
-    const baselineByYear = new Map();
-
-    for(const snap of historySnapshots){
-      if(snap.size < FULL_SNAPSHOT_MIN_SIZE){
-        console.log("[rankyear] snapshot ignoré (trop petit pour base globale):", snap.url, snap.size);
-        continue;
-      }
-
-      if(!baselineByYear.has(snap.year)){
-        baselineByYear.set(snap.year, new Map());
-      }
-
-      const yearMap = baselineByYear.get(snap.year);
-      const rows = sortRowsForRanking(rowsFromHistoryPlayers(snap.players));
-
-      rows.forEach((row, idx) => {
-        if(!yearMap.has(row.key)){
-          yearMap.set(row.key, idx + 1);
-        }
-      });
-    }
-
-    return baselineByYear;
-  }
-
-  function getMovementInfo(currentPos, baselinePos){
-    if(currentPos == null) return { type: "flat", label: "0", value: 0 };
-    if(baselinePos == null) return { type: "entry", label: "Entrée", value: null };
-
-    const delta = baselinePos - currentPos;
-
-    if(delta > 0) return { type: "up", label: `+${delta}`, value: delta };
-    if(delta < 0) return { type: "down", label: String(delta), value: delta };
-    return { type: "flat", label: "0", value: 0 };
-  }
-
-  function renderMovementBadge(mv){
-    if(!mv){
-      return `<span class="moveBadge move-flat">0</span>`;
-    }
-
-    if(mv.type === "up"){
-      return `
-        <span class="moveBadge move-up" title="A gagné ${mv.value} place(s)">
-          <span class="arrow">↑</span>
-          <span>${escapeHtml(mv.label)}</span>
-        </span>
-      `;
-    }
-
-    if(mv.type === "down"){
-      return `
-        <span class="moveBadge move-down" title="A perdu ${Math.abs(mv.value)} place(s)">
-          <span class="arrow">↓</span>
-          <span>${escapeHtml(mv.label)}</span>
-        </span>
-      `;
-    }
-
-    if(mv.type === "entry"){
-      return `
-        <span class="moveBadge move-entry" title="Première apparition dans le classement global de l'année">
-          <span>Entrée</span>
-        </span>
-      `;
-    }
-
-    return `
-      <span class="moveBadge move-flat" title="Aucun changement">
-        <span>0</span>
-      </span>
-    `;
-  }
-
-  async function renderByYear(){
-    const host = document.getElementById("years");
-    const meta = document.getElementById("meta");
-
-    host.innerHTML = `<div style="padding:12px 2px;font-weight:900;color:#444;">Chargement des joueurs...</div>`;
-
-    const currentPlayers = await loadCurrentPlayers();
-    const currentRows = rowsFromCurrentPlayers(currentPlayers);
-
-    if(!currentRows.length){
-      host.innerHTML = `<div class="errorBox">Aucun joueur exploitable dans data/players_pages.json.</div>`;
-      return;
-    }
-
-    meta.textContent = `${currentRows.length} joueurs`;
-
-    const globalRows = sortRowsForRanking([...currentRows]);
-    const currentGlobalPosByKey = new Map();
-    globalRows.forEach((r, idx) => {
-      currentGlobalPosByKey.set(r.key, idx + 1);
-    });
-
-    const historyYearsNeeded = new Set(
-      currentRows.map(r => r.year).filter(Boolean)
-    );
-
-    const historySnapshots = await loadHistorySnapshotsForYears(historyYearsNeeded);
-    const baselineByYear = buildBaselineByYear(historySnapshots);
-
-    const byYear = new Map();
-    for(const r of currentRows){
-      if(!byYear.has(r.year)) byYear.set(r.year, []);
-      byYear.get(r.year).push(r);
-    }
-
-    const years = Array.from(byYear.keys()).sort((a,b) => b - a);
-
-    if(!years.length){
-      host.innerHTML = `<div class="errorBox">Aucune année d'inscription exploitable.</div>`;
-      return;
-    }
-
-    host.innerHTML = "";
-
-    years.forEach((year, idx) => {
-      const list = byYear.get(year) || [];
-      sortRowsForRanking(list);
-
-      list.forEach(r => {
-        const currentPos = currentGlobalPosByKey.get(r.key) ?? null;
-        const baselinePos = baselineByYear.get(r.year)?.get(r.key) ?? null;
-
-        r.currentPos = currentPos;
-        r.baselinePos = baselinePos;
-        r.movement = getMovementInfo(currentPos, baselinePos);
-      });
-
-      const top = list.slice(0, 10);
-
-      const box = document.createElement("div");
-      box.className = "yearBox" + (idx === 0 ? " open" : "");
-
-      const head = document.createElement("div");
-      head.className = "yearHead";
-      head.innerHTML = `
-        <div>
-          Année ${year}
-          <span class="yearMeta">(Top ${Math.min(10, list.length)} / ${list.length})</span>
-        </div>
-        <div class="caret">${idx === 0 ? "▾" : "▸"}</div>
-      `;
-
-      const body = document.createElement("div");
-      body.className = "yearBody";
-      body.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th style="width:60px;"></th>
-              <th style="width:70px;"></th>
-              <th>Nom du joueur</th>
-              <th class="center">XP</th>
-              <th class="center">Niveau</th>
-              <th class="center">Rang (Top 2500)</th>
-              <th class="center">Évolution</th>
-              <th class="center">Inscription</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      `;
-
-      const tbody = body.querySelector("tbody");
-
-      top.forEach((r, i) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td class="rank">${i + 1}</td>
-          <td class="avatar">
-            <div class="frame">
-              <img src="${r.avatar}" alt="${escapeHtml(r.nom)}">
-            </div>
-          </td>
-          <td class="name">
-            <a href="profil.html?u=${encodeURIComponent(slugify2(r.nom))}">
-              ${escapeHtml(r.nom)}
-            </a>
-          </td>
-          <td class="center">${fmtInt(r.xp)}</td>
-          <td class="center">${r.niveau == null ? "—" : fmtInt(r.niveau)}</td>
-          <td class="center">${r.rang ?? "—"}</td>
-          <td class="moveCell">${renderMovementBadge(r.movement)}</td>
-          <td class="center">${r.inscription ?? "—"}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      head.addEventListener("click", () => {
-        const isOpen = box.classList.toggle("open");
-        head.querySelector(".caret").textContent = isOpen ? "▾" : "▸";
-      });
-
-      box.appendChild(head);
-      box.appendChild(body);
-      host.appendChild(box);
-    });
-
-    const tab = document.querySelector(".tab-year");
-    if(tab) tab.classList.add("is-active");
-
-    console.log("[rankyear] current rows:", currentRows.length);
-    console.log("[rankyear] history snapshots loaded:", historySnapshots.map(s => `${s.url} (${s.size})`));
-    console.log("[rankyear] baseline years:", Array.from(baselineByYear.keys()));
-  }
-
-  window.addEventListener("DOMContentLoaded", async () => {
-    const host = document.getElementById("years");
-    try{
-      await renderByYear();
-    }catch(e){
-      host.innerHTML = `
-        <div class="errorBox">
-          Impossible de charger les données : ${escapeHtml(String(e.message || e))}
-        </div>
-      `;
-      console.error(e);
-    }
-  });
+
+const CURRENT_URL="data/players_pages.json"
+const INDEX_URL="data/history_paris/index.json"
+
+function slug(name){
+return name
+.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+.replace(/[^a-zA-Z0-9]/g,"")
+.toLowerCase()
+}
+
+function normalizePlayers(json){
+
+if(Array.isArray(json)) return json
+
+if(json.players) return json.players
+
+return []
+
+}
+
+async function loadJSON(url){
+
+const r=await fetch(url,{cache:"no-store"})
+if(!r.ok) throw new Error(url)
+
+return r.json()
+
+}
+
+function sortPlayers(list){
+
+return list.sort((a,b)=>b.xp-a.xp)
+
+}
+
+function playerKey(p){
+
+return slug(p.nom)
+
+}
+
+function movement(now,base){
+
+if(base==null) return {type:"entry",value:"Entrée"}
+
+const diff=base-now
+
+if(diff>0) return {type:"up",value:"+"+diff}
+
+if(diff<0) return {type:"down",value:String(diff)}
+
+return {type:"flat",value:"0"}
+
+}
+
+function movementHTML(m){
+
+if(m.type=="entry") return `<span class="move-entry">Entrée</span>`
+if(m.type=="up") return `<span class="move-up">↑ ${m.value}</span>`
+if(m.type=="down") return `<span class="move-down">↓ ${m.value}</span>`
+
+return `<span class="move-flat">0</span>`
+
+}
+
+async function loadYearBaseline(year,index){
+
+let dates=index.filter(d=>d.startsWith(year))
+
+dates.sort()
+
+if(!dates.length) return new Map()
+
+let start=dates.find(d=>d.endsWith("01-01"))
+
+if(!start) start=dates[0]
+
+const json=await loadJSON(`data/history_paris/${start}.json`)
+
+const players=sortPlayers(normalizePlayers(json))
+
+const map=new Map()
+
+players.forEach((p,i)=>{
+
+map.set(playerKey(p),i+1)
+
+})
+
+console.log("baseline",year,start)
+
+return map
+
+}
+
+async function render(){
+
+const host=document.getElementById("years")
+
+const players=sortPlayers(normalizePlayers(await loadJSON(CURRENT_URL)))
+
+const index=await loadJSON(INDEX_URL)
+
+const rows=players.map(p=>({
+
+nom:p.nom,
+xp:p.xp,
+niveau:p.niveau,
+rang:p.rank,
+avatar:p.avatar,
+inscription:p.inscription,
+year:p.inscription.split("-")[2],
+key:playerKey(p)
+
+}))
+
+const years=[...new Set(rows.map(r=>r.year))]
+
+const baselineByYear={}
+
+for(const y of years){
+
+baselineByYear[y]=await loadYearBaseline(y,index)
+
+}
+
+rows.forEach((r,i)=>{
+
+r.current=i+1
+
+const base=baselineByYear[r.year].get(r.key)
+
+r.move=movement(r.current,base)
+
+})
+
+const byYear={}
+
+rows.forEach(r=>{
+
+if(!byYear[r.year]) byYear[r.year]=[]
+
+byYear[r.year].push(r)
+
+})
+
+let html=""
+
+Object.keys(byYear).sort((a,b)=>b-a).forEach(year=>{
+
+const top=byYear[year].slice(0,10)
+
+html+=`<h2 style="padding:10px">${year}</h2>`
+
+html+=`
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th></th>
+<th>Nom</th>
+<th>XP</th>
+<th>Niveau</th>
+<th>Rang</th>
+<th>Évolution</th>
+<th>Inscription</th>
+</tr>
+</thead>
+<tbody>
+`
+
+top.forEach((p,i)=>{
+
+html+=`
+<tr>
+<td class="rank">${i+1}</td>
+<td class="avatar"><img src="${p.avatar}"></td>
+<td>${p.nom}</td>
+<td class="center">${p.xp.toLocaleString("fr-FR")}</td>
+<td class="center">${p.niveau}</td>
+<td class="center">${p.rang}</td>
+<td class="center">${movementHTML(p.move)}</td>
+<td class="center">${p.inscription}</td>
+</tr>
+`
+
+})
+
+html+=`</tbody></table>`
+
+})
+
+host.innerHTML=html
+
+}
+
+render()
+
 </script>
 
 </body>
