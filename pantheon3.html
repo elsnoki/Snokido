@@ -1,735 +1,516 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Panthéon des noobs</title>
-
-  <link rel="stylesheet" href="style.css">
-  <script src="header.js" defer></script>
-
-  <style>
-    :root{
-      --bg1:#0d1014;
-      --bg2:#18140f;
-      --bg3:#0a0a0b;
-
-      --stone1:#4b4137;
-      --stone2:#322a24;
-      --stone3:#211b17;
-
-      --gold1:#d7b06a;
-      --gold2:#9a6a35;
-      --rust:#7b4a2d;
-
-      --text:#efe4cf;
-      --muted:#c8af8c;
-      --border:rgba(200,175,140,.15);
-      --shadow:0 24px 60px rgba(0,0,0,.48);
-    }
-
-    *{
-      box-sizing:border-box;
-    }
-
-    body{
-      margin:0;
-      font-family:Arial, sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(900px 420px at 50% 0%, rgba(215,176,106,.10), transparent 60%),
-        linear-gradient(180deg, #17120f 0%, #0d0d0e 38%, #060607 100%);
-    }
-
-    .wrap{
-      max-width:1200px;
-      margin:0 auto 50px;
-      padding:0 14px;
-    }
-
-    /* ================= HERO EN RUINE ================= */
-
-    .ruinHero{
-      position:relative;
-      margin:20px auto 20px;
-      padding-top:24px;
-    }
-
-    .pediment{
-      position:relative;
-      max-width:1080px;
-      margin:0 auto;
-      height:120px;
-      background:linear-gradient(180deg, #675446 0%, #43352b 55%, #281f19 100%);
-      clip-path:polygon(50% 0, 100% 100%, 0 100%);
-      border:1px solid rgba(0,0,0,.32);
-      box-shadow:0 18px 28px rgba(0,0,0,.32);
-      overflow:hidden;
-    }
-
-    .pediment::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        radial-gradient(circle at 20% 30%, rgba(255,255,255,.06), transparent 20%),
-        radial-gradient(circle at 80% 40%, rgba(255,255,255,.05), transparent 18%);
-    }
-
-    .entablature{
-      max-width:1080px;
-      margin:0 auto;
-      height:22px;
-      background:linear-gradient(180deg, #564638 0%, #342820 100%);
-      border-left:1px solid rgba(0,0,0,.28);
-      border-right:1px solid rgba(0,0,0,.28);
-      border-bottom:1px solid rgba(0,0,0,.28);
-      box-shadow:0 10px 18px rgba(0,0,0,.24);
-    }
-
-    .columns{
-      max-width:1080px;
-      margin:0 auto;
-      padding:0 28px 16px;
-      display:grid;
-      grid-template-columns:repeat(7, minmax(0,1fr));
-      gap:18px;
-    }
-
-    .col{
-      height:168px;
-      border-radius:16px;
-      background:
-        repeating-linear-gradient(
-          90deg,
-          #4d4137 0 8px,
-          #3e342d 8px 12px
-        );
-      border:1px solid rgba(0,0,0,.28);
-      box-shadow:
-        inset 0 0 0 2px rgba(255,255,255,.03),
-        0 14px 24px rgba(0,0,0,.24);
-      position:relative;
-    }
-
-    .col::before,
-    .col::after{
-      content:"";
-      position:absolute;
-      left:-4px;
-      right:-4px;
-      height:18px;
-      border-radius:8px;
-      background:linear-gradient(180deg, #5b4b3e 0%, #352920 100%);
-      border:1px solid rgba(0,0,0,.25);
-    }
-
-    .col::before{ top:-8px; }
-    .col::after{ bottom:-8px; }
-
-    .heroText{
-      position:relative;
-      z-index:2;
-      max-width:940px;
-      margin:-120px auto 0;
-      text-align:center;
-      padding:0 18px 10px;
-    }
-
-    .heroBadge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:190px;
-      padding:10px 18px;
-      border-radius:999px;
-      background:rgba(13,11,10,.82);
-      border:1px solid rgba(215,176,106,.24);
-      color:#dfbf8d;
-      font-weight:900;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.14em;
-      box-shadow:0 10px 24px rgba(0,0,0,.35);
-    }
-
-    .heroTitle{
-      margin:16px 0 8px;
-      font-family:Georgia, "Times New Roman", serif;
-      font-size:54px;
-      line-height:1;
-      color:#f1dfc0;
-      text-shadow:0 4px 18px rgba(0,0,0,.50);
-      letter-spacing:.02em;
-    }
-
-    .heroSub{
-      max-width:760px;
-      margin:0 auto;
-      color:#ceb294;
-      font-size:16px;
-      font-weight:700;
-      line-height:1.55;
-      text-shadow:0 2px 8px rgba(0,0,0,.40);
-    }
-
-    .heroLine{
-      width:160px;
-      height:3px;
-      margin:18px auto 0;
-      border-radius:999px;
-      background:linear-gradient(90deg, transparent, #8c5337, transparent);
-    }
-
-    /* ================= PANEL ================= */
-
-    .panel{
-      margin-top:22px;
-      background:rgba(13,11,10,.56);
-      border:1px solid var(--border);
-      border-radius:24px;
-      overflow:hidden;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(5px);
-    }
-
-    .panelHead{
-      padding:16px 20px;
-      background:linear-gradient(180deg, rgba(127,63,39,.18), rgba(255,255,255,0));
-      border-bottom:1px solid var(--border);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-
-    .panelHeadTitle{
-      font-family:Georgia, "Times New Roman", serif;
-      font-size:22px;
-      font-weight:900;
-      color:#ead8bc;
-    }
-
-    .panelHeadSub{
-      font-size:12px;
-      font-weight:900;
-      color:#b99773;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-
-    .content{
-      padding:18px;
-    }
-
-    .pantheonList{
-      display:grid;
-      gap:18px;
-    }
-
-    /* ================= ENTRY ================= */
-
-    .entry{
-      display:grid;
-      grid-template-columns:250px 1fr;
-      gap:18px;
-      align-items:stretch;
-      background:linear-gradient(180deg, rgba(255,248,230,.03), rgba(255,248,230,.015));
-      border:1px solid rgba(191,168,138,.14);
-      border-radius:24px;
-      overflow:hidden;
-      box-shadow:0 14px 30px rgba(0,0,0,.28);
-    }
-
-    .statueSide{
-      position:relative;
-      padding:20px;
-      background:
-        radial-gradient(300px 180px at 50% 18%, rgba(255,255,255,.08), rgba(255,255,255,0) 65%),
-        linear-gradient(180deg, rgba(127,63,39,.14), rgba(255,255,255,.01));
-      border-right:1px solid rgba(191,168,138,.14);
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      text-align:center;
-    }
-
-    .rankSeal{
-      position:absolute;
-      top:16px;
-      left:16px;
-      min-width:44px;
-      height:44px;
-      padding:0 12px;
-      border-radius:999px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      background:linear-gradient(180deg, #8c5337 0%, #4d2618 100%);
-      color:#f0dcc2;
-      font-weight:900;
-      border:1px solid rgba(0,0,0,.22);
-      box-shadow:0 8px 18px rgba(0,0,0,.22);
-      z-index:3;
-    }
-
-    .avatarFrame{
-      width:100px;
-      height:100px;
-      border-radius:18px;
-      background:#2d2620;
-      border:1px solid rgba(0,0,0,.22);
-      box-shadow:
-        inset 0 0 0 2px rgba(255,255,255,.04),
-        0 12px 22px rgba(0,0,0,.24);
-      overflow:hidden;
-      flex:0 0 auto;
-    }
-
-    .avatarFrame img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .duoAvatars{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .duoAvatars .avatarFrame{
-      width:74px;
-      height:74px;
-      border-radius:16px;
-    }
-
-    .namePlate{
-      margin-top:14px;
-      padding:10px 16px;
-      border-radius:999px;
-      background:rgba(10,10,10,.78);
-      color:#ead8bc;
-      border:1px solid rgba(127,63,39,.26);
-      font-size:16px;
-      font-weight:900;
-      box-shadow:0 10px 18px rgba(0,0,0,.22);
-    }
-
-    .textSide{
-      padding:22px 22px 20px 4px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-    }
-
-    .entryTitle{
-      margin:0;
-      font-family:Georgia, "Times New Roman", serif;
-      color:#efdfc4;
-      font-size:30px;
-      font-weight:900;
-      line-height:1.1;
-    }
-
-    .entrySubtitle{
-      margin-top:6px;
-      color:#bfa07e;
-      font-size:12px;
-      font-weight:900;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-
-    .entryText{
-      margin-top:14px;
-      color:#f0e5d5;
-      font-size:17px;
-      line-height:1.8;
-      font-weight:700;
-    }
-
-    .entryText strong{
-      color:#f3c49a;
-    }
-
-    .illustration{
-      margin-top:18px;
-      border-radius:18px;
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.06);
-      box-shadow:0 10px 24px rgba(0,0,0,.20);
-      background:#1a1613;
-    }
-
-    .illustration img{
-      width:100%;
-      height:180px;
-      object-fit:cover;
-      display:block;
-    }
-
-    .duoImages{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:18px;
-    }
-
-    .duoImages .illustration{
-      margin-top:0;
-    }
-
-    .ashes{
-      margin-top:16px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .ashes span{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(255,248,230,.05);
-      border:1px solid rgba(127,63,39,.22);
-      color:#d3b18d;
-      font-size:12px;
-      font-weight:900;
-    }
-
-    .footerNote{
-      margin-top:18px;
-      padding:14px 16px;
-      border-radius:18px;
-      background:rgba(255,248,230,.05);
-      border:1px solid rgba(127,63,39,.18);
-      color:#cdb190;
-      font-size:13px;
-      font-weight:800;
-      line-height:1.6;
-      text-align:center;
-    }
-
-    @media (max-width:980px){
-      .columns{
-        gap:12px;
-        padding:0 16px 12px;
-      }
-
-      .heroTitle{
-        font-size:42px;
-      }
-
-      .entry{
-        grid-template-columns:1fr;
-      }
-
-      .statueSide{
-        border-right:0;
-        border-bottom:1px solid rgba(191,168,138,.14);
-      }
-
-      .textSide{
-        padding:18px;
-      }
-    }
-
-    @media (max-width:700px){
-      .pediment{
-        height:90px;
-      }
-
-      .entablature{
-        height:18px;
-      }
-
-      .columns{
-        grid-template-columns:repeat(4, minmax(0,1fr));
-      }
-
-      .col:nth-child(n+5){
-        display:none;
-      }
-
-      .heroText{
-        margin:-86px auto 0;
-      }
-
-      .heroTitle{
-        font-size:34px;
-      }
-
-      .heroSub{
-        font-size:14px;
-      }
-
-      .entryTitle{
-        font-size:24px;
-      }
-
-      .entryText{
-        font-size:15px;
-      }
-
-      .illustration img{
-        height:150px;
-      }
-
-      .duoImages{
-        grid-template-columns:1fr;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Panthéon des noobs</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="header.js" defer></script>
+
+<style>
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  color:#f1e6d2;
+  background:
+  radial-gradient(800px 400px at 50% 0%, rgba(210,160,90,.10), transparent 70%),
+  linear-gradient(#181412,#0b0a09);
+}
+
+/* HERO */
+
+.hero{
+  text-align:center;
+  padding:60px 20px 40px;
+}
+
+.hero h1{
+  font-family:Georgia, serif;
+  font-size:54px;
+  margin:0;
+  color:#f3e2c4;
+}
+
+.hero p{
+  margin-top:10px;
+  color:#c8a880;
+  font-weight:700;
+}
+
+/* PANEL */
+
+.wrap{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:20px;
+  margin-bottom:22px;
+  border-radius:20px;
+  background:#14110f;
+  border:1px solid rgba(255,255,255,.05);
+  overflow:hidden;
+}
+
+/* LEFT */
+
+.left{
+  padding:20px;
+  background:linear-gradient(#1d1714,#0f0c0a);
+  text-align:center;
+  position:relative;
+}
+
+.rank{
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:#5a3724;
+  padding:6px 12px;
+  border-radius:999px;
+  font-weight:900;
+}
+
+.avatar{
+  width:90px;
+  height:90px;
+  border-radius:16px;
+  overflow:hidden;
+  margin:auto;
+  border:2px solid #3c2a1f;
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.duo{
+  display:flex;
+  gap:6px;
+  justify-content:center;
+}
+
+.duo .avatar{
+  width:70px;
+  height:70px;
+}
+
+.name{
+  margin-top:12px;
+  font-weight:900;
+  background:#0b0b0b;
+  padding:8px 14px;
+  border-radius:999px;
+}
+
+/* TEXT */
+
+.right{
+  padding:22px;
+}
+
+.right h2{
+  margin:0;
+  font-family:Georgia, serif;
+  font-size:28px;
+}
+
+.right p{
+  margin-top:12px;
+  line-height:1.7;
+  font-size:16px;
+}
+
+/* IMAGES */
+
+.illustration{
+  margin-top:18px;
+}
+
+.illustration img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  border-radius:14px;
+  cursor:zoom-in;
+  transition:transform .2s;
+}
+
+.illustration img:hover{
+  transform:scale(1.02);
+}
+
+.duoImages{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:18px;
+}
+
+.duoImages img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  border-radius:14px;
+  cursor:zoom-in;
+}
+
+/* LIGHTBOX */
+
+.lightbox{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.95);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.lightbox img{
+  max-width:90%;
+  max-height:90%;
+  border-radius:12px;
+  animation:zoom .25s ease;
+}
+
+@keyframes zoom{
+  from{transform:scale(.8);opacity:.5}
+  to{transform:scale(1);opacity:1}
+}
+
+</style>
 </head>
+
 <body>
 
-<main class="wrap">
-  <section class="ruinHero">
-    <div class="pediment"></div>
-    <div class="entablature"></div>
+<div class="hero">
+<h1>Panthéon des noobs</h1>
+<p>Les figures les plus chaotiques et mémorables des commentaires.</p>
+</div>
 
-    <div class="heroText">
-      <div class="heroBadge">Chaos des commentaires</div>
-      <h1 class="heroTitle">Panthéon des noobs</h1>
-      <div class="heroSub">
-        Ici reposent les figures du désordre, des commentaires improbables, des ambitions mal réglées et des présences dont le site se souvient avec un mélange de gêne, de folklore et de fou rire.
-      </div>
-      <div class="heroLine"></div>
-    </div>
+<div class="wrap">
 
-    <div class="columns">
-      <div class="col"></div>
-      <div class="col"></div>
-      <div class="col"></div>
-      <div class="col"></div>
-      <div class="col"></div>
-      <div class="col"></div>
-      <div class="col"></div>
-    </div>
-  </section>
+<!-- TABASS -->
 
-  <section class="panel">
-    <div class="panelHead">
-      <div class="panelHeadTitle">Les Égarés</div>
-      <div class="panelHeadSub">Ce n’est pas un classement</div>
-    </div>
+<div class="card">
+<div class="left">
 
-    <div class="content">
-      <div class="pantheonList">
+<div class="rank">I</div>
 
-        <article class="entry">
-          <div class="statueSide">
-            <div class="rankSeal">I</div>
-            <div class="avatarFrame">
-              <img src="avatar/1.jpg" alt="Tabass">
-            </div>
-            <div class="namePlate">Tabass</div>
-          </div>
-          <div class="textSide">
-            <h2 class="entryTitle">Tabass</h2>
-            <div class="entrySubtitle">Le poète du quoiqibou</div>
-            <div class="entryText">
-              Tabass s’est illustré non par ses performances en exp, mais par une manière très particulière de hanter les commentaires. Là où certains tentaient de construire des phrases, lui semblait préférer les formules mystérieuses, les mots déformés et les interventions dont personne ne comprenait vraiment la trajectoire. Au fil du temps, il est devenu une sorte de mascotte involontaire du commentaire bancal : toujours là pour rappeler qu’un message peut exister sans jamais vraiment atteindre son but. Son nom évoque moins une progression qu’un style de confusion devenu presque patrimonial.
-            </div>
-            <div class="ashes">
-              <span>Commentaires cultes</span>
-              <span>Chaos verbal</span>
-              <span>Folklore du site</span>
-            </div>
-            <div class="illustration">
-              <img src="avatar/z1.png" alt="Illustration Tabass">
-            </div>
-          </div>
-        </article>
+<div class="avatar">
+<img src="avatar/1.jpg">
+</div>
 
-        <article class="entry">
-          <div class="statueSide">
-            <div class="rankSeal">II</div>
-            <div class="avatarFrame">
-              <img src="avatar/156.jpg" alt="acrogamer">
-            </div>
-            <div class="namePlate">acrogamer</div>
-          </div>
-          <div class="textSide">
-            <h2 class="entryTitle">acrogamer</h2>
-            <div class="entrySubtitle">Le prétendant trop pressé</div>
-            <div class="entryText">
-              Acrogamer s’est présenté comme quelqu’un qui visait haut, très haut, presque immédiatement. Il parlait du sommet comme si celui-ci allait s’ouvrir devant lui par simple volonté, défiant mentalement les premiers avant même d’avoir bâti quelque chose de solide. Puis, aussi vite que la promesse était montée, elle s’est dissipée. Il quitta la scène bien trop tôt, emportant avec lui une petite troupe de compagnons aussi désorganisés que lui, comme une expédition partie à l’assaut du mont sacré avec une carte mal tenue et des chaussures trouées. Il reste l’image classique du joueur qui s’est vu déjà tout en haut avant même d’avoir commencé à grimper.
-            </div>
-            <div class="ashes">
-              <span>Rêve de sommet</span>
-              <span>Départ prématuré</span>
-              <span>Ambition évaporée</span>
-            </div>
-            <div class="illustration">
-              <img src="avatar/z2.png" alt="Illustration acrogamer">
-            </div>
-          </div>
-        </article>
+<div class="name">Tabass</div>
 
-        <article class="entry">
-          <div class="statueSide">
-            <div class="rankSeal">III</div>
-            <div class="avatarFrame">
-              <img src="avatar/101.jpg" alt="error004">
-            </div>
-            <div class="namePlate">error004</div>
-          </div>
-          <div class="textSide">
-            <h2 class="entryTitle">error004</h2>
-            <div class="entrySubtitle">La tempête de messages</div>
-            <div class="entryText">
-              Error004 a laissé une empreinte non pas dans le classement, mais dans la saturation pure de l’espace. Sa présence donnait l’impression que les commentaires avaient été branchés sur une machine incontrôlable, capable d’envoyer du texte plus vite que quiconque n’était prêt à le lire. Quand il apparaissait, le calme disparaissait aussitôt, comme si le site entrait dans une zone de turbulence. Il n’était pas tant un joueur qu’un phénomène météorologique : imprévisible, envahissant, parfois absurde, mais impossible à ignorer. Certains progressent en exp, lui progressait surtout en volume sonore numérique.
-            </div>
-            <div class="ashes">
-              <span>Spam légendaire</span>
-              <span>Présence envahissante</span>
-              <span>Tempête numérique</span>
-            </div>
-            <div class="illustration">
-              <img src="avatar/z3.png" alt="Illustration error004">
-            </div>
-          </div>
-        </article>
+</div>
 
-        <article class="entry">
-          <div class="statueSide">
-            <div class="rankSeal">IV</div>
-            <div class="avatarFrame">
-              <img src="avatar/154.jpg" alt="ChatonViolet">
-            </div>
-            <div class="namePlate">ChatonViolet</div>
-          </div>
-          <div class="textSide">
-            <h2 class="entryTitle">ChatonViolet</h2>
-            <div class="entrySubtitle">Le théâtre permanent</div>
-            <div class="entryText">
-              ChatonViolet avait ce don assez rare de transformer n’importe quel espace de discussion en scène dramatique permanente. Une conversation banale devenait vite un épisode chargé, une remarque anodine prenait la forme d’un affront, et les commentaires finissaient par ressembler à un feuilleton dont personne n’avait demandé la diffusion. Là où d’autres venaient simplement parler, cette présence ajoutait de la tension, du récit, des réactions amplifiées et une sensibilité si vive qu’elle donnait parfois l’impression qu’un simple mot pouvait déclencher une tragédie complète. Plus qu’un membre, ChatonViolet a été une ambiance à part entière.
-            </div>
-            <div class="ashes">
-              <span>Drama constant</span>
-              <span>Scène permanente</span>
-              <span>Atmosphère à lui tout seul</span>
-            </div>
-            <div class="illustration">
-              <img src="avatar/z4.png" alt="Illustration ChatonViolet">
-            </div>
-          </div>
-        </article>
+<div class="right">
 
-        <article class="entry">
-          <div class="statueSide">
-            <div class="rankSeal">V</div>
-            <div class="duoAvatars">
-              <div class="avatarFrame">
-                <img src="avatar/110.jpg" alt="contéras">
-              </div>
-              <div class="avatarFrame">
-                <img src="avatar/22.jpg" alt="Bittergiggel">
-              </div>
-            </div>
-            <div class="namePlate">contéras + Bittergiggel</div>
-          </div>
-          <div class="textSide">
-            <h2 class="entryTitle">contéras + Bittergiggel</h2>
-            <div class="entrySubtitle">Le duo du malaise historique</div>
-            <div class="entryText">
-              Certains duos entrent dans l’histoire par leur complémentarité, leur talent ou leurs exploits. Eux ont choisi une autre voie : celle de l’échange bancal devenu trop mémorable pour être oublié. Ensemble, ils donnaient l’impression de fabriquer une conversation parallèle, légèrement décalée du monde réel, avec une logique qui semblait n’appartenir qu’à eux. Le résultat oscillait entre la gêne, l’incompréhension et une forme de fascination involontaire. À force d’enchaîner les interventions étranges, les formulations maladroites et les moments de flottement, ils ont fini par créer un duo dont on ne sait jamais s’il faut rire, détourner le regard ou conserver la trace comme on garde un vieux document honteusement légendaire.
-            </div>
-            <div class="ashes">
-              <span>Duo mémorable</span>
-              <span>Malaise collectif</span>
-              <span>Mythologie du n’importe quoi</span>
-            </div>
-            <div class="illustration">
-              <img src="avatar/z5.png" alt="Illustration contéras et Bittergiggel">
-            </div>
-          </div>
-        </article>
+<h2>Tabass</h2>
 
-        <article class="entry">
-          <div class="statueSide">
-            <div class="rankSeal">VI</div>
-            <div class="duoAvatars">
-              <div class="avatarFrame">
-                <img src="avatar/101.jpg" alt="altesse10">
-              </div>
-              <div class="avatarFrame">
-                <img src="avatar/103.jpg" alt="nadal51">
-              </div>
-            </div>
-            <div class="namePlate">altesse10 + nadal51</div>
-          </div>
-          <div class="textSide">
-            <h2 class="entryTitle">altesse10 + nadal51</h2>
-            <div class="entrySubtitle">Les stratèges du grand flou</div>
-            <div class="entryText">
-              Ce duo s’est surtout illustré par une manière unique de semer le doute, la confusion et l’impression qu’une discussion simple pouvait à tout moment partir dans une direction très étrange. Entre les changements de ton, les apparences floues, les récits improbables et les échanges qui donnaient l’impression de glisser constamment sur un terrain instable, ils ont laissé derrière eux un souvenir de chaos méthodique. L’un donnait l’impression d’écrire en se battant contre la langue elle-même, l’autre semblait toujours prêt à suivre le mouvement dans les méandres du bizarre. Ensemble, ils formaient un tandem que l’on n’oubliait pas facilement : pas parce qu’il dominait, mais parce qu’il rendait tout soudainement plus confus qu’avant leur arrivée.
-            </div>
-            <div class="ashes">
-              <span>Duo du flou</span>
-              <span>Confusion durable</span>
-              <span>Énergie étrange</span>
-            </div>
-            <div class="duoImages">
-              <div class="illustration">
-                <img src="avatar/z6.png" alt="Illustration altesse10">
-              </div>
-              <div class="illustration">
-                <img src="avatar/z7.png" alt="Illustration nadal51">
-              </div>
-            </div>
-          </div>
-        </article>
+<p>
+Tabass s’est distingué non pas par ses exploits dans le classement,
+mais par une présence mémorable dans les commentaires.
+Ses interventions ressemblaient souvent à des énigmes linguistiques,
+remplies de mots étranges et de phrases improbables.
+Personne ne savait vraiment où commençait la blague
+et où finissait la confusion.
+Avec le temps, son style est devenu presque mythique,
+comme une forme d’art involontaire du commentaire incompréhensible.
+</p>
 
-        <article class="entry">
-          <div class="statueSide">
-            <div class="rankSeal">VII</div>
-            <div class="duoAvatars">
-              <div class="avatarFrame">
-                <img src="avatar/5.jpg" alt="Leolepro">
-              </div>
-              <div class="avatarFrame">
-                <img src="avatar/157.jpg" alt="Friendfire">
-              </div>
-            </div>
-            <div class="namePlate">Leolepro + Friendfire</div>
-          </div>
-          <div class="textSide">
-            <h2 class="entryTitle">Leolepro + Friendfire</h2>
-            <div class="entrySubtitle">L’oracle du clavier perdu et le chasseur de first</div>
-            <div class="entryText">
-              Leolepro et Friendfire forment un duo aussi improbable qu’inépuisable. Le premier s’est fait connaître pour ses phrases mystérieuses, souvent commencées avec courage mais abandonnées quelque part au milieu du clavier, laissant derrière elles des combinaisons de lettres que personne n’a jamais réussi à interpréter complètement. Friendfire, lui, a choisi une autre voie pour marquer les commentaires : celle de la chasse éternelle au “first”. Peu importe l’article, le sujet ou la discussion, il apparaissait souvent avec un “first”, “deuse”, “troise”, parfois même une série interminable allant jusqu’à dix ou plus, comme si le classement des commentaires était devenu sa propre compétition parallèle. Ensemble, ils représentent une alliance unique : l’un perdu dans les méandres de l’écriture, l’autre lancé dans une course sans fin vers des places imaginaires.
-            </div>
-            <div class="ashes">
-              <span>Clavier possédé</span>
-              <span>Quête infinie du first</span>
-              <span>Duo du commentaire perdu</span>
-            </div>
-            <div class="illustration">
-              <img src="avatar/z8.png" alt="Illustration Leolepro et Friendfire">
-            </div>
-          </div>
-        </article>
+<div class="illustration">
+<img src="avatar/z1.png">
+</div>
 
-      </div>
+</div>
+</div>
 
-      <div class="footerNote">
-        Le Panthéon des noobs ne juge pas la valeur des personnes : il conserve surtout le souvenir des moments les plus bancals, des commentaires les plus confus et des présences les plus chaotiques devenues presque folkloriques dans l’histoire du site.
-      </div>
-    </div>
-  </section>
-</main>
+<!-- ACROGAMER -->
+
+<div class="card">
+<div class="left">
+
+<div class="rank">II</div>
+
+<div class="avatar">
+<img src="avatar/156.jpg">
+</div>
+
+<div class="name">acrogamer</div>
+
+</div>
+
+<div class="right">
+
+<h2>acrogamer</h2>
+
+<p>
+Acrogamer parlait souvent du sommet du classement
+comme si celui-ci allait s’ouvrir devant lui.
+Il défiait mentalement les premiers,
+annonçait des ambitions gigantesques
+et semblait convaincu que la première place
+était simplement une question de temps.
+Pourtant, l’aventure s’arrêta aussi vite qu’elle avait commencé.
+Il disparut avec sa petite troupe
+avant même que la véritable ascension ne commence.
+</p>
+
+<div class="illustration">
+<img src="avatar/z2.png">
+</div>
+
+</div>
+</div>
+
+<!-- ERROR -->
+
+<div class="card">
+<div class="left">
+
+<div class="rank">III</div>
+
+<div class="avatar">
+<img src="avatar/101.jpg">
+</div>
+
+<div class="name">error004</div>
+
+</div>
+
+<div class="right">
+
+<h2>error004</h2>
+
+<p>
+Quand error004 arrivait dans une section de commentaires,
+le calme disparaissait immédiatement.
+Les messages apparaissaient en rafale,
+comme si quelqu’un avait branché un moteur
+directement sur le clavier.
+Le résultat ressemblait moins à une discussion
+qu’à une tempête numérique permanente.
+</p>
+
+<div class="illustration">
+<img src="avatar/z3.png">
+</div>
+
+</div>
+</div>
+
+<!-- CHATON -->
+
+<div class="card">
+<div class="left">
+
+<div class="rank">IV</div>
+
+<div class="avatar">
+<img src="avatar/154.jpg">
+</div>
+
+<div class="name">ChatonViolet</div>
+
+</div>
+
+<div class="right">
+
+<h2>ChatonViolet</h2>
+
+<p>
+ChatonViolet transformait chaque conversation
+en véritable scène dramatique.
+Une simple discussion pouvait soudain
+prendre des proportions étonnantes,
+avec des réactions amplifiées
+et des interprétations inattendues.
+</p>
+
+<div class="illustration">
+<img src="avatar/z4.png">
+</div>
+
+</div>
+</div>
+
+<!-- CONTÉRAS BITTER -->
+
+<div class="card">
+<div class="left">
+
+<div class="rank">V</div>
+
+<div class="duo">
+
+<div class="avatar">
+<img src="avatar/110.jpg">
+</div>
+
+<div class="avatar">
+<img src="avatar/22.jpg">
+</div>
+
+</div>
+
+<div class="name">contéras + Bittergiggel</div>
+
+</div>
+
+<div class="right">
+
+<h2>contéras + Bittergiggel</h2>
+
+<p>
+Ce duo a laissé derrière lui une série d’échanges
+devenus célèbres pour leur étrange mélange
+de maladresse et de confusion.
+Leurs discussions donnaient parfois l’impression
+de suivre une logique parallèle
+qui n’appartenait qu’à eux.
+</p>
+
+<div class="illustration">
+<img src="avatar/z5.png">
+</div>
+
+</div>
+</div>
+
+<!-- ALTESSE NADAL -->
+
+<div class="card">
+<div class="left">
+
+<div class="rank">VI</div>
+
+<div class="duo">
+
+<div class="avatar">
+<img src="avatar/101.jpg">
+</div>
+
+<div class="avatar">
+<img src="avatar/103.jpg">
+</div>
+
+</div>
+
+<div class="name">altesse10 + nadal51</div>
+
+</div>
+
+<div class="right">
+
+<h2>altesse10 + nadal51</h2>
+
+<p>
+Un duo souvent associé aux situations les plus confuses.
+Leurs interventions donnaient parfois
+l’impression que la discussion entière
+était en train de dérailler doucement.
+</p>
+
+<div class="duoImages">
+
+<img src="avatar/z6.png">
+<img src="avatar/z7.png">
+
+</div>
+
+</div>
+</div>
+
+<!-- LEOLEPRO FRIEND -->
+
+<div class="card">
+<div class="left">
+
+<div class="rank">VII</div>
+
+<div class="duo">
+
+<div class="avatar">
+<img src="avatar/5.jpg">
+</div>
+
+<div class="avatar">
+<img src="avatar/157.jpg">
+</div>
+
+</div>
+
+<div class="name">Leolepro + Friendfire</div>
+
+</div>
+
+<div class="right">
+
+<h2>Leolepro + Friendfire</h2>
+
+<p>
+Leolepro semblait écrire ses phrases
+comme si elles se perdaient en chemin.
+Les mots commençaient avec assurance
+puis dérivaient dans un mélange étrange
+de lettres et de fragments.
+Friendfire, lui, poursuivait une mission différente :
+arriver premier dans les commentaires,
+puis deuxième, troisième,
+parfois jusqu’à dix messages d’affilée.
+</p>
+
+<div class="illustration">
+<img src="avatar/z8.png">
+</div>
+
+</div>
+</div>
+
+</div>
+
+<!-- LIGHTBOX -->
+
+<div id="lightbox" class="lightbox">
+<img id="lightboxImg">
+</div>
 
 <script>
-  document.querySelector(".tab-noob")?.classList.add("is-active");
+
+const lightbox = document.getElementById("lightbox")
+const lightboxImg = document.getElementById("lightboxImg")
+
+document.querySelectorAll(".illustration img, .duoImages img").forEach(img=>{
+img.addEventListener("click",()=>{
+lightbox.style.display="flex"
+lightboxImg.src=img.src
+document.body.style.overflow="hidden"
+})
+})
+
+lightbox.addEventListener("click",()=>{
+lightbox.style.display="none"
+document.body.style.overflow="auto"
+})
+
+document.addEventListener("keydown",e=>{
+if(e.key==="Escape"){
+lightbox.style.display="none"
+document.body.style.overflow="auto"
+}
+})
+
 </script>
 
 </body>
