@@ -44,7 +44,12 @@
     color:#222;
     font-weight:900;
   }
-  .hint small{ display:block; margin-top:4px; font-weight:900; color:#666; }
+  .hint small{
+    display:block;
+    margin-top:4px;
+    font-weight:900;
+    color:#666;
+  }
   .pill{
     display:inline-block;
     padding:2px 8px;
@@ -91,7 +96,11 @@
   .yearBody{ display:none; }
   .yearBox.open .yearBody{ display:block; }
 
-  table{ width:100%; border-collapse:separate; border-spacing:0; }
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+  }
   thead th{
     background:#fff;
     padding:12px 10px;
@@ -108,21 +117,51 @@
   }
   tbody tr:nth-child(odd){ background:#f2f2f2; }
 
-  .rank{ font-weight:900; font-size:18px; width:60px; text-align:center; color:#444; }
-  .avatar{ width:70px; text-align:center; }
+  .rank{
+    font-weight:900;
+    font-size:18px;
+    width:60px;
+    text-align:center;
+    color:#444;
+  }
+  .avatar{
+    width:70px;
+    text-align:center;
+  }
   .avatar .frame{
-    width:44px; height:44px; margin:0 auto;
-    background:#e9e9e9; border:1px solid #bdbdbd; border-radius:10px;
-    display:flex; align-items:center; justify-content:center;
+    width:44px;
+    height:44px;
+    margin:0 auto;
+    background:#e9e9e9;
+    border:1px solid #bdbdbd;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
   .avatar img{
-    width:38px; height:38px; object-fit:cover;
-    border:2px solid #8f8f8f; border-radius:10px; background:#ddd; display:block;
+    width:38px;
+    height:38px;
+    object-fit:cover;
+    border:2px solid #8f8f8f;
+    border-radius:10px;
+    background:#ddd;
+    display:block;
   }
 
-  .name a{ color:#2c6fb7; font-weight:900; text-decoration:none; }
-  .name a:hover{ text-decoration:underline; }
-  .center{ text-align:center; white-space:nowrap; }
+  .name a{
+    color:#2c6fb7;
+    font-weight:900;
+    text-decoration:none;
+  }
+  .name a:hover{
+    text-decoration:underline;
+  }
+
+  .center{
+    text-align:center;
+    white-space:nowrap;
+  }
 
   .errorBox{
     padding:14px 16px;
@@ -139,7 +178,7 @@
     align-items:center;
     justify-content:center;
     gap:6px;
-    min-width:74px;
+    min-width:76px;
     padding:6px 10px;
     border-radius:999px;
     font-weight:900;
@@ -180,19 +219,47 @@
   <div class="hint">
     Classement XP par <b>année d'inscription</b> (Top 10 max par année).
     <small>
-      Tri : XP décroissante (la meilleure XP trouvée par année d'inscription).
+      La colonne <b>Évolution</b> compare le <b>classement global actuel</b> avec les <b>snapshots historiques</b> de l’année précédente.
     </small>
   </div>
 
   <div class="panel">
-    <div class="title">Classement XP — par année d'inscription <span id="meta" class="pill">…</span></div>
+    <div class="title">
+      Classement XP — par année d'inscription
+      <span id="meta" class="pill">…</span>
+    </div>
     <div id="years" style="padding:14px;"></div>
   </div>
 </div>
 
 <script>
-  const DATA_URL = "data/players_pages.json";
-  const HISTORY_BASE_URL = "data/history_paris";
+  /*
+    SOURCE ACTUELLE :
+    - period/players_pages.json = top 2500 actuel, mis à jour à chaque scrape
+  */
+  const CURRENT_URL = "period/players_pages.json";
+
+  /*
+    SNAPSHOTS HISTORIQUES :
+    - Mets ici UNIQUEMENT les fichiers qui existent vraiment.
+    - Le script NE SCANNE PLUS les jours, pour éviter le chargement infini.
+    - Tu peux ajouter autant de dates que tu veux.
+  */
+  const HISTORY_SNAPSHOTS = [
+    "data/history_paris/2025-01-01",
+    "data/history_paris/2025-02-01",
+    "data/history_paris/2025-02-23",
+    "data/history_paris/2025-02-24",
+    "data/history_paris/2025-03-02",
+    "data/history_paris/2025-03-06",
+
+    "data/history_paris/2026-01-01",
+    "data/history_paris/2026-02-01",
+    "data/history_paris/2026-02-23",
+    "data/history_paris/2026-02-24",
+    "data/history_paris/2026-03-02",
+    "data/history_paris/2026-03-06"
+  ];
 
   function slugify2(name){
     return String(name || "")
@@ -201,10 +268,22 @@
       .toLowerCase();
   }
 
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   function fmtInt(n){
     if(n == null) return "—";
-    try { return new Intl.NumberFormat("fr-FR").format(n); }
-    catch(e){ return String(n); }
+    try{
+      return new Intl.NumberFormat("fr-FR").format(n);
+    }catch(e){
+      return String(n);
+    }
   }
 
   function toNumber(v){
@@ -246,6 +325,7 @@
           if(r != null) return r;
         }
       }
+
       return null;
     }
 
@@ -255,20 +335,6 @@
   function deepFindNumber(obj, keyNames, maxDepth = 7){
     const v = deepFindValue(obj, keyNames, maxDepth);
     return toNumber(v);
-  }
-
-  function extractYear(inscription){
-    if(!inscription) return null;
-    const s = String(inscription).trim();
-
-    const mIso = s.match(/\b(19\d{2}|20\d{2}|2100)-\d{2}-\d{2}\b/);
-    if(mIso) return Number(mIso[1]);
-
-    const mFr = s.match(/\b\d{2}-\d{2}-(19\d{2}|20\d{2}|2100)\b/);
-    if(mFr) return Number(mFr[1]);
-
-    const m = s.match(/(19\d{2}|20\d{2}|2100)/);
-    return m ? Number(m[1]) : null;
   }
 
   function normalizePlayers(json){
@@ -297,13 +363,18 @@
     return [];
   }
 
-  async function loadAllPlayers(){
-    const res = await fetch(DATA_URL, { cache: "no-store" });
-    if(!res.ok) throw new Error("HTTP " + res.status);
-    const json = await res.json();
-    const list = normalizePlayers(json);
-    if(!list.length) throw new Error("Format JSON non reconnu ou liste vide");
-    return list;
+  function extractYear(inscription){
+    if(!inscription) return null;
+    const s = String(inscription).trim();
+
+    const iso = s.match(/\b(19\d{2}|20\d{2}|2100)-\d{2}-\d{2}\b/);
+    if(iso) return Number(iso[1]);
+
+    const fr = s.match(/\b\d{2}-\d{2}-(19\d{2}|20\d{2}|2100)\b/);
+    if(fr) return Number(fr[1]);
+
+    const any = s.match(/(19\d{2}|20\d{2}|2100)/);
+    return any ? Number(any[1]) : null;
   }
 
   function bestXP(player){
@@ -326,17 +397,28 @@
       "xp","xptotal","xp_total","total_xp","totalxp",
       "experience","exp","points_xp","pointsxp"
     ]);
-    const mode = deepFindValue(player, ["mode","bestMode","best_mode","category","categorie"]);
-    const rang = deepFindValue(player, ["rang","rank","classement","position","top2500","top_2500"]);
+
+    const mode = deepFindValue(player, [
+      "mode","bestMode","best_mode","category","categorie"
+    ]);
+
+    const rang = deepFindValue(player, [
+      "rang","rank","classement","position","top2500","top_2500"
+    ]);
+
     return { xp, mode, rang };
   }
 
   function getName(player){
-    return deepFindValue(player, ["nom","name","pseudo","username","player","player_name"]) ?? "—";
+    return deepFindValue(player, [
+      "nom","name","pseudo","username","player","player_name"
+    ]) ?? "—";
   }
 
   function getAvatar(player){
-    return deepFindValue(player, ["avatar","img","image","photo","pfp","avatar_url","avatarUrl"]) ?? "avatar/1.jpg";
+    return deepFindValue(player, [
+      "avatar","img","image","photo","pfp","avatar_url","avatarUrl"
+    ]) ?? "avatar/1.jpg";
   }
 
   function getInscription(player){
@@ -349,16 +431,10 @@
   function getLevel(player){
     const n1 = deepFindNumber(player, ["gen"]);
     if(n1 != null) return n1;
-    return deepFindNumber(player, ["niveau","level","lvl","nv","tier"]);
-  }
 
-  function escapeHtml(s){
-    return String(s ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+    return deepFindNumber(player, [
+      "niveau","level","lvl","nv","tier"
+    ]);
   }
 
   function playerKeyFromName(name){
@@ -369,92 +445,78 @@
     return playerKeyFromName(getName(player));
   }
 
-  function dateToIso(d){
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-  }
-
-  function candidateSnapshotUrlsForDate(dateStr){
-    return [
-      `${HISTORY_BASE_URL}/${dateStr}`,
-      `${HISTORY_BASE_URL}/${dateStr}.json`,
-      `${HISTORY_BASE_URL}/${dateStr}/players_pages.json`
-    ];
-  }
-
-  async function tryFetchJson(url){
-    try{
-      const res = await fetch(url, { cache: "no-store" });
-      if(!res.ok) return null;
-      return await res.json();
-    }catch(e){
-      return null;
+  async function loadJson(url){
+    const res = await fetch(url, { cache: "no-store" });
+    if(!res.ok){
+      throw new Error(`HTTP ${res.status} sur ${url}`);
     }
+    return await res.json();
   }
 
-  async function loadSnapshotByDate(dateStr){
-    const urls = candidateSnapshotUrlsForDate(dateStr);
+  async function loadCurrentPlayers(){
+    const json = await loadJson(CURRENT_URL);
+    const players = normalizePlayers(json);
+    if(!players.length){
+      throw new Error(`Aucun joueur trouvé dans ${CURRENT_URL}`);
+    }
+    return players;
+  }
 
-    for(const url of urls){
-      const json = await tryFetchJson(url);
-      if(!json) continue;
+  async function loadHistorySnapshots(){
+    const snapshots = [];
 
-      const players = normalizePlayers(json);
-      if(players.length){
-        return { date: dateStr, url, players };
+    for(const url of HISTORY_SNAPSHOTS){
+      try{
+        const json = await loadJson(url);
+        const players = normalizePlayers(json);
+        if(!players.length){
+          console.warn("[rankyear] snapshot vide ignoré :", url);
+          continue;
+        }
+
+        const m = String(url).match(/(20\d{2}-\d{2}-\d{2})/);
+        const date = m ? m[1] : url;
+
+        snapshots.push({
+          url,
+          date,
+          year: m ? Number(m[1].slice(0, 4)) : null,
+          players
+        });
+      }catch(e){
+        console.warn("[rankyear] impossible de charger le snapshot :", url, e);
       }
     }
 
-    return null;
-  }
-
-  async function findExistingSnapshotDatesForYear(year){
-    const today = new Date();
-    const start = new Date(year, 0, 1);
-    const end = (year === today.getFullYear())
-      ? new Date(today.getFullYear(), today.getMonth(), today.getDate())
-      : new Date(year, 11, 31);
-
-    const found = [];
-
-    for(let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)){
-      const dateStr = dateToIso(d);
-      const snap = await loadSnapshotByDate(dateStr);
-      if(snap){
-        found.push(snap);
-      }
-    }
-
-    return found;
+    snapshots.sort((a,b) => String(a.date).localeCompare(String(b.date)));
+    return snapshots;
   }
 
   function rowsFromCurrentPlayers(players){
     return players.map(pl => {
       const name = getName(pl);
       const avatar = getAvatar(pl);
-      const inscriptionRaw = getInscription(pl);
-      const year = extractYear(inscriptionRaw);
+      const inscription = getInscription(pl);
+      const year = extractYear(inscription);
       const best = bestXP(pl);
-      const level = getLevel(pl);
+      const niveau = getLevel(pl);
 
       return {
         raw: pl,
         key: playerKey(pl),
         nom: name,
         avatar,
-        inscription: inscriptionRaw,
+        inscription,
         year,
         xp: best.xp,
         bestMode: best.mode,
         rang: best.rang,
-        niveau: level
+        niveau
       };
-    }).filter(r => r.year != null && r.key);
+    }).filter(r => r.key && r.year != null);
   }
 
-  function rowsFromSnapshotPlayers(players){
+  function rowsFromHistoryPlayers(players){
     return players.map(pl => {
       const name = getName(pl);
       const best = bestXP(pl);
@@ -473,7 +535,7 @@
       const ax = (a.xp == null) ? -Infinity : a.xp;
       const bx = (b.xp == null) ? -Infinity : b.xp;
       if(bx !== ax) return bx - ax;
-      return String(a.nom).localeCompare(String(b.nom), "fr", { sensitivity:"base" });
+      return String(a.nom).localeCompare(String(b.nom), "fr", { sensitivity: "base" });
     });
     return list;
   }
@@ -484,27 +546,29 @@
     return y - 1;
   }
 
-  async function loadHistoryBaselinesForYears(years){
+  function buildBaselineByReferenceYear(historySnapshots){
+    /*
+      Map<année de snapshot, Map<playerKey, première position globale connue>>
+      Ex:
+      baselineByRefYear.get(2025).get("koopa") => 42
+    */
     const baselineByRefYear = new Map();
 
-    for(const year of Array.from(years).sort((a,b) => a - b)){
-      const snaps = await findExistingSnapshotDatesForYear(year);
-      const refMap = new Map();
+    for(const snap of historySnapshots){
+      if(!Number.isFinite(snap.year)) continue;
 
-      snaps.sort((a,b) => String(a.date).localeCompare(String(b.date)));
-
-      for(const snap of snaps){
-        const rows = sortRowsForRanking(rowsFromSnapshotPlayers(snap.players));
-        rows.forEach((row, idx) => {
-          if(!refMap.has(row.key)){
-            refMap.set(row.key, idx + 1);
-          }
-        });
+      if(!baselineByRefYear.has(snap.year)){
+        baselineByRefYear.set(snap.year, new Map());
       }
 
-      baselineByRefYear.set(year, refMap);
+      const refMap = baselineByRefYear.get(snap.year);
+      const rows = sortRowsForRanking(rowsFromHistoryPlayers(snap.players));
 
-      console.log(`[rankyear] année historique ${year} : ${snaps.length} snapshot(s), ${refMap.size} joueur(s) indexé(s)`);
+      rows.forEach((row, idx) => {
+        if(!refMap.has(row.key)){
+          refMap.set(row.key, idx + 1);
+        }
+      });
     }
 
     return baselineByRefYear;
@@ -557,7 +621,7 @@
 
     if(mv.type === "entry"){
       return `
-        <span class="moveBadge move-entry" title="Absent du classement global de l'année précédente">
+        <span class="moveBadge move-entry" title="Absent des snapshots de l'année précédente">
           <span>Entrée</span>
         </span>
       `;
@@ -570,12 +634,22 @@
     `;
   }
 
-  async function renderByYear(players){
+  async function renderByYear(){
     const host = document.getElementById("years");
     const meta = document.getElementById("meta");
 
-    const rows = rowsFromCurrentPlayers(players);
+    host.innerHTML = `<div style="padding:12px 2px;font-weight:900;color:#444;">Chargement des joueurs...</div>`;
+
+    const currentPlayers = await loadCurrentPlayers();
+    const historySnapshots = await loadHistorySnapshots();
+
+    const rows = rowsFromCurrentPlayers(currentPlayers);
     meta.textContent = `${rows.length} joueurs`;
+
+    if(!rows.length){
+      host.innerHTML = `<div class="errorBox">Aucun joueur exploitable dans le classement actuel.</div>`;
+      return;
+    }
 
     const globalRows = sortRowsForRanking([...rows]);
     const currentGlobalPosByKey = new Map();
@@ -583,14 +657,7 @@
       currentGlobalPosByKey.set(r.key, idx + 1);
     });
 
-    const inscriptionYears = new Set(rows.map(r => r.year).filter(y => y != null));
-    const historyYears = new Set(
-      Array.from(inscriptionYears)
-        .map(y => getReferenceYearForInscriptionYear(y))
-        .filter(y => y != null)
-    );
-
-    const baselineByRefYear = await loadHistoryBaselinesForYears(historyYears);
+    const baselineByRefYear = buildBaselineByReferenceYear(historySnapshots);
 
     const byYear = new Map();
     for(const r of rows){
@@ -599,8 +666,9 @@
     }
 
     const years = Array.from(byYear.keys()).sort((a,b) => b - a);
+
     if(!years.length){
-      host.innerHTML = `<div class="errorBox">Aucune année d'inscription exploitable dans le JSON.</div>`;
+      host.innerHTML = `<div class="errorBox">Aucune année d'inscription exploitable dans le classement actuel.</div>`;
       return;
     }
 
@@ -611,13 +679,14 @@
       sortRowsForRanking(list);
 
       list.forEach((r) => {
-        r.currentPos = currentGlobalPosByKey.get(r.key) ?? null;
-
+        const currentPos = currentGlobalPosByKey.get(r.key) ?? null;
         const referenceYear = getReferenceYearForInscriptionYear(r.year);
-        const refBaseline = baselineByRefYear.get(referenceYear) || new Map();
-        const baselinePos = refBaseline.get(r.key);
+        const baselinePos = baselineByRefYear.get(referenceYear)?.get(r.key) ?? null;
 
-        r.movement = getMovementInfo(r.currentPos, baselinePos);
+        r.currentPos = currentPos;
+        r.referenceYear = referenceYear;
+        r.baselinePos = baselinePos;
+        r.movement = getMovementInfo(currentPos, baselinePos);
       });
 
       const top = list.slice(0, 10);
@@ -693,22 +762,20 @@
     const tab = document.querySelector(".tab-year");
     if(tab) tab.classList.add("is-active");
 
-    console.log("[rankyear] sample current player raw:", players[0]);
-    console.log("[rankyear] sample parsed current row:", rows[0]);
-    console.log("[rankyear] baselineByRefYear:", baselineByRefYear);
+    console.log("[rankyear] snapshots historiques chargés :", historySnapshots.map(s => s.url));
+    console.log("[rankyear] baselineByRefYear :", baselineByRefYear);
+    console.log("[rankyear] exemple joueur actuel :", rows[0]);
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
     const host = document.getElementById("years");
-    host.innerHTML = `<div style="padding:12px 2px;font-weight:900;color:#444;">Chargement des joueurs...</div>`;
 
     try{
-      const players = await loadAllPlayers();
-      await renderByYear(players);
+      await renderByYear();
     }catch(e){
       host.innerHTML = `
         <div class="errorBox">
-          Impossible de charger <code>${DATA_URL}</code> : ${String(e.message || e)}
+          Impossible de charger les données : ${escapeHtml(String(e.message || e))}
         </div>
       `;
       console.error(e);
