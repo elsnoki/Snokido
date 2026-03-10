@@ -233,9 +233,9 @@
 </div>
 
 <script>
-  const CURRENT_URL = "players_pages.json";
-  const HISTORY_INDEX_URL = "index.json";
-  const FULL_SNAPSHOT_MIN_SIZE = 1000; // évite d'utiliser les snapshots top 50 comme base globale
+ const CURRENT_URL = "data/players_pages.json";
+ const HISTORY_INDEX_URL = "data/history_paris/index.json";
+ const FULL_SNAPSHOT_MIN_SIZE = 1000;
 
   function slugify2(name){
     return String(name || "")
@@ -456,18 +456,18 @@
   }
 
   function historyEntryToFile(entry){
-    if(typeof entry !== "string") return null;
+  if(typeof entry !== "string") return null;
 
-    const m = entry.match(/(20\d{2}-\d{2}-\d{2}|19\d{2}-\d{2}-\d{2})/);
-    if(!m) return null;
+  const m = entry.match(/(20\d{2}-\d{2}-\d{2}|19\d{2}-\d{2}-\d{2})/);
+  if(!m) return null;
 
-    const date = m[1];
-    return {
-      date,
-      year: Number(date.slice(0, 4)),
-      url: `${date}.json`
-    };
-  }
+  const date = m[1];
+  return {
+    date,
+    year: Number(date.slice(0, 4)),
+    url: `data/history_paris/${date}.json`
+  };
+}
 
   async function loadHistorySnapshotsForYears(yearsNeeded){
     const rawIndex = await loadHistoryIndex();
