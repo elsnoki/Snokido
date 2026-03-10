@@ -219,7 +219,7 @@
   <div class="hint">
     Classement XP par <b>année d'inscription</b> (Top 10 max par année).
     <small>
-      La colonne <b>Évolution</b> compare le <b>classement global actuel</b> avec les <b>snapshots historiques</b> de l’année précédente.
+      La colonne <b>Évolution</b> compare le <b>classement global actuel</b> avec les snapshots de <b>l'année précédente</b>.
     </small>
   </div>
 
@@ -233,33 +233,8 @@
 </div>
 
 <script>
-  /*
-    SOURCE ACTUELLE :
-    - period/players_pages.json = top 2500 actuel, mis à jour à chaque scrape
-  */
-  const CURRENT_URL = "period/players_pages.json";
-
-  /*
-    SNAPSHOTS HISTORIQUES :
-    - Mets ici UNIQUEMENT les fichiers qui existent vraiment.
-    - Le script NE SCANNE PLUS les jours, pour éviter le chargement infini.
-    - Tu peux ajouter autant de dates que tu veux.
-  */
-  const HISTORY_SNAPSHOTS = [
-    "data/history_paris/2025-01-01",
-    "data/history_paris/2025-02-01",
-    "data/history_paris/2025-02-23",
-    "data/history_paris/2025-02-24",
-    "data/history_paris/2025-03-02",
-    "data/history_paris/2025-03-06",
-
-    "data/history_paris/2026-01-01",
-    "data/history_paris/2026-02-01",
-    "data/history_paris/2026-02-23",
-    "data/history_paris/2026-02-24",
-    "data/history_paris/2026-03-02",
-    "data/history_paris/2026-03-06"
-  ];
+  const CURRENT_URL = "players_pages.json";
+  const HISTORY_INDEX_URL = "index.json";
 
   function slugify2(name){
     return String(name || "")
@@ -445,46 +420,116 @@
     return playerKeyFromName(getName(player));
   }
 
+  function sortRowsForRanking(list){
+    list.sort((a,b) => {
+      const ax = (a.xp == null) ? -Infinity : a.xp;
+      const bx = (b.xp == null) ? -Infinity : b.xp;
+      if(bx !== ax) return bx - ax;
+      return String(a.nom).localeCompare(String(b.nom), "fr", { sensitivity: "base" });
+    });
+    return list;
+  }
+
+  function getReferenceYearForInscriptionYear(inscriptionYear){
+    const y = Number(inscriptionYear);
+    if(!Number.isFinite(y)) return null;
+    return y - 1;
+  }
+
   async function loadJson(url){
     const res = await fetch(url, { cache: "no-store" });
-    if(!res.ok){
-      throw new Error(`HTTP ${res.status} sur ${url}`);
-    }
+    if(!res.ok) throw new Error(`HTTP ${res.status} sur ${url}`);
     return await res.json();
   }
 
   async function loadCurrentPlayers(){
     const json = await loadJson(CURRENT_URL);
     const players = normalizePlayers(json);
-    if(!players.length){
-      throw new Error(`Aucun joueur trouvé dans ${CURRENT_URL}`);
-    }
+    if(!players.length) throw new Error(`Aucun joueur trouvé dans ${CURRENT_URL}`);
     return players;
   }
 
-  async function loadHistorySnapshots(){
+  async function loadHistoryIndex(){
+    const json = await loadJson(HISTORY_INDEX_URL);
+
+    if(Array.isArray(json)){
+      return json;
+    }
+
+    if(Array.isArray(json.files)){
+      return json.files;
+    }
+
+    if(Array.isArray(json.snapshots)){
+      return json.snapshots;
+    }
+
+    if(Array.isArray(json.items)){
+      return json.items;
+    }
+
+    return [];
+  }
+
+  function toHistoryFileList(indexEntries){
+    const out = [];
+
+    for(const item of indexEntries){
+      if(typeof item === "string"){
+        const m = item.match(/(20\d{2}-\d{2}-\d{2})/);
+        if(m){
+          out.push({
+            date: m[1],
+            year: Number(m[1].slice(0, 4)),
+            url: item.endsWith(".json") ? item : `${item}.json`
+          });
+        }
+        continue;
+      }
+
+      if(item && typeof item === "object"){
+        const date = item.date || item.day || item.name || item.file || item.path;
+        const dateStr = typeof date === "string" ? (date.match(/(20\d{2}-\d{2}-\d{2})/) || [])[1] : null;
+        const rawPath = item.path || item.file || item.url || item.name;
+
+        if(dateStr && rawPath){
+          let url = String(rawPath);
+          if(!url.endsWith(".json")) url += ".json";
+
+          out.push({
+            date: dateStr,
+            year: Number(dateStr.slice(0, 4)),
+            url
+          });
+        }
+      }
+    }
+
+    out.sort((a,b) => String(a.date).localeCompare(String(b.date)));
+    return out;
+  }
+
+  async function loadHistorySnapshotsForYears(yearsNeeded){
+    const indexEntries = await loadHistoryIndex();
+    const allFiles = toHistoryFileList(indexEntries);
+
+    const wanted = allFiles.filter(f => yearsNeeded.has(f.year));
     const snapshots = [];
 
-    for(const url of HISTORY_SNAPSHOTS){
+    for(const f of wanted){
       try{
-        const json = await loadJson(url);
+        const json = await loadJson(f.url);
         const players = normalizePlayers(json);
-        if(!players.length){
-          console.warn("[rankyear] snapshot vide ignoré :", url);
-          continue;
-        }
-
-        const m = String(url).match(/(20\d{2}-\d{2}-\d{2})/);
-        const date = m ? m[1] : url;
+        if(!players.length) continue;
 
         snapshots.push({
-          url,
-          date,
-          year: m ? Number(m[1].slice(0, 4)) : null,
+          date: f.date,
+          year: f.year,
+          url: f.url,
           players
         });
       }catch(e){
-        console.warn("[rankyear] impossible de charger le snapshot :", url, e);
+        console.warn("[rankyear] snapshot ignoré :", f.url, e);
       }
     }
 
@@ -530,33 +575,10 @@
     }).filter(r => r.key && r.xp != null);
   }
 
-  function sortRowsForRanking(list){
-    list.sort((a,b) => {
-      const ax = (a.xp == null) ? -Infinity : a.xp;
-      const bx = (b.xp == null) ? -Infinity : b.xp;
-      if(bx !== ax) return bx - ax;
-      return String(a.nom).localeCompare(String(b.nom), "fr", { sensitivity: "base" });
-    });
-    return list;
-  }
-
-  function getReferenceYearForInscriptionYear(inscriptionYear){
-    const y = Number(inscriptionYear);
-    if(!Number.isFinite(y)) return null;
-    return y - 1;
-  }
-
   function buildBaselineByReferenceYear(historySnapshots){
-    /*
-      Map<année de snapshot, Map<playerKey, première position globale connue>>
-      Ex:
-      baselineByRefYear.get(2025).get("koopa") => 42
-    */
     const baselineByRefYear = new Map();
 
     for(const snap of historySnapshots){
-      if(!Number.isFinite(snap.year)) continue;
-
       if(!baselineByRefYear.has(snap.year)){
         baselineByRefYear.set(snap.year, new Map());
       }
@@ -578,21 +600,14 @@
     if(currentPos == null){
       return { type: "flat", label: "0", value: 0 };
     }
-
     if(baselinePos == null){
       return { type: "entry", label: "Entrée", value: null };
     }
 
     const delta = baselinePos - currentPos;
 
-    if(delta > 0){
-      return { type: "up", label: `+${delta}`, value: delta };
-    }
-
-    if(delta < 0){
-      return { type: "down", label: String(delta), value: delta };
-    }
-
+    if(delta > 0) return { type: "up", label: `+${delta}`, value: delta };
+    if(delta < 0) return { type: "down", label: String(delta), value: delta };
     return { type: "flat", label: "0", value: 0 };
   }
 
@@ -629,7 +644,7 @@
 
     return `
       <span class="moveBadge move-flat" title="Aucun changement">
-        <span>${escapeHtml(mv.label)}</span>
+        <span>0</span>
       </span>
     `;
   }
@@ -641,50 +656,50 @@
     host.innerHTML = `<div style="padding:12px 2px;font-weight:900;color:#444;">Chargement des joueurs...</div>`;
 
     const currentPlayers = await loadCurrentPlayers();
-    const historySnapshots = await loadHistorySnapshots();
+    const currentRows = rowsFromCurrentPlayers(currentPlayers);
 
-    const rows = rowsFromCurrentPlayers(currentPlayers);
-    meta.textContent = `${rows.length} joueurs`;
-
-    if(!rows.length){
+    if(!currentRows.length){
       host.innerHTML = `<div class="errorBox">Aucun joueur exploitable dans le classement actuel.</div>`;
       return;
     }
 
-    const globalRows = sortRowsForRanking([...rows]);
+    meta.textContent = `${currentRows.length} joueurs`;
+
+    const globalRows = sortRowsForRanking([...currentRows]);
     const currentGlobalPosByKey = new Map();
     globalRows.forEach((r, idx) => {
       currentGlobalPosByKey.set(r.key, idx + 1);
     });
 
+    const inscriptionYears = new Set(currentRows.map(r => r.year).filter(Boolean));
+    const historyYearsNeeded = new Set(
+      Array.from(inscriptionYears)
+        .map(y => getReferenceYearForInscriptionYear(y))
+        .filter(Boolean)
+    );
+
+    const historySnapshots = await loadHistorySnapshotsForYears(historyYearsNeeded);
     const baselineByRefYear = buildBaselineByReferenceYear(historySnapshots);
 
     const byYear = new Map();
-    for(const r of rows){
+    for(const r of currentRows){
       if(!byYear.has(r.year)) byYear.set(r.year, []);
       byYear.get(r.year).push(r);
     }
 
     const years = Array.from(byYear.keys()).sort((a,b) => b - a);
-
-    if(!years.length){
-      host.innerHTML = `<div class="errorBox">Aucune année d'inscription exploitable dans le classement actuel.</div>`;
-      return;
-    }
-
     host.innerHTML = "";
 
     years.forEach((year, idx) => {
       const list = byYear.get(year) || [];
       sortRowsForRanking(list);
 
-      list.forEach((r) => {
+      list.forEach(r => {
         const currentPos = currentGlobalPosByKey.get(r.key) ?? null;
-        const referenceYear = getReferenceYearForInscriptionYear(r.year);
-        const baselinePos = baselineByRefYear.get(referenceYear)?.get(r.key) ?? null;
+        const refYear = getReferenceYearForInscriptionYear(r.year);
+        const baselinePos = baselineByRefYear.get(refYear)?.get(r.key) ?? null;
 
         r.currentPos = currentPos;
-        r.referenceYear = referenceYear;
         r.baselinePos = baselinePos;
         r.movement = getMovementInfo(currentPos, baselinePos);
       });
@@ -759,17 +774,13 @@
       host.appendChild(box);
     });
 
-    const tab = document.querySelector(".tab-year");
-    if(tab) tab.classList.add("is-active");
-
-    console.log("[rankyear] snapshots historiques chargés :", historySnapshots.map(s => s.url));
-    console.log("[rankyear] baselineByRefYear :", baselineByRefYear);
-    console.log("[rankyear] exemple joueur actuel :", rows[0]);
+    console.log("[rankyear] current rows:", currentRows.length);
+    console.log("[rankyear] history snapshots:", historySnapshots.map(s => s.url));
+    console.log("[rankyear] baselineByRefYear:", baselineByRefYear);
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
     const host = document.getElementById("years");
-
     try{
       await renderByYear();
     }catch(e){
