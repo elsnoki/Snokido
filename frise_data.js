@@ -244,6 +244,9 @@ window.FRISE = [
       { t: "Ko0pa et Unit atteignent 100K", p: 10 },
       { t: "Duel Unit vs Ko0pa", p: 2 },
       { t: "Duel Houka vs Justice-", p: 4 },
+      { t: "Ko0pa atteint 100K", p: 5 },
+      { t: "Houka, Justice-, LargoJunior & Blackout atteignent le niveau 100", p: 20 },
+      { t: "Aldébaran, Bételgeuse, UY-Scuty atteignent le niveau 100", p: 15 },
     ],
   },
 ];
