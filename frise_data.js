@@ -232,6 +232,7 @@ window.FRISE = [
   {
     year: 2026,
     events: [
+      { t: "New génération 6", p: 4 },
       { t: "Dude atteint 100K", p: 5 },
       { t: "Alex.c2109 atteint 800K", p: 5 },
       { t: "Inscription de Ko0pa + Clovis1er + LargoJunior", p: 15 },
