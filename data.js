@@ -245,7 +245,7 @@ const joueurs = [
 // =====================
 
 {
-  nom:"UY-Scuty", avatar:"avatar/default.jpg", gen:null, inscription:"—",
+  nom:"UY-Scuty", avatar:"avatar/27.jpg", gen:null, inscription:"—",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:40000,
@@ -298,7 +298,7 @@ const joueurs = [
   }
 },
 {
-  nom:"cahincaha", avatar:"avatar/default.jpg", gen:7, inscription:"—",
+  nom:"cahincaha", avatar:"avatar/24.jpg", gen:7, inscription:"—",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:42000,
