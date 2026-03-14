@@ -239,7 +239,211 @@ const joueurs = [
     modes:{
       nv100:{ jours:1958, atteint_le:"~Août 2018", rang:"23/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
     }
+  },
+  // =====================
+// AJOUTS / MISES À JOUR
+// =====================
+
+{
+  nom:"UY-Scuty", avatar:"avatar/default.jpg", gen:null, inscription:"—",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      pauses_total:{ nb:1, mois:43, jours:1316 },
+      pauses_detail:[
+        { xp:40000, periode:"depuis 06/08/2022", mois:43, jours:1316 }
+      ]
+    }
   }
+},
+{
+  nom:"blackout", avatar:"avatar/30.jpg", gen:6, inscription:"16-05-2019",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      pauses_total:{ nb:2, mois:35, jours:1079 },
+      pauses_detail:[
+        { xp:1696, periode:"20/05/2019 -> 01/2022~", mois:31, jours:957 },
+        { xp:24724, periode:"04/2022 -> 08/2022", mois:4, jours:122 }
+      ]
+    }
+  }
+},
+{
+  nom:"Athèna", avatar:"avatar/31.jpg", gen:7, inscription:"30-03-2019",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      pauses_total:{ nb:3, mois:75, jours:2334 },
+      pauses_detail:[
+        { xp:5080, periode:"16/06/2019 -> 08/2021~", mois:25, jours:777 },
+        { xp:22028, periode:"27/10/2021 -> 04/08/2022", mois:9, jours:281 },
+        { xp:40000, periode:"depuis 15/09/2022", mois:41, jours:1276 }
+      ]
+    }
+  }
+},
+{
+  nom:"acno", avatar:"avatar/32.jpg", gen:7, inscription:"23-03-2019",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      pauses_total:{ nb:3, mois:77, jours:2372 },
+      pauses_detail:[
+        { xp:5080, periode:"19/05/2019 -> 10/2021", mois:28, jours:866 },
+        { xp:22028, periode:"01/2022 -> 04/08/2022", mois:7, jours:215 },
+        { xp:40000, periode:"depuis 31/08/2022", mois:42, jours:1291 }
+      ]
+    }
+  }
+},
+{
+  nom:"cahincaha", avatar:"avatar/default.jpg", gen:7, inscription:"—",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:42000,
+      pauses_total:{ nb:3, mois:25, jours:736 },
+      pauses_detail:[
+        { xp:40000, periode:"16/12/2023 -> 14/03/2024", mois:2, jours:89 },
+        { xp:40056, periode:"14/03/2024 -> 01/06/2024", mois:2, jours:79 },
+        { xp:42000, periode:"depuis 05/06/2024", mois:21, jours:647 }
+      ]
+    }
+  }
+},
+{
+  nom:"Houka", avatar:"avatar/25.jpg", gen:6, inscription:"18-11-2023",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:41000,
+      pauses_total:{ nb:1, mois:19, jours:595 },
+      pauses_detail:[
+        { xp:41000, periode:"15/07/2024 -> 02/03/2026", mois:19, jours:595 }
+      ]
+    }
+  }
+},
+{
+  nom:"Bételgeuse", avatar:"avatar/28.jpg", gen:6, inscription:"07-06-2020",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      pauses_total:{ nb:2, mois:63, jours:1932 },
+      pauses_detail:[
+        { xp:8100, periode:"09/2020 -> 08/2022", mois:23, jours:699 },
+        { xp:40000, periode:"depuis 28/10/2022", mois:40, jours:1233 }
+      ]
+    }
+  }
+},
+{
+  nom:"Aldébaran", avatar:"avatar/29.jpg", gen:6, inscription:"07-06-2020",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      pauses_total:{ nb:2, mois:63, jours:1932 },
+      pauses_detail:[
+        { xp:8100, periode:"09/2020 -> 08/2022", mois:23, jours:699 },
+        { xp:40000, periode:"depuis 28/10/2022", mois:40, jours:1233 }
+      ]
+    }
+  }
+},
+{
+  nom:"Venom_", avatar:"avatar/21.jpg", gen:7, inscription:"09-05-2021",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:48108,
+      pauses_total:{ nb:1, mois:53, jours:1625 },
+      pauses_detail:[
+        { xp:48108, periode:"depuis 10/2021", mois:53, jours:1625 }
+      ]
+    }
+  }
+},
+{
+  nom:"Justice", avatar:"avatar/26.jpg", gen:6, inscription:"29-02-2024",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:32580,
+      pauses_total:{ nb:2, mois:15, jours:488 },
+      pauses_detail:[
+        { xp:27824, periode:"12/08/2024 -> 22/01/2025", mois:5, jours:163 },
+        { xp:32580, periode:"14/03/2025 -> 02/02/2026", mois:10, jours:325 }
+      ]
+    }
+  }
+},
+{
+  nom:"Napoléon.1er", avatar:"avatar/40.jpg", gen:6, inscription:"14-07-2024",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:12776,
+      pauses_total:{ nb:2, mois:6, jours:213 },
+      pauses_detail:[
+        { xp:12560, periode:"06/2025 -> 10/2025", mois:4, jours:122 },
+        { xp:12776, periode:"11/2025 -> 01/2026", mois:2, jours:91 }
+      ]
+    }
+  }
+},
+{
+  nom:"Elena21", avatar:"avatar/41.jpg", gen:7, inscription:"31-03-2019",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:200,
+      pauses_total:{ nb:1, mois:81, jours:2468 },
+      pauses_detail:[
+        { xp:200, periode:"05/2019 -> 02/2026", mois:81, jours:2468 }
+      ]
+    }
+  }
+},
+{
+  nom:"Gangster2019", avatar:"avatar/44.jpg", gen:7, inscription:"24-03-2019",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:1940,
+      pauses_total:{ nb:2, mois:80, jours:2435 },
+      pauses_detail:[
+        { xp:1512, periode:"06/2019 -> 06/2020", mois:12, jours:366 },
+        { xp:1940, periode:"07/2020 -> 03/2026", mois:68, jours:2069 }
+      ]
+    }
+  }
+},
+{
+  nom:"Shadow321", avatar:"avatar/42.jpg", gen:7, inscription:"24-03-2019",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:1134,
+      pauses_total:{ nb:1, mois:81, jours:2471 },
+      pauses_detail:[
+        { xp:1134, periode:"06/2019 -> 07/03/2026", mois:81, jours:2471 }
+      ]
+    }
+  }
+},
+{
+  nom:"Clovis1er", avatar:"avatar/36.jpg", gen:7, inscription:"14-02-2026",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:0,
+      pauses_total:{ nb:0, mois:0, jours:0 },
+      pauses_detail:[]
+    }
+  }
+},
+{
+  nom:"Polyy", avatar:"avatar/33.jpg", gen:7, inscription:"24-12-2025",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:0,
+      pauses_total:{ nb:0, mois:0, jours:0 },
+      pauses_detail:[]
+    }
+  }
+},
 ];
 
 
