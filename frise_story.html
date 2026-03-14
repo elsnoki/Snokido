@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Frise racontée — Chronologie vivante</title>
+  <style>
+    :root{
+      --bg1:#071b2a;
+      --bg2:#0d3551;
+      --bg3:#114e6a;
+      --card:#ffffffee;
+      --ink:#0f172a;
+      --muted:#4b5563;
+      --line:#7dd3fc;
+      --lineGlow:rgba(125,211,252,.28);
+      --accent:#38bdf8;
+      --accent2:#0ea5e9;
+      --gold:#fbbf24;
+      --good:#16a34a;
+      --bad:#dc2626;
+      --shadow:0 25px 60px rgba(0,0,0,.28);
+      --shadow2:0 12px 30px rgba(0,0,0,.18);
+    }
+
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:white;
+      background:
+        radial-gradient(900px 500px at 10% 0%, rgba(56,189,248,.22), transparent 60%),
+        radial-gradient(900px 500px at 100% 20%, rgba(251,191,36,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg2), var(--bg1) 55%, #06111c 100%);
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.45), transparent 55%),
+        radial-gradient(1.5px 1.5px at 70% 20%, rgba(255,255,255,.35), transparent 55%),
+        radial-gradient(1.8px 1.8px at 85% 70%, rgba(255,255,255,.32), transparent 55%),
+        radial-gradient(1.2px 1.2px at 30% 75%, rgba(255,255,255,.28), transparent 55%),
+        radial-gradient(1.6px 1.6px at 50% 50%, rgba(255,255,255,.22), transparent 55%);
+      opacity:.8;
+    }
+
+    .wrap{
+      width:min(1320px, calc(100% - 28px));
+      margin:24px auto 56px;
+      position:relative;
+      z-index:1;
+    }
+
+    .hero{
+      position:relative;
+      padding:28px 24px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      backdrop-filter:blur(12px);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:auto -80px -120px auto;
+      width:320px;
+      height:320px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(56,189,248,.24), transparent 65%);
+      filter:blur(8px);
+    }
+    .heroTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      flex-wrap:wrap;
+    }
+    .hero h1{
+      margin:0;
+      font-size:clamp(30px, 4vw, 52px);
+      line-height:1;
+      letter-spacing:-.03em;
+    }
+    .hero p{
+      margin:12px 0 0;
+      max-width:860px;
+      font-size:16px;
+      line-height:1.55;
+      color:rgba(255,255,255,.82);
+    }
+    .backLink{
+      color:#d9f3ff;
+      text-decoration:none;
+      font-weight:800;
+      border:1px solid rgba(217,243,255,.2);
+      padding:12px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      transition:.18s ease;
+      white-space:nowrap;
+    }
+    .backLink:hover{ transform:translateY(-1px); background:rgba(255,255,255,.12); }
+
+    .stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+    .stat{
+      padding:12px 14px;
+      border-radius:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      min-width:140px;
+    }
+    .stat b{
+      display:block;
+      font-size:22px;
+      color:white;
+    }
+    .stat span{
+      font-size:13px;
+      color:rgba(255,255,255,.7);
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 1fr 340px;
+      gap:22px;
+      margin-top:22px;
+      align-items:start;
+    }
+
+    .story{
+      position:relative;
+      padding:28px 0 10px;
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.1);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .storyLine{
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:50%;
+      transform:translateX(-50%);
+      width:8px;
+      border-radius:999px;
+      background:linear-gradient(180deg, rgba(125,211,252,.15), var(--line), rgba(125,211,252,.3));
+      box-shadow:0 0 0 10px var(--lineGlow), 0 0 60px rgba(56,189,248,.18);
+    }
+
+    .yearBlock{
+      position:relative;
+      padding:26px 22px 34px;
+    }
+
+    .yearBadge{
+      position:sticky;
+      top:16px;
+      z-index:4;
+      width:max-content;
+      margin:0 auto 22px;
+      padding:10px 18px;
+      border-radius:999px;
+      font-weight:1000;
+      letter-spacing:.08em;
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.82));
+      color:#071b2a;
+      box-shadow:var(--shadow2);
+      border:1px solid rgba(15,23,42,.08);
+    }
+
+    .eventRow{
+      position:relative;
+      display:grid;
+      grid-template-columns: 1fr 120px 1fr;
+      align-items:center;
+      min-height:120px;
+      margin:0 0 6px;
+    }
+
+    .eventCard{
+      width:min(430px, calc(100% - 12px));
+      background:var(--card);
+      color:var(--ink);
+      border-radius:24px;
+      border:1px solid rgba(15,23,42,.08);
+      box-shadow:var(--shadow2);
+      padding:16px 18px;
+      transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+      opacity:.95;
+      cursor:pointer;
+    }
+    .eventCard:hover{
+      transform:translateY(-3px) scale(1.01);
+      box-shadow:0 20px 36px rgba(0,0,0,.18);
+      opacity:1;
+    }
+    .eventCard.left{ justify-self:end; }
+    .eventCard.right{ justify-self:start; }
+
+    .eventMeta{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .eventType{
+      font-size:11px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--accent2);
+    }
+    .eventPts{
+      font-weight:1000;
+      font-size:13px;
+      border-radius:999px;
+      padding:7px 10px;
+      background:#ecfeff;
+      color:#0c4a6e;
+      border:1px solid rgba(14,165,233,.18);
+    }
+    .eventPts.neg{
+      background:#fef2f2;
+      color:#991b1b;
+      border-color:rgba(220,38,38,.18);
+    }
+    .eventTitle{
+      font-size:17px;
+      font-weight:900;
+      line-height:1.24;
+    }
+    .eventSub{
+      margin-top:6px;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .nodeWrap{
+      position:relative;
+      z-index:3;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .node{
+      width:76px;
+      height:76px;
+      border-radius:24px;
+      border:none;
+      cursor:pointer;
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.78));
+      box-shadow:0 16px 28px rgba(0,0,0,.22), 0 0 0 8px rgba(125,211,252,.12);
+      color:#082032;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:36px;
+      position:relative;
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+    .node:hover,
+    .node.active{
+      transform:scale(1.14);
+      box-shadow:0 24px 40px rgba(0,0,0,.28), 0 0 0 12px rgba(125,211,252,.16);
+    }
+    .nodeLabel{
+      font-size:11px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:rgba(255,255,255,.72);
+      text-align:center;
+      max-width:100px;
+    }
+
+    .connector{
+      position:absolute;
+      top:50%;
+      width:calc(50% - 78px);
+      height:2px;
+      background:linear-gradient(90deg, rgba(255,255,255,.08), rgba(255,255,255,.5));
+      z-index:1;
+    }
+    .connector.left{
+      left:calc(50% - (50% - 78px));
+      transform:translateY(-50%);
+    }
+    .connector.right{
+      right:calc(50% - (50% - 78px));
+      transform:translateY(-50%);
+    }
+
+    .side{
+      position:sticky;
+      top:18px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .panel{
+      border-radius:24px;
+      background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.1);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panelHead{
+      padding:16px 18px;
+      border-bottom:1px solid rgba(255,255,255,.1);
+      font-weight:1000;
+      letter-spacing:.02em;
+    }
+    .panelBody{ padding:16px 18px 18px; }
+
+    .focusEmpty{
+      color:rgba(255,255,255,.76);
+      line-height:1.6;
+      font-size:14px;
+    }
+
+    .focusIcon{
+      width:78px;
+      height:78px;
+      border-radius:24px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:40px;
+      background:rgba(255,255,255,.92);
+      color:#082032;
+      box-shadow:var(--shadow2);
+      margin-bottom:14px;
+    }
+    .focusYear{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:#bae6fd;
+      font-weight:900;
+    }
+    .focusTitle{
+      margin-top:8px;
+      font-size:22px;
+      line-height:1.15;
+      font-weight:1000;
+    }
+    .focusStory{
+      margin-top:10px;
+      font-size:14px;
+      line-height:1.65;
+      color:rgba(255,255,255,.82);
+    }
+    .focusPts{
+      display:inline-flex;
+      margin-top:14px;
+      padding:8px 11px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:900;
+      background:rgba(255,255,255,.92);
+      color:#082032;
+    }
+
+    .miniYears{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .miniYears button{
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      border-radius:999px;
+      padding:9px 12px;
+      background:rgba(255,255,255,.1);
+      color:#e0f2fe;
+      border:1px solid rgba(255,255,255,.12);
+      transition:.16s ease;
+    }
+    .miniYears button:hover{ transform:translateY(-1px); background:rgba(255,255,255,.16); }
+
+    .legendList{
+      display:grid;
+      gap:10px;
+      color:rgba(255,255,255,.8);
+      font-size:14px;
+    }
+    .legendItem{ display:flex; align-items:center; gap:10px; }
+    .legendSw{
+      width:18px;
+      height:18px;
+      border-radius:7px;
+      background:rgba(255,255,255,.92);
+      color:#082032;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:11px;
+      font-weight:900;
+      flex:0 0 auto;
+    }
+
+    .hidden{ display:none !important; }
+
+    @media (max-width: 1080px){
+      .layout{ grid-template-columns: 1fr; }
+      .side{ position:relative; top:0; }
+    }
+
+    @media (max-width: 820px){
+      .storyLine{ left:32px; transform:none; }
+      .yearBadge{ margin-left:72px; margin-right:auto; }
+      .eventRow{
+        grid-template-columns: 88px 1fr;
+        align-items:start;
+        min-height:unset;
+        gap:10px;
+        margin-bottom:16px;
+      }
+      .eventCard,
+      .eventCard.left,
+      .eventCard.right{
+        width:100%;
+        justify-self:start;
+        grid-column:2;
+      }
+      .nodeWrap{
+        grid-column:1;
+        grid-row:1;
+        padding-top:6px;
+      }
+      .connector{ display:none; }
+      .nodeLabel{ max-width:76px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition:none !important; scroll-behavior:auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <script src="header.js"></script>
+  <script src="frise_data.js"></script>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="heroTop">
+        <div>
+          <h1>La grande histoire de la frise</h1>
+          <p>
+            Une version plus vivante de la chronologie : chaque événement devient un repère visuel dans une vraie traversée du temps.
+            Survole un logo pour le faire ressortir, clique dessus pour lire ce qu’il s’est passé, et remonte l’histoire année après année.
+          </p>
+        </div>
+        <a class="backLink" href="frise.html">← Retour à la frise classique</a>
+      </div>
+
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="layout">
+      <div class="story">
+        <div class="storyLine"></div>
+        <div id="storyRoot"></div>
+      </div>
+
+      <aside class="side">
+        <section class="panel">
+          <div class="panelHead">Événement sélectionné</div>
+          <div class="panelBody">
+            <div id="focusEmpty" class="focusEmpty">
+              Clique sur un logo au centre de la frise pour afficher l’événement ici. L’idée est que la chronologie raconte une histoire, pas juste une liste.
+            </div>
+            <div id="focusCard" class="hidden"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panelHead">Aller à une année</div>
+          <div class="panelBody">
+            <div id="miniYears" class="miniYears"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panelHead">Lecture visuelle</div>
+          <div class="panelBody legendList">
+            <div class="legendItem"><span class="legendSw">⭐</span> montée importante, palier, million, nouveau cap</div>
+            <div class="legendItem"><span class="legendSw">⚔️</span> duel ou confrontation</div>
+            <div class="legendItem"><span class="legendSw">👤</span> inscription ou nouveau joueur</div>
+            <div class="legendItem"><span class="legendSw">🧬</span> nouvelle génération</div>
+            <div class="legendItem"><span class="legendSw">💥</span> bot, suppression ou événement négatif</div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const frise = Array.isArray(window.FRISE) ? window.FRISE : [];
+    const storyRoot = document.getElementById('storyRoot');
+    const miniYears = document.getElementById('miniYears');
+    const stats = document.getElementById('stats');
+    const focusEmpty = document.getElementById('focusEmpty');
+    const focusCard = document.getElementById('focusCard');
+
+    const flatEvents = frise.flatMap(y => (y.events || []).map((e, i) => ({ ...e, year: y.year, index: i })));
+
+    function fmtPts(p){
+      return `${p > 0 ? '+' : ''}${p} pts`;
+    }
+
+    function eventKind(text, pts){
+      const t = String(text || '').toLowerCase();
+      if (t.includes('bot') || t.includes('suppression') || pts < 0) return 'negative';
+      if (t.includes('inscription')) return 'inscription';
+      if (t.includes('génération')) return 'generation';
+      if (t.includes('duel')) return 'duel';
+      if (t.includes('100k') || t.includes('200k') || t.includes('300k') || t.includes('400k') || t.includes('500k') || t.includes('600k') || t.includes('700k') || t.includes('800k') || t.includes('900k') || t.includes('1m') || t.includes('niveau 100') || t.includes('1er')) return 'milestone';
+      return 'story';
+    }
+
+    function kindIcon(kind, text){
+      const t = String(text || '').toLowerCase();
+      if (kind === 'inscription') return '👤';
+      if (kind === 'generation') return '🧬';
+      if (kind === 'duel') return '⚔️';
+      if (kind === 'negative') return '💥';
+      if (t.includes('1m')) return '👑';
+      if (t.includes('niveau 100')) return '🌟';
+      if (t.includes('100k') || t.includes('200k') || t.includes('300k') || t.includes('400k') || t.includes('500k') || t.includes('600k') || t.includes('700k') || t.includes('800k') || t.includes('900k')) return '🚀';
+      if (t.includes('1er')) return '🏆';
+      return '✨';
+    }
+
+    function kindLabel(kind){
+      switch(kind){
+        case 'inscription': return 'Nouvelle arrivée';
+        case 'generation': return 'Nouvelle ère';
+        case 'duel': return 'Confrontation';
+        case 'negative': return 'Choc';
+        case 'milestone': return 'Palier';
+        default: return 'Épisode';
+      }
+    }
+
+    function makeStory(text, year, pts){
+      const t = String(text || '');
+      const kind = eventKind(text, pts);
+      if (kind === 'inscription') return `En ${year}, cet épisode marque l’arrivée d’un nouveau nom dans l’histoire. La frise s’agrandit, le monde s’ouvre, et une nouvelle présence vient enrichir la suite du récit.`;
+      if (kind === 'generation') return `En ${year}, une nouvelle génération entre en scène. C’est un point de bascule : une ambiance différente, de nouveaux visages, et un sentiment de nouveau chapitre dans la chronologie.`;
+      if (kind === 'duel') return `En ${year}, la tension monte avec ${t.toLowerCase()}. Cet instant représente un vrai affrontement dans la narration, un moment où la frise prend du rythme.`;
+      if (kind === 'negative') return `En ${year}, la chronologie traverse un passage plus brutal avec « ${t} ». Ce type d’événement casse le rythme habituel et laisse une trace à part dans l’histoire.`;
+      if (/niveau 100/i.test(t)) return `En ${year}, « ${t} » symbolise un vrai accomplissement. Ce n’est pas juste une ligne de plus : c’est un cap visible, marquant, presque cérémoniel dans la progression du récit.`;
+      if (/100k|200k|300k|400k|500k|600k|700k|800k|900k|1m/i.test(t)) return `En ${year}, « ${t} » montre une montée en puissance. C’est un palier important qui raconte la continuité, l’endurance et la progression dans le temps.`;
+      if (/1er/i.test(t)) return `En ${year}, « ${t} » raconte un changement de sommet. Le pouvoir, le prestige ou la domination changent de main, et la frise prend un air de légende.`;
+      return `En ${year}, « ${t} » s’inscrit comme un nouvel épisode dans l’histoire générale. C’est une pierre de plus dans une chronologie qui se construit événement après événement.`;
+    }
+
+    function totalPoints(){
+      return flatEvents.reduce((sum, e) => sum + (Number(e.p) || 0), 0);
+    }
+
+    stats.innerHTML = [
+      ['Années', frise.length],
+      ['Événements', flatEvents.length],
+      ['Points cumulés', totalPoints()],
+    ].map(([label, val]) => `<div class="stat"><b>${val}</b><span>${label}</span></div>`).join('');
+
+    miniYears.innerHTML = frise.map(y => `
+      <button type="button" data-year-link="year-${y.year}">${y.year}</button>
+    `).join('');
+
+    miniYears.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-year-link]');
+      if (!btn) return;
+      const id = btn.getAttribute('data-year-link');
+      document.getElementById(id)?.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+
+    storyRoot.innerHTML = frise.map((yearObj) => {
+      const total = (yearObj.events || []).reduce((s, e) => s + (Number(e.p) || 0), 0);
+      const rows = (yearObj.events || []).map((event, i) => {
+        const kind = eventKind(event.t, event.p);
+        const icon = kindIcon(kind, event.t);
+        const alignLeft = i % 2 === 0;
+        const cardClass = alignLeft ? 'left' : 'right';
+        const negClass = event.p < 0 ? 'neg' : '';
+        const story = makeStory(event.t, yearObj.year, event.p)
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+        const title = String(event.t).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        const iconLabel = kindLabel(kind);
+
+        return `
+          <article class="eventRow">
+            ${alignLeft ? '<div class="connector left"></div>' : ''}
+            ${alignLeft ? `
+              <button class="eventCard ${cardClass}" data-event
+                data-year="${yearObj.year}"
+                data-title="${title}"
+                data-story="${story}"
+                data-icon="${icon}"
+                data-points="${fmtPts(event.p)}"
+                data-kind="${iconLabel}">
+                <div class="eventMeta">
+                  <span class="eventType">${iconLabel}</span>
+                  <span class="eventPts ${negClass}">${fmtPts(event.p)}</span>
+                </div>
+                <div class="eventTitle">${event.t}</div>
+                <div class="eventSub">Clique aussi sur l’icône au centre pour lire l’épisode.</div>
+              </button>
+            ` : '<div></div>'}
+
+            <div class="nodeWrap">
+              <button class="node" title="${event.t}" data-event
+                data-year="${yearObj.year}"
+                data-title="${title}"
+                data-story="${story}"
+                data-icon="${icon}"
+                data-points="${fmtPts(event.p)}"
+                data-kind="${iconLabel}">${icon}</button>
+              <div class="nodeLabel">${iconLabel}</div>
+            </div>
+
+            ${!alignLeft ? `
+              <button class="eventCard ${cardClass}" data-event
+                data-year="${yearObj.year}"
+                data-title="${title}"
+                data-story="${story}"
+                data-icon="${icon}"
+                data-points="${fmtPts(event.p)}"
+                data-kind="${iconLabel}">
+                <div class="eventMeta">
+                  <span class="eventType">${iconLabel}</span>
+                  <span class="eventPts ${negClass}">${fmtPts(event.p)}</span>
+                </div>
+                <div class="eventTitle">${event.t}</div>
+                <div class="eventSub">Survole le logo pour le faire vivre, clique pour ouvrir le récit.</div>
+              </button>
+            ` : '<div></div>'}
+            ${!alignLeft ? '<div class="connector right"></div>' : ''}
+          </article>
+        `;
+      }).join('');
+
+      return `
+        <section class="yearBlock" id="year-${yearObj.year}">
+          <div class="yearBadge">${yearObj.year} · ${total > 0 ? '+' : ''}${total} pts</div>
+          ${rows}
+        </section>
+      `;
+    }).join('');
+
+    function openEvent(el){
+      document.querySelectorAll('.node.active').forEach(n => n.classList.remove('active'));
+      if (el.classList.contains('node')) el.classList.add('active');
+
+      focusEmpty.classList.add('hidden');
+      focusCard.classList.remove('hidden');
+      focusCard.innerHTML = `
+        <div class="focusIcon">${el.dataset.icon || '✨'}</div>
+        <div class="focusYear">${el.dataset.year || ''} · ${el.dataset.kind || 'Épisode'}</div>
+        <div class="focusTitle">${el.dataset.title || ''}</div>
+        <div class="focusStory">${el.dataset.story || ''}</div>
+        <div class="focusPts">${el.dataset.points || ''}</div>
+      `;
+    }
+
+    storyRoot.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-event]');
+      if (!target) return;
+      openEvent(target);
+    });
+
+    const firstNode = document.querySelector('.node[data-event]');
+    if (firstNode) openEvent(firstNode);
+  </script>
+</body>
+</html>
