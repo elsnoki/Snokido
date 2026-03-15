@@ -261,6 +261,21 @@ function buildYearPairs(index){
   const jan = index.filter(d => d.endsWith("-01-01")).sort();
   const pairs = [];
 
+  // cas spécial : première période part du tout premier snapshot
+  if (index.length && jan.length) {
+    const first = index[0];
+    const firstJan = jan[0];
+
+    if (first < firstJan) {
+      pairs.push({
+        year: first.slice(0, 4),
+        start: first,
+        end: firstJan,
+        dynamic: false
+      });
+    }
+  }
+
   for(let i = 0; i < jan.length - 1; i++){
     pairs.push({
       year: jan[i].slice(0,4),
