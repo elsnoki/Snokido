@@ -37,6 +37,29 @@ body{
   font-weight:900;
 }
 
+.topnav{
+  padding:12px 16px;
+  border-bottom:1px solid #e6e6e6;
+  background:#f7f7f7;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.topnav a{
+  display:inline-block;
+  padding:10px 14px;
+  border-radius:10px;
+  background:#2c6fb7;
+  color:#fff;
+  text-decoration:none;
+  font-weight:900;
+}
+
+.topnav a.secondary{
+  background:#666;
+}
+
 .sub{
   padding:10px 16px;
   font-weight:900;
@@ -146,6 +169,12 @@ tbody tr:nth-child(odd){
 <main class="wrap">
   <section class="panel">
     <div class="titlebar">Classement — Meilleure année XP</div>
+
+    <div class="topnav">
+      <a href="exp1an.html">Meilleure année par joueur</a>
+      <a href="cumulexp.html" class="secondary">Cumul XP par année</a>
+    </div>
+
     <div class="sub" id="rangeTxt">Chargement…</div>
     <div id="warn" class="warn"></div>
 
@@ -190,12 +219,26 @@ function fmt(n){
   return v.toLocaleString("fr-FR");
 }
 
+function toNumberXP(v){
+  if(typeof v === "number") return v;
+  const s = String(v || "")
+    .replace(/\s/g, "")
+    .replace(/,/g, "")
+    .trim();
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
 async function fetchJson(path){
   try{
     const res = await fetch(path + "?t=" + Date.now(), { cache:"no-store" });
-    if(!res.ok) return null;
+    if(!res.ok){
+      console.warn("HTTP error", path, res.status);
+      return null;
+    }
     return await res.json();
   }catch(e){
+    console.warn("JSON load error", path, e);
     return null;
   }
 }
@@ -248,7 +291,7 @@ function buildPlayerMap(players){
   (players || []).forEach(p => {
     map.set(slugify(p.nom), {
       nom: p.nom,
-      xp: Number(p.xp || 0),
+      xp: toNumberXP(p.xp),
       avatar: p.avatar || null,
       profileHref: p.profileHref || null
     });
@@ -261,19 +304,13 @@ function buildYearPairs(index){
   const jan = index.filter(d => d.endsWith("-01-01")).sort();
   const pairs = [];
 
-  // cas spécial : première période part du tout premier snapshot
-  if (index.length && jan.length) {
-    const first = index[0];
-    const firstJan = jan[0];
-
-    if (first < firstJan) {
-      pairs.push({
-        year: first.slice(0, 4),
-        start: first,
-        end: firstJan,
-        dynamic: false
-      });
-    }
+  if(index.length && jan.length && index[0] < jan[0]){
+    pairs.push({
+      year: index[0].slice(0,4),
+      start: index[0],
+      end: jan[0],
+      dynamic: false
+    });
   }
 
   for(let i = 0; i < jan.length - 1; i++){
@@ -311,7 +348,15 @@ async function computeBestYearXp(){
     const start = await loadSnapPlayers(p.start);
     const end = await loadSnapPlayers(p.end);
 
-    if(!start || !end) continue;
+    if(!start || !end){
+      console.warn("Année ignorée", p.year, {
+        start: p.start,
+        end: p.end,
+        startLoaded: !!start,
+        endLoaded: !!end
+      });
+      continue;
+    }
 
     const startMap = buildPlayerMap(start);
     const endMap = buildPlayerMap(end);
@@ -341,7 +386,6 @@ async function computeBestYearXp(){
     }
   }
 
-  // exception : on ajoute aussi cahincaha en 2023
   best.set("cahincaha-2023-exception", {
     id: "cahincaha-2023-exception",
     nom: "cahincaha",
