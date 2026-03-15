@@ -10,41 +10,42 @@
 
 <style>
 :root{
-  --bg1:#0a2940;
-  --bg2:#123e5d;
   --panel:#ffffff;
   --panelSoft:#f7f9fc;
-  --line:#d9e0e8;
-  --text:#1e2a35;
-  --muted:#66788a;
+  --line:#dfe7ef;
+  --text:#1f2c38;
+  --muted:#6a7b8d;
   --blue:#2c6fb7;
   --blueDark:#1f5c9d;
-  --gold:#d4a63d;
-  --goldSoft:#fff4d6;
-  --green:#2e8b57;
-  --greenSoft:#e9f8ef;
-  --shadow:0 18px 45px rgba(0,0,0,.24);
+  --gold:#d5a53b;
+  --goldSoft:#fff4d8;
+  --silver:#cfd7e3;
+  --silverSoft:#f2f5f9;
+  --bronze:#ba8352;
+  --bronzeSoft:#f9ede3;
+  --green:#2f8f60;
+  --greenSoft:#eaf8f0;
+  --shadow:0 18px 48px rgba(0,0,0,.24);
 }
 
 body{
   margin:0;
-  background:
-    radial-gradient(1200px 700px at 20% 10%, #2d88ad 0%, #0b3551 58%, #072638 100%);
+  background: radial-gradient(1200px 700px at 20% 10%, #2d88ad 0%, #0b3551 58%, #072638 100%);
   font-family: Arial, sans-serif;
   color:var(--text);
 }
 
 .wrap{
-  max-width:1340px;
+  max-width:1360px;
   margin:28px auto 46px;
   padding:0 14px;
 }
 
 .hero{
-  background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+  background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
   border:1px solid rgba(255,255,255,.16);
-  border-radius:18px;
-  padding:22px 24px;
+  border-radius:20px;
+  padding:24px;
   color:#fff;
   box-shadow:0 16px 40px rgba(0,0,0,.18);
   backdrop-filter: blur(4px);
@@ -53,24 +54,24 @@ body{
 
 .heroTop{
   display:flex;
-  align-items:flex-start;
   justify-content:space-between;
   gap:18px;
   flex-wrap:wrap;
 }
 
 .heroTitle{
-  font-size:30px;
-  font-weight:900;
-  line-height:1.1;
   margin:0 0 8px;
+  font-size:32px;
+  font-weight:900;
+  line-height:1.08;
 }
 
 .heroSub{
+  max-width:780px;
   font-size:15px;
+  line-height:1.45;
   font-weight:700;
-  color:rgba(255,255,255,.82);
-  max-width:760px;
+  color:rgba(255,255,255,.84);
 }
 
 .heroBadge{
@@ -79,7 +80,7 @@ body{
   gap:8px;
   padding:10px 14px;
   border-radius:999px;
-  background:rgba(255,255,255,.12);
+  background:rgba(255,255,255,.13);
   border:1px solid rgba(255,255,255,.18);
   font-weight:900;
   white-space:nowrap;
@@ -93,10 +94,10 @@ body{
 }
 
 .stat{
-  background:rgba(255,255,255,.10);
+  background:rgba(255,255,255,.11);
   border:1px solid rgba(255,255,255,.16);
   border-radius:16px;
-  padding:14px 16px;
+  padding:15px 16px;
 }
 
 .statLabel{
@@ -109,14 +110,14 @@ body{
 }
 
 .statValue{
-  font-size:25px;
+  font-size:24px;
   font-weight:900;
   color:#fff;
 }
 
 .panel{
   background:var(--panel);
-  border-radius:18px;
+  border-radius:20px;
   overflow:hidden;
   box-shadow:var(--shadow);
   border:1px solid rgba(0,0,0,.08);
@@ -141,8 +142,8 @@ body{
   font-weight:900;
   color:#4d5e70;
   background:#e9eef5;
-  transition:.18s ease;
   border:1px solid #d8e0ea;
+  transition:.18s ease;
 }
 
 .topnav a:hover{
@@ -188,15 +189,17 @@ body{
 
 .tableWrap{
   padding:16px 18px 18px;
+  overflow-x:auto;
 }
 
 table{
   width:100%;
+  min-width:1120px;
   border-collapse:separate;
   border-spacing:0;
-  overflow:hidden;
   border:1px solid #e3eaf2;
-  border-radius:16px;
+  border-radius:18px;
+  overflow:hidden;
   background:#fff;
 }
 
@@ -213,7 +216,7 @@ thead th{
 }
 
 tbody td{
-  padding:16px 12px;
+  padding:15px 12px;
   border-bottom:1px solid #edf2f7;
   vertical-align:middle;
   font-size:15px;
@@ -232,33 +235,78 @@ tbody tr:hover{
 }
 
 .rank{
-  width:76px;
+  width:78px;
   text-align:center;
   font-weight:900;
   font-size:24px;
   color:#3f4f60;
 }
 
-.rankTop{
+.medal{
   display:inline-flex;
-  width:42px;
-  height:42px;
   align-items:center;
   justify-content:center;
+  width:44px;
+  height:44px;
   border-radius:50%;
-  background:linear-gradient(180deg, #ffe8a8 0%, #e0b44b 100%);
-  color:#5c4200;
+  font-weight:900;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.45);
 }
 
-.name{
-  font-weight:900;
-  font-size:18px;
-  color:#223140;
-  margin-bottom:5px;
+.gold{ background:linear-gradient(180deg, #ffe8a8 0%, #ddb24b 100%); color:#5f4300; }
+.silver{ background:linear-gradient(180deg, #f7f9fc 0%, #cbd5e1 100%); color:#4a596b; }
+.bronze{ background:linear-gradient(180deg, #f6dcc7 0%, #bf8555 100%); color:#5d3516; }
+
+.playerCell{
+  min-width:280px;
 }
 
-.nameSub{
+.playerCard{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.avatarWrap{
+  width:68px;
+  height:68px;
+  border-radius:16px;
+  background:linear-gradient(180deg, #eef3f9 0%, #dbe5f0 100%);
+  border:1px solid #cbd6e2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+  flex:0 0 auto;
+}
+
+.avatarWrap img{
+  width:58px;
+  height:58px;
+  object-fit:cover;
+  border-radius:14px;
+  border:2px solid #95a6b8;
+  display:block;
+  background:#dfe5eb;
+}
+
+.playerInfo{
+  min-width:0;
+}
+
+.playerInfo a{
+  color:#223140;
+  text-decoration:none;
+  font-size:18px;
+  font-weight:900;
+}
+
+.playerInfo a:hover{
+  text-decoration:underline;
+}
+
+.playerMeta{
+  margin-top:5px;
   font-size:13px;
   font-weight:700;
   color:var(--muted);
@@ -283,16 +331,22 @@ tbody tr:hover{
   min-width:110px;
 }
 
-.liveBadge{
+.dateBox{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+}
+
+.miniBadge{
   display:inline-flex;
-  margin-top:6px;
-  padding:5px 9px;
+  padding:4px 8px;
   border-radius:999px;
-  background:var(--greenSoft);
-  color:var(--green);
-  border:1px solid #bee7cc;
   font-size:12px;
   font-weight:900;
+  border:1px solid #d8e6d9;
+  background:var(--greenSoft);
+  color:var(--green);
 }
 
 .xpBox{
@@ -315,7 +369,8 @@ tbody tr:hover{
 
 .noteCell{
   color:#445464;
-  line-height:1.4;
+  line-height:1.42;
+  min-width:280px;
 }
 
 @media (max-width: 980px){
@@ -325,14 +380,6 @@ tbody tr:hover{
 
   .heroTitle{
     font-size:26px;
-  }
-
-  .tableWrap{
-    overflow-x:auto;
-  }
-
-  table{
-    min-width:980px;
   }
 }
 </style>
@@ -346,7 +393,7 @@ tbody tr:hover{
       <div>
         <h1 class="heroTitle">Les plus longs règnes des n°1</h1>
         <div class="heroSub">
-          Un palmarès des joueurs restés le plus longtemps à la première place, avec durée exacte en mois et jours.
+          Un palmarès visuel des joueurs restés le plus longtemps à la première place, avec durée exacte en mois et jours.
         </div>
       </div>
       <div class="heroBadge">👑 Histoire des leaders</div>
@@ -364,8 +411,7 @@ tbody tr:hover{
     <div class="sub" id="rangeTxt">Chargement…</div>
 
     <div class="note">
-      Les dates “début”, “mi”, “fin” ont été converties en repères propres.  
-      Le règne de Talk Takashi se termine automatiquement au dernier snapshot disponible.
+      Les dates “début”, “mi”, “fin” ont été converties en repères propres. Le règne de Talk Takashi se termine automatiquement au dernier snapshot disponible.
     </div>
 
     <div id="warn" class="warn"></div>
@@ -408,10 +454,29 @@ const REIGNS = [
   { nom:"Talk Takashi", start:"2018-01-31", end:null, xpStart:116500, xpEnd:null, note:"Fin janvier 2018 → aujourd’hui." }
 ];
 
+const MANUAL_AVATARS = {
+  "korben": {
+    avatar: "https://elsnoki.github.io/Snokido/avatar/38.jpg",
+    profileHref: "https://www.snokido.fr/player/korben"
+  },
+  "dude": {
+    avatar: "https://elsnoki.github.io/Snokido/avatar/37.jpg",
+    profileHref: "https://www.snokido.fr/player/dude"
+  }
+};
+
 function warn(msg){
   const w = document.getElementById("warn");
   w.style.display = "block";
   w.textContent = msg;
+}
+
+function slugify(name){
+  return String(name || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toLowerCase();
 }
 
 function fmt(n){
@@ -482,19 +547,58 @@ async function loadLatestHistoryDay(){
   return days[days.length - 1] || null;
 }
 
+async function loadPlayersPages(){
+  const data = await fetchJson("data/players_pages.json");
+  const map = new Map();
+
+  if(Array.isArray(data)){
+    data.forEach(p => {
+      const key = slugify(p.slug || p.nom);
+      map.set(key, {
+        avatar: p.avatar || null,
+        profileHref: p.profileHref || null,
+        inscription: p.inscription || null
+      });
+    });
+  }
+
+  Object.keys(MANUAL_AVATARS).forEach(k => {
+    if(!map.has(k)){
+      map.set(k, MANUAL_AVATARS[k]);
+    }
+  });
+
+  return map;
+}
+
+function playerLink(name, extra){
+  if(extra && extra.profileHref) return extra.profileHref;
+  return "profil.html?mode=nv100&u=" + encodeURIComponent(slugify(name));
+}
+
+function playerAvatar(extra){
+  if(extra && extra.avatar) return extra.avatar;
+  return "avatar/1.jpg";
+}
+
 async function buildRows(){
   const latest = await loadLatestHistoryDay();
   const fallbackToday = new Date().toISOString().slice(0,10);
+  const playersPages = await loadPlayersPages();
 
   return REIGNS.map(r => {
     const effectiveEnd = r.end || latest || fallbackToday;
     const totalDays = Math.round((parseDate(effectiveEnd) - parseDate(r.start)) / 86400000);
+    const key = slugify(r.nom);
+    const extra = playersPages.get(key) || null;
 
     return {
       ...r,
       endEffective: effectiveEnd,
       duration: durationText(r.start, effectiveEnd),
-      totalDays
+      totalDays,
+      avatar: playerAvatar(extra),
+      profileHref: playerLink(r.nom, extra)
     };
   }).sort((a,b) => b.totalDays - a.totalDays);
 }
@@ -505,7 +609,6 @@ function renderStats(rows){
 
   const top = rows[0];
   const total = rows.length;
-  const current = rows.find(r => !r.end);
   const unique = new Set(rows.map(r => r.nom)).size;
 
   box.innerHTML =
@@ -518,9 +621,16 @@ function renderStats(rows){
       '<div class="statValue">' + top.duration + '</div>' +
     '</div>' +
     '<div class="stat">' +
-      '<div class="statLabel">Nombre de règnes / leaders</div>' +
+      '<div class="statLabel">Règnes / leaders</div>' +
       '<div class="statValue">' + total + ' règnes • ' + unique + ' leaders</div>' +
     '</div>';
+}
+
+function rankHtml(i){
+  if(i === 0) return '<span class="medal gold">1</span>';
+  if(i === 1) return '<span class="medal silver">2</span>';
+  if(i === 2) return '<span class="medal bronze">3</span>';
+  return String(i + 1);
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -531,8 +641,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   rangeTxt.textContent = "Chargement…";
 
   const rows = await buildRows();
-
   renderStats(rows);
+
   rangeTxt.textContent = "Classement des règnes les plus longs à la 1re place";
 
   if(!rows.length){
@@ -542,24 +652,22 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   rows.forEach((r, i) => {
-    const isTop = i < 3;
-    const rankHtml = isTop
-      ? '<span class="rankTop">' + (i + 1) + '</span>'
-      : (i + 1);
-
     const tr = document.createElement("tr");
+
     tr.innerHTML =
-      '<td class="rank">' + rankHtml + '</td>' +
-      '<td>' +
-        '<div class="name">' + r.nom + '</div>' +
-        '<div class="nameSub">Règne n°' + (i + 1) + ' du classement</div>' +
+      '<td class="rank">' + rankHtml(i) + '</td>' +
+      '<td class="playerCell">' +
+        '<div class="playerCard">' +
+          '<div class="avatarWrap"><img src="' + r.avatar + '" alt="' + r.nom + '"></div>' +
+          '<div class="playerInfo">' +
+            '<a target="_blank" rel="noopener" href="' + r.profileHref + '">' + r.nom + '</a>' +
+            '<div class="playerMeta">Leader historique</div>' +
+          '</div>' +
+        '</div>' +
       '</td>' +
       '<td class="center"><span class="durationBadge">' + r.duration + '</span></td>' +
-      '<td class="center">' + formatDay(r.start) + '</td>' +
-      '<td class="center">' +
-        formatDay(r.endEffective) +
-        (!r.end ? '<div class="liveBadge">Règne en cours</div>' : '') +
-      '</td>' +
+      '<td class="center"><div class="dateBox"><div>' + formatDay(r.start) + '</div></div></td>' +
+      '<td class="center"><div class="dateBox"><div>' + formatDay(r.endEffective) + '</div>' + (!r.end ? '<span class="miniBadge">Règne en cours</span>' : '') + '</div></td>' +
       '<td class="center"><div class="xpBox"><div class="xpValue">' + fmt(r.xpStart) + '</div><div class="xpHint">au départ</div></div></td>' +
       '<td class="center"><div class="xpBox"><div class="xpValue">' + fmt(r.xpEnd) + '</div><div class="xpHint">' + (r.xpEnd == null ? 'non figée' : 'à la fin') + '</div></div></td>' +
       '<td class="noteCell">' + r.note + '</td>';
