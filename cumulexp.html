@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cumul XP par année</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="header.js" defer></script>
+
+<style>
+body{
+  margin:0;
+  background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+  font-family: Arial, sans-serif;
+}
+
+.wrap{
+  max-width:1280px;
+  margin:26px auto 40px;
+  padding:0 12px;
+}
+
+.panel{
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,0,0,.28);
+  border:1px solid rgba(0,0,0,.10);
+}
+
+.titlebar{
+  background:#3b3b3b;
+  color:#fff;
+  padding:14px 16px;
+  font-size:22px;
+  font-weight:900;
+}
+
+.sub{
+  padding:10px 16px;
+  font-weight:900;
+  color:#444;
+  border-bottom:1px solid #e6e6e6;
+  background:#fafafa;
+}
+
+.topnav{
+  padding:12px 16px;
+  border-bottom:1px solid #e6e6e6;
+  background:#f7f7f7;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.topnav a{
+  display:inline-block;
+  padding:10px 14px;
+  border-radius:10px;
+  background:#2c6fb7;
+  color:#fff;
+  text-decoration:none;
+  font-weight:900;
+}
+
+.topnav a.secondary{
+  background:#666;
+}
+
+.warn{
+  margin:12px 16px 0;
+  padding:10px 12px;
+  background:#fff3cd;
+  border:1px solid #ffe69c;
+  border-radius:10px;
+  font-weight:900;
+  color:#664d03;
+  display:none;
+}
+
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+}
+
+thead th{
+  background:#fff;
+  padding:14px 12px;
+  text-align:left;
+  font-size:15px;
+  font-weight:900;
+  border-bottom:1px solid #cfcfcf;
+}
+
+tbody td{
+  padding:18px 12px;
+  border-bottom:1px solid #cfcfcf;
+  vertical-align:middle;
+  font-size:16px;
+}
+
+tbody tr:nth-child(odd){
+  background:#f2f2f2;
+}
+
+.rank{
+  width:70px;
+  text-align:center;
+  font-weight:900;
+  font-size:26px;
+  color:#444;
+}
+
+.center{
+  text-align:center;
+  white-space:nowrap;
+  font-weight:900;
+}
+
+.small{
+  font-weight:700;
+  font-size:13px;
+  color:#666;
+}
+</style>
+</head>
+
+<body>
+<main class="wrap">
+  <section class="panel">
+    <div class="titlebar">Classement — Cumul XP par année</div>
+
+    <div class="topnav">
+      <a href="exp1an.html" class="secondary">Meilleure année par joueur</a>
+      <a href="cumulexp.html">Cumul XP par année</a>
+    </div>
+
+    <div class="sub" id="rangeTxt">Chargement…</div>
+    <div id="warn" class="warn"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Année</th>
+          <th class="center">XP cumulée</th>
+          <th class="center">Joueurs en gain</th>
+          <th class="center">XP début</th>
+          <th class="center">XP fin</th>
+          <th class="center">Période</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+const HISTORY_BASE = "data/history_paris";
+
+function warn(msg){
+  const w = document.getElementById("warn");
+  w.style.display = "block";
+  w.textContent = msg;
+}
+
+function slugify(name){
+  return String(name || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toLowerCase();
+}
+
+function fmt(n){
+  const v = Number(n);
+  if(!Number.isFinite(v)) return "—";
+  return v.toLocaleString("fr-FR");
+}
+
+function toNumberXP(v){
+  if(typeof v === "number") return v;
+  const s = String(v || "")
+    .replace(/\s/g, "")
+    .replace(/,/g, "")
+    .trim();
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+async function fetchJson(path){
+  try{
+    const res = await fetch(path + "?t=" + Date.now(), { cache:"no-store" });
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){
+    console.error("JSON load error:", path, e);
+    return null;
+  }
+}
+
+function extractPlayers(d){
+  if(!d) return null;
+  if(Array.isArray(d)) return d;
+  if(Array.isArray(d.players)) return d.players;
+  if(Array.isArray(d.joueurs)) return d.joueurs;
+  return null;
+}
+
+function normalizeDay(s){
+  const m = String(s || "").match(/^(\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : null;
+}
+
+async function loadIndex(){
+  const idx = await fetchJson(HISTORY_BASE + "/index.json");
+  if(!Array.isArray(idx)) return null;
+  return idx.map(normalizeDay).filter(Boolean).sort();
+}
+
+async function loadSnapPlayers(day){
+  const raw = await fetchJson(HISTORY_BASE + "/" + day + ".json");
+  return extractPlayers(raw);
+}
+
+function buildPlayerMap(players){
+  const map = new Map();
+
+  (players || []).forEach(p => {
+    map.set(slugify(p.nom), {
+      nom: p.nom,
+      xp: toNumberXP(p.xp)
+    });
+  });
+
+  return map;
+}
+
+function buildYearPairs(index){
+  const jan = index.filter(d => d.endsWith("-01-01")).sort();
+  const pairs = [];
+
+  if(index.length && jan.length && index[0] < jan[0]){
+    pairs.push({
+      year: index[0].slice(0,4),
+      start: index[0],
+      end: jan[0],
+      dynamic: false
+    });
+  }
+
+  for(let i = 0; i < jan.length - 1; i++){
+    pairs.push({
+      year: jan[i].slice(0,4),
+      start: jan[i],
+      end: jan[i + 1],
+      dynamic: false
+    });
+  }
+
+  const lastJan = jan[jan.length - 1];
+  const latest = index[index.length - 1];
+
+  if(lastJan && latest && latest > lastJan){
+    pairs.push({
+      year: lastJan.slice(0,4),
+      start: lastJan,
+      end: latest,
+      dynamic: true
+    });
+  }
+
+  return pairs;
+}
+
+async function computeYearTotals(){
+  const index = await loadIndex();
+  if(!index || !index.length) return [];
+
+  const pairs = buildYearPairs(index);
+  const rows = [];
+
+  for(const p of pairs){
+    const start = await loadSnapPlayers(p.start);
+    const end = await loadSnapPlayers(p.end);
+
+    if(!start || !end){
+      console.warn("Période ignorée", p.year, p.start, p.end);
+      continue;
+    }
+
+    const startMap = buildPlayerMap(start);
+    const endMap = buildPlayerMap(end);
+
+    let totalGain = 0;
+    let totalStartXp = 0;
+    let totalEndXp = 0;
+    let playersWithGain = 0;
+
+    for(const [k, e] of endMap){
+      const s = startMap.get(k);
+      if(!s) continue;
+
+      const gain = e.xp - s.xp;
+      if(gain <= 0) continue;
+
+      totalGain += gain;
+      totalStartXp += s.xp;
+      totalEndXp += e.xp;
+      playersWithGain++;
+    }
+
+    rows.push({
+      year: p.year,
+      start: p.start,
+      end: p.end,
+      dynamic: p.dynamic,
+      totalGain,
+      totalStartXp,
+      totalEndXp,
+      playersWithGain
+    });
+  }
+
+  return rows.sort((a, b) => {
+    if(b.totalGain !== a.totalGain) return b.totalGain - a.totalGain;
+    return String(a.year).localeCompare(String(b.year));
+  });
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  const tbody = document.getElementById("tbody");
+  const rangeTxt = document.getElementById("rangeTxt");
+
+  tbody.innerHTML = "";
+  rangeTxt.textContent = "Chargement…";
+
+  const rows = await computeYearTotals();
+
+  rangeTxt.textContent = "Classement des années par XP totale gagnée";
+
+  if(!rows.length){
+    warn("Aucune donnée trouvée.");
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:16px;font-weight:900;color:#666;">Aucune donnée.</td></tr>';
+    return;
+  }
+
+  rows.forEach((r, i) => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML =
+      '<td class="rank">' + (i + 1) + '</td>' +
+      '<td><strong>' + r.year + '</strong><div class="small">' + (r.dynamic ? "année en cours" : "année complète") + '</div></td>' +
+      '<td class="center">+' + fmt(r.totalGain) + '</td>' +
+      '<td class="center">' + fmt(r.playersWithGain) + '</td>' +
+      '<td class="center">' + fmt(r.totalStartXp) + '</td>' +
+      '<td class="center">' + fmt(r.totalEndXp) + '</td>' +
+      '<td class="center">' + r.start + ' → ' + r.end + '</td>';
+
+    tbody.appendChild(tr);
+  });
+});
+</script>
+</body>
+</html>
