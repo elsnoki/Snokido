@@ -9,118 +9,259 @@
 <script src="header.js" defer></script>
 
 <style>
+:root{
+  --bg1:#0a2940;
+  --bg2:#123e5d;
+  --panel:#ffffff;
+  --panelSoft:#f7f9fc;
+  --line:#d9e0e8;
+  --text:#1e2a35;
+  --muted:#66788a;
+  --blue:#2c6fb7;
+  --blueDark:#1f5c9d;
+  --gold:#d4a63d;
+  --goldSoft:#fff4d6;
+  --green:#2e8b57;
+  --greenSoft:#e9f8ef;
+  --shadow:0 18px 45px rgba(0,0,0,.24);
+}
+
 body{
   margin:0;
-  background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+  background:
+    radial-gradient(1200px 700px at 20% 10%, #2d88ad 0%, #0b3551 58%, #072638 100%);
   font-family: Arial, sans-serif;
+  color:var(--text);
 }
 
 .wrap{
-  max-width:1280px;
-  margin:26px auto 40px;
-  padding:0 12px;
+  max-width:1340px;
+  margin:28px auto 46px;
+  padding:0 14px;
+}
+
+.hero{
+  background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:18px;
+  padding:22px 24px;
+  color:#fff;
+  box-shadow:0 16px 40px rgba(0,0,0,.18);
+  backdrop-filter: blur(4px);
+  margin-bottom:18px;
+}
+
+.heroTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.heroTitle{
+  font-size:30px;
+  font-weight:900;
+  line-height:1.1;
+  margin:0 0 8px;
+}
+
+.heroSub{
+  font-size:15px;
+  font-weight:700;
+  color:rgba(255,255,255,.82);
+  max-width:760px;
+}
+
+.heroBadge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:14px;
+  margin-top:18px;
+}
+
+.stat{
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:16px;
+  padding:14px 16px;
+}
+
+.statLabel{
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.72);
+  margin-bottom:6px;
+}
+
+.statValue{
+  font-size:25px;
+  font-weight:900;
+  color:#fff;
 }
 
 .panel{
-  background:#fff;
-  border-radius:12px;
+  background:var(--panel);
+  border-radius:18px;
   overflow:hidden;
-  box-shadow:0 12px 30px rgba(0,0,0,.28);
-  border:1px solid rgba(0,0,0,.10);
-}
-
-.titlebar{
-  background:#3b3b3b;
-  color:#fff;
-  padding:14px 16px;
-  font-size:22px;
-  font-weight:900;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,.08);
 }
 
 .topnav{
-  padding:12px 16px;
-  border-bottom:1px solid #e6e6e6;
-  background:#f7f7f7;
+  padding:14px 18px;
+  border-bottom:1px solid #e6ebf1;
+  background:linear-gradient(180deg, #fcfdff 0%, #f3f6fa 100%);
   display:flex;
   gap:10px;
   flex-wrap:wrap;
 }
 
 .topnav a{
-  display:inline-block;
-  padding:10px 14px;
-  border-radius:10px;
-  background:#666;
-  color:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:11px 16px;
+  border-radius:12px;
   text-decoration:none;
   font-weight:900;
+  color:#4d5e70;
+  background:#e9eef5;
+  transition:.18s ease;
+  border:1px solid #d8e0ea;
+}
+
+.topnav a:hover{
+  transform:translateY(-1px);
+  background:#dfe8f2;
 }
 
 .topnav a.active{
-  background:#2c6fb7;
+  background:linear-gradient(180deg, var(--blue) 0%, var(--blueDark) 100%);
+  color:#fff;
+  border-color:transparent;
+  box-shadow:0 10px 24px rgba(44,111,183,.28);
 }
 
 .sub{
-  padding:10px 16px;
+  padding:12px 18px;
   font-weight:900;
-  color:#444;
-  border-bottom:1px solid #e6e6e6;
-  background:#fafafa;
+  color:#465566;
+  border-bottom:1px solid #e7edf3;
+  background:#fafcff;
 }
 
 .note{
-  margin:12px 16px 0;
-  padding:10px 12px;
-  background:#eef6ff;
-  border:1px solid #cfe2ff;
-  border-radius:10px;
+  margin:14px 18px 0;
+  padding:13px 15px;
+  background:linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+  border:1px solid #d7e5fb;
+  border-radius:14px;
   font-weight:700;
-  color:#234;
+  color:#35506c;
 }
 
 .warn{
-  margin:12px 16px 0;
-  padding:10px 12px;
+  margin:14px 18px 0;
+  padding:11px 13px;
   background:#fff3cd;
   border:1px solid #ffe69c;
-  border-radius:10px;
+  border-radius:12px;
   font-weight:900;
   color:#664d03;
   display:none;
+}
+
+.tableWrap{
+  padding:16px 18px 18px;
 }
 
 table{
   width:100%;
   border-collapse:separate;
   border-spacing:0;
+  overflow:hidden;
+  border:1px solid #e3eaf2;
+  border-radius:16px;
+  background:#fff;
 }
 
 thead th{
-  background:#fff;
-  padding:14px 12px;
+  background:linear-gradient(180deg, #ffffff 0%, #f4f7fb 100%);
+  padding:15px 12px;
   text-align:left;
-  font-size:15px;
+  font-size:13px;
   font-weight:900;
-  border-bottom:1px solid #cfcfcf;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  color:#5a6d7f;
+  border-bottom:1px solid #dde6ef;
 }
 
 tbody td{
   padding:16px 12px;
-  border-bottom:1px solid #cfcfcf;
+  border-bottom:1px solid #edf2f7;
   vertical-align:middle;
-  font-size:16px;
+  font-size:15px;
+}
+
+tbody tr:last-child td{
+  border-bottom:none;
 }
 
 tbody tr:nth-child(odd){
-  background:#f2f2f2;
+  background:#fcfdff;
+}
+
+tbody tr:hover{
+  background:#f4f8fc;
 }
 
 .rank{
-  width:70px;
+  width:76px;
   text-align:center;
   font-weight:900;
-  font-size:26px;
-  color:#444;
+  font-size:24px;
+  color:#3f4f60;
+}
+
+.rankTop{
+  display:inline-flex;
+  width:42px;
+  height:42px;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:linear-gradient(180deg, #ffe8a8 0%, #e0b44b 100%);
+  color:#5c4200;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45);
+}
+
+.name{
+  font-weight:900;
+  font-size:18px;
+  color:#223140;
+  margin-bottom:5px;
+}
+
+.nameSub{
+  font-size:13px;
+  font-weight:700;
+  color:var(--muted);
 }
 
 .center{
@@ -129,25 +270,92 @@ tbody tr:nth-child(odd){
   font-weight:900;
 }
 
-.small{
-  font-weight:700;
-  font-size:13px;
-  color:#666;
+.durationBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 12px;
+  border-radius:999px;
+  background:var(--goldSoft);
+  color:#815f0d;
+  border:1px solid #efd486;
+  font-weight:900;
+  min-width:110px;
 }
 
-.name{
+.liveBadge{
+  display:inline-flex;
+  margin-top:6px;
+  padding:5px 9px;
+  border-radius:999px;
+  background:var(--greenSoft);
+  color:var(--green);
+  border:1px solid #bee7cc;
+  font-size:12px;
   font-weight:900;
-  font-size:18px;
-  color:#2c2c2c;
+}
+
+.xpBox{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+
+.xpValue{
+  font-weight:900;
+  color:#243648;
+}
+
+.xpHint{
+  font-size:12px;
+  font-weight:700;
+  color:var(--muted);
+}
+
+.noteCell{
+  color:#445464;
+  line-height:1.4;
+}
+
+@media (max-width: 980px){
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  .heroTitle{
+    font-size:26px;
+  }
+
+  .tableWrap{
+    overflow-x:auto;
+  }
+
+  table{
+    min-width:980px;
+  }
 }
 </style>
 </head>
 
 <body>
 <main class="wrap">
-  <section class="panel">
-    <div class="titlebar">Classement — Les plus longs règnes des 1ers</div>
 
+  <section class="hero">
+    <div class="heroTop">
+      <div>
+        <h1 class="heroTitle">Les plus longs règnes des n°1</h1>
+        <div class="heroSub">
+          Un palmarès des joueurs restés le plus longtemps à la première place, avec durée exacte en mois et jours.
+        </div>
+      </div>
+      <div class="heroBadge">👑 Histoire des leaders</div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="panel">
     <div class="topnav">
       <a href="1ers.html" class="active">Plus longs règnes</a>
       <a href="1erschrono.html">Ordre chronologique</a>
@@ -156,27 +364,29 @@ tbody tr:nth-child(odd){
     <div class="sub" id="rangeTxt">Chargement…</div>
 
     <div class="note">
-      Dates approximatives selon tes repères (“début”, “mi”, “fin”).  
-      Le règne en cours de Talk Takashi s’arrête automatiquement au dernier snapshot dispo.
+      Les dates “début”, “mi”, “fin” ont été converties en repères propres.  
+      Le règne de Talk Takashi se termine automatiquement au dernier snapshot disponible.
     </div>
 
     <div id="warn" class="warn"></div>
 
-    <table>
-      <thead>
-        <tr>
-          <th></th>
-          <th>Joueur</th>
-          <th class="center">Durée</th>
-          <th class="center">Début</th>
-          <th class="center">Fin</th>
-          <th class="center">XP début</th>
-          <th class="center">XP fin</th>
-          <th>Note</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Joueur</th>
+            <th class="center">Durée</th>
+            <th class="center">Début</th>
+            <th class="center">Fin</th>
+            <th class="center">XP début</th>
+            <th class="center">XP fin</th>
+            <th>Contexte</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
   </section>
 </main>
 
@@ -184,102 +394,18 @@ tbody tr:nth-child(odd){
 const HISTORY_BASE = "data/history_paris";
 
 const REIGNS = [
-  {
-    nom: "Korben",
-    start: "2013-06-01",
-    end: "2013-09-01",
-    xpStart: 2000,
-    xpEnd: 7100,
-    note: "Juin 2013 → septembre 2013. Compte masqué à partir de septembre."
-  },
-  {
-    nom: "sanji",
-    start: "2013-09-01",
-    end: "2013-10-15",
-    xpStart: 600,
-    xpEnd: 1830,
-    note: "Septembre 2013 → mi-octobre 2013."
-  },
-  {
-    nom: "aurel-08",
-    start: "2013-10-15",
-    end: "2013-12-05",
-    xpStart: 1900,
-    xpEnd: 3500,
-    note: "Mi-octobre 2013 → vers début décembre 2013."
-  },
-  {
-    nom: "jordialba",
-    start: "2013-12-05",
-    end: "2014-01-31",
-    xpStart: 3700,
-    xpEnd: 6750,
-    note: "Décembre 2013 → fin janvier 2014."
-  },
-  {
-    nom: "monkey.D dragon",
-    start: "2014-01-31",
-    end: "2014-03-31",
-    xpStart: 7000,
-    xpEnd: 10900,
-    note: "Fin janvier 2014 → fin mars 2014."
-  },
-  {
-    nom: "Largo672",
-    start: "2014-03-31",
-    end: "2017-05-21",
-    xpStart: 11000,
-    xpEnd: 57756,
-    note: "Fin mars 2014 → 21 mai 2017. XP indiquée à novembre 2016 : 57 756."
-  },
-  {
-    nom: "josué455",
-    start: "2017-05-21",
-    end: "2017-06-16",
-    xpStart: 58000,
-    xpEnd: 80300,
-    note: "Jusqu’au 16 juin 2017."
-  },
-  {
-    nom: "Abelard",
-    start: "2017-06-16",
-    end: "2017-07-18",
-    xpStart: 80500,
-    xpEnd: 86160,
-    note: "16 juin 2017 → 18 juillet 2017."
-  },
-  {
-    nom: "josué455",
-    start: "2017-07-18",
-    end: "2017-08-05",
-    xpStart: 86168,
-    xpEnd: 92196,
-    note: "18 juillet 2017 → début août 2017."
-  },
-  {
-    nom: "Abelard",
-    start: "2017-08-05",
-    end: "2017-08-31",
-    xpStart: 92200,
-    xpEnd: 93000,
-    note: "Début août 2017 → fin août 2017. XP fin approximative."
-  },
-  {
-    nom: "josué455",
-    start: "2017-08-31",
-    end: "2018-01-31",
-    xpStart: 93001,
-    xpEnd: 116000,
-    note: "Début septembre 2017 → fin janvier 2018."
-  },
-  {
-    nom: "Talk Takashi",
-    start: "2018-01-31",
-    end: null,
-    xpStart: 116500,
-    xpEnd: null,
-    note: "Fin janvier 2018 → aujourd’hui."
-  }
+  { nom:"Korben", start:"2013-06-01", end:"2013-09-01", xpStart:2000, xpEnd:7100, note:"Juin 2013 → septembre 2013. Compte masqué à partir de septembre." },
+  { nom:"sanji", start:"2013-09-01", end:"2013-10-15", xpStart:600, xpEnd:1830, note:"Septembre 2013 → mi-octobre 2013." },
+  { nom:"aurel-08", start:"2013-10-15", end:"2013-12-05", xpStart:1900, xpEnd:3500, note:"Mi-octobre 2013 → vers début décembre 2013." },
+  { nom:"jordialba", start:"2013-12-05", end:"2014-01-31", xpStart:3700, xpEnd:6750, note:"Décembre 2013 → fin janvier 2014." },
+  { nom:"monkey.D dragon", start:"2014-01-31", end:"2014-03-31", xpStart:7000, xpEnd:10900, note:"Fin janvier 2014 → fin mars 2014." },
+  { nom:"Largo672", start:"2014-03-31", end:"2017-05-21", xpStart:11000, xpEnd:57756, note:"Fin mars 2014 → 21 mai 2017. XP indiquée à novembre 2016 : 57 756." },
+  { nom:"josué455", start:"2017-05-21", end:"2017-06-16", xpStart:58000, xpEnd:80300, note:"Jusqu’au 16 juin 2017." },
+  { nom:"Abelard", start:"2017-06-16", end:"2017-07-18", xpStart:80500, xpEnd:86160, note:"16 juin 2017 → 18 juillet 2017." },
+  { nom:"josué455", start:"2017-07-18", end:"2017-08-05", xpStart:86168, xpEnd:92196, note:"18 juillet 2017 → début août 2017." },
+  { nom:"Abelard", start:"2017-08-05", end:"2017-08-31", xpStart:92200, xpEnd:93000, note:"Début août 2017 → fin août 2017. XP fin approximative." },
+  { nom:"josué455", start:"2017-08-31", end:"2018-01-31", xpStart:93001, xpEnd:116000, note:"Début septembre 2017 → fin janvier 2018." },
+  { nom:"Talk Takashi", start:"2018-01-31", end:null, xpStart:116500, xpEnd:null, note:"Fin janvier 2018 → aujourd’hui." }
 ];
 
 function warn(msg){
@@ -299,18 +425,14 @@ function parseDate(str){
 }
 
 function formatDay(str){
-  const d = parseDate(str);
-  return d.toLocaleDateString("fr-FR");
+  return parseDate(str).toLocaleDateString("fr-FR");
 }
 
 function addMonths(date, months){
   const d = new Date(date.getTime());
   const day = d.getDate();
   d.setMonth(d.getMonth() + months);
-
-  if(d.getDate() < day){
-    d.setDate(0);
-  }
+  if(d.getDate() < day) d.setDate(0);
   return d;
 }
 
@@ -333,10 +455,8 @@ function diffMonthsDays(startStr, endStr){
 function durationText(startStr, endStr){
   const d = diffMonthsDays(startStr, endStr);
   const parts = [];
-
   if(d.months) parts.push(d.months + " mois");
   if(d.days || !parts.length) parts.push(d.days + " jour" + (d.days > 1 ? "s" : ""));
-
   return parts.join(" et ");
 }
 
@@ -359,24 +479,48 @@ async function loadLatestHistoryDay(){
   const idx = await fetchJson(HISTORY_BASE + "/index.json");
   if(!Array.isArray(idx) || !idx.length) return null;
   const days = idx.map(normalizeDay).filter(Boolean).sort();
-  return days.length ? days[days.length - 1] : null;
+  return days[days.length - 1] || null;
 }
 
 async function buildRows(){
   const latest = await loadLatestHistoryDay();
-  const fallbackToday = new Date().toISOString().slice(0, 10);
+  const fallbackToday = new Date().toISOString().slice(0,10);
 
   return REIGNS.map(r => {
     const effectiveEnd = r.end || latest || fallbackToday;
-    const duration = durationText(r.start, effectiveEnd);
+    const totalDays = Math.round((parseDate(effectiveEnd) - parseDate(r.start)) / 86400000);
 
     return {
       ...r,
       endEffective: effectiveEnd,
-      duration,
-      sortDays: Math.round((parseDate(effectiveEnd) - parseDate(r.start)) / 86400000)
+      duration: durationText(r.start, effectiveEnd),
+      totalDays
     };
-  }).sort((a, b) => b.sortDays - a.sortDays);
+  }).sort((a,b) => b.totalDays - a.totalDays);
+}
+
+function renderStats(rows){
+  const box = document.getElementById("stats");
+  if(!rows.length) return;
+
+  const top = rows[0];
+  const total = rows.length;
+  const current = rows.find(r => !r.end);
+  const unique = new Set(rows.map(r => r.nom)).size;
+
+  box.innerHTML =
+    '<div class="stat">' +
+      '<div class="statLabel">Plus long règne</div>' +
+      '<div class="statValue">' + top.nom + '</div>' +
+    '</div>' +
+    '<div class="stat">' +
+      '<div class="statLabel">Durée record</div>' +
+      '<div class="statValue">' + top.duration + '</div>' +
+    '</div>' +
+    '<div class="stat">' +
+      '<div class="statLabel">Nombre de règnes / leaders</div>' +
+      '<div class="statValue">' + total + ' règnes • ' + unique + ' leaders</div>' +
+    '</div>';
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -388,6 +532,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   const rows = await buildRows();
 
+  renderStats(rows);
   rangeTxt.textContent = "Classement des règnes les plus longs à la 1re place";
 
   if(!rows.length){
@@ -397,17 +542,27 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   rows.forEach((r, i) => {
-    const tr = document.createElement("tr");
+    const isTop = i < 3;
+    const rankHtml = isTop
+      ? '<span class="rankTop">' + (i + 1) + '</span>'
+      : (i + 1);
 
+    const tr = document.createElement("tr");
     tr.innerHTML =
-      '<td class="rank">' + (i + 1) + '</td>' +
-      '<td><div class="name">' + r.nom + '</div></td>' +
-      '<td class="center">' + r.duration + '</td>' +
+      '<td class="rank">' + rankHtml + '</td>' +
+      '<td>' +
+        '<div class="name">' + r.nom + '</div>' +
+        '<div class="nameSub">Règne n°' + (i + 1) + ' du classement</div>' +
+      '</td>' +
+      '<td class="center"><span class="durationBadge">' + r.duration + '</span></td>' +
       '<td class="center">' + formatDay(r.start) + '</td>' +
-      '<td class="center">' + formatDay(r.endEffective) + (r.end ? '' : '<div class="small">règne en cours</div>') + '</td>' +
-      '<td class="center">' + fmt(r.xpStart) + '</td>' +
-      '<td class="center">' + fmt(r.xpEnd) + (r.xpEnd == null ? '<div class="small">non figée</div>' : '') + '</td>' +
-      '<td>' + r.note + '</td>';
+      '<td class="center">' +
+        formatDay(r.endEffective) +
+        (!r.end ? '<div class="liveBadge">Règne en cours</div>' : '') +
+      '</td>' +
+      '<td class="center"><div class="xpBox"><div class="xpValue">' + fmt(r.xpStart) + '</div><div class="xpHint">au départ</div></div></td>' +
+      '<td class="center"><div class="xpBox"><div class="xpValue">' + fmt(r.xpEnd) + '</div><div class="xpHint">' + (r.xpEnd == null ? 'non figée' : 'à la fin') + '</div></div></td>' +
+      '<td class="noteCell">' + r.note + '</td>';
 
     tbody.appendChild(tr);
   });
