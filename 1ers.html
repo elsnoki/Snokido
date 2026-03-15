@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Les plus longs règnes des 1ers</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="header.js" defer></script>
+
+<style>
+body{
+  margin:0;
+  background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+  font-family: Arial, sans-serif;
+}
+
+.wrap{
+  max-width:1280px;
+  margin:26px auto 40px;
+  padding:0 12px;
+}
+
+.panel{
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,0,0,.28);
+  border:1px solid rgba(0,0,0,.10);
+}
+
+.titlebar{
+  background:#3b3b3b;
+  color:#fff;
+  padding:14px 16px;
+  font-size:22px;
+  font-weight:900;
+}
+
+.topnav{
+  padding:12px 16px;
+  border-bottom:1px solid #e6e6e6;
+  background:#f7f7f7;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.topnav a{
+  display:inline-block;
+  padding:10px 14px;
+  border-radius:10px;
+  background:#666;
+  color:#fff;
+  text-decoration:none;
+  font-weight:900;
+}
+
+.topnav a.active{
+  background:#2c6fb7;
+}
+
+.sub{
+  padding:10px 16px;
+  font-weight:900;
+  color:#444;
+  border-bottom:1px solid #e6e6e6;
+  background:#fafafa;
+}
+
+.note{
+  margin:12px 16px 0;
+  padding:10px 12px;
+  background:#eef6ff;
+  border:1px solid #cfe2ff;
+  border-radius:10px;
+  font-weight:700;
+  color:#234;
+}
+
+.warn{
+  margin:12px 16px 0;
+  padding:10px 12px;
+  background:#fff3cd;
+  border:1px solid #ffe69c;
+  border-radius:10px;
+  font-weight:900;
+  color:#664d03;
+  display:none;
+}
+
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+}
+
+thead th{
+  background:#fff;
+  padding:14px 12px;
+  text-align:left;
+  font-size:15px;
+  font-weight:900;
+  border-bottom:1px solid #cfcfcf;
+}
+
+tbody td{
+  padding:16px 12px;
+  border-bottom:1px solid #cfcfcf;
+  vertical-align:middle;
+  font-size:16px;
+}
+
+tbody tr:nth-child(odd){
+  background:#f2f2f2;
+}
+
+.rank{
+  width:70px;
+  text-align:center;
+  font-weight:900;
+  font-size:26px;
+  color:#444;
+}
+
+.center{
+  text-align:center;
+  white-space:nowrap;
+  font-weight:900;
+}
+
+.small{
+  font-weight:700;
+  font-size:13px;
+  color:#666;
+}
+
+.name{
+  font-weight:900;
+  font-size:18px;
+  color:#2c2c2c;
+}
+</style>
+</head>
+
+<body>
+<main class="wrap">
+  <section class="panel">
+    <div class="titlebar">Classement — Les plus longs règnes des 1ers</div>
+
+    <div class="topnav">
+      <a href="1ers.html" class="active">Plus longs règnes</a>
+      <a href="1erschrono.html">Ordre chronologique</a>
+    </div>
+
+    <div class="sub" id="rangeTxt">Chargement…</div>
+
+    <div class="note">
+      Dates approximatives selon tes repères (“début”, “mi”, “fin”).  
+      Le règne en cours de Talk Takashi s’arrête automatiquement au dernier snapshot dispo.
+    </div>
+
+    <div id="warn" class="warn"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Joueur</th>
+          <th class="center">Durée</th>
+          <th class="center">Début</th>
+          <th class="center">Fin</th>
+          <th class="center">XP début</th>
+          <th class="center">XP fin</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+const HISTORY_BASE = "data/history_paris";
+
+const REIGNS = [
+  {
+    nom: "Korben",
+    start: "2013-06-01",
+    end: "2013-09-01",
+    xpStart: 2000,
+    xpEnd: 7100,
+    note: "Juin 2013 → septembre 2013. Compte masqué à partir de septembre."
+  },
+  {
+    nom: "sanji",
+    start: "2013-09-01",
+    end: "2013-10-15",
+    xpStart: 600,
+    xpEnd: 1830,
+    note: "Septembre 2013 → mi-octobre 2013."
+  },
+  {
+    nom: "aurel-08",
+    start: "2013-10-15",
+    end: "2013-12-05",
+    xpStart: 1900,
+    xpEnd: 3500,
+    note: "Mi-octobre 2013 → vers début décembre 2013."
+  },
+  {
+    nom: "jordialba",
+    start: "2013-12-05",
+    end: "2014-01-31",
+    xpStart: 3700,
+    xpEnd: 6750,
+    note: "Décembre 2013 → fin janvier 2014."
+  },
+  {
+    nom: "monkey.D dragon",
+    start: "2014-01-31",
+    end: "2014-03-31",
+    xpStart: 7000,
+    xpEnd: 10900,
+    note: "Fin janvier 2014 → fin mars 2014."
+  },
+  {
+    nom: "Largo672",
+    start: "2014-03-31",
+    end: "2017-05-21",
+    xpStart: 11000,
+    xpEnd: 57756,
+    note: "Fin mars 2014 → 21 mai 2017. XP indiquée à novembre 2016 : 57 756."
+  },
+  {
+    nom: "josué455",
+    start: "2017-05-21",
+    end: "2017-06-16",
+    xpStart: 58000,
+    xpEnd: 80300,
+    note: "Jusqu’au 16 juin 2017."
+  },
+  {
+    nom: "Abelard",
+    start: "2017-06-16",
+    end: "2017-07-18",
+    xpStart: 80500,
+    xpEnd: 86160,
+    note: "16 juin 2017 → 18 juillet 2017."
+  },
+  {
+    nom: "josué455",
+    start: "2017-07-18",
+    end: "2017-08-05",
+    xpStart: 86168,
+    xpEnd: 92196,
+    note: "18 juillet 2017 → début août 2017."
+  },
+  {
+    nom: "Abelard",
+    start: "2017-08-05",
+    end: "2017-08-31",
+    xpStart: 92200,
+    xpEnd: 93000,
+    note: "Début août 2017 → fin août 2017. XP fin approximative."
+  },
+  {
+    nom: "josué455",
+    start: "2017-08-31",
+    end: "2018-01-31",
+    xpStart: 93001,
+    xpEnd: 116000,
+    note: "Début septembre 2017 → fin janvier 2018."
+  },
+  {
+    nom: "Talk Takashi",
+    start: "2018-01-31",
+    end: null,
+    xpStart: 116500,
+    xpEnd: null,
+    note: "Fin janvier 2018 → aujourd’hui."
+  }
+];
+
+function warn(msg){
+  const w = document.getElementById("warn");
+  w.style.display = "block";
+  w.textContent = msg;
+}
+
+function fmt(n){
+  const v = Number(n);
+  if(!Number.isFinite(v)) return "—";
+  return v.toLocaleString("fr-FR");
+}
+
+function parseDate(str){
+  return new Date(str + "T00:00:00");
+}
+
+function formatDay(str){
+  const d = parseDate(str);
+  return d.toLocaleDateString("fr-FR");
+}
+
+function addMonths(date, months){
+  const d = new Date(date.getTime());
+  const day = d.getDate();
+  d.setMonth(d.getMonth() + months);
+
+  if(d.getDate() < day){
+    d.setDate(0);
+  }
+  return d;
+}
+
+function diffMonthsDays(startStr, endStr){
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+
+  let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+  let cursor = addMonths(start, months);
+
+  if(cursor > end){
+    months--;
+    cursor = addMonths(start, months);
+  }
+
+  const days = Math.round((end - cursor) / 86400000);
+  return { months, days };
+}
+
+function durationText(startStr, endStr){
+  const d = diffMonthsDays(startStr, endStr);
+  const parts = [];
+
+  if(d.months) parts.push(d.months + " mois");
+  if(d.days || !parts.length) parts.push(d.days + " jour" + (d.days > 1 ? "s" : ""));
+
+  return parts.join(" et ");
+}
+
+async function fetchJson(path){
+  try{
+    const res = await fetch(path + "?t=" + Date.now(), { cache:"no-store" });
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){
+    return null;
+  }
+}
+
+function normalizeDay(s){
+  const m = String(s || "").match(/^(\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : null;
+}
+
+async function loadLatestHistoryDay(){
+  const idx = await fetchJson(HISTORY_BASE + "/index.json");
+  if(!Array.isArray(idx) || !idx.length) return null;
+  const days = idx.map(normalizeDay).filter(Boolean).sort();
+  return days.length ? days[days.length - 1] : null;
+}
+
+async function buildRows(){
+  const latest = await loadLatestHistoryDay();
+  const fallbackToday = new Date().toISOString().slice(0, 10);
+
+  return REIGNS.map(r => {
+    const effectiveEnd = r.end || latest || fallbackToday;
+    const duration = durationText(r.start, effectiveEnd);
+
+    return {
+      ...r,
+      endEffective: effectiveEnd,
+      duration,
+      sortDays: Math.round((parseDate(effectiveEnd) - parseDate(r.start)) / 86400000)
+    };
+  }).sort((a, b) => b.sortDays - a.sortDays);
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  const tbody = document.getElementById("tbody");
+  const rangeTxt = document.getElementById("rangeTxt");
+
+  tbody.innerHTML = "";
+  rangeTxt.textContent = "Chargement…";
+
+  const rows = await buildRows();
+
+  rangeTxt.textContent = "Classement des règnes les plus longs à la 1re place";
+
+  if(!rows.length){
+    warn("Aucune donnée.");
+    tbody.innerHTML = '<tr><td colspan="8" style="padding:16px;font-weight:900;color:#666;">Aucune donnée.</td></tr>';
+    return;
+  }
+
+  rows.forEach((r, i) => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML =
+      '<td class="rank">' + (i + 1) + '</td>' +
+      '<td><div class="name">' + r.nom + '</div></td>' +
+      '<td class="center">' + r.duration + '</td>' +
+      '<td class="center">' + formatDay(r.start) + '</td>' +
+      '<td class="center">' + formatDay(r.endEffective) + (r.end ? '' : '<div class="small">règne en cours</div>') + '</td>' +
+      '<td class="center">' + fmt(r.xpStart) + '</td>' +
+      '<td class="center">' + fmt(r.xpEnd) + (r.xpEnd == null ? '<div class="small">non figée</div>' : '') + '</td>' +
+      '<td>' + r.note + '</td>';
+
+    tbody.appendChild(tr);
+  });
+});
+</script>
+</body>
+</html>
