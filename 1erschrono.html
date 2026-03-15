@@ -9,145 +9,346 @@
 <script src="header.js" defer></script>
 
 <style>
+:root{
+  --panel:#ffffff;
+  --line:#dfe7ef;
+  --text:#1f2c38;
+  --muted:#6a7b8d;
+  --blue:#2c6fb7;
+  --blueDark:#1f5c9d;
+  --green:#2f8f60;
+  --greenSoft:#eaf8f0;
+  --violet:#7759d9;
+  --violetSoft:#f1edff;
+  --shadow:0 18px 48px rgba(0,0,0,.24);
+}
+
 body{
   margin:0;
-  background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+  background: radial-gradient(1200px 700px at 20% 10%, #2d88ad 0%, #0b3551 58%, #072638 100%);
   font-family: Arial, sans-serif;
+  color:var(--text);
 }
 
 .wrap{
-  max-width:1280px;
-  margin:26px auto 40px;
-  padding:0 12px;
+  max-width:1360px;
+  margin:28px auto 46px;
+  padding:0 14px;
+}
+
+.hero{
+  background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:20px;
+  padding:24px;
+  color:#fff;
+  box-shadow:0 16px 40px rgba(0,0,0,.18);
+  backdrop-filter: blur(4px);
+  margin-bottom:18px;
+}
+
+.heroTop{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.heroTitle{
+  margin:0 0 8px;
+  font-size:32px;
+  font-weight:900;
+  line-height:1.08;
+}
+
+.heroSub{
+  max-width:780px;
+  font-size:15px;
+  line-height:1.45;
+  font-weight:700;
+  color:rgba(255,255,255,.84);
+}
+
+.heroBadge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.18);
+  font-weight:900;
+  white-space:nowrap;
 }
 
 .panel{
   background:#fff;
-  border-radius:12px;
+  border-radius:20px;
   overflow:hidden;
-  box-shadow:0 12px 30px rgba(0,0,0,.28);
-  border:1px solid rgba(0,0,0,.10);
-}
-
-.titlebar{
-  background:#3b3b3b;
-  color:#fff;
-  padding:14px 16px;
-  font-size:22px;
-  font-weight:900;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,.08);
 }
 
 .topnav{
-  padding:12px 16px;
-  border-bottom:1px solid #e6e6e6;
-  background:#f7f7f7;
+  padding:14px 18px;
+  border-bottom:1px solid #e6ebf1;
+  background:linear-gradient(180deg, #fcfdff 0%, #f3f6fa 100%);
   display:flex;
   gap:10px;
   flex-wrap:wrap;
 }
 
 .topnav a{
-  display:inline-block;
-  padding:10px 14px;
-  border-radius:10px;
-  background:#666;
-  color:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:11px 16px;
+  border-radius:12px;
   text-decoration:none;
   font-weight:900;
+  color:#4d5e70;
+  background:#e9eef5;
+  border:1px solid #d8e0ea;
+  transition:.18s ease;
+}
+
+.topnav a:hover{
+  transform:translateY(-1px);
+  background:#dfe8f2;
 }
 
 .topnav a.active{
-  background:#2c6fb7;
+  background:linear-gradient(180deg, var(--blue) 0%, var(--blueDark) 100%);
+  color:#fff;
+  border-color:transparent;
+  box-shadow:0 10px 24px rgba(44,111,183,.28);
 }
 
 .sub{
-  padding:10px 16px;
+  padding:12px 18px;
   font-weight:900;
-  color:#444;
-  border-bottom:1px solid #e6e6e6;
-  background:#fafafa;
+  color:#465566;
+  border-bottom:1px solid #e7edf3;
+  background:#fafcff;
 }
 
 .note{
-  margin:12px 16px 0;
-  padding:10px 12px;
-  background:#eef6ff;
-  border:1px solid #cfe2ff;
-  border-radius:10px;
+  margin:14px 18px 0;
+  padding:13px 15px;
+  background:linear-gradient(180deg, #faf8ff 0%, #f0ebff 100%);
+  border:1px solid #ddd4ff;
+  border-radius:14px;
   font-weight:700;
-  color:#234;
+  color:#4b3f7a;
 }
 
 .warn{
-  margin:12px 16px 0;
-  padding:10px 12px;
+  margin:14px 18px 0;
+  padding:11px 13px;
   background:#fff3cd;
   border:1px solid #ffe69c;
-  border-radius:10px;
+  border-radius:12px;
   font-weight:900;
   color:#664d03;
   display:none;
 }
 
-table{
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0;
+.timelineWrap{
+  padding:18px;
 }
 
-thead th{
+.timeline{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.item{
+  position:relative;
+  display:grid;
+  grid-template-columns:120px 1fr;
+  gap:16px;
+  align-items:stretch;
+}
+
+.itemDate{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:14px 10px;
+  border-radius:16px;
+  background:linear-gradient(180deg, #f7f9fd 0%, #ebf0f7 100%);
+  border:1px solid #d7e0ea;
+  font-weight:900;
+  text-align:center;
+  color:#4a5c6d;
+}
+
+.card{
   background:#fff;
-  padding:14px 12px;
-  text-align:left;
+  border:1px solid #e1e8f0;
+  border-radius:18px;
+  box-shadow:0 10px 24px rgba(0,0,0,.06);
+  padding:16px;
+}
+
+.cardTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.playerCard{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.avatarWrap{
+  width:70px;
+  height:70px;
+  border-radius:16px;
+  background:linear-gradient(180deg, #eef3f9 0%, #dbe5f0 100%);
+  border:1px solid #cbd6e2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+}
+
+.avatarWrap img{
+  width:60px;
+  height:60px;
+  object-fit:cover;
+  border-radius:14px;
+  border:2px solid #95a6b8;
+  display:block;
+  background:#dfe5eb;
+}
+
+.playerInfo a{
+  color:#223140;
+  text-decoration:none;
+  font-size:20px;
+  font-weight:900;
+}
+
+.playerInfo a:hover{
+  text-decoration:underline;
+}
+
+.playerMeta{
+  margin-top:5px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--muted);
+}
+
+.badges{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.badgeDuration{
+  background:var(--violetSoft);
+  color:var(--violet);
+  border:1px solid #ddd4ff;
+}
+
+.badgeLive{
+  background:var(--greenSoft);
+  color:var(--green);
+  border:1px solid #c6eacf;
+}
+
+.metaGrid{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:12px;
+  margin-top:14px;
+}
+
+.metaBox{
+  border:1px solid #e6edf5;
+  background:#f9fbfe;
+  border-radius:14px;
+  padding:12px;
+}
+
+.metaLabel{
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  color:#728294;
+  margin-bottom:6px;
+}
+
+.metaValue{
   font-size:15px;
   font-weight:900;
-  border-bottom:1px solid #cfcfcf;
+  color:#243648;
 }
 
-tbody td{
-  padding:16px 12px;
-  border-bottom:1px solid #cfcfcf;
-  vertical-align:middle;
-  font-size:16px;
-}
-
-tbody tr:nth-child(odd){
-  background:#f2f2f2;
-}
-
-.rank{
-  width:70px;
-  text-align:center;
-  font-weight:900;
-  font-size:26px;
-  color:#444;
-}
-
-.center{
-  text-align:center;
-  white-space:nowrap;
-  font-weight:900;
-}
-
-.small{
+.noteText{
+  margin-top:14px;
+  color:#445464;
+  line-height:1.45;
   font-weight:700;
-  font-size:13px;
-  color:#666;
 }
 
-.name{
-  font-weight:900;
-  font-size:18px;
-  color:#2c2c2c;
+@media (max-width: 980px){
+  .heroTitle{
+    font-size:26px;
+  }
+
+  .item{
+    grid-template-columns:1fr;
+  }
+
+  .metaGrid{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media (max-width: 640px){
+  .metaGrid{
+    grid-template-columns:1fr;
+  }
 }
 </style>
 </head>
 
 <body>
 <main class="wrap">
-  <section class="panel">
-    <div class="titlebar">Classement — Les 1ers dans l’ordre chronologique</div>
 
+  <section class="hero">
+    <div class="heroTop">
+      <div>
+        <h1 class="heroTitle">Les n°1 dans l’ordre chronologique</h1>
+        <div class="heroSub">
+          La succession complète des leaders, du tout premier au leader actuel, avec skins, dates, XP et durée de règne.
+        </div>
+      </div>
+      <div class="heroBadge">📜 Chronologie des leaders</div>
+    </div>
+  </section>
+
+  <section class="panel">
     <div class="topnav">
       <a href="1ers.html">Plus longs règnes</a>
       <a href="1erschrono.html" class="active">Ordre chronologique</a>
@@ -156,26 +357,14 @@ tbody tr:nth-child(odd){
     <div class="sub" id="rangeTxt">Chargement…</div>
 
     <div class="note">
-      Chronologie du premier 1er au dernier 1er, avec durée en mois / jours.
+      Chronologie du premier n°1 au dernier, avec durée en mois et jours. Les repères “début”, “mi”, “fin” ont été harmonisés.
     </div>
 
     <div id="warn" class="warn"></div>
 
-    <table>
-      <thead>
-        <tr>
-          <th></th>
-          <th>Joueur</th>
-          <th class="center">Début</th>
-          <th class="center">Fin</th>
-          <th class="center">Durée</th>
-          <th class="center">XP début</th>
-          <th class="center">XP fin</th>
-          <th>Note</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+    <div class="timelineWrap">
+      <div class="timeline" id="timeline"></div>
+    </div>
   </section>
 </main>
 
@@ -183,108 +372,43 @@ tbody tr:nth-child(odd){
 const HISTORY_BASE = "data/history_paris";
 
 const REIGNS = [
-  {
-    nom: "Korben",
-    start: "2013-06-01",
-    end: "2013-09-01",
-    xpStart: 2000,
-    xpEnd: 7100,
-    note: "Juin 2013 → septembre 2013. Compte masqué à partir de septembre."
-  },
-  {
-    nom: "sanji",
-    start: "2013-09-01",
-    end: "2013-10-15",
-    xpStart: 600,
-    xpEnd: 1830,
-    note: "Septembre 2013 → mi-octobre 2013."
-  },
-  {
-    nom: "aurel-08",
-    start: "2013-10-15",
-    end: "2013-12-05",
-    xpStart: 1900,
-    xpEnd: 3500,
-    note: "Mi-octobre 2013 → vers début décembre 2013."
-  },
-  {
-    nom: "jordialba",
-    start: "2013-12-05",
-    end: "2014-01-31",
-    xpStart: 3700,
-    xpEnd: 6750,
-    note: "Décembre 2013 → fin janvier 2014."
-  },
-  {
-    nom: "monkey.D dragon",
-    start: "2014-01-31",
-    end: "2014-03-31",
-    xpStart: 7000,
-    xpEnd: 10900,
-    note: "Fin janvier 2014 → fin mars 2014."
-  },
-  {
-    nom: "Largo672",
-    start: "2014-03-31",
-    end: "2017-05-21",
-    xpStart: 11000,
-    xpEnd: 57756,
-    note: "Fin mars 2014 → 21 mai 2017. XP indiquée à novembre 2016 : 57 756."
-  },
-  {
-    nom: "josué455",
-    start: "2017-05-21",
-    end: "2017-06-16",
-    xpStart: 58000,
-    xpEnd: 80300,
-    note: "Jusqu’au 16 juin 2017."
-  },
-  {
-    nom: "Abelard",
-    start: "2017-06-16",
-    end: "2017-07-18",
-    xpStart: 80500,
-    xpEnd: 86160,
-    note: "16 juin 2017 → 18 juillet 2017."
-  },
-  {
-    nom: "josué455",
-    start: "2017-07-18",
-    end: "2017-08-05",
-    xpStart: 86168,
-    xpEnd: 92196,
-    note: "18 juillet 2017 → début août 2017."
-  },
-  {
-    nom: "Abelard",
-    start: "2017-08-05",
-    end: "2017-08-31",
-    xpStart: 92200,
-    xpEnd: 93000,
-    note: "Début août 2017 → fin août 2017. XP fin approximative."
-  },
-  {
-    nom: "josué455",
-    start: "2017-08-31",
-    end: "2018-01-31",
-    xpStart: 93001,
-    xpEnd: 116000,
-    note: "Début septembre 2017 → fin janvier 2018."
-  },
-  {
-    nom: "Talk Takashi",
-    start: "2018-01-31",
-    end: null,
-    xpStart: 116500,
-    xpEnd: null,
-    note: "Fin janvier 2018 → aujourd’hui."
-  }
+  { nom:"Korben", start:"2013-06-01", end:"2013-09-01", xpStart:2000, xpEnd:7100, note:"Juin 2013 → septembre 2013. Compte masqué à partir de septembre." },
+  { nom:"sanji", start:"2013-09-01", end:"2013-10-15", xpStart:600, xpEnd:1830, note:"Septembre 2013 → mi-octobre 2013." },
+  { nom:"aurel-08", start:"2013-10-15", end:"2013-12-05", xpStart:1900, xpEnd:3500, note:"Mi-octobre 2013 → vers début décembre 2013." },
+  { nom:"jordialba", start:"2013-12-05", end:"2014-01-31", xpStart:3700, xpEnd:6750, note:"Décembre 2013 → fin janvier 2014." },
+  { nom:"monkey.D dragon", start:"2014-01-31", end:"2014-03-31", xpStart:7000, xpEnd:10900, note:"Fin janvier 2014 → fin mars 2014." },
+  { nom:"Largo672", start:"2014-03-31", end:"2017-05-21", xpStart:11000, xpEnd:57756, note:"Fin mars 2014 → 21 mai 2017. XP indiquée à novembre 2016 : 57 756." },
+  { nom:"josué455", start:"2017-05-21", end:"2017-06-16", xpStart:58000, xpEnd:80300, note:"Jusqu’au 16 juin 2017." },
+  { nom:"Abelard", start:"2017-06-16", end:"2017-07-18", xpStart:80500, xpEnd:86160, note:"16 juin 2017 → 18 juillet 2017." },
+  { nom:"josué455", start:"2017-07-18", end:"2017-08-05", xpStart:86168, xpEnd:92196, note:"18 juillet 2017 → début août 2017." },
+  { nom:"Abelard", start:"2017-08-05", end:"2017-08-31", xpStart:92200, xpEnd:93000, note:"Début août 2017 → fin août 2017. XP fin approximative." },
+  { nom:"josué455", start:"2017-08-31", end:"2018-01-31", xpStart:93001, xpEnd:116000, note:"Début septembre 2017 → fin janvier 2018." },
+  { nom:"Talk Takashi", start:"2018-01-31", end:null, xpStart:116500, xpEnd:null, note:"Fin janvier 2018 → aujourd’hui." }
 ];
+
+const MANUAL_AVATARS = {
+  "korben": {
+    avatar: "https://elsnoki.github.io/Snokido/avatar/38.jpg",
+    profileHref: "https://www.snokido.fr/player/korben"
+  },
+  "dude": {
+    avatar: "https://elsnoki.github.io/Snokido/avatar/37.jpg",
+    profileHref: "https://www.snokido.fr/player/dude"
+  }
+};
 
 function warn(msg){
   const w = document.getElementById("warn");
   w.style.display = "block";
   w.textContent = msg;
+}
+
+function slugify(name){
+  return String(name || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toLowerCase();
 }
 
 function fmt(n){
@@ -298,18 +422,14 @@ function parseDate(str){
 }
 
 function formatDay(str){
-  const d = parseDate(str);
-  return d.toLocaleDateString("fr-FR");
+  return parseDate(str).toLocaleDateString("fr-FR");
 }
 
 function addMonths(date, months){
   const d = new Date(date.getTime());
   const day = d.getDate();
   d.setMonth(d.getMonth() + months);
-
-  if(d.getDate() < day){
-    d.setDate(0);
-  }
+  if(d.getDate() < day) d.setDate(0);
   return d;
 }
 
@@ -332,10 +452,8 @@ function diffMonthsDays(startStr, endStr){
 function durationText(startStr, endStr){
   const d = diffMonthsDays(startStr, endStr);
   const parts = [];
-
   if(d.months) parts.push(d.months + " mois");
   if(d.days || !parts.length) parts.push(d.days + " jour" + (d.days > 1 ? "s" : ""));
-
   return parts.join(" et ");
 }
 
@@ -358,54 +476,111 @@ async function loadLatestHistoryDay(){
   const idx = await fetchJson(HISTORY_BASE + "/index.json");
   if(!Array.isArray(idx) || !idx.length) return null;
   const days = idx.map(normalizeDay).filter(Boolean).sort();
-  return days.length ? days[days.length - 1] : null;
+  return days[days.length - 1] || null;
+}
+
+async function loadPlayersPages(){
+  const data = await fetchJson("data/players_pages.json");
+  const map = new Map();
+
+  if(Array.isArray(data)){
+    data.forEach(p => {
+      const key = slugify(p.slug || p.nom);
+      map.set(key, {
+        avatar: p.avatar || null,
+        profileHref: p.profileHref || null
+      });
+    });
+  }
+
+  Object.keys(MANUAL_AVATARS).forEach(k => {
+    if(!map.has(k)){
+      map.set(k, MANUAL_AVATARS[k]);
+    }
+  });
+
+  return map;
+}
+
+function playerLink(name, extra){
+  if(extra && extra.profileHref) return extra.profileHref;
+  return "profil.html?mode=nv100&u=" + encodeURIComponent(slugify(name));
+}
+
+function playerAvatar(extra){
+  if(extra && extra.avatar) return extra.avatar;
+  return "avatar/1.jpg";
 }
 
 async function buildRows(){
   const latest = await loadLatestHistoryDay();
-  const fallbackToday = new Date().toISOString().slice(0, 10);
+  const fallbackToday = new Date().toISOString().slice(0,10);
+  const playersPages = await loadPlayersPages();
 
-  return REIGNS.map(r => {
+  return REIGNS.map((r, i) => {
     const effectiveEnd = r.end || latest || fallbackToday;
+    const key = slugify(r.nom);
+    const extra = playersPages.get(key) || null;
+
     return {
       ...r,
+      order: i + 1,
       endEffective: effectiveEnd,
-      duration: durationText(r.start, effectiveEnd)
+      duration: durationText(r.start, effectiveEnd),
+      avatar: playerAvatar(extra),
+      profileHref: playerLink(r.nom, extra)
     };
-  }).sort((a, b) => a.start.localeCompare(b.start));
+  }).sort((a,b) => a.start.localeCompare(b.start));
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
-  const tbody = document.getElementById("tbody");
+  const timeline = document.getElementById("timeline");
   const rangeTxt = document.getElementById("rangeTxt");
 
-  tbody.innerHTML = "";
+  timeline.innerHTML = "";
   rangeTxt.textContent = "Chargement…";
 
   const rows = await buildRows();
-
-  rangeTxt.textContent = "Du premier 1er au dernier 1er";
+  rangeTxt.textContent = "Du premier n°1 au leader actuel";
 
   if(!rows.length){
     warn("Aucune donnée.");
-    tbody.innerHTML = '<tr><td colspan="8" style="padding:16px;font-weight:900;color:#666;">Aucune donnée.</td></tr>';
+    timeline.innerHTML = '<div style="padding:16px;font-weight:900;color:#666;">Aucune donnée.</div>';
     return;
   }
 
-  rows.forEach((r, i) => {
-    const tr = document.createElement("tr");
+  rows.forEach((r) => {
+    const item = document.createElement("div");
+    item.className = "item";
 
-    tr.innerHTML =
-      '<td class="rank">' + (i + 1) + '</td>' +
-      '<td><div class="name">' + r.nom + '</div></td>' +
-      '<td class="center">' + formatDay(r.start) + '</td>' +
-      '<td class="center">' + formatDay(r.endEffective) + (r.end ? '' : '<div class="small">règne en cours</div>') + '</td>' +
-      '<td class="center">' + r.duration + '</td>' +
-      '<td class="center">' + fmt(r.xpStart) + '</td>' +
-      '<td class="center">' + fmt(r.xpEnd) + (r.xpEnd == null ? '<div class="small">non figée</div>' : '') + '</td>' +
-      '<td>' + r.note + '</td>';
+    item.innerHTML =
+      '<div class="itemDate">Règne<br>#' + r.order + '</div>' +
+      '<div class="card">' +
+        '<div class="cardTop">' +
+          '<div class="playerCard">' +
+            '<div class="avatarWrap"><img src="' + r.avatar + '" alt="' + r.nom + '"></div>' +
+            '<div class="playerInfo">' +
+              '<a target="_blank" rel="noopener" href="' + r.profileHref + '">' + r.nom + '</a>' +
+              '<div class="playerMeta">' + formatDay(r.start) + ' → ' + formatDay(r.endEffective) + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="badges">' +
+            '<span class="badge badgeDuration">' + r.duration + '</span>' +
+            (!r.end ? '<span class="badge badgeLive">Règne en cours</span>' : '') +
+          '</div>' +
+        '</div>' +
 
-    tbody.appendChild(tr);
+        '<div class="metaGrid">' +
+          '<div class="metaBox"><div class="metaLabel">Début</div><div class="metaValue">' + formatDay(r.start) + '</div></div>' +
+          '<div class="metaBox"><div class="metaLabel">Fin</div><div class="metaValue">' + formatDay(r.endEffective) + '</div></div>' +
+          '<div class="metaBox"><div class="metaLabel">XP début</div><div class="metaValue">' + fmt(r.xpStart) + '</div></div>' +
+          '<div class="metaBox"><div class="metaLabel">XP fin</div><div class="metaValue">' + fmt(r.xpEnd) + '</div></div>' +
+        '</div>' +
+
+        '<div class="noteText">' + r.note + '</div>' +
+      '</div>';
+
+    timeline.appendChild(item);
   });
 });
 </script>
