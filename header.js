@@ -66,6 +66,7 @@ const headerHTML = `
 
           <a class="tab tab-trophee" href="trophee.html">Trophées</a>
           <a class="tab tab-record" href="exp1an.html">Record 1 an</a>
+          <a class="tab tab-1ers" href="1ers.html">1ers</a>
           <a class="tab tab-role" href="role.html">Rôles</a>
           <a class="tab tab-humble" href="humble.html">Hommes Humbles</a>
         </div>
