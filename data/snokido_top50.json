@@ -15,11 +15,11 @@
     "nom": "alex.c2109",
     "slug": "alexc2109",
     "niveau": 100,
-    "xp": 839196,
+    "xp": 839444,
     "inscription": "24-06-2017",
     "avatar": "https://www.snokido.fr/images/snoki/medium/53.jpg",
     "profileHref": "https://www.snokido.fr/player/alexc2109",
-    "karas": 1151885
+    "karas": 1152133
   },
   {
     "rank": 3,
@@ -103,11 +103,11 @@
     "nom": "lumia",
     "slug": "lumia",
     "niveau": 100,
-    "xp": 133498,
+    "xp": 133546,
     "inscription": "01-01-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
     "profileHref": "https://www.snokido.fr/player/lumia",
-    "karas": 465847
+    "karas": 465895
   },
   {
     "rank": 11,
@@ -136,22 +136,22 @@
     "nom": "Ko0pa",
     "slug": "ko0pa",
     "niveau": 100,
-    "xp": 96466,
+    "xp": 96858,
     "inscription": "24-01-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/101.jpg",
     "profileHref": "https://www.snokido.fr/player/ko0pa",
-    "karas": 420895
+    "karas": 421287
   },
   {
     "rank": 14,
     "nom": "Unit",
     "slug": "unit",
     "niveau": 100,
-    "xp": 76780,
+    "xp": 76828,
     "inscription": "13-07-2018",
     "avatar": "https://www.snokido.fr/images/snoki/medium/133.jpg",
     "profileHref": "https://www.snokido.fr/player/unit",
-    "karas": 402329
+    "karas": 402377
   },
   {
     "rank": 15,
@@ -224,22 +224,22 @@
     "nom": "Houka",
     "slug": "houka",
     "niveau": 98,
-    "xp": 48332,
+    "xp": 48376,
     "inscription": "18-11-2023",
     "avatar": "https://www.snokido.fr/images/snoki/medium/73.jpg",
     "profileHref": "https://www.snokido.fr/player/houka",
-    "karas": 366780
+    "karas": 366824
   },
   {
     "rank": 22,
     "nom": "Justice-",
     "slug": "justice",
     "niveau": 98,
-    "xp": 48244,
+    "xp": 48276,
     "inscription": "29-02-2024",
     "avatar": "https://www.snokido.fr/images/snoki/medium/41.jpg",
     "profileHref": "https://www.snokido.fr/player/justice-2",
-    "karas": 366692
+    "karas": 366724
   },
   {
     "rank": 23,
@@ -367,14 +367,25 @@
     "nom": "roi1",
     "slug": "roi1",
     "niveau": 88,
-    "xp": 38856,
+    "xp": 38862,
     "inscription": "03-12-2017",
     "avatar": "https://www.snokido.fr/images/snoki/medium/154.jpg",
     "profileHref": "https://www.snokido.fr/player/roi1",
-    "karas": 156839
+    "karas": 156845
   },
   {
     "rank": 35,
+    "nom": "LargoJunior",
+    "slug": "largojunior",
+    "niveau": 85,
+    "xp": 36204,
+    "inscription": "10-02-2026",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/11.jpg",
+    "profileHref": "https://www.snokido.fr/player/largojunior",
+    "karas": 244438
+  },
+  {
+    "rank": 36,
     "nom": "chris05",
     "slug": "chris05",
     "niveau": 85,
@@ -383,17 +394,6 @@
     "avatar": "https://www.snokido.fr/images/snoki/medium/151.jpg",
     "profileHref": "https://www.snokido.fr/player/chris05",
     "karas": 216496
-  },
-  {
-    "rank": 36,
-    "nom": "LargoJunior",
-    "slug": "largojunior",
-    "niveau": 85,
-    "xp": 35956,
-    "inscription": "10-02-2026",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/11.jpg",
-    "profileHref": "https://www.snokido.fr/player/largojunior",
-    "karas": 244190
   },
   {
     "rank": 37,
@@ -499,11 +499,11 @@
     "nom": "E1V2R3",
     "slug": "e1v2r3",
     "niveau": 72,
-    "xp": 25580,
+    "xp": 25584,
     "inscription": "15-06-2021",
     "avatar": "https://www.snokido.fr/images/snoki/medium/130.jpg",
     "profileHref": "https://www.snokido.fr/player/e1v2r3",
-    "karas": 150599
+    "karas": 150603
   },
   {
     "rank": 47,
@@ -518,6 +518,17 @@
   },
   {
     "rank": 48,
+    "nom": "Napoléon.1er",
+    "slug": "napoleon1er",
+    "niveau": 71,
+    "xp": 25080,
+    "inscription": "14-07-2024",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/152.jpg",
+    "profileHref": "https://www.snokido.fr/player/napoleon1er",
+    "karas": 144915
+  },
+  {
+    "rank": 49,
     "nom": "luanbau",
     "slug": "luanbau",
     "niveau": 71,
@@ -526,17 +537,6 @@
     "avatar": "https://www.snokido.fr/images/snoki/medium/155.jpg",
     "profileHref": "https://www.snokido.fr/player/luanbau",
     "karas": 139783
-  },
-  {
-    "rank": 49,
-    "nom": "Napoléon.1er",
-    "slug": "napoleon1er",
-    "niveau": 71,
-    "xp": 25040,
-    "inscription": "14-07-2024",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/152.jpg",
-    "profileHref": "https://www.snokido.fr/player/napoleon1er",
-    "karas": 144875
   },
   {
     "rank": 50,
