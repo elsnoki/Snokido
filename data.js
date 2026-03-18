@@ -362,10 +362,10 @@ const joueurs = [
   }
 },
 {
-  nom:"Justice", avatar:"avatar/26.jpg", gen:6, inscription:"29-02-2024",
+  nom:"Justice-", avatar:"avatar/26.jpg", gen:6, inscription:"29-02-2024",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:32580,
+      jours:749, atteint_le:"19-03-2026", rang:"—", xp:32580,
       pauses_total:{ nb:2, mois:15, jours:488 },
       pauses_detail:[
         { xp:27824, periode:"12/08/2024 -> 22/01/2025", mois:5, jours:163 },
