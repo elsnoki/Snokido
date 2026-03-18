@@ -673,9 +673,7 @@
         'new generation 0': 'Génération 0',
         'generation 0': 'Génération 0',
         'ayrek 08 1er': 'Jordialba 1er',
-        'ayrek08 1er': 'Jordialba 1er',
-        'yassine vs dragon vs ayrek 08': 'Yassine vs Dragon vs Jordialba',
-        'yassine vs dragon vs ayrek08': 'Yassine vs Dragon vs Jordialba'
+        'ayrek08 1er': 'Jordialba 1er'
       };
 
       const STORY_OVERRIDES = {
@@ -931,23 +929,20 @@ Son arrivée renforce encore l’impression que 2026 marque l’ouverture d’un
       };
 
       function cleanDisplayTitle(title){
-        let t = String(title || '').trim();
-        const key = normalize(t);
+  let t = String(title || '').trim();
 
-        if (DISPLAY_TITLE_OVERRIDES[key]) {
-          t = DISPLAY_TITLE_OVERRIDES[key];
-        }
+  t = t
+    .replace(/\((mini duel|moyen|grand|petit)\)/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 
-        t = t
-          .replace(/\((mini duel|moyen|grand|petit)\)/gi, '')
-          .replace(/\s{2,}/g, ' ')
-          .trim();
+  t = t.replace(/\bnew génération 0\b/gi, 'Génération 0');
+  t = t.replace(/\bnew generation 0\b/gi, 'Génération 0');
+  t = t.replace(/\bgeneration 0\b/gi, 'Génération 0');
+  t = t.replace(/\bayrek-?08 1er\b/gi, 'Jordialba 1er');
 
-        t = t.replace(/\bnew génération\b/gi, 'Génération');
-        t = t.replace(/\bgeneration\b/gi, 'Génération');
-
-        return t;
-      }
+  return t;
+}
 
       function fmtPts(p){
         const n = Number(p) || 0;
@@ -1074,13 +1069,15 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
         return frise.flatMap(y => y.events || []).reduce((sum, e) => sum + (Number(e.p) || 0), 0);
       }
 
-      function visualSubline(kind){
-        if (kind === 'inscription') return 'Clique pour découvrir le début de son histoire.';
-        if (kind === 'generation') return 'Clique pour afficher le résumé de cette ère.';
-        if (kind === 'duel') return 'Clique pour afficher le contexte de cet affrontement.';
-        if (kind === 'negative') return 'Clique pour afficher les détails de cet épisode.';
-        return 'Clique pour afficher le récit complet.';
-      }
+     function visualSubline(kind, title){
+  const t = cleanDisplayTitle(title);
+
+  if (kind === 'inscription') return `Clique pour lire le parcours de ${t.replace(/^Inscription de /i, '')}.`;
+  if (kind === 'generation') return 'Clique pour lire le résumé complet de cette génération.';
+  if (kind === 'duel') return 'Clique pour lire le contexte complet de cet affrontement.';
+  if (kind === 'negative') return 'Clique pour lire les détails de cet événement.';
+  return `Clique pour lire l’histoire de « ${t} ».`;
+}
 
       function renderThumb(image, fallbackIcon, alt){
         if (image) {
@@ -1173,7 +1170,7 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
                     ${renderThumb(event.image, event.icon, event.displayTitle)}
                     <div class="eventTextWrap">
                       <div class="eventTitle">${escapedTitle}</div>
-                      <div class="eventSub">${escapeHtml(visualSubline(event.kind))}</div>
+                      <div class="eventSub">${escapeHtml(visualSubline(event.kind, event.displayTitle))}</div>
                     </div>
                   </div>
                 </button>
