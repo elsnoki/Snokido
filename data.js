@@ -315,7 +315,7 @@ const joueurs = [
   nom:"Houka", avatar:"avatar/25.jpg", gen:6, inscription:"18-11-2023",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:41000,
+      jours:851, atteint_le:"18-03-2026", rang:"—", xp:41000,
       pauses_total:{ nb:1, mois:19, jours:595 },
       pauses_detail:[
         { xp:41000, periode:"15/07/2024 -> 02/03/2026", mois:19, jours:595 }
