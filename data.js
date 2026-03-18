@@ -11,7 +11,7 @@ const joueurs = [
     nom:"Ko0pa", avatar:"avatar/17.jpg", gen:6, inscription:"24-01-2026",
     modes:{
       nv100:{ jours:23, atteint_le:"16-02-2026", rang:"1/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-      "100k":{ jours:null, atteint_le:"—", rang:"2/14", xp:100000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
+      "100k":{ jours:30, atteint_le:"18-03-2026", rang:"1/14", xp:100000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
     }
   },
   {
