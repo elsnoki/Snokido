@@ -151,7 +151,12 @@
 
     // On prend la liste "joueurs" depuis data.js
     // Tri du plus rapide au plus lent (sans pause)
-    const list = [...joueurs].sort((a,b)=>daysNoPause(a)-daysNoPause(b));
+    const list = [...joueurs]
+  .filter(j => {
+    const st = getNv100Stats(j);
+    return !!st?.atteint_le;
+  })
+  .sort((a, b) => daysNoPause(a) - daysNoPause(b));
 
     list.forEach((j,i)=>{
       const st = getNv100Stats(j);
