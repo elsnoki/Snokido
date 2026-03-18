@@ -142,6 +142,7 @@
     // calc jours sans pause : nv100.jours - nv100.pauses_total.jours
     function daysNoPause(j){
       const st = getNv100Stats(j);
+      if (!st || !st.atteint_le) return null;
       const total = st?.jours ?? j?.jours ?? 0;
       const pause = st?.pauses_total?.jours ?? 0;
       return Math.max(0, total - pause);
@@ -152,11 +153,8 @@
     // On prend la liste "joueurs" depuis data.js
     // Tri du plus rapide au plus lent (sans pause)
     const list = [...joueurs]
-  .filter(j => {
-    const st = getNv100Stats(j);
-    return !!st?.atteint_le;
-  })
-  .sort((a, b) => daysNoPause(a) - daysNoPause(b));
+      .filter(j => daysNoPause(j) !== null)
+      .sort((a,b)=>daysNoPause(a)-daysNoPause(b));
 
     list.forEach((j,i)=>{
       const st = getNv100Stats(j);
