@@ -310,6 +310,15 @@
       font-size:17px;
       font-weight:900;
       line-height:1.28;
+      word-break:break-word;
+    }
+
+    .eventTitle.isExpandable{
+      cursor:pointer;
+    }
+
+    .eventTitle.isExpandable:hover{
+      text-decoration:underline;
     }
 
     .eventSub{
@@ -537,6 +546,65 @@
 
     .hidden{ display:none !important; }
 
+    .titleModal{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(0,0,0,.55);
+      backdrop-filter:blur(4px);
+    }
+
+    .titleModal.hidden{
+      display:none !important;
+    }
+
+    .titleModalBox{
+      width:min(760px, 100%);
+      background:white;
+      color:#0f172a;
+      border-radius:24px;
+      box-shadow:0 24px 80px rgba(0,0,0,.35);
+      padding:22px 22px 18px;
+      border:1px solid rgba(15,23,42,.08);
+    }
+
+    .titleModalTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:14px;
+    }
+
+    .titleModalTitle{
+      font-size:24px;
+      line-height:1.2;
+      font-weight:1000;
+      color:#0f172a;
+    }
+
+    .titleModalClose{
+      border:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding:10px 12px;
+      font-weight:900;
+      background:#082032;
+      color:white;
+      flex:0 0 auto;
+    }
+
+    .titleModalText{
+      font-size:16px;
+      line-height:1.7;
+      color:#334155;
+      white-space:pre-line;
+    }
+
     @media (max-width: 1120px){
       .layout{ grid-template-columns: 1fr; }
       .side{ position:relative; top:0; }
@@ -633,6 +701,16 @@
     </section>
   </main>
 
+  <div id="titleModal" class="titleModal hidden">
+    <div class="titleModalBox">
+      <div class="titleModalTop">
+        <div id="titleModalTitle" class="titleModalTitle"></div>
+        <button type="button" id="titleModalClose" class="titleModalClose">Fermer</button>
+      </div>
+      <div id="titleModalText" class="titleModalText"></div>
+    </div>
+  </div>
+
   <script>
     window.addEventListener('DOMContentLoaded', async () => {
       const rawFrise = Array.isArray(window.FRISE) ? window.FRISE : [];
@@ -654,6 +732,11 @@
       const stats = document.getElementById('stats');
       const focusEmpty = document.getElementById('focusEmpty');
       const focusCard = document.getElementById('focusCard');
+
+      const titleModal = document.getElementById('titleModal');
+      const titleModalTitle = document.getElementById('titleModalTitle');
+      const titleModalText = document.getElementById('titleModalText');
+      const titleModalClose = document.getElementById('titleModalClose');
 
       function normalize(str){
         return String(str || '')
@@ -1122,6 +1205,16 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
         return escapeHtml(icon);
       }
 
+      function openTitleModal(title, text){
+        titleModalTitle.textContent = title || '';
+        titleModalText.textContent = text || '';
+        titleModal.classList.remove('hidden');
+      }
+
+      function closeTitleModal(){
+        titleModal.classList.add('hidden');
+      }
+
       const frise = rawFrise.map(y => ({
         ...y,
         events: (y.events || []).map((e) => {
@@ -1178,6 +1271,13 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
           const escapedKind = escapeHtml(iconLabel);
           const escapedSideImage = escapeHtml(event.sideImage || '');
 
+          const titleMarkup = `
+            <div class="eventTitle ${event.kind === 'inscription' ? 'isExpandable' : ''}"
+                 ${event.kind === 'inscription' ? `data-expand-title="${escapedTitle}" data-expand-text="${escapedStory}"` : ''}>
+              ${escapedTitle}
+            </div>
+          `;
+
           return `
             <article class="eventRow">
               ${alignLeft ? '<div class="connector left"></div>' : ''}
@@ -1198,7 +1298,7 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
                   <div class="eventHeader">
                     ${renderThumb(event.sideImage, event.icon, event.displayTitle)}
                     <div class="eventTextWrap">
-                      <div class="eventTitle">${escapedTitle}</div>
+                      ${titleMarkup}
                       <div class="eventSub">${escapeHtml(visualSubline(event.kind, event.displayTitle))}</div>
                     </div>
                   </div>
@@ -1235,7 +1335,7 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
                   <div class="eventHeader">
                     ${renderThumb(event.sideImage, event.icon, event.displayTitle)}
                     <div class="eventTextWrap">
-                      <div class="eventTitle">${escapedTitle}</div>
+                      ${titleMarkup}
                       <div class="eventSub">${escapeHtml(visualSubline(event.kind, event.displayTitle))}</div>
                     </div>
                   </div>
@@ -1293,9 +1393,29 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
       }
 
       storyRoot.addEventListener('click', (e) => {
+        const expandableTitle = e.target.closest('[data-expand-title]');
+        if (expandableTitle) {
+          e.stopPropagation();
+          openTitleModal(
+            expandableTitle.getAttribute('data-expand-title') || '',
+            expandableTitle.getAttribute('data-expand-text') || ''
+          );
+          return;
+        }
+
         const target = e.target.closest('[data-event]');
         if (!target) return;
         openEvent(target);
+      });
+
+      titleModalClose.addEventListener('click', closeTitleModal);
+
+      titleModal.addEventListener('click', (e) => {
+        if (e.target === titleModal) closeTitleModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeTitleModal();
       });
 
       const firstNode = document.querySelector('.node[data-event]');
