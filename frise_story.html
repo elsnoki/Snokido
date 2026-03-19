@@ -106,7 +106,7 @@
 
     .hero p{
       margin:12px 0 0;
-      max-width:900px;
+      max-width:920px;
       font-size:16px;
       line-height:1.6;
       color:rgba(255,255,255,.84);
@@ -211,22 +211,34 @@
       display:grid;
       grid-template-columns: 1fr 128px 1fr;
       align-items:center;
-      min-height:144px;
+      min-height:110px;
       margin:0 0 8px;
     }
 
     .eventCard{
-      width:min(470px, calc(100% - 12px));
       background:var(--card);
       color:var(--ink);
-      border-radius:24px;
+      border-radius:20px;
       border:1px solid rgba(15,23,42,.08);
       box-shadow:var(--shadow2);
-      padding:16px 18px;
+      padding:12px 14px;
       transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
       opacity:.96;
       cursor:pointer;
       text-align:left;
+      width:min(420px, calc(100% - 12px));
+    }
+
+    .eventCard.compact{
+      width:min(360px, calc(100% - 12px));
+      padding:10px 12px;
+      border-radius:18px;
+    }
+
+    .eventCard.featured{
+      width:min(520px, calc(100% - 12px));
+      padding:16px 18px;
+      border-radius:24px;
     }
 
     .eventCard:hover{
@@ -243,7 +255,7 @@
       justify-content:space-between;
       gap:10px;
       align-items:center;
-      margin-bottom:10px;
+      margin-bottom:8px;
       flex-wrap:wrap;
     }
 
@@ -278,9 +290,9 @@
     }
 
     .eventThumb{
-      width:56px;
-      height:56px;
-      border-radius:16px;
+      width:46px;
+      height:46px;
+      border-radius:14px;
       object-fit:cover;
       border:2px solid rgba(15,23,42,.08);
       background:#dbeafe;
@@ -289,17 +301,28 @@
     }
 
     .eventThumbFallback{
-      width:56px;
-      height:56px;
-      border-radius:16px;
+      width:46px;
+      height:46px;
+      border-radius:14px;
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:26px;
+      font-size:22px;
       background:linear-gradient(180deg,#eff6ff,#dbeafe);
       color:#082032;
       border:2px solid rgba(15,23,42,.08);
       flex:0 0 auto;
+    }
+
+    .eventCard.featured .eventThumb,
+    .eventCard.featured .eventThumbFallback{
+      width:56px;
+      height:56px;
+      border-radius:16px;
+    }
+
+    .eventThumbFallback{
+      font-size:24px;
     }
 
     .eventTextWrap{
@@ -307,16 +330,31 @@
     }
 
     .eventTitle{
-      font-size:17px;
+      font-size:15px;
       font-weight:900;
+      line-height:1.22;
+    }
+
+    .eventCard.featured .eventTitle{
+      font-size:17px;
       line-height:1.28;
     }
 
     .eventSub{
-      margin-top:8px;
-      font-size:13px;
+      margin-top:6px;
+      font-size:12px;
       color:var(--muted);
+      line-height:1.4;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .eventCard.featured .eventSub{
+      font-size:13px;
       line-height:1.5;
+      -webkit-line-clamp:3;
     }
 
     .nodeWrap{
@@ -472,6 +510,9 @@
       line-height:1.7;
       color:rgba(255,255,255,.84);
       white-space:pre-line;
+      max-height:220px;
+      overflow:auto;
+      padding-right:4px;
     }
 
     .focusPts{
@@ -483,6 +524,28 @@
       font-weight:900;
       background:rgba(255,255,255,.92);
       color:#082032;
+    }
+
+    .focusActions{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .focusBtn{
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      border-radius:999px;
+      padding:10px 14px;
+      background:rgba(255,255,255,.92);
+      color:#082032;
+      box-shadow:var(--shadow2);
+    }
+
+    .focusBtn:hover{
+      transform:translateY(-1px);
     }
 
     .miniYears{
@@ -535,6 +598,114 @@
       flex:0 0 auto;
     }
 
+    .storyModal{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:rgba(2,8,23,.7);
+      backdrop-filter:blur(6px);
+    }
+
+    .storyModal.open{
+      display:flex;
+    }
+
+    .storyModalCard{
+      width:min(920px, 100%);
+      max-height:min(86vh, 1000px);
+      overflow:auto;
+      border-radius:28px;
+      background:linear-gradient(180deg, #0f2740, #0b1d31);
+      border:1px solid rgba(255,255,255,.1);
+      box-shadow:0 30px 80px rgba(0,0,0,.45);
+      padding:24px;
+      color:white;
+    }
+
+    .storyModalTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .storyModalMedia{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .storyModalIcon{
+      width:84px;
+      height:84px;
+      border-radius:24px;
+      background:rgba(255,255,255,.94);
+      color:#082032;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      font-size:40px;
+      flex:0 0 auto;
+    }
+
+    .storyModalIcon img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .storyModalYear{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:#bae6fd;
+      font-weight:900;
+    }
+
+    .storyModalTitle{
+      margin-top:8px;
+      font-size:28px;
+      line-height:1.1;
+      font-weight:1000;
+    }
+
+    .storyModalClose{
+      border:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding:10px 14px;
+      font-weight:900;
+      background:rgba(255,255,255,.14);
+      color:white;
+      border:1px solid rgba(255,255,255,.14);
+    }
+
+    .storyModalText{
+      margin-top:14px;
+      font-size:16px;
+      line-height:1.8;
+      color:rgba(255,255,255,.9);
+      white-space:pre-line;
+    }
+
+    .storyModalPts{
+      display:inline-flex;
+      margin-top:18px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:900;
+      background:rgba(255,255,255,.92);
+      color:#082032;
+    }
+
     .hidden{ display:none !important; }
 
     @media (max-width: 1120px){
@@ -555,6 +726,8 @@
       }
 
       .eventCard,
+      .eventCard.compact,
+      .eventCard.featured,
       .eventCard.left,
       .eventCard.right{
         width:100%;
@@ -570,6 +743,23 @@
 
       .connector{ display:none; }
       .nodeLabel{ max-width:80px; }
+
+      .storyModal{
+        padding:12px;
+      }
+
+      .storyModalCard{
+        padding:18px;
+        border-radius:22px;
+      }
+
+      .storyModalTitle{
+        font-size:22px;
+      }
+
+      .storyModalText{
+        font-size:15px;
+      }
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -584,9 +774,9 @@
         <div>
           <h1>La grande histoire du classement</h1>
           <p>
-            Une frise vivante, pensée comme un véritable récit. Chaque événement devient une étape de l’histoire :
-            une arrivée marquante, un duel mémorable, un règne au sommet, une génération qui s’impose ou un basculement
-            dans la hiérarchie du classement.
+            Une frise vivante pensée comme un véritable récit. Chaque événement devient une étape de l’histoire :
+            une inscription marquante, un duel important, un règne au sommet, une nouvelle génération ou un grand palier
+            dans l’évolution du classement.
           </p>
         </div>
         <a class="backLink" href="frise.html">← Retour à la frise classique</a>
@@ -623,8 +813,8 @@
           <div class="panelHead">Lecture visuelle</div>
           <div class="panelBody legendList">
             <div class="legendItem"><span class="legendSw">⭐</span> palier important, montée ou domination</div>
-            <div class="legendItem"><span class="legendSw">⚔️</span> duel, rivalité ou affrontement au sommet</div>
-            <div class="legendItem"><span class="legendSw">👤</span> inscription ou arrivée d’un nouveau joueur</div>
+            <div class="legendItem"><span class="legendSw">⚔️</span> duel, rivalité ou affrontement</div>
+            <div class="legendItem"><span class="legendSw">👤</span> inscription ou arrivée importante</div>
             <div class="legendItem"><span class="legendSw">🧬</span> nouvelle génération</div>
             <div class="legendItem"><span class="legendSw">💥</span> bot, suppression, incident ou choc</div>
           </div>
@@ -632,6 +822,23 @@
       </aside>
     </section>
   </main>
+
+  <div id="storyModal" class="storyModal" aria-hidden="true">
+    <div class="storyModalCard" role="dialog" aria-modal="true" aria-labelledby="storyModalTitle">
+      <div class="storyModalTop">
+        <div class="storyModalMedia">
+          <div id="storyModalIcon" class="storyModalIcon">✨</div>
+          <div>
+            <div id="storyModalYear" class="storyModalYear"></div>
+            <div id="storyModalTitle" class="storyModalTitle"></div>
+          </div>
+        </div>
+        <button type="button" id="storyModalClose" class="storyModalClose">Fermer</button>
+      </div>
+      <div id="storyModalText" class="storyModalText"></div>
+      <div id="storyModalPts" class="storyModalPts"></div>
+    </div>
+  </div>
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
@@ -643,6 +850,14 @@
       const stats = document.getElementById('stats');
       const focusEmpty = document.getElementById('focusEmpty');
       const focusCard = document.getElementById('focusCard');
+
+      const storyModal = document.getElementById('storyModal');
+      const storyModalIcon = document.getElementById('storyModalIcon');
+      const storyModalYear = document.getElementById('storyModalYear');
+      const storyModalTitle = document.getElementById('storyModalTitle');
+      const storyModalText = document.getElementById('storyModalText');
+      const storyModalPts = document.getElementById('storyModalPts');
+      const storyModalClose = document.getElementById('storyModalClose');
 
       function normalize(str){
         return String(str || '')
@@ -669,15 +884,135 @@
         _key: normalize(j.nom)
       }));
 
-      const DISPLAY_TITLE_OVERRIDES = {
-        'new generation 0': 'Génération 0',
-        'generation 0': 'Génération 0',
-        'ayrek 08 1er': 'Jordialba 1er',
-        'ayrek08 1er': 'Jordialba 1er'
-      };
+      function cleanDisplayTitle(title){
+        let t = String(title || '').trim();
+
+        t = t
+          .replace(/\((mini duel|duel moyen|gros duel|mini|moyen|grand|petit|new premier)\)/gi, '')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+
+        t = t.replace(/\bnew génération 0\b/gi, 'Génération 0');
+        t = t.replace(/\bnew génération 1\b/gi, 'Génération 1');
+        t = t.replace(/\bnew génération 2\b/gi, 'Génération 2');
+        t = t.replace(/\bnew génération 3\b/gi, 'Génération 3');
+        t = t.replace(/\bnew génération 4\b/gi, 'Génération 4');
+        t = t.replace(/\bnew génération 5\b/gi, 'Génération 5');
+        t = t.replace(/\bnew génération 6\b/gi, 'Génération 6');
+
+        t = t.replace(/\bnew generation 0\b/gi, 'Génération 0');
+        t = t.replace(/\bnew generation 1\b/gi, 'Génération 1');
+        t = t.replace(/\bnew generation 2\b/gi, 'Génération 2');
+        t = t.replace(/\bnew generation 3\b/gi, 'Génération 3');
+        t = t.replace(/\bnew generation 4\b/gi, 'Génération 4');
+        t = t.replace(/\bnew generation 5\b/gi, 'Génération 5');
+        t = t.replace(/\bnew generation 6\b/gi, 'Génération 6');
+
+        t = t.replace(/\bsanji 1er\b/gi, 'Eurel-08 1er');
+
+        t = t.replace(/\s+—\s+32 mois\s*$/i, ' 1er');
+        t = t.replace(/\s+—\s+6 mois\s*$/i, ' 1er');
+        t = t.replace(/\s+—\s+3 mois\s*$/i, ' 1er');
+        t = t.replace(/\s+—\s+2 mois\s*$/i, ' 1er');
+        t = t.replace(/\s+—\s+1 mois\s*$/i, ' 1er');
+
+        return t.trim();
+      }
+
+      function fmtPts(p){
+        const n = Number(p) || 0;
+        return `${n > 0 ? '+' : ''}${n} pts`;
+      }
+
+      function eventKind(text, pts){
+        const t = normalize(text);
+
+        if (t.includes('bot') || t.includes('suppression') || t.includes('supprime') || t.includes('effacement') || Number(pts) < 0) return 'negative';
+        if (t.includes('inscription')) return 'inscription';
+        if (t.includes('generation')) return 'generation';
+        if (t.includes('vs') || t.includes('duel')) return 'duel';
+
+        if (
+          t.includes('100k') ||
+          t.includes('500k') ||
+          t.includes('1m') ||
+          t.includes('niveau 100') ||
+          t.includes('atteint le niveau 100') ||
+          t.includes('1er')
+        ) return 'milestone';
+
+        return 'story';
+      }
+
+      function kindLabel(kind){
+        switch(kind){
+          case 'inscription': return 'Inscription';
+          case 'generation': return 'Génération';
+          case 'duel': return 'Duel';
+          case 'negative': return 'Incident';
+          case 'milestone': return 'Palier';
+          default: return 'Événement';
+        }
+      }
+
+      function kindIcon(kind, text){
+        const t = normalize(text);
+
+        if (kind === 'inscription') return '👤';
+        if (kind === 'generation') return '🧬';
+        if (kind === 'duel') return '⚔️';
+        if (kind === 'negative') return '💥';
+        if (t.includes('1m')) return '👑';
+        if (t.includes('niveau 100')) return '🌟';
+        if (t.includes('100k') || t.includes('500k')) return '🚀';
+        if (t.includes('1er')) return '🏆';
+        return '✨';
+      }
+
+      function isFeaturedEvent(title, kind){
+        const t = normalize(title);
+
+        if (kind === 'inscription') return true;
+        if (t.includes('niveau 100')) return true;
+        if (t.includes('100k')) return true;
+        if (t.includes('500k')) return true;
+        if (t.includes('1m')) return true;
+
+        return false;
+      }
+
+      function findPlayerFromTitle(title){
+        const key = normalize(title);
+
+        const inscriptionMatch = key.match(/inscription d?e?\s(.+)$/);
+        if (inscriptionMatch && inscriptionMatch[1]) {
+          const playerPart = inscriptionMatch[1].trim();
+          const exact = joueurIndex.find(j => j._key === playerPart);
+          if (exact) return exact;
+
+          const approximate = joueurIndex.find(j => j._key.includes(playerPart) || playerPart.includes(j._key));
+          if (approximate) return approximate;
+        }
+
+        const titleMatch = joueurIndex.find(j => key.includes(j._key));
+        return titleMatch || null;
+      }
+
+      function getImageForEvent(eventTitle, kind){
+        const key = normalize(eventTitle);
+
+        if (kind === 'inscription') {
+          const player = findPlayerFromTitle(eventTitle);
+          if (player && player.avatar) return player.avatar;
+        }
+
+        if (key === 'generation 0') return 'images/frise/generation0.jpg';
+
+        return '';
+      }
 
       const STORY_OVERRIDES = {
-        'generation 0': `En 2013, l’aventure commence réellement. Dude et Korben posent les fondations du site et ouvrent la toute première ère de son histoire. C’est une période presque mythique, encore brute, où tout reste à construire.
+       'generation 0': `En 2013, l’aventure commence réellement. Dude et Korben posent les fondations du site et ouvrent la toute première ère de son histoire. C’est une période presque mythique, encore brute, où tout reste à construire.
 
 Cette Génération 0 représente les origines : les premiers comptes, les premiers repères, les premières ambitions et les premières rivalités qui donneront ensuite naissance à tout le reste.`,
 
@@ -928,107 +1263,19 @@ Son arrivée renforce encore l’impression que 2026 marque l’ouverture d’un
         'yassine vs dragon vs jordialba': `Ce duel au sommet symbolise une période où la première place est extrêmement disputée. Trois noms s’affrontent dans une lutte serrée, où chaque avancée peut faire basculer l’ordre du classement.`
       };
 
-      function cleanDisplayTitle(title){
-  let t = String(title || '').trim();
-
-  t = t
-    .replace(/\((mini duel|moyen|grand|petit)\)/gi, '')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
-
-  t = t.replace(/\bnew génération 0\b/gi, 'Génération 0');
-  t = t.replace(/\bnew generation 0\b/gi, 'Génération 0');
-  t = t.replace(/\bgeneration 0\b/gi, 'Génération 0');
-  t = t.replace(/\bayrek-?08 1er\b/gi, 'Jordialba 1er');
-
-  return t;
-}
-
-      function fmtPts(p){
-        const n = Number(p) || 0;
-        return `${n > 0 ? '+' : ''}${n} pts`;
-      }
-
-      function eventKind(text, pts){
-        const t = normalize(text);
-        if (t.includes('bot') || t.includes('suppression') || t.includes('supprime') || t.includes('effacement') || Number(pts) < 0) return 'negative';
-        if (t.includes('inscription')) return 'inscription';
-        if (t.includes('generation')) return 'generation';
-        if (t.includes('vs') || t.includes('duel')) return 'duel';
-        if (
-          t.includes('100k') || t.includes('200k') || t.includes('300k') || t.includes('400k') ||
-          t.includes('500k') || t.includes('600k') || t.includes('700k') || t.includes('800k') ||
-          t.includes('900k') || t.includes('1m') || t.includes('1er') || t.includes('niveau 100')
-        ) return 'milestone';
-        return 'story';
-      }
-
-      function kindLabel(kind){
-        switch(kind){
-          case 'inscription': return 'Inscription';
-          case 'generation': return 'Génération';
-          case 'duel': return 'Duel';
-          case 'negative': return 'Incident';
-          case 'milestone': return 'Palier';
-          default: return 'Événement';
-        }
-      }
-
-      function kindIcon(kind, text){
-        const t = normalize(text);
-        if (kind === 'inscription') return '👤';
-        if (kind === 'generation') return '🧬';
-        if (kind === 'duel') return '⚔️';
-        if (kind === 'negative') return '💥';
-        if (t.includes('1m')) return '👑';
-        if (t.includes('niveau 100')) return '🌟';
-        if (t.includes('100k') || t.includes('200k') || t.includes('300k') || t.includes('400k') || t.includes('500k') || t.includes('600k') || t.includes('700k') || t.includes('800k') || t.includes('900k')) return '🚀';
-        if (t.includes('1er')) return '🏆';
-        return '✨';
-      }
-
-      function findPlayerFromTitle(title){
-        const key = normalize(title);
-        const inscriptionMatch = key.match(/inscription de (.+)$/);
-        if (inscriptionMatch && inscriptionMatch[1]) {
-          const playerPart = inscriptionMatch[1].trim();
-          const exact = joueurIndex.find(j => j._key === playerPart);
-          if (exact) return exact;
-
-          const starts = joueurIndex.find(j => j._key.includes(playerPart) || playerPart.includes(j._key));
-          if (starts) return starts;
-        }
-
-        const titleMatch = joueurIndex.find(j => key.includes(j._key));
-        return titleMatch || null;
-      }
-
-      function getImageForEvent(eventTitle, kind){
-        const key = normalize(eventTitle);
-
-        if (kind === 'inscription') {
-          const player = findPlayerFromTitle(eventTitle);
-          if (player && player.avatar) return player.avatar;
-        }
-
-        if (key === 'generation 0') return 'images/frise/generation0.jpg';
-
-        return '';
-      }
-
       function getStory(title, year, pts){
-        const key = normalize(title);
+        const displayTitle = cleanDisplayTitle(title);
+        const key = normalize(displayTitle);
 
         if (STORY_OVERRIDES[key]) {
           return STORY_OVERRIDES[key];
         }
 
-        const kind = eventKind(title, pts);
-        const displayTitle = cleanDisplayTitle(title);
+        const kind = eventKind(displayTitle, pts);
 
         if (kind === 'inscription') {
-          const player = findPlayerFromTitle(title);
-          const name = player?.nom || displayTitle.replace(/^inscription de\s+/i, '');
+          const player = findPlayerFromTitle(displayTitle);
+          const name = player?.nom || displayTitle.replace(/^inscription d['e]?\s*/i, '');
           return `En ${year}, ${name} fait son entrée sur Snokido. Cette inscription marque le début d’un nouveau parcours dans l’histoire du classement.
 
 Certaines arrivées restent discrètes, d’autres bouleversent durablement la hiérarchie. Celle-ci ouvre en tout cas un nouveau chapitre dans la chronologie.`;
@@ -1054,7 +1301,7 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
           return `En ${year}, « ${displayTitle} » marque un cap majeur. Atteindre le niveau 100 reste l’un des accomplissements les plus symboliques de tout le classement et distingue immédiatement son auteur dans l’histoire du site.`;
         }
 
-        if (/100k|200k|300k|400k|500k|600k|700k|800k|900k|1m/i.test(normalize(displayTitle).replace(/\s+/g, ''))) {
+        if (/100k|500k|1m/i.test(normalize(displayTitle).replace(/\s+/g, ''))) {
           return `En ${year}, « ${displayTitle} » représente un palier de très haut niveau. Ces seuils racontent la régularité, l’endurance et la domination sur la durée.`;
         }
 
@@ -1062,22 +1309,22 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
           return `En ${year}, « ${displayTitle} » signale un changement au sommet du classement. La première place concentre toujours prestige, pression et rivalités, et chaque prise de pouvoir relance la bataille.`;
         }
 
-        return `En ${year}, « ${displayTitle} » vient enrichir la chronologie générale du site. Même lorsqu’un épisode semble plus discret, il participe à construire l’histoire longue du classement.`;
+        return `En ${year}, « ${displayTitle} » s’ajoute à la chronologie du classement.`;
       }
 
       function totalPoints(frise){
         return frise.flatMap(y => y.events || []).reduce((sum, e) => sum + (Number(e.p) || 0), 0);
       }
 
-     function visualSubline(kind, title){
-  const t = cleanDisplayTitle(title);
+      function visualSubline(kind, title){
+        const t = cleanDisplayTitle(title);
 
-  if (kind === 'inscription') return `Clique pour lire le parcours de ${t.replace(/^Inscription de /i, '')}.`;
-  if (kind === 'generation') return 'Clique pour lire le résumé complet de cette génération.';
-  if (kind === 'duel') return 'Clique pour lire le contexte complet de cet affrontement.';
-  if (kind === 'negative') return 'Clique pour lire les détails de cet événement.';
-  return `Clique pour lire l’histoire de « ${t} ».`;
-}
+        if (kind === 'inscription') return `Clique pour lire le parcours de ${t.replace(/^Inscription d['e]?\s*/i, '')}.`;
+        if (kind === 'generation') return 'Clique pour lire le résumé complet de cette génération.';
+        if (kind === 'duel') return 'Clique pour lire le contexte complet de cet affrontement.';
+        if (kind === 'negative') return 'Clique pour lire les détails de cet événement.';
+        return `Clique pour lire l’histoire de « ${t} ».`;
+      }
 
       function renderThumb(image, fallbackIcon, alt){
         if (image) {
@@ -1102,6 +1349,7 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
           const icon = kindIcon(kind, displayTitle);
           const image = getImageForEvent(displayTitle, kind);
           const story = getStory(displayTitle, y.year, e.p);
+          const featured = isFeaturedEvent(displayTitle, kind);
 
           return {
             ...e,
@@ -1110,7 +1358,8 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
             kind,
             icon,
             image,
-            story
+            story,
+            featured
           };
         })
       }));
@@ -1139,9 +1388,11 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
 
         const rows = (yearObj.events || []).map((event, i) => {
           const alignLeft = i % 2 === 0;
-          const cardClass = alignLeft ? 'left' : 'right';
+          const sizeClass = event.featured ? 'featured' : 'compact';
+          const cardClass = `${alignLeft ? 'left' : 'right'} ${sizeClass}`;
           const negClass = Number(event.p) < 0 ? 'neg' : '';
           const iconLabel = kindLabel(event.kind);
+
           const escapedStory = escapeHtml(event.story);
           const escapedTitle = escapeHtml(event.displayTitle);
           const escapedIcon = escapeHtml(event.icon);
@@ -1207,7 +1458,7 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
                     ${renderThumb(event.image, event.icon, event.displayTitle)}
                     <div class="eventTextWrap">
                       <div class="eventTitle">${escapedTitle}</div>
-                      <div class="eventSub">${escapeHtml(visualSubline(event.kind))}</div>
+                      <div class="eventSub">${escapeHtml(visualSubline(event.kind, event.displayTitle))}</div>
                     </div>
                   </div>
                 </button>
@@ -1225,6 +1476,41 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
           </section>
         `;
       }).join('');
+
+      function openStoryModal(data){
+        const { image, icon, title, story, year, kind, points } = data;
+
+        storyModalIcon.innerHTML = image
+          ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" onerror="this.remove(); this.parentNode.textContent='${escapeHtml(icon)}';">`
+          : escapeHtml(icon);
+
+        storyModalYear.textContent = `${year} · ${kind}`;
+        storyModalTitle.textContent = title;
+        storyModalText.textContent = story;
+        storyModalPts.textContent = points;
+
+        storyModal.classList.add('open');
+        storyModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeStoryModal(){
+        storyModal.classList.remove('open');
+        storyModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+
+      storyModalClose.addEventListener('click', closeStoryModal);
+
+      storyModal.addEventListener('click', (e) => {
+        if (e.target === storyModal) closeStoryModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && storyModal.classList.contains('open')) {
+          closeStoryModal();
+        }
+      });
 
       function openEvent(el){
         document.querySelectorAll('.node.active').forEach(n => n.classList.remove('active'));
@@ -1260,7 +1546,25 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
           </div>
           <div class="focusStory">${escapeHtml(story)}</div>
           <div class="focusPts">${escapeHtml(points)}</div>
+          <div class="focusActions">
+            <button type="button" class="focusBtn" id="expandStoryBtn">Agrandir le texte</button>
+          </div>
         `;
+
+        const expandBtn = document.getElementById('expandStoryBtn');
+        if (expandBtn) {
+          expandBtn.addEventListener('click', () => {
+            openStoryModal({
+              image,
+              icon,
+              title,
+              story,
+              year,
+              kind,
+              points
+            });
+          });
+        }
       }
 
       storyRoot.addEventListener('click', (e) => {
