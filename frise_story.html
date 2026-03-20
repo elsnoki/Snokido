@@ -167,8 +167,8 @@
       position:relative;
       padding:28px 0 10px;
       border-radius:28px;
-      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      border:1px solid rgba(255,255,255,.1);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
       box-shadow:var(--shadow);
       overflow:hidden;
     }
@@ -187,9 +187,11 @@
 
     .yearBlock{
       position:relative;
-      padding:26px 22px 34px;
+      padding:36px 22px 44px;
       overflow:hidden;
       isolation:isolate;
+      border-top:1px solid rgba(255,255,255,.06);
+      border-bottom:1px solid rgba(255,255,255,.06);
     }
 
     .yearBlock::before{
@@ -198,7 +200,7 @@
       inset:0;
       pointer-events:none;
       z-index:0;
-      opacity:.9;
+      opacity:1;
     }
 
     .yearBlock::after{
@@ -207,8 +209,7 @@
       inset:0;
       pointer-events:none;
       z-index:0;
-      opacity:.5;
-      mix-blend-mode:screen;
+      opacity:.9;
     }
 
     .yearBlock > *{
@@ -216,87 +217,120 @@
       z-index:1;
     }
 
+    .era-prehistory{
+      background:
+        linear-gradient(180deg, rgba(20,12,8,.82), rgba(8,8,10,.72));
+    }
+
     .era-prehistory::before{
       background:
-        radial-gradient(500px 260px at 15% 18%, rgba(255,120,40,.10), transparent 65%),
-        radial-gradient(650px 320px at 85% 12%, rgba(255,210,120,.05), transparent 68%),
-        linear-gradient(180deg, rgba(22,16,10,.18), rgba(11,10,8,.04));
+        radial-gradient(700px 320px at 12% 18%, rgba(255,120,40,.34), transparent 62%),
+        radial-gradient(500px 240px at 88% 12%, rgba(255,210,120,.12), transparent 66%),
+        linear-gradient(to top, rgba(0,0,0,.28), transparent 40%);
     }
 
     .era-prehistory::after{
       background:
-        radial-gradient(2px 2px at 14% 22%, rgba(255,220,140,.55), transparent 60%),
-        radial-gradient(2px 2px at 18% 24%, rgba(255,160,70,.48), transparent 60%),
-        radial-gradient(1.8px 1.8px at 78% 20%, rgba(255,255,255,.18), transparent 60%),
-        linear-gradient(to top, rgba(0,0,0,.16), transparent 42%);
+        radial-gradient(2px 2px at 14% 24%, rgba(255,220,140,.95), transparent 60%),
+        radial-gradient(2px 2px at 18% 26%, rgba(255,160,70,.75), transparent 60%),
+        radial-gradient(1.5px 1.5px at 75% 20%, rgba(255,255,255,.18), transparent 60%);
+    }
+
+    .era-antique{
+      background:
+        linear-gradient(180deg, rgba(70,45,15,.66), rgba(28,18,8,.62));
     }
 
     .era-antique::before{
       background:
-        radial-gradient(560px 250px at 82% 18%, rgba(255,214,140,.12), transparent 62%),
-        radial-gradient(420px 220px at 18% 80%, rgba(180,120,40,.10), transparent 60%),
-        linear-gradient(180deg, rgba(105,72,24,.14), rgba(58,40,15,.04));
+        radial-gradient(720px 300px at 82% 16%, rgba(255,220,150,.26), transparent 60%),
+        radial-gradient(500px 220px at 16% 78%, rgba(179,112,38,.18), transparent 60%);
     }
 
     .era-antique::after{
       background:
-        linear-gradient(to top, rgba(69,45,15,.18), transparent 36%),
-        radial-gradient(120px 60px at 16% 86%, rgba(255,230,180,.08), transparent 70%),
-        radial-gradient(180px 70px at 80% 84%, rgba(255,230,180,.06), transparent 72%);
+        linear-gradient(to top, rgba(50,30,10,.34), transparent 34%),
+        repeating-linear-gradient(
+          to right,
+          transparent 0 60px,
+          rgba(255,230,180,.035) 60px 62px
+        );
+    }
+
+    .era-medieval{
+      background:
+        linear-gradient(180deg, rgba(18,28,54,.78), rgba(22,18,28,.74));
     }
 
     .era-medieval::before{
       background:
-        radial-gradient(620px 280px at 20% 14%, rgba(88,112,160,.12), transparent 64%),
-        radial-gradient(500px 240px at 80% 24%, rgba(150,50,40,.10), transparent 62%),
-        linear-gradient(180deg, rgba(18,28,48,.18), rgba(35,18,20,.06));
+        radial-gradient(720px 320px at 18% 16%, rgba(100,130,190,.24), transparent 62%),
+        radial-gradient(620px 260px at 84% 18%, rgba(145,42,42,.18), transparent 60%);
     }
 
     .era-medieval::after{
       background:
-        linear-gradient(to top, rgba(20,16,26,.24), transparent 36%),
-        radial-gradient(240px 90px at 18% 84%, rgba(255,255,255,.04), transparent 70%),
-        radial-gradient(320px 110px at 82% 86%, rgba(255,255,255,.03), transparent 72%);
+        linear-gradient(to top, rgba(8,10,18,.42), transparent 36%);
+    }
+
+    .era-war{
+      background:
+        linear-gradient(180deg, rgba(45,18,18,.78), rgba(20,20,24,.78));
     }
 
     .era-war::before{
       background:
-        radial-gradient(700px 300px at 50% 15%, rgba(255,90,90,.12), transparent 64%),
-        radial-gradient(450px 230px at 20% 70%, rgba(110,110,120,.10), transparent 60%),
-        linear-gradient(180deg, rgba(42,24,26,.18), rgba(18,18,22,.08));
+        radial-gradient(760px 320px at 50% 12%, rgba(255,80,80,.30), transparent 62%),
+        radial-gradient(520px 220px at 20% 78%, rgba(120,120,120,.14), transparent 60%);
     }
 
     .era-war::after{
       background:
-        radial-gradient(220px 100px at 24% 80%, rgba(255,180,90,.07), transparent 72%),
-        radial-gradient(300px 110px at 74% 82%, rgba(255,180,90,.05), transparent 72%),
-        linear-gradient(to top, rgba(0,0,0,.22), transparent 38%);
+        radial-gradient(260px 120px at 20% 80%, rgba(255,180,80,.12), transparent 70%),
+        radial-gradient(320px 120px at 78% 84%, rgba(255,180,80,.10), transparent 72%),
+        linear-gradient(to top, rgba(0,0,0,.42), transparent 34%);
+    }
+
+    .era-modern{
+      background:
+        linear-gradient(180deg, rgba(18,34,48,.82), rgba(10,18,30,.78));
     }
 
     .era-modern::before{
       background:
-        radial-gradient(700px 320px at 78% 14%, rgba(120,190,255,.11), transparent 64%),
-        radial-gradient(520px 230px at 20% 78%, rgba(180,180,200,.08), transparent 60%),
-        linear-gradient(180deg, rgba(20,34,48,.18), rgba(12,18,26,.06));
+        radial-gradient(760px 320px at 78% 14%, rgba(120,190,255,.24), transparent 62%),
+        radial-gradient(540px 240px at 18% 80%, rgba(210,210,230,.10), transparent 60%);
     }
 
     .era-modern::after{
       background:
-        linear-gradient(to right, transparent 0 8%, rgba(255,255,255,.03) 8% 8.4%, transparent 8.4% 16.6%, rgba(255,255,255,.02) 16.6% 17%, transparent 17% 100%),
-        linear-gradient(to top, rgba(255,255,255,.04), transparent 36%);
+        repeating-linear-gradient(
+          to right,
+          transparent 0 70px,
+          rgba(255,255,255,.03) 70px 72px
+        );
+    }
+
+    .era-future{
+      background:
+        linear-gradient(180deg, rgba(6,18,42,.86), rgba(8,10,28,.84));
     }
 
     .era-future::before{
       background:
-        radial-gradient(760px 320px at 76% 14%, rgba(56,189,248,.14), transparent 64%),
-        radial-gradient(580px 250px at 18% 78%, rgba(168,85,247,.12), transparent 62%),
-        linear-gradient(180deg, rgba(5,20,42,.18), rgba(8,12,26,.08));
+        radial-gradient(760px 340px at 78% 14%, rgba(56,189,248,.34), transparent 62%),
+        radial-gradient(620px 260px at 18% 82%, rgba(168,85,247,.24), transparent 62%);
     }
 
     .era-future::after{
       background:
-        linear-gradient(to right, transparent 0 10%, rgba(56,189,248,.05) 10% 10.25%, transparent 10.25% 20%, rgba(168,85,247,.04) 20% 20.25%, transparent 20.25% 100%),
-        linear-gradient(to top, rgba(56,189,248,.05), transparent 42%);
+        repeating-linear-gradient(
+          to right,
+          transparent 0 64px,
+          rgba(56,189,248,.05) 64px 66px,
+          transparent 66px 128px
+        ),
+        linear-gradient(to top, rgba(56,189,248,.06), transparent 42%);
     }
 
     .yearBadge{
@@ -326,14 +360,14 @@
 
     .eventCard{
       width:min(470px, calc(100% - 12px));
-      background:var(--card);
+      background:rgba(255,255,255,.92);
       color:var(--ink);
       border-radius:24px;
       border:1px solid rgba(15,23,42,.08);
       box-shadow:var(--shadow2);
       padding:16px 18px;
       transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
-      opacity:.96;
+      opacity:.98;
       cursor:pointer;
       text-align:left;
     }
