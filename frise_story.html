@@ -40,9 +40,9 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:white;
       background:
-        radial-gradient(900px 500px at 10% 0%, rgba(56,189,248,.22), transparent 60%),
-        radial-gradient(900px 500px at 100% 20%, rgba(251,191,36,.12), transparent 55%),
-        linear-gradient(180deg, var(--bg2), var(--bg1) 55%, #06111c 100%);
+        radial-gradient(900px 500px at 10% 0%, rgba(56,189,248,.18), transparent 60%),
+        radial-gradient(900px 500px at 100% 20%, rgba(251,191,36,.08), transparent 55%),
+        linear-gradient(180deg, #0d1a28, #08121d 55%, #050b12 100%);
       overflow-x:hidden;
     }
 
@@ -52,12 +52,12 @@
       inset:0;
       pointer-events:none;
       background-image:
-        radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.45), transparent 55%),
-        radial-gradient(1.5px 1.5px at 70% 20%, rgba(255,255,255,.35), transparent 55%),
-        radial-gradient(1.8px 1.8px at 85% 70%, rgba(255,255,255,.32), transparent 55%),
-        radial-gradient(1.2px 1.2px at 30% 75%, rgba(255,255,255,.28), transparent 55%),
-        radial-gradient(1.6px 1.6px at 50% 50%, rgba(255,255,255,.22), transparent 55%);
-      opacity:.8;
+        radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.32), transparent 55%),
+        radial-gradient(1.5px 1.5px at 70% 20%, rgba(255,255,255,.26), transparent 55%),
+        radial-gradient(1.8px 1.8px at 85% 70%, rgba(255,255,255,.2), transparent 55%),
+        radial-gradient(1.2px 1.2px at 30% 75%, rgba(255,255,255,.18), transparent 55%),
+        radial-gradient(1.6px 1.6px at 50% 50%, rgba(255,255,255,.16), transparent 55%);
+      opacity:.55;
     }
 
     .wrap{
@@ -188,6 +188,115 @@
     .yearBlock{
       position:relative;
       padding:26px 22px 34px;
+      overflow:hidden;
+      isolation:isolate;
+    }
+
+    .yearBlock::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      opacity:.9;
+    }
+
+    .yearBlock::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      opacity:.5;
+      mix-blend-mode:screen;
+    }
+
+    .yearBlock > *{
+      position:relative;
+      z-index:1;
+    }
+
+    .era-prehistory::before{
+      background:
+        radial-gradient(500px 260px at 15% 18%, rgba(255,120,40,.10), transparent 65%),
+        radial-gradient(650px 320px at 85% 12%, rgba(255,210,120,.05), transparent 68%),
+        linear-gradient(180deg, rgba(22,16,10,.18), rgba(11,10,8,.04));
+    }
+
+    .era-prehistory::after{
+      background:
+        radial-gradient(2px 2px at 14% 22%, rgba(255,220,140,.55), transparent 60%),
+        radial-gradient(2px 2px at 18% 24%, rgba(255,160,70,.48), transparent 60%),
+        radial-gradient(1.8px 1.8px at 78% 20%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(to top, rgba(0,0,0,.16), transparent 42%);
+    }
+
+    .era-antique::before{
+      background:
+        radial-gradient(560px 250px at 82% 18%, rgba(255,214,140,.12), transparent 62%),
+        radial-gradient(420px 220px at 18% 80%, rgba(180,120,40,.10), transparent 60%),
+        linear-gradient(180deg, rgba(105,72,24,.14), rgba(58,40,15,.04));
+    }
+
+    .era-antique::after{
+      background:
+        linear-gradient(to top, rgba(69,45,15,.18), transparent 36%),
+        radial-gradient(120px 60px at 16% 86%, rgba(255,230,180,.08), transparent 70%),
+        radial-gradient(180px 70px at 80% 84%, rgba(255,230,180,.06), transparent 72%);
+    }
+
+    .era-medieval::before{
+      background:
+        radial-gradient(620px 280px at 20% 14%, rgba(88,112,160,.12), transparent 64%),
+        radial-gradient(500px 240px at 80% 24%, rgba(150,50,40,.10), transparent 62%),
+        linear-gradient(180deg, rgba(18,28,48,.18), rgba(35,18,20,.06));
+    }
+
+    .era-medieval::after{
+      background:
+        linear-gradient(to top, rgba(20,16,26,.24), transparent 36%),
+        radial-gradient(240px 90px at 18% 84%, rgba(255,255,255,.04), transparent 70%),
+        radial-gradient(320px 110px at 82% 86%, rgba(255,255,255,.03), transparent 72%);
+    }
+
+    .era-war::before{
+      background:
+        radial-gradient(700px 300px at 50% 15%, rgba(255,90,90,.12), transparent 64%),
+        radial-gradient(450px 230px at 20% 70%, rgba(110,110,120,.10), transparent 60%),
+        linear-gradient(180deg, rgba(42,24,26,.18), rgba(18,18,22,.08));
+    }
+
+    .era-war::after{
+      background:
+        radial-gradient(220px 100px at 24% 80%, rgba(255,180,90,.07), transparent 72%),
+        radial-gradient(300px 110px at 74% 82%, rgba(255,180,90,.05), transparent 72%),
+        linear-gradient(to top, rgba(0,0,0,.22), transparent 38%);
+    }
+
+    .era-modern::before{
+      background:
+        radial-gradient(700px 320px at 78% 14%, rgba(120,190,255,.11), transparent 64%),
+        radial-gradient(520px 230px at 20% 78%, rgba(180,180,200,.08), transparent 60%),
+        linear-gradient(180deg, rgba(20,34,48,.18), rgba(12,18,26,.06));
+    }
+
+    .era-modern::after{
+      background:
+        linear-gradient(to right, transparent 0 8%, rgba(255,255,255,.03) 8% 8.4%, transparent 8.4% 16.6%, rgba(255,255,255,.02) 16.6% 17%, transparent 17% 100%),
+        linear-gradient(to top, rgba(255,255,255,.04), transparent 36%);
+    }
+
+    .era-future::before{
+      background:
+        radial-gradient(760px 320px at 76% 14%, rgba(56,189,248,.14), transparent 64%),
+        radial-gradient(580px 250px at 18% 78%, rgba(168,85,247,.12), transparent 62%),
+        linear-gradient(180deg, rgba(5,20,42,.18), rgba(8,12,26,.08));
+    }
+
+    .era-future::after{
+      background:
+        linear-gradient(to right, transparent 0 10%, rgba(56,189,248,.05) 10% 10.25%, transparent 10.25% 20%, rgba(168,85,247,.04) 20% 20.25%, transparent 20.25% 100%),
+        linear-gradient(to top, rgba(56,189,248,.05), transparent 42%);
     }
 
     .yearBadge{
@@ -690,11 +799,11 @@
         <section class="panel">
           <div class="panelHead">Lecture visuelle</div>
           <div class="panelBody legendList">
-            <div class="legendItem"><span class="legendSw">⭐</span> palier important, montée ou domination</div>
-            <div class="legendItem"><span class="legendSw">⚔️</span> duel, rivalité ou affrontement au sommet</div>
-            <div class="legendItem"><span class="legendSw">👤</span> inscription ou arrivée d’un nouveau joueur</div>
-            <div class="legendItem"><span class="legendSw">🧬</span> nouvelle génération</div>
-            <div class="legendItem"><span class="legendSw">💥</span> bot, suppression, incident ou choc</div>
+            <div class="legendItem"><span class="legendSw">🌑</span> origines, vide, naissance du monde</div>
+            <div class="legendItem"><span class="legendSw">🏺</span> premiers âges, fondations, débuts</div>
+            <div class="legendItem"><span class="legendSw">🏰</span> royaumes, rivalités, grandes conquêtes</div>
+            <div class="legendItem"><span class="legendSw">⚔️</span> âge des guerres et affrontements</div>
+            <div class="legendItem"><span class="legendSw">🌐</span> époque moderne et futur numérique</div>
           </div>
         </section>
       </aside>
@@ -1075,6 +1184,16 @@ Son arrivée renforce encore l’impression que 2026 marque l’ouverture d’un
         return '✨';
       }
 
+      function getEraClass(year){
+        const y = Number(year);
+        if (y <= 2014) return 'era-prehistory';
+        if (y <= 2016) return 'era-antique';
+        if (y <= 2019) return 'era-medieval';
+        if (y <= 2022) return 'era-war';
+        if (y <= 2024) return 'era-modern';
+        return 'era-future';
+      }
+
       function findPlayerFromTitle(title){
         const key = normalize(title);
         const inscriptionMatch = key.match(/^inscription d[e']?\s+(.+)$/i);
@@ -1258,6 +1377,7 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
 
       storyRoot.innerHTML = frise.map((yearObj) => {
         const total = (yearObj.events || []).reduce((s, e) => s + (Number(e.p) || 0), 0);
+        const eraClass = getEraClass(yearObj.year);
 
         const rows = (yearObj.events || []).map((event, i) => {
           const alignLeft = i % 2 === 0;
@@ -1348,7 +1468,7 @@ Ils révèlent les rapports de force du moment et montrent jusqu’où les joueu
         }).join('');
 
         return `
-          <section class="yearBlock" id="year-${escapeHtml(yearObj.year)}">
+          <section class="yearBlock ${escapeHtml(eraClass)}" id="year-${escapeHtml(yearObj.year)}">
             <div class="yearBadge">${escapeHtml(yearObj.year)} · ${total > 0 ? '+' : ''}${escapeHtml(total)} pts</div>
             ${rows}
           </section>
