@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Classement des gangs</title>
+<title>Profil du joueur</title>
 <script src="gangdata.js" defer></script>
+<script src="success.js" defer></script>
 
 <style>
 body{
@@ -15,7 +16,7 @@ body{
 }
 
 .wrap{
-  max-width:1200px;
+  max-width:800px;
   margin:30px auto;
   padding:10px;
 }
@@ -25,86 +26,79 @@ h1{
   margin-bottom:25px;
 }
 
-/* SECTION */
-.roleSection{ margin-bottom:30px; }
-
-.roleTitle{
-  font-size:20px;
-  font-weight:900;
-  padding:10px;
-  border-radius:12px;
-  margin-bottom:12px;
-  background:linear-gradient(90deg,#ffd700,#ffae00);
-  color:#000;
-}
-
-/* GRID */
-.membersGrid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:10px;
-}
-
-/* CARD */
+/* PROFIL */
 .memberCard{
   display:flex;
-  gap:8px;
+  gap:12px;
   align-items:center;
-  padding:8px;
-  border-radius:12px;
+  padding:16px;
+  border-radius:16px;
   background:rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.15);
   backdrop-filter:blur(6px);
-  box-shadow:0 6px 15px rgba(0,0,0,.3);
-  text-decoration:none;
-  color:#fff;
-  transition:0.2s;
-}
-
-.memberCard:hover{
-  transform: translateY(-3px);
-  box-shadow:0 15px 25px rgba(0,0,0,.5);
+  box-shadow:0 6px 20px rgba(0,0,0,.4);
 }
 
 .avatar{
-  width:50px;
-  height:50px;
-  border-radius:12px;
+  width:100px;
+  height:100px;
+  border-radius:16px;
 }
 
 .memberInfo{ flex:1; }
 
 .memberName{
   font-weight:900;
-  font-size:14px;
+  font-size:20px;
 }
 
 .memberXp{
-  font-size:12px;
+  font-size:14px;
+  margin-top:4px;
   opacity:.85;
 }
 
 .memberRole{
-  margin-top:4px;
-  font-size:11px;
-  padding:3px 6px;
+  margin-top:6px;
+  font-size:13px;
+  padding:4px 8px;
   border-radius:999px;
   background:rgba(255,255,255,.15);
   display:inline-block;
 }
 
+.memberGang{
+  margin-top:6px;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
 .gangLogo{
-  width:20px;
-  height:20px;
-  margin-left:6px;
+  width:22px;
+  height:22px;
   border-radius:6px;
+}
+
+.successList{
+  margin-top:16px;
+}
+
+.successItem{
+  display:inline-block;
+  background:rgba(255,255,255,.15);
+  border-radius:8px;
+  padding:4px 8px;
+  margin:2px;
+  font-size:12px;
 }
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <h1>🔥 Classement des gangs</h1>
+  <h1>🔥 Profil du joueur</h1>
   <div id="content">Chargement...</div>
 </div>
 
@@ -148,69 +142,59 @@ function slugify(s){
     .toLowerCase();
 }
 
-async function init(){
-  // ⚡ charger joueurs
-  const res = await fetch("data/players_pages.json");
-  const players = await res.json();
-
-  // map pour accès rapide
-  const map = new Map();
-  players.forEach(p=> map.set(slugify(p.nom), p));
-
-  // gangs autorisés
-  const allowed = ["athenagangster","lospollosgangsta","tribuesdrasso","40k","legend","admin"];
-  const gangs = window.gangsData.filter(g => allowed.includes(slugify(g.name)));
-
-  let members = [];
-
-  gangs.forEach(g => {
-    g.members.forEach(m => {
-      const player = map.get(slugify(m.nom));
-      members.push({
-        nom:m.nom,
-        xp:player?.xp || 0,
-        avatar:player?.avatar || "avatar/1.jpg",
-        gangImg:g.img
-      });
-    });
-  });
-
-  // TRI par XP
-  members.sort((a,b)=>b.xp-a.xp);
-
-  // GROUP par rôle
-  const grouped = {};
-  ROLES.forEach(r=>grouped[r.label]=[]);
-  members.forEach(m=> grouped[getRole(m.xp)].push(m));
-
-  const container = document.getElementById("content");
-
-  container.innerHTML = ROLES.map(r=>{
-    const list = grouped[r.label];
-    if(!list.length) return "";
-    return `
-      <div class="roleSection">
-        <div class="roleTitle">${r.label}</div>
-        <div class="membersGrid">
-          ${list.map(m=>`
-            <a href="profilrole.html?user=${encodeURIComponent(m.nom)}" class="memberCard">
-              <img class="avatar" src="${m.avatar}">
-              <div class="memberInfo">
-                <div class="memberName">
-                  ${m.nom} <img class="gangLogo" src="${m.gangImg}">
-                </div>
-                <div class="memberXp">${fmt(m.xp)} XP</div>
-                <div class="memberRole">${getRole(m.xp)}</div>
-              </div>
-            </a>
-          `).join("")}
-        </div>
-      </div>
-    `;
-  }).join("");
+function getUserFromURL(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("user");
 }
 
-window.addEventListener("DOMContentLoaded", init);
+async function initProfile(){
+  const userSlug = slugify(getUserFromURL());
+  const container = document.getElementById("content");
+  if(!userSlug){
+    container.innerHTML = "<p>Utilisateur non trouvé.</p>";
+    return;
+  }
+
+  // charger joueurs
+  const res = await fetch("data/players_pages.json");
+  const players = await res.json();
+  const playerMap = new Map(players.map(p => [slugify(p.nom), p]));
+  const player = playerMap.get(userSlug);
+
+  // chercher le gang
+  const gang = window.gangsData.find(g =>
+    g.members.some(m => slugify(m.nom) === userSlug)
+  );
+
+  if(!player && !gang){
+    container.innerHTML = "<p>Utilisateur non trouvé.</p>";
+    return;
+  }
+
+  const xp = player?.xp || 0;
+  const avatar = player?.avatar || "avatar/1.jpg";
+  const gangImg = gang?.img || "";
+  const gangName = gang?.name || "";
+  const nom = player?.nom || userSlug;
+
+  // succès
+  const userSuccess = window.SUCCESS?.[slugify(nom)] || [];
+
+  container.innerHTML = `
+    <div class="memberCard">
+      <img class="avatar" src="${avatar}">
+      <div class="memberInfo">
+        <div class="memberName">${nom}</div>
+        <div class="memberXp">${fmt(xp)} XP</div>
+        <div class="memberRole">${getRole(xp)}</div>
+        ${gangName ? `<div class="memberGang">Gang : ${gangName} ${gangImg ? `<img class="gangLogo" src="${gangImg}">` : ""}</div>` : ""}
+        ${userSuccess.length ? `<div class="successList">${userSuccess.map(s => `<span class="successItem">${s}</span>`).join("")}</div>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+window.addEventListener("DOMContentLoaded", initProfile);
 </script>
 
 </body>
