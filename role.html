@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>Classement des gangs</title>
+<title>Rôles du gang</title>
 
 <script src="gangdata.js" defer></script>
 
@@ -12,7 +11,7 @@
 body{
   margin:0;
   font-family:Arial;
-  background:radial-gradient(circle at top,#1a4d6b,#041e2d);
+  background:radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
   color:#fff;
 }
 
@@ -22,74 +21,102 @@ body{
   padding:10px;
 }
 
-h1{
-  text-align:center;
-  margin-bottom:25px;
-}
-
-/* SECTION */
-.roleSection{ margin-bottom:30px; }
-
-.roleTitle{
-  font-size:20px;
+.title{
+  font-size:28px;
   font-weight:900;
-  padding:10px;
-  border-radius:12px;
-  margin-bottom:12px;
-  background:linear-gradient(90deg,#ffd700,#ffae00);
-  color:#000;
+  margin-bottom:20px;
 }
 
-/* GRID */
-.membersGrid{
+.members{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:14px;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:18px;
 }
 
 /* CARD */
-.memberCard{
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.15);
-  border-radius:16px;
-  padding:12px;
+.card{
+  background:linear-gradient(145deg,#1e293b,#0f172a);
+  border-radius:18px;
+  padding:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+  transition:.25s;
+  position:relative;
+}
+
+.card:hover{
+  transform:translateY(-5px) scale(1.02);
+}
+
+/* TOP */
+.top{
   display:flex;
   gap:12px;
   align-items:center;
-  backdrop-filter:blur(6px);
-  box-shadow:0 10px 25px rgba(0,0,0,.4);
 }
 
 .avatar{
-  width:60px;
-  height:60px;
-  border-radius:12px;
+  width:70px;
+  height:70px;
+  border-radius:14px;
+  border:2px solid #3b82f6;
 }
 
-.memberInfo{ flex:1; }
-
-.memberName{
+.name{
+  font-size:18px;
   font-weight:900;
 }
 
-.memberXp{
+.xp{
   font-size:13px;
-  opacity:.85;
+  opacity:.8;
 }
 
-.memberRole{
-  margin-top:5px;
-  font-size:12px;
-  padding:4px 8px;
+/* ROLE */
+.role{
+  margin-top:10px;
+  padding:6px 10px;
   border-radius:999px;
-  background:rgba(255,255,255,.15);
+  font-size:12px;
+  font-weight:900;
+  display:inline-block;
+  background:#111827;
+  border:1px solid rgba(255,255,255,.1);
 }
 
+/* XP BAR */
+.bar{
+  margin-top:12px;
+  height:8px;
+  background:#111;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  background:linear-gradient(90deg,#22c55e,#4ade80);
+}
+
+/* GANG LOGO */
 .gangLogo{
-  width:22px;
-  height:22px;
-  margin-left:6px;
-  border-radius:6px;
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  opacity:.9;
+}
+
+/* GOLD STYLE */
+.gold{
+  background:linear-gradient(90deg,#facc15,#fde68a);
+  color:#000;
+}
+
+/* LEGEND STYLE */
+.legend{
+  background:linear-gradient(90deg,#a855f7,#ec4899);
 }
 </style>
 </head>
@@ -97,134 +124,116 @@ h1{
 <body>
 
 <div class="wrap">
-  <h1>🔥 Classement des gangs</h1>
-  <div id="content">Chargement...</div>
+  <div class="title" id="title">Chargement...</div>
+  <div class="members" id="members"></div>
 </div>
 
 <script>
+/* ========= LOAD JSON ========= */
+let players = [];
 
-// 🔥 ROLES DESC
+fetch("data/players_pages.json")
+  .then(r => r.json())
+  .then(data => {
+    players = data;
+    init();
+  });
+
+function slugify(s){
+  return String(s).toLowerCase().replace(/[^a-z0-9]/g,"");
+}
+
+/* ========= ROLES ========= */
 const ROLES = [
-{xp:1200000,label:"💨 Tempête Apocalyptique"},
-{xp:1000000,label:"⬛ Légende de Snokido"},
-{xp:800000,label:"👺 Lucifer"},
-{xp:700000,label:"🔱 Champion de l'exp"},
-{xp:600000,label:"🦕 Warrior Extrême"},
-{xp:500000,label:"🦖 Grand Colosse"},
-{xp:400000,label:"🐉 Empereur"},
-{xp:300000,label:"👽 Aventurier Tenace"},
-{xp:250000,label:"💸 Guerrier Suprême"},
-{xp:200000,label:"🛡 Samuraï Féroce"},
-{xp:150000,label:"🗺 Conquérant"},
-{xp:100000,label:"👿 Guerrier Ultime"},
-{xp:50000,label:"🚬 Gangster"},
-{xp:20000,label:"♠ Gangstar Confirmé"},
-{xp:10000,label:"🥈 Sergent"},
-{xp:0,label:"🥉 Recrue"}
+  {xp:1300000, name:"As de l'exp"},
+  {xp:1250000, name:"Parrain de Mafia"},
+  {xp:1200000, name:"Tempête Apocalyptique"},
+  {xp:1100000, name:"Combattant Unique"},
+  {xp:1000000, name:"Légende de Snokido"},
+  {xp:900000, name:"Maître du Temps"},
+  {xp:800000, name:"Lucifer"},
+  {xp:700000, name:"Champion de l'exp"},
+  {xp:600000, name:"Warrior Extrême"},
+  {xp:500000, name:"Grand Colosse"},
+  {xp:400000, name:"Empereur"},
+  {xp:300000, name:"Aventurier Tenace"},
+  {xp:200000, name:"Samuraï Féroce"},
+  {xp:100000, name:"Guerrier Ultime"},
+  {xp:50000, name:"Gangster"},
+  {xp:10000, name:"Sergent"},
+  {xp:0, name:"Recrue"}
 ];
 
 function getRole(xp){
   for(let r of ROLES){
-    if(xp >= r.xp) return r.label;
+    if(xp >= r.xp) return r.name;
   }
-  return "🥉 Recrue";
+  return "Recrue";
 }
 
-function fmt(n){
-  return new Intl.NumberFormat("fr-FR").format(n);
+/* ========= INIT ========= */
+function init(){
+  const params = new URLSearchParams(location.search);
+  const slug = params.get("g");
+
+  const gang = window.gangsData.find(g => slugify(g.name) === slug);
+
+  if(!gang) return;
+
+  document.getElementById("title").textContent = "Gang : " + gang.name;
+
+  const members = gang.members.map(m => {
+    const p = players.find(pl => slugify(pl.nom) === slugify(m.nom));
+    return {
+      name: m.nom,
+      xp: p ? p.xp : 0,
+      avatar: p ? p.avatar : "avatar/1.jpg"
+    };
+  });
+
+  /* TRI IMPORTANT */
+  members.sort((a,b)=>b.xp - a.xp);
+
+  render(members, gang.img);
 }
 
-function slugify(s){
-  return String(s||"")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"")
-    .replace(/[^a-zA-Z0-9]/g,"")
-    .toLowerCase();
-}
+/* ========= RENDER ========= */
+function render(list, gangImg){
+  const maxXp = 1300000;
 
-async function init(){
+  document.getElementById("members").innerHTML =
+    list.map(m => {
 
-  const res = await fetch("data/players_pages.json");
-  const players = await res.json();
+      const percent = Math.min(100,(m.xp/maxXp)*100);
+      const role = getRole(m.xp);
 
-  // map joueurs
-  const map = new Map();
-  players.forEach(p=>{
-    map.set(slugify(p.nom), p);
-  });
+      let roleClass = "";
+      if(m.xp > 1000000) roleClass="legend";
+      else if(m.xp > 500000) roleClass="gold";
 
-  const allowed = ["athenagangster","lospollosgangsta"];
-
-  const gangs = window.gangsData.filter(g =>
-    allowed.includes(slugify(g.name))
-  );
-
-  let members = [];
-
-  gangs.forEach(g=>{
-    g.members.forEach(m=>{
-
-      const player = map.get(slugify(m.nom));
-
-      members.push({
-        nom:m.nom,
-        xp:player?.xp || 0,
-        avatar:player?.avatar || "avatar/1.jpg",
-        gangImg:g.img
-      });
-
-    });
-  });
-
-  // TRI
-  members.sort((a,b)=>b.xp-a.xp);
-
-  // GROUP
-  const grouped = {};
-  ROLES.forEach(r=>grouped[r.label]=[]);
-
-  members.forEach(m=>{
-    grouped[getRole(m.xp)].push(m);
-  });
-
-  const container = document.getElementById("content");
-
-  container.innerHTML = ROLES.map(r=>{
-
-    const list = grouped[r.label];
-    if(!list.length) return "";
-
-    return `
-    <div class="roleSection">
-      <div class="roleTitle">${r.label}</div>
-
-      <div class="membersGrid">
-        ${list.map(m=>`
-          <div class="memberCard">
-
-            <img class="avatar" src="${m.avatar}">
-
-            <div class="memberInfo">
-              <div class="memberName">
-                ${m.nom}
-                <img class="gangLogo" src="${m.gangImg}">
-              </div>
-
-              <div class="memberXp">${fmt(m.xp)} XP</div>
-              <div class="memberRole">${getRole(m.xp)}</div>
-            </div>
-
+      return `
+      <div class="card">
+        <img class="gangLogo" src="${gangImg}">
+        
+        <div class="top">
+          <img class="avatar" src="${m.avatar}">
+          <div>
+            <div class="name">${m.name}</div>
+            <div class="xp">${m.xp.toLocaleString()} xp</div>
           </div>
-        `).join("")}
+        </div>
+
+        <div class="role ${roleClass}">
+          ${role}
+        </div>
+
+        <div class="bar">
+          <div class="fill" style="width:${percent}%"></div>
+        </div>
       </div>
-    </div>
-    `;
-
-  }).join("");
+      `;
+    }).join("");
 }
-
-window.addEventListener("DOMContentLoaded", init);
-
 </script>
 
 </body>
