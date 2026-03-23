@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Rôles du gang</title>
+
+<title>Classement des gangs</title>
 
 <script src="gangdata.js" defer></script>
 
@@ -11,7 +12,7 @@
 body{
   margin:0;
   font-family:Arial;
-  background:radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
+  background:radial-gradient(circle at top,#1a4d6b,#041e2d);
   color:#fff;
 }
 
@@ -21,102 +22,74 @@ body{
   padding:10px;
 }
 
-.title{
-  font-size:28px;
+h1{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+/* SECTION */
+.roleSection{ margin-bottom:30px; }
+
+.roleTitle{
+  font-size:20px;
   font-weight:900;
-  margin-bottom:20px;
-}
-
-.members{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-  gap:18px;
-}
-
-/* CARD */
-.card{
-  background:linear-gradient(145deg,#1e293b,#0f172a);
-  border-radius:18px;
-  padding:15px;
-  box-shadow:0 10px 30px rgba(0,0,0,.5);
-  transition:.25s;
-  position:relative;
-}
-
-.card:hover{
-  transform:translateY(-5px) scale(1.02);
-}
-
-/* TOP */
-.top{
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-
-.avatar{
-  width:70px;
-  height:70px;
-  border-radius:14px;
-  border:2px solid #3b82f6;
-}
-
-.name{
-  font-size:18px;
-  font-weight:900;
-}
-
-.xp{
-  font-size:13px;
-  opacity:.8;
-}
-
-/* ROLE */
-.role{
-  margin-top:10px;
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-  display:inline-block;
-  background:#111827;
-  border:1px solid rgba(255,255,255,.1);
-}
-
-/* XP BAR */
-.bar{
-  margin-top:12px;
-  height:8px;
-  background:#111;
-  border-radius:999px;
-  overflow:hidden;
-}
-
-.fill{
-  height:100%;
-  background:linear-gradient(90deg,#22c55e,#4ade80);
-}
-
-/* GANG LOGO */
-.gangLogo{
-  position:absolute;
-  top:10px;
-  right:10px;
-  width:40px;
-  height:40px;
-  border-radius:10px;
-  opacity:.9;
-}
-
-/* GOLD STYLE */
-.gold{
-  background:linear-gradient(90deg,#facc15,#fde68a);
+  padding:10px;
+  border-radius:12px;
+  margin-bottom:12px;
+  background:linear-gradient(90deg,#ffd700,#ffae00);
   color:#000;
 }
 
-/* LEGEND STYLE */
-.legend{
-  background:linear-gradient(90deg,#a855f7,#ec4899);
+/* GRID */
+.membersGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:14px;
+}
+
+/* CARD */
+.memberCard{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:16px;
+  padding:12px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  backdrop-filter:blur(6px);
+  box-shadow:0 10px 25px rgba(0,0,0,.4);
+}
+
+.avatar{
+  width:60px;
+  height:60px;
+  border-radius:12px;
+}
+
+.memberInfo{ flex:1; }
+
+.memberName{
+  font-weight:900;
+}
+
+.memberXp{
+  font-size:13px;
+  opacity:.85;
+}
+
+.memberRole{
+  margin-top:5px;
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.15);
+}
+
+.gangLogo{
+  width:22px;
+  height:22px;
+  margin-left:6px;
+  border-radius:6px;
 }
 </style>
 </head>
@@ -124,116 +97,134 @@ body{
 <body>
 
 <div class="wrap">
-  <div class="title" id="title">Chargement...</div>
-  <div class="members" id="members"></div>
+  <h1>🔥 Classement des gangs</h1>
+  <div id="content">Chargement...</div>
 </div>
 
 <script>
-/* ========= LOAD JSON ========= */
-let players = [];
 
-fetch("data/players_pages.json")
-  .then(r => r.json())
-  .then(data => {
-    players = data;
-    init();
-  });
-
-function slugify(s){
-  return String(s).toLowerCase().replace(/[^a-z0-9]/g,"");
-}
-
-/* ========= ROLES ========= */
+// 🔥 ROLES DESC
 const ROLES = [
-  {xp:1300000, name:"As de l'exp"},
-  {xp:1250000, name:"Parrain de Mafia"},
-  {xp:1200000, name:"Tempête Apocalyptique"},
-  {xp:1100000, name:"Combattant Unique"},
-  {xp:1000000, name:"Légende de Snokido"},
-  {xp:900000, name:"Maître du Temps"},
-  {xp:800000, name:"Lucifer"},
-  {xp:700000, name:"Champion de l'exp"},
-  {xp:600000, name:"Warrior Extrême"},
-  {xp:500000, name:"Grand Colosse"},
-  {xp:400000, name:"Empereur"},
-  {xp:300000, name:"Aventurier Tenace"},
-  {xp:200000, name:"Samuraï Féroce"},
-  {xp:100000, name:"Guerrier Ultime"},
-  {xp:50000, name:"Gangster"},
-  {xp:10000, name:"Sergent"},
-  {xp:0, name:"Recrue"}
+{xp:1200000,label:"💨 Tempête Apocalyptique"},
+{xp:1000000,label:"⬛ Légende de Snokido"},
+{xp:800000,label:"👺 Lucifer"},
+{xp:700000,label:"🔱 Champion de l'exp"},
+{xp:600000,label:"🦕 Warrior Extrême"},
+{xp:500000,label:"🦖 Grand Colosse"},
+{xp:400000,label:"🐉 Empereur"},
+{xp:300000,label:"👽 Aventurier Tenace"},
+{xp:250000,label:"💸 Guerrier Suprême"},
+{xp:200000,label:"🛡 Samuraï Féroce"},
+{xp:150000,label:"🗺 Conquérant"},
+{xp:100000,label:"👿 Guerrier Ultime"},
+{xp:50000,label:"🚬 Gangster"},
+{xp:20000,label:"♠ Gangstar Confirmé"},
+{xp:10000,label:"🥈 Sergent"},
+{xp:0,label:"🥉 Recrue"}
 ];
 
 function getRole(xp){
   for(let r of ROLES){
-    if(xp >= r.xp) return r.name;
+    if(xp >= r.xp) return r.label;
   }
-  return "Recrue";
+  return "🥉 Recrue";
 }
 
-/* ========= INIT ========= */
-function init(){
-  const params = new URLSearchParams(location.search);
-  const slug = params.get("g");
+function fmt(n){
+  return new Intl.NumberFormat("fr-FR").format(n);
+}
 
-  const gang = window.gangsData.find(g => slugify(g.name) === slug);
+function slugify(s){
+  return String(s||"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-zA-Z0-9]/g,"")
+    .toLowerCase();
+}
 
-  if(!gang) return;
+async function init(){
 
-  document.getElementById("title").textContent = "Gang : " + gang.name;
+  const res = await fetch("data/players_pages.json");
+  const players = await res.json();
 
-  const members = gang.members.map(m => {
-    const p = players.find(pl => slugify(pl.nom) === slugify(m.nom));
-    return {
-      name: m.nom,
-      xp: p ? p.xp : 0,
-      avatar: p ? p.avatar : "avatar/1.jpg"
-    };
+  // map joueurs
+  const map = new Map();
+  players.forEach(p=>{
+    map.set(slugify(p.nom), p);
   });
 
-  /* TRI IMPORTANT */
-  members.sort((a,b)=>b.xp - a.xp);
+  const allowed = ["athenagangster","lospollosgangsta"];
 
-  render(members, gang.img);
-}
+  const gangs = window.gangsData.filter(g =>
+    allowed.includes(slugify(g.name))
+  );
 
-/* ========= RENDER ========= */
-function render(list, gangImg){
-  const maxXp = 1300000;
+  let members = [];
 
-  document.getElementById("members").innerHTML =
-    list.map(m => {
+  gangs.forEach(g=>{
+    g.members.forEach(m=>{
 
-      const percent = Math.min(100,(m.xp/maxXp)*100);
-      const role = getRole(m.xp);
+      const player = map.get(slugify(m.nom));
 
-      let roleClass = "";
-      if(m.xp > 1000000) roleClass="legend";
-      else if(m.xp > 500000) roleClass="gold";
+      members.push({
+        nom:m.nom,
+        xp:player?.xp || 0,
+        avatar:player?.avatar || "avatar/1.jpg",
+        gangImg:g.img
+      });
 
-      return `
-      <div class="card">
-        <img class="gangLogo" src="${gangImg}">
-        
-        <div class="top">
-          <img class="avatar" src="${m.avatar}">
-          <div>
-            <div class="name">${m.name}</div>
-            <div class="xp">${m.xp.toLocaleString()} xp</div>
+    });
+  });
+
+  // TRI
+  members.sort((a,b)=>b.xp-a.xp);
+
+  // GROUP
+  const grouped = {};
+  ROLES.forEach(r=>grouped[r.label]=[]);
+
+  members.forEach(m=>{
+    grouped[getRole(m.xp)].push(m);
+  });
+
+  const container = document.getElementById("content");
+
+  container.innerHTML = ROLES.map(r=>{
+
+    const list = grouped[r.label];
+    if(!list.length) return "";
+
+    return `
+    <div class="roleSection">
+      <div class="roleTitle">${r.label}</div>
+
+      <div class="membersGrid">
+        ${list.map(m=>`
+          <div class="memberCard">
+
+            <img class="avatar" src="${m.avatar}">
+
+            <div class="memberInfo">
+              <div class="memberName">
+                ${m.nom}
+                <img class="gangLogo" src="${m.gangImg}">
+              </div>
+
+              <div class="memberXp">${fmt(m.xp)} XP</div>
+              <div class="memberRole">${getRole(m.xp)}</div>
+            </div>
+
           </div>
-        </div>
-
-        <div class="role ${roleClass}">
-          ${role}
-        </div>
-
-        <div class="bar">
-          <div class="fill" style="width:${percent}%"></div>
-        </div>
+        `).join("")}
       </div>
-      `;
-    }).join("");
+    </div>
+    `;
+
+  }).join("");
 }
+
+window.addEventListener("DOMContentLoaded", init);
+
 </script>
 
 </body>
