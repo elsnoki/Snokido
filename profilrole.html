@@ -16,7 +16,7 @@ body{
 }
 
 .wrap{
-  max-width:800px;
+  max-width:600px;
   margin:30px auto;
   padding:10px;
 }
@@ -29,8 +29,9 @@ h1{
 /* PROFIL */
 .memberCard{
   display:flex;
-  gap:12px;
+  flex-direction:column;
   align-items:center;
+  gap:12px;
   padding:16px;
   border-radius:16px;
   background:rgba(255,255,255,.08);
@@ -45,11 +46,13 @@ h1{
   border-radius:16px;
 }
 
-.memberInfo{ flex:1; }
+.memberInfo{
+  text-align:center;
+}
 
 .memberName{
   font-weight:900;
-  font-size:20px;
+  font-size:22px;
 }
 
 .memberXp{
@@ -73,6 +76,7 @@ h1{
   display:flex;
   align-items:center;
   gap:6px;
+  justify-content:center;
 }
 
 .gangLogo{
@@ -103,7 +107,6 @@ h1{
 </div>
 
 <script>
-// 🔥 ROLES
 const ROLES = [
   {xp:1200000,label:"💨 Tempête Apocalyptique"},
   {xp:1000000,label:"⬛ Légende de Snokido"},
@@ -135,17 +138,23 @@ function fmt(n){
 }
 
 function slugify(s){
-  return String(s||"")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"")
-    .replace(/[^a-zA-Z0-9]/g,"")
-    .toLowerCase();
+  return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]/g,"").toLowerCase();
 }
 
 function getUserFromURL(){
   const params = new URLSearchParams(window.location.search);
   return params.get("user");
 }
+
+// mapping des pseudos vers SUCCESS
+const successMap = {
+  "talk-takashi": "talk",
+  "alex-c2109": "alex",
+  "francoeur": "francoeur",
+  "thegladiator": "gladiator",
+  "abelard": "abelard"
+  // ➤ ajouter tous les autres joueurs ici
+};
 
 async function initProfile(){
   const userSlug = slugify(getUserFromURL());
@@ -155,13 +164,11 @@ async function initProfile(){
     return;
   }
 
-  // charger joueurs
   const res = await fetch("data/players_pages.json");
   const players = await res.json();
   const playerMap = new Map(players.map(p => [slugify(p.nom), p]));
   const player = playerMap.get(userSlug);
 
-  // chercher le gang
   const gang = window.gangsData.find(g =>
     g.members.some(m => slugify(m.nom) === userSlug)
   );
@@ -177,8 +184,8 @@ async function initProfile(){
   const gangName = gang?.name || "";
   const nom = player?.nom || userSlug;
 
-  // succès
-  const userSuccess = window.SUCCESS?.[slugify(nom)] || [];
+  const userKey = successMap[userSlug];
+  const userSuccess = window.SUCCESS?.[userKey] || [];
 
   container.innerHTML = `
     <div class="memberCard">
