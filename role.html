@@ -6,62 +6,108 @@
 
 <title>Rôles des gangs</title>
 
-<link rel="stylesheet" href="style.css">
 <script src="gangdata.js" defer></script>
 
 <style>
 body{
   margin:0;
   font-family:Arial;
-  background:linear-gradient(135deg,#0b3551,#062638);
+  background:radial-gradient(circle at top,#1a4d6b,#041e2d);
   color:#fff;
 }
 
 .wrap{
-  max-width:1100px;
+  max-width:1200px;
   margin:30px auto;
   padding:10px;
 }
 
 h1{
   text-align:center;
-  margin-bottom:20px;
+  font-size:28px;
+  margin-bottom:25px;
+}
+
+/* ROLE SECTION */
+.roleSection{
+  margin-bottom:25px;
 }
 
 .roleTitle{
   font-size:20px;
   font-weight:900;
-  margin:20px 0 10px;
-  border-bottom:2px solid rgba(255,255,255,.2);
-  padding-bottom:5px;
+  padding:10px 14px;
+  border-radius:12px;
+  margin-bottom:10px;
+  background:linear-gradient(90deg,#ffd700,#ffae00);
+  color:#000;
 }
 
+/* GRID */
 .membersGrid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:12px;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:14px;
 }
 
+/* CARD */
 .memberCard{
-  background:#fff;
-  color:#000;
-  border-radius:12px;
-  padding:10px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:16px;
+  padding:12px;
   display:flex;
+  gap:12px;
   align-items:center;
-  gap:10px;
-  box-shadow:0 6px 15px rgba(0,0,0,.3);
+  backdrop-filter:blur(6px);
+  box-shadow:0 10px 25px rgba(0,0,0,.4);
+  transition:.2s;
 }
 
-.memberCard img{
-  width:50px;
-  height:50px;
-  border-radius:10px;
+.memberCard:hover{
+  transform:translateY(-3px);
+}
+
+/* AVATAR */
+.memberCard img.avatar{
+  width:60px;
+  height:60px;
+  border-radius:12px;
   object-fit:cover;
+  border:2px solid #fff;
+}
+
+/* GANG LOGO */
+.gangLogo{
+  width:24px;
+  height:24px;
+  border-radius:6px;
+  margin-left:6px;
+}
+
+/* INFO */
+.memberInfo{
+  flex:1;
 }
 
 .memberName{
   font-weight:900;
+  font-size:16px;
+}
+
+.memberXp{
+  font-size:13px;
+  opacity:.8;
+  margin-top:3px;
+}
+
+.memberRole{
+  font-size:12px;
+  margin-top:6px;
+  padding:4px 8px;
+  border-radius:999px;
+  display:inline-block;
+  background:rgba(255,255,255,.15);
 }
 </style>
 </head>
@@ -69,75 +115,64 @@ h1{
 <body>
 
 <div class="wrap">
-  <h1>Rôles des gangs</h1>
+  <h1>🔥 Classement des gangs</h1>
   <div id="content"></div>
 </div>
 
 <script>
 
-// 🔥 LISTE DES RÔLES (ORDRE IMPORTANT)
+// 🔥 ROLES PAR XP (ORDRE DESC)
 const ROLES = [
-"🥉 Ξ Recrue",
-"🥈 Ξ Soldat",
-"🥈 Ξ Colonel",
-"🥈 Ξ Sergent",
-"🥈 Ξ Caporal",
-"🥇 Ξ Lieutenant",
-"🥇 Ξ Adjoint",
-"💎 Ξ Commandant",
-"🗺 Ξ Conquérant",
-
-"⭐ Ξ Étoile Dorée",
-"🚬 Ξ Gangster",
-"♠ Ξ Gangstar Confirmé",
-"👿 Ξ Guerrier Ultime",
-
-"💸 Ξ Guerrier Suprême",
-"👽 Ξ Aventurier Tenace",
-"🐉 Ξ Empereur",
-"🏆 Ξ Maître de l'exp",
-"🦖 Ξ Grand Colosse",
-"🐙 Ξ Kraken Mythologique",
-"🐯 Ξ Titan",
-"🦕 Ξ Warrior Extrême",
-"👹 Ξ Satan",
-"🔱 Ξ Champion de l'exp",
-"🦇 Ξ Seigneur de l'exp",
-"👺 Ξ Lucifer",
-"🌚 Ξ Dirigeant du Mal",
-"⌛ Ξ Maître du Temps",
-"👾 Ξ Léviathan",
-"⬛ Ξ Légende de Snokido",
-"🚀 Ξ Destructeur Temporel",
-"🤺 Ξ Combattant Unique",
-"🧭 Ξ Voyageur Dimensionnel",
-"💨 Ξ Tempête Apocalyptique",
-"🕶 Ξ Parrain de Mafia",
-"♦️ Ξ As de l'exp",
-
-"⬜ Ξ Athèna",
-"🌋 Ξ Hadès",
-"🦉 Ξ Prophète",
-"🌗 Ξ Justicier de l'Apocalypse",
-"👨‍🚀 Ξ Galaxy Traveller",
-"🪐 Ξ Planets Conqueror",
-"♟ Ξ Last Menace"
+{xp:1700000,label:"♟ Last Menace"},
+{xp:1650000,label:"🪐 Planets Conqueror"},
+{xp:1600000,label:"👨‍🚀 Galaxy Traveller"},
+{xp:1500000,label:"🦉 Prophète"},
+{xp:1400000,label:"🌋 Hadès"},
+{xp:1350000,label:"⬜ Athèna"},
+{xp:1300000,label:"♦️ As de l'exp"},
+{xp:1250000,label:"🕶 Parrain de Mafia"},
+{xp:1200000,label:"💨 Tempête Apocalyptique"},
+{xp:1100000,label:"🤺 Combattant Unique"},
+{xp:1050000,label:"🚀 Destructeur Temporel"},
+{xp:1000000,label:"⬛ Légende de Snokido"},
+{xp:950000,label:"👾 Léviathan"},
+{xp:900000,label:"⌛ Maître du Temps"},
+{xp:850000,label:"🌚 Dirigeant du Mal"},
+{xp:800000,label:"👺 Lucifer"},
+{xp:750000,label:"🦇 Seigneur de l'exp"},
+{xp:700000,label:"🔱 Champion de l'exp"},
+{xp:666666,label:"👹 Satan"},
+{xp:600000,label:"🦕 Warrior Extrême"},
+{xp:575000,label:"🐯 Titan"},
+{xp:550000,label:"🐙 Kraken Mythologique"},
+{xp:500000,label:"🦖 Grand Colosse"},
+{xp:450000,label:"🏆 Maître de l'exp"},
+{xp:400000,label:"🐉 Empereur"},
+{xp:300000,label:"👽 Aventurier Tenace"},
+{xp:250000,label:"💸 Guerrier Suprême"},
+{xp:200000,label:"🛡 Samuraï Féroce"},
+{xp:150000,label:"🗺 Conquérant"},
+{xp:100000,label:"👿 Guerrier Ultime"},
+{xp:50000,label:"🚬 Gangster"},
+{xp:20000,label:"♠ Gangstar Confirmé"},
+{xp:10000,label:"🥈 Sergent"},
+{xp:0,label:"🥉 Recrue"}
 ];
 
-// ⚡ ATTRIBUTION DES RÔLES (À MODIFIER)
-const rolesByMember = {
-"Talk Takashi": "⬜ Ξ Athèna",
-"Ko0pa": "🦇 Ξ Seigneur de l'exp",
-"Alexis279": "👿 Ξ Guerrier Ultime",
-"Venom_": "🚬 Ξ Gangster",
+// 🔧 trouver rôle
+function getRole(xp){
+  for(let r of ROLES){
+    if(xp >= r.xp) return r.label;
+  }
+  return "🥉 Recrue";
+}
 
-"alex.c2109": "💎 Ξ Commandant",
-"TheGladiator": "🥇 Ξ Lieutenant",
-"Pingu": "🥈 Ξ Soldat",
-"Abelard": "🥉 Ξ Recrue"
-};
+// 🔧 format
+function fmt(n){
+  return new Intl.NumberFormat("fr-FR").format(n);
+}
 
-// 🔧 UTIL
+// slug
 function slugify(s){
   return s.normalize("NFD")
   .replace(/[\u0300-\u036f]/g,"")
@@ -160,37 +195,59 @@ window.addEventListener("DOMContentLoaded",()=>{
       members.push({
         nom:m.nom,
         avatar:m.avatar || "avatar/1.jpg",
-        role:rolesByMember[m.nom] || "🥉 Ξ Recrue"
+        xp:Number(m.xp||0),
+        gang:g.name,
+        gangImg:g.img
       });
     });
   });
 
-  // Grouper
+  // tri global par xp
+  members.sort((a,b)=>b.xp-a.xp);
+
+  // group
   const grouped = {};
-  ROLES.forEach(r=>grouped[r]=[]);
+  ROLES.forEach(r=>grouped[r.label]=[]);
 
   members.forEach(m=>{
-    grouped[m.role].push(m);
+    const role = getRole(m.xp);
+    grouped[role].push(m);
   });
 
-  // Affichage
   const container = document.getElementById("content");
 
-  container.innerHTML = ROLES.map(role=>{
+  container.innerHTML = ROLES.map(r=>{
 
-    if(grouped[role].length===0) return "";
+    const list = grouped[r.label];
+    if(!list.length) return "";
 
     return `
-      <div class="roleTitle">${role}</div>
+    <div class="roleSection">
+      <div class="roleTitle">${r.label}</div>
+
       <div class="membersGrid">
-        ${grouped[role].map(m=>`
+        ${list.map(m=>`
           <div class="memberCard">
-            <img src="${m.avatar}">
-            <div class="memberName">${m.nom}</div>
+
+            <img class="avatar" src="${m.avatar}">
+
+            <div class="memberInfo">
+              <div class="memberName">
+                ${m.nom}
+                <img class="gangLogo" src="${m.gangImg}">
+              </div>
+
+              <div class="memberXp">${fmt(m.xp)} XP</div>
+
+              <div class="memberRole">${getRole(m.xp)}</div>
+            </div>
+
           </div>
         `).join("")}
       </div>
+    </div>
     `;
+
   }).join("");
 
 });
