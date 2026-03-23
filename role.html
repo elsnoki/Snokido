@@ -200,7 +200,7 @@ async function init(){
 
       <div class="membersGrid">
         ${list.map(m=>`
-          <div class="memberCard">
+          <a href="profilrole.html?user=${encodeURIComponent(m.nom)}" class="memberCard">
 
             <img class="avatar" src="${m.avatar}">
 
