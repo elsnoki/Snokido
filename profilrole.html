@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Profil joueur</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0a1f2e;
+  color:#fff;
+}
+
+.container{
+  max-width:900px;
+  margin:40px auto;
+  padding:20px;
+}
+
+.card{
+  background:rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:20px;
+  backdrop-filter:blur(10px);
+}
+
+.header{
+  display:flex;
+  gap:20px;
+  align-items:center;
+}
+
+.avatar{
+  width:90px;
+  border-radius:16px;
+}
+
+.name{
+  font-size:24px;
+  font-weight:900;
+}
+
+.role{
+  margin-top:5px;
+  opacity:.8;
+}
+
+.gang{
+  margin-top:5px;
+}
+
+.success{
+  margin-top:30px;
+}
+
+.badge{
+  display:inline-block;
+  padding:6px 10px;
+  margin:4px;
+  border-radius:999px;
+  background:rgba(255,255,255,.1);
+}
+
+/* ✨ HOLO EFFECT */
+.holo{
+  background:linear-gradient(45deg,#00f,#0ff,#f0f,#ff0);
+  color:#000;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div id="profile"></div>
+</div>
+
+<script src="success.js"></script>
+<script src="gangdata.js"></script>
+
+<script>
+
+const params = new URLSearchParams(location.search);
+const user = params.get("user");
+
+function slugify(s){
+  return s.toLowerCase().replace(/[^a-z0-9]/g,"");
+}
+
+async function load(){
+
+  const res = await fetch("data/players_pages.json");
+  const players = await res.json();
+
+  const player = players.find(p =>
+    slugify(p.nom) === slugify(user)
+  );
+
+  const success = window.SUCCESS[slugify(user)] || [];
+
+  const profile = document.getElementById("profile");
+
+  profile.innerHTML = `
+  <div class="card">
+
+    <div class="header">
+      <img class="avatar" src="${player.avatar}">
+      <div>
+        <div class="name">${player.nom}</div>
+        <div>${player.xp} XP</div>
+        <div class="role">${getRole(player.xp)}</div>
+      </div>
+    </div>
+
+    <div class="success">
+      <h2>Succès</h2>
+
+      ${success.map(s=>`
+        <span class="badge ${isPrestige(s) ? "holo" : ""}">
+          ${s}
+        </span>
+      `).join("")}
+
+    </div>
+
+  </div>
+  `;
+}
+
+function isPrestige(s){
+  const p = [
+    "Roi Suprême",
+    "Imperator",
+    "Tempest Nocturne",
+    "Collectionneur d'Artefacts",
+    "Crystal Rank",
+    "Les Élus",
+    "Multi·Kara"
+  ];
+  return p.some(x=>s.includes(x));
+}
+
+load();
+</script>
+
+</body>
+</html>
