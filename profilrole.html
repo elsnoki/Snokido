@@ -2,147 +2,215 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Profil joueur</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Classement des gangs</title>
+<script src="gangdata.js" defer></script>
 
 <style>
 body{
   margin:0;
-  font-family:Arial;
-  background:#0a1f2e;
+  font-family:Arial, sans-serif;
+  background:radial-gradient(circle at top,#1a4d6b,#041e2d);
   color:#fff;
 }
 
-.container{
-  max-width:900px;
-  margin:40px auto;
-  padding:20px;
+.wrap{
+  max-width:1200px;
+  margin:30px auto;
+  padding:10px;
 }
 
-.card{
-  background:rgba(255,255,255,.08);
-  border-radius:20px;
-  padding:20px;
-  backdrop-filter:blur(10px);
+h1{
+  text-align:center;
+  margin-bottom:25px;
 }
 
-.header{
+/* SECTION */
+.roleSection{ margin-bottom:30px; }
+
+.roleTitle{
+  font-size:20px;
+  font-weight:900;
+  padding:10px;
+  border-radius:12px;
+  margin-bottom:12px;
+  background:linear-gradient(90deg,#ffd700,#ffae00);
+  color:#000;
+}
+
+/* GRID */
+.membersGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:10px;
+}
+
+/* CARD */
+.memberCard{
   display:flex;
-  gap:20px;
+  gap:8px;
   align-items:center;
+  padding:8px;
+  border-radius:12px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  backdrop-filter:blur(6px);
+  box-shadow:0 6px 15px rgba(0,0,0,.3);
+  text-decoration:none;
+  color:#fff;
+  transition:0.2s;
+}
+
+.memberCard:hover{
+  transform: translateY(-3px);
+  box-shadow:0 15px 25px rgba(0,0,0,.5);
 }
 
 .avatar{
-  width:90px;
-  border-radius:16px;
+  width:50px;
+  height:50px;
+  border-radius:12px;
 }
 
-.name{
-  font-size:24px;
+.memberInfo{ flex:1; }
+
+.memberName{
   font-weight:900;
+  font-size:14px;
 }
 
-.role{
-  margin-top:5px;
-  opacity:.8;
+.memberXp{
+  font-size:12px;
+  opacity:.85;
 }
 
-.gang{
-  margin-top:5px;
-}
-
-.success{
-  margin-top:30px;
-}
-
-.badge{
-  display:inline-block;
-  padding:6px 10px;
-  margin:4px;
+.memberRole{
+  margin-top:4px;
+  font-size:11px;
+  padding:3px 6px;
   border-radius:999px;
-  background:rgba(255,255,255,.1);
+  background:rgba(255,255,255,.15);
+  display:inline-block;
 }
 
-/* ✨ HOLO EFFECT */
-.holo{
-  background:linear-gradient(45deg,#00f,#0ff,#f0f,#ff0);
-  color:#000;
-  font-weight:bold;
+.gangLogo{
+  width:20px;
+  height:20px;
+  margin-left:6px;
+  border-radius:6px;
 }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-  <div id="profile"></div>
+<div class="wrap">
+  <h1>🔥 Classement des gangs</h1>
+  <div id="content">Chargement...</div>
 </div>
 
-<script src="success.js"></script>
-<script src="gangdata.js"></script>
-
 <script>
+// 🔥 ROLES
+const ROLES = [
+  {xp:1200000,label:"💨 Tempête Apocalyptique"},
+  {xp:1000000,label:"⬛ Légende de Snokido"},
+  {xp:800000,label:"👺 Lucifer"},
+  {xp:700000,label:"🔱 Champion de l'exp"},
+  {xp:600000,label:"🦕 Warrior Extrême"},
+  {xp:500000,label:"🦖 Grand Colosse"},
+  {xp:400000,label:"🐉 Empereur"},
+  {xp:300000,label:"👽 Aventurier Tenace"},
+  {xp:250000,label:"💸 Guerrier Suprême"},
+  {xp:200000,label:"🛡 Samuraï Féroce"},
+  {xp:150000,label:"🗺 Conquérant"},
+  {xp:100000,label:"👿 Guerrier Ultime"},
+  {xp:50000,label:"🚬 Gangster"},
+  {xp:20000,label:"♠ Gangstar Confirmé"},
+  {xp:10000,label:"🥈 Sergent"},
+  {xp:0,label:"🥉 Recrue"}
+];
 
-const params = new URLSearchParams(location.search);
-const user = params.get("user");
-
-function slugify(s){
-  return s.toLowerCase().replace(/[^a-z0-9]/g,"");
+function getRole(xp){
+  for(let r of ROLES){
+    if(xp >= r.xp) return r.label;
+  }
+  return "🥉 Recrue";
 }
 
-async function load(){
+function fmt(n){
+  return new Intl.NumberFormat("fr-FR").format(n);
+}
 
+function slugify(s){
+  return String(s||"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-zA-Z0-9]/g,"")
+    .toLowerCase();
+}
+
+async function init(){
+  // ⚡ charger joueurs
   const res = await fetch("data/players_pages.json");
   const players = await res.json();
 
-  const player = players.find(p =>
-    slugify(p.nom) === slugify(user)
-  );
+  // map pour accès rapide
+  const map = new Map();
+  players.forEach(p=> map.set(slugify(p.nom), p));
 
-  const success = window.SUCCESS[slugify(user)] || [];
+  // gangs autorisés
+  const allowed = ["athenagangster","lospollosgangsta","tribuesdrasso","40k","legend","admin"];
+  const gangs = window.gangsData.filter(g => allowed.includes(slugify(g.name)));
 
-  const profile = document.getElementById("profile");
+  let members = [];
 
-  profile.innerHTML = `
-  <div class="card">
+  gangs.forEach(g => {
+    g.members.forEach(m => {
+      const player = map.get(slugify(m.nom));
+      members.push({
+        nom:m.nom,
+        xp:player?.xp || 0,
+        avatar:player?.avatar || "avatar/1.jpg",
+        gangImg:g.img
+      });
+    });
+  });
 
-    <div class="header">
-      <img class="avatar" src="${player.avatar}">
-      <div>
-        <div class="name">${player.nom}</div>
-        <div>${player.xp} XP</div>
-        <div class="role">${getRole(player.xp)}</div>
+  // TRI par XP
+  members.sort((a,b)=>b.xp-a.xp);
+
+  // GROUP par rôle
+  const grouped = {};
+  ROLES.forEach(r=>grouped[r.label]=[]);
+  members.forEach(m=> grouped[getRole(m.xp)].push(m));
+
+  const container = document.getElementById("content");
+
+  container.innerHTML = ROLES.map(r=>{
+    const list = grouped[r.label];
+    if(!list.length) return "";
+    return `
+      <div class="roleSection">
+        <div class="roleTitle">${r.label}</div>
+        <div class="membersGrid">
+          ${list.map(m=>`
+            <a href="profilrole.html?user=${encodeURIComponent(m.nom)}" class="memberCard">
+              <img class="avatar" src="${m.avatar}">
+              <div class="memberInfo">
+                <div class="memberName">
+                  ${m.nom} <img class="gangLogo" src="${m.gangImg}">
+                </div>
+                <div class="memberXp">${fmt(m.xp)} XP</div>
+                <div class="memberRole">${getRole(m.xp)}</div>
+              </div>
+            </a>
+          `).join("")}
+        </div>
       </div>
-    </div>
-
-    <div class="success">
-      <h2>Succès</h2>
-
-      ${success.map(s=>`
-        <span class="badge ${isPrestige(s) ? "holo" : ""}">
-          ${s}
-        </span>
-      `).join("")}
-
-    </div>
-
-  </div>
-  `;
+    `;
+  }).join("");
 }
 
-function isPrestige(s){
-  const p = [
-    "Roi Suprême",
-    "Imperator",
-    "Tempest Nocturne",
-    "Collectionneur d'Artefacts",
-    "Crystal Rank",
-    "Les Élus",
-    "Multi·Kara"
-  ];
-  return p.some(x=>s.includes(x));
-}
-
-load();
+window.addEventListener("DOMContentLoaded", init);
 </script>
 
 </body>
