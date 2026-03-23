@@ -20,6 +20,7 @@ window.gangsData = [
       { nom: "redbot" },
       { nom: "Jordan.io" },
       { nom: "Houka" },
+      { nom: "Athèna" },
     ],
   },
 
@@ -44,6 +45,7 @@ window.gangsData = [
       { nom: "cirpacha" },
       { nom: "LargoJunior" },
       { nom: "Justice-" },
+      { nom: "blackout" },
     ],
   },
 
@@ -245,8 +247,6 @@ window.gangsData = [
       { nom: "UY-Scuty" },
       { nom: "Bételgeuse" },
       { nom: "Aldébaran" },
-      { nom: "blackout" },
-      { nom: "Athèna" },
       { nom: "acno" },
       { nom: "Napoléon.1er" },
       { nom: "venom2" },
