@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>Rôles des gangs</title>
+<title>Classement des gangs</title>
 
+<script src="data.js" defer></script>
 <script src="gangdata.js" defer></script>
 
 <style>
@@ -28,17 +29,15 @@ h1{
   margin-bottom:25px;
 }
 
-/* ROLE SECTION */
-.roleSection{
-  margin-bottom:25px;
-}
+/* SECTION */
+.roleSection{ margin-bottom:30px; }
 
 .roleTitle{
   font-size:20px;
   font-weight:900;
   padding:10px 14px;
   border-radius:12px;
-  margin-bottom:10px;
+  margin-bottom:12px;
   background:linear-gradient(90deg,#ffd700,#ffae00);
   color:#000;
 }
@@ -46,7 +45,7 @@ h1{
 /* GRID */
 .membersGrid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
   gap:14px;
 }
 
@@ -61,7 +60,6 @@ h1{
   align-items:center;
   backdrop-filter:blur(6px);
   box-shadow:0 10px 25px rgba(0,0,0,.4);
-  transition:.2s;
 }
 
 .memberCard:hover{
@@ -69,7 +67,7 @@ h1{
 }
 
 /* AVATAR */
-.memberCard img.avatar{
+.avatar{
   width:60px;
   height:60px;
   border-radius:12px;
@@ -77,18 +75,8 @@ h1{
   border:2px solid #fff;
 }
 
-/* GANG LOGO */
-.gangLogo{
-  width:24px;
-  height:24px;
-  border-radius:6px;
-  margin-left:6px;
-}
-
 /* INFO */
-.memberInfo{
-  flex:1;
-}
+.memberInfo{ flex:1; }
 
 .memberName{
   font-weight:900;
@@ -97,17 +85,24 @@ h1{
 
 .memberXp{
   font-size:13px;
-  opacity:.8;
-  margin-top:3px;
+  opacity:.85;
 }
 
 .memberRole{
+  margin-top:5px;
   font-size:12px;
-  margin-top:6px;
   padding:4px 8px;
   border-radius:999px;
-  display:inline-block;
   background:rgba(255,255,255,.15);
+  display:inline-block;
+}
+
+/* LOGO */
+.gangLogo{
+  width:22px;
+  height:22px;
+  margin-left:6px;
+  border-radius:6px;
 }
 </style>
 </head>
@@ -121,32 +116,21 @@ h1{
 
 <script>
 
-// 🔥 ROLES PAR XP (ORDRE DESC)
+// 🔥 ROLES (DESC)
 const ROLES = [
 {xp:1700000,label:"♟ Last Menace"},
-{xp:1650000,label:"🪐 Planets Conqueror"},
-{xp:1600000,label:"👨‍🚀 Galaxy Traveller"},
 {xp:1500000,label:"🦉 Prophète"},
 {xp:1400000,label:"🌋 Hadès"},
 {xp:1350000,label:"⬜ Athèna"},
 {xp:1300000,label:"♦️ As de l'exp"},
-{xp:1250000,label:"🕶 Parrain de Mafia"},
 {xp:1200000,label:"💨 Tempête Apocalyptique"},
 {xp:1100000,label:"🤺 Combattant Unique"},
-{xp:1050000,label:"🚀 Destructeur Temporel"},
 {xp:1000000,label:"⬛ Légende de Snokido"},
-{xp:950000,label:"👾 Léviathan"},
 {xp:900000,label:"⌛ Maître du Temps"},
-{xp:850000,label:"🌚 Dirigeant du Mal"},
 {xp:800000,label:"👺 Lucifer"},
-{xp:750000,label:"🦇 Seigneur de l'exp"},
 {xp:700000,label:"🔱 Champion de l'exp"},
-{xp:666666,label:"👹 Satan"},
 {xp:600000,label:"🦕 Warrior Extrême"},
-{xp:575000,label:"🐯 Titan"},
-{xp:550000,label:"🐙 Kraken Mythologique"},
 {xp:500000,label:"🦖 Grand Colosse"},
-{xp:450000,label:"🏆 Maître de l'exp"},
 {xp:400000,label:"🐉 Empereur"},
 {xp:300000,label:"👽 Aventurier Tenace"},
 {xp:250000,label:"💸 Guerrier Suprême"},
@@ -159,7 +143,21 @@ const ROLES = [
 {xp:0,label:"🥉 Recrue"}
 ];
 
-// 🔧 trouver rôle
+// 🔥 récupérer le meilleur xp depuis data.js
+function getBestXp(player){
+  if(!player || !player.modes) return 0;
+
+  let max = 0;
+
+  for(let mode in player.modes){
+    const xp = Number(player.modes[mode]?.xp || 0);
+    if(xp > max) max = xp;
+  }
+
+  return max;
+}
+
+// 🔥 trouver rôle
 function getRole(xp){
   for(let r of ROLES){
     if(xp >= r.xp) return r.label;
@@ -167,17 +165,17 @@ function getRole(xp){
   return "🥉 Recrue";
 }
 
-// 🔧 format
+// 🔧 utils
 function fmt(n){
   return new Intl.NumberFormat("fr-FR").format(n);
 }
 
-// slug
 function slugify(s){
-  return s.normalize("NFD")
-  .replace(/[\u0300-\u036f]/g,"")
-  .replace(/[^a-zA-Z0-9]/g,"")
-  .toLowerCase();
+  return String(s||"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-zA-Z0-9]/g,"")
+    .toLowerCase();
 }
 
 window.addEventListener("DOMContentLoaded",()=>{
@@ -188,21 +186,31 @@ window.addEventListener("DOMContentLoaded",()=>{
     allowed.includes(slugify(g.name))
   );
 
+  // map joueurs
+  const map = new Map();
+  (window.joueurs || []).forEach(j=>{
+    map.set(slugify(j.nom), j);
+  });
+
   let members = [];
 
   gangs.forEach(g=>{
     g.members.forEach(m=>{
+
+      const player = map.get(slugify(m.nom));
+      const xp = getBestXp(player);
+
       members.push({
         nom:m.nom,
-        avatar:m.avatar || "avatar/1.jpg",
-        xp:Number(m.xp||0),
-        gang:g.name,
+        avatar:player?.avatar || m.avatar || "avatar/1.jpg",
+        xp,
         gangImg:g.img
       });
+
     });
   });
 
-  // tri global par xp
+  // tri global
   members.sort((a,b)=>b.xp-a.xp);
 
   // group
@@ -238,7 +246,6 @@ window.addEventListener("DOMContentLoaded",()=>{
               </div>
 
               <div class="memberXp">${fmt(m.xp)} XP</div>
-
               <div class="memberRole">${getRole(m.xp)}</div>
             </div>
 
