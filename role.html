@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
 <title>Classement des gangs</title>
 
 <script src="gangdata.js" defer></script>
@@ -11,85 +10,101 @@
 <style>
 body{
   margin:0;
-  font-family:Arial;
-  background:radial-gradient(circle at top,#1a4d6b,#041e2d);
+  font-family:Arial, sans-serif;
+  background:linear-gradient(180deg,#0f2f44,#041e2d);
   color:#fff;
 }
 
 .wrap{
   max-width:1200px;
   margin:30px auto;
-  padding:10px;
+  padding:15px;
 }
 
 h1{
   text-align:center;
-  margin-bottom:25px;
+  margin-bottom:30px;
 }
 
 /* SECTION */
-.roleSection{ margin-bottom:30px; }
+.roleSection{
+  margin-bottom:40px;
+}
 
 .roleTitle{
   font-size:20px;
   font-weight:900;
-  padding:10px;
-  border-radius:12px;
-  margin-bottom:12px;
+  padding:10px 15px;
+  border-radius:10px;
+  margin-bottom:15px;
   background:linear-gradient(90deg,#ffd700,#ffae00);
   color:#000;
+  display:inline-block;
 }
 
-/* GRID */
+/* GRID PROPRE */
 .membersGrid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:14px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
 }
 
-/* CARD */
+/* CARD FIX */
 .memberCard{
+  width:260px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:10px;
+  border-radius:12px;
   background:rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.15);
-  border-radius:16px;
-  padding:12px;
-  display:flex;
-  gap:12px;
-  align-items:center;
   backdrop-filter:blur(6px);
-  box-shadow:0 10px 25px rgba(0,0,0,.4);
+  box-shadow:0 6px 15px rgba(0,0,0,.3);
+  text-decoration:none;
+  color:#fff;
+  transition:.2s;
+}
+
+.memberCard:hover{
+  transform:translateY(-4px);
+  box-shadow:0 15px 30px rgba(0,0,0,.6);
 }
 
 .avatar{
-  width:60px;
-  height:60px;
+  width:55px;
+  height:55px;
   border-radius:12px;
 }
 
-.memberInfo{ flex:1; }
+.memberInfo{
+  flex:1;
+}
 
 .memberName{
   font-weight:900;
+  font-size:15px;
 }
 
 .memberXp{
-  font-size:13px;
-  opacity:.85;
+  font-size:12px;
+  opacity:.8;
 }
 
 .memberRole{
-  margin-top:5px;
-  font-size:12px;
-  padding:4px 8px;
+  margin-top:4px;
+  font-size:11px;
+  padding:3px 6px;
   border-radius:999px;
   background:rgba(255,255,255,.15);
+  display:inline-block;
 }
 
 .gangLogo{
-  width:22px;
-  height:22px;
-  margin-left:6px;
-  border-radius:6px;
+  width:20px;
+  height:20px;
+  margin-left:5px;
+  border-radius:5px;
 }
 </style>
 </head>
@@ -103,7 +118,7 @@ h1{
 
 <script>
 
-// 🔥 ROLES DESC
+// ROLES
 const ROLES = [
 {xp:1200000,label:"💨 Tempête Apocalyptique"},
 {xp:1000000,label:"⬛ Légende de Snokido"},
@@ -147,32 +162,34 @@ async function init(){
   const res = await fetch("data/players_pages.json");
   const players = await res.json();
 
-  // map joueurs
   const map = new Map();
-  players.forEach(p=>{
-    map.set(slugify(p.nom), p);
+  players.forEach(p=> map.set(slugify(p.nom), p));
+
+  // 🔥 FIX IMPORTANT ICI
+  const gangs = window.gangsData.filter(g => {
+    const name = slugify(g.name);
+    return [
+      "athenagangster",
+      "lospollosgangsta",
+      "tribuesdrasso",
+      "40kgang",
+      "legend",
+      "admin"
+    ].includes(name);
   });
-
-  const allowed = ["athenagangster","lospollosgangsta"];
-
-  const gangs = window.gangsData.filter(g =>
-    allowed.includes(slugify(g.name))
-  );
 
   let members = [];
 
   gangs.forEach(g=>{
     g.members.forEach(m=>{
-
       const player = map.get(slugify(m.nom));
 
       members.push({
         nom:m.nom,
-        xp:player?.xp || 0,
-        avatar:player?.avatar || "avatar/1.jpg",
+        xp:player?.xp || m.xp || 0,
+        avatar:player?.avatar || m.avatar || "avatar/1.jpg",
         gangImg:g.img
       });
-
     });
   });
 
@@ -190,7 +207,6 @@ async function init(){
   const container = document.getElementById("content");
 
   container.innerHTML = ROLES.map(r=>{
-
     const list = grouped[r.label];
     if(!list.length) return "";
 
@@ -214,12 +230,11 @@ async function init(){
               <div class="memberRole">${getRole(m.xp)}</div>
             </div>
 
-          </div>
+          </a>
         `).join("")}
       </div>
     </div>
     `;
-
   }).join("");
 }
 
