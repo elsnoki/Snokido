@@ -2,128 +2,107 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Profil du joueur</title>
-<script src="gangdata.js" defer></script>
-<script src="success.js" defer></script>
+<title>Profil joueur</title>
 
 <style>
 body{
   margin:0;
-  font-family:Arial, sans-serif;
-  background:radial-gradient(circle at top,#1a4d6b,#041e2d);
+  font-family:Arial;
+  background:#0a1f2e;
   color:#fff;
 }
 
-.wrap{
-  max-width:600px;
-  margin:30px auto;
-  padding:10px;
+.container{
+  max-width:900px;
+  margin:40px auto;
+  padding:20px;
 }
 
-h1{
-  text-align:center;
-  margin-bottom:25px;
-}
-
-/* PROFIL */
-.memberCard{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
-  padding:16px;
-  border-radius:16px;
+.card{
   background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.15);
-  backdrop-filter:blur(6px);
-  box-shadow:0 6px 20px rgba(0,0,0,.4);
+  border-radius:20px;
+  padding:20px;
+  backdrop-filter:blur(10px);
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  gap:20px;
+  align-items:center;
 }
 
 .avatar{
-  width:100px;
-  height:100px;
+  width:90px;
   border-radius:16px;
 }
 
-.memberInfo{
-  text-align:center;
-}
-
-.memberName{
+.name{
+  font-size:26px;
   font-weight:900;
-  font-size:22px;
 }
 
-.memberXp{
-  font-size:14px;
-  margin-top:4px;
-  opacity:.85;
+.role{
+  margin-top:5px;
+  opacity:.8;
 }
 
-.memberRole{
-  margin-top:6px;
-  font-size:13px;
-  padding:4px 8px;
-  border-radius:999px;
-  background:rgba(255,255,255,.15);
-  display:inline-block;
+/* SUCCESS */
+.success{
+  margin-top:30px;
 }
 
-.memberGang{
-  margin-top:6px;
-  font-size:13px;
+.successGrid{
   display:flex;
-  align-items:center;
-  gap:6px;
-  justify-content:center;
+  flex-wrap:wrap;
+  gap:8px;
 }
 
-.gangLogo{
-  width:22px;
-  height:22px;
-  border-radius:6px;
+.badge{
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.1);
+  font-size:13px;
 }
 
-.successList{
-  margin-top:16px;
-}
-
-.successItem{
-  display:inline-block;
-  background:rgba(255,255,255,.15);
-  border-radius:8px;
-  padding:4px 8px;
-  margin:2px;
-  font-size:12px;
+/* HOLO */
+.holo{
+  background:linear-gradient(45deg,#00f,#0ff,#f0f,#ff0);
+  color:#000;
+  font-weight:bold;
 }
 </style>
 </head>
+
 <body>
 
-<div class="wrap">
-  <h1>🔥 Profil du joueur</h1>
-  <div id="content">Chargement...</div>
+<div class="container">
+  <div id="profile"></div>
 </div>
 
+<script src="success.js"></script>
+<script src="gangdata.js"></script>
+
 <script>
+
+// ROLES (copié pour cohérence)
 const ROLES = [
-  {xp:1200000,label:"💨 Tempête Apocalyptique"},
-  {xp:1000000,label:"⬛ Légende de Snokido"},
-  {xp:800000,label:"👺 Lucifer"},
-  {xp:700000,label:"🔱 Champion de l'exp"},
-  {xp:600000,label:"🦕 Warrior Extrême"},
-  {xp:500000,label:"🦖 Grand Colosse"},
-  {xp:400000,label:"🐉 Empereur"},
-  {xp:300000,label:"👽 Aventurier Tenace"},
-  {xp:250000,label:"💸 Guerrier Suprême"},
-  {xp:200000,label:"🛡 Samuraï Féroce"},
-  {xp:150000,label:"🗺 Conquérant"},
-  {xp:100000,label:"👿 Guerrier Ultime"},
-  {xp:50000,label:"🚬 Gangster"},
-  {xp:20000,label:"♠ Gangstar Confirmé"},
-  {xp:10000,label:"🥈 Sergent"},
-  {xp:0,label:"🥉 Recrue"}
+{xp:1200000,label:"💨 Tempête Apocalyptique"},
+{xp:1000000,label:"⬛ Légende de Snokido"},
+{xp:800000,label:"👺 Lucifer"},
+{xp:700000,label:"🔱 Champion de l'exp"},
+{xp:600000,label:"🦕 Warrior Extrême"},
+{xp:500000,label:"🦖 Grand Colosse"},
+{xp:400000,label:"🐉 Empereur"},
+{xp:300000,label:"👽 Aventurier Tenace"},
+{xp:250000,label:"💸 Guerrier Suprême"},
+{xp:200000,label:"🛡 Samuraï Féroce"},
+{xp:150000,label:"🗺 Conquérant"},
+{xp:100000,label:"👿 Guerrier Ultime"},
+{xp:50000,label:"🚬 Gangster"},
+{xp:20000,label:"♠ Gangstar Confirmé"},
+{xp:10000,label:"🥈 Sergent"},
+{xp:0,label:"🥉 Recrue"}
 ];
 
 function getRole(xp){
@@ -133,75 +112,93 @@ function getRole(xp){
   return "🥉 Recrue";
 }
 
-function fmt(n){
-  return new Intl.NumberFormat("fr-FR").format(n);
-}
-
 function slugify(s){
-  return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]/g,"").toLowerCase();
+  return String(s||"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-zA-Z0-9]/g,"")
+    .toLowerCase();
 }
 
-function getUserFromURL(){
-  const params = new URLSearchParams(window.location.search);
-  return params.get("user");
+// 🔥 succès prestigieux
+function isPrestige(s){
+  const p = [
+    "Roi Suprême",
+    "Imperator",
+    "Tempest Nocturne",
+    "Collectionneur d'Artefacts",
+    "Crystal Rank",
+    "Les Élus",
+    "Multi·Kara"
+  ];
+  return p.some(x=>s.includes(x));
 }
 
-// mapping des pseudos vers SUCCESS
-const successMap = {
-  "talk-takashi": "talk",
-  "alex-c2109": "alex",
-  "francoeur": "francoeur",
-  "thegladiator": "gladiator",
-  "abelard": "abelard"
-  // ➤ ajouter tous les autres joueurs ici
-};
+async function load(){
 
-async function initProfile(){
-  const userSlug = slugify(getUserFromURL());
-  const container = document.getElementById("content");
-  if(!userSlug){
-    container.innerHTML = "<p>Utilisateur non trouvé.</p>";
-    return;
-  }
+  const params = new URLSearchParams(location.search);
+  const user = params.get("user");
 
   const res = await fetch("data/players_pages.json");
   const players = await res.json();
-  const playerMap = new Map(players.map(p => [slugify(p.nom), p]));
-  const player = playerMap.get(userSlug);
 
-  const gang = window.gangsData.find(g =>
-    g.members.some(m => slugify(m.nom) === userSlug)
+  const player = players.find(p =>
+    slugify(p.nom) === slugify(user)
   );
 
-  if(!player && !gang){
-    container.innerHTML = "<p>Utilisateur non trouvé.</p>";
+  if(!player){
+    document.getElementById("profile").innerHTML = "Profil introuvable 😢";
     return;
   }
 
-  const xp = player?.xp || 0;
-  const avatar = player?.avatar || "avatar/1.jpg";
-  const gangImg = gang?.img || "";
-  const gangName = gang?.name || "";
-  const nom = player?.nom || userSlug;
+  // 🔥 récupérer succès
+  const success = window.SUCCESS[slugify(user)] || [];
 
-  const userKey = successMap[userSlug];
-  const userSuccess = window.SUCCESS?.[userKey] || [];
+  // 🔥 récupérer gang
+  let gangName = "Aucun";
+  let gangImg = "";
 
-  container.innerHTML = `
-    <div class="memberCard">
-      <img class="avatar" src="${avatar}">
-      <div class="memberInfo">
-        <div class="memberName">${nom}</div>
-        <div class="memberXp">${fmt(xp)} XP</div>
-        <div class="memberRole">${getRole(xp)}</div>
-        ${gangName ? `<div class="memberGang">Gang : ${gangName} ${gangImg ? `<img class="gangLogo" src="${gangImg}">` : ""}</div>` : ""}
-        ${userSuccess.length ? `<div class="successList">${userSuccess.map(s => `<span class="successItem">${s}</span>`).join("")}</div>` : ""}
+  window.gangsData.forEach(g=>{
+    g.members.forEach(m=>{
+      if(slugify(m.nom) === slugify(user)){
+        gangName = g.name;
+        gangImg = g.img;
+      }
+    });
+  });
+
+  document.getElementById("profile").innerHTML = `
+    <div class="card">
+
+      <div class="header">
+        <img class="avatar" src="${player.avatar}">
+        <div>
+          <div class="name">${player.nom}</div>
+          <div>${player.xp} XP</div>
+          <div class="role">${getRole(player.xp)}</div>
+          <div>${gangName} ${gangImg ? `<img src="${gangImg}" width="20">` : ""}</div>
+        </div>
       </div>
+
+      <div class="success">
+        <h2>🏆 Succès</h2>
+
+        <div class="successGrid">
+          ${success.length ? success.map(s=>`
+            <div class="badge ${isPrestige(s) ? "holo" : ""}">
+              ${s}
+            </div>
+          `).join("") : "Aucun succès"}
+        </div>
+
+      </div>
+
     </div>
   `;
 }
 
-window.addEventListener("DOMContentLoaded", initProfile);
+load();
+
 </script>
 
 </body>
