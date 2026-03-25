@@ -190,7 +190,7 @@ const joueurs = [
   {
     nom:"lumia", avatar:"avatar/10.jpg", gen:5, inscription:"01-01-2019",
     modes:{
-      nv100:{ jours:1226, atteint_le:"15-05-2022", rang:"19/23", xp:49500, pauses_total:{nb:3, mois:27, jours:821}, pauses_detail:[
+      nv100:{ jours:1226, atteint_le:"11-05-2022", rang:"19/23", xp:49500, pauses_total:{nb:3, mois:27, jours:821}, pauses_detail:[
         {xp:17360, periode:"08/2019 -> 11/2019", mois:3},
         {xp:17914, periode:"12/2019 -> 03/2020", mois:3},
         {xp:24554, periode:"06/2020 -> 03/2022", mois:21}
