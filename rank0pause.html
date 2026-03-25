@@ -105,6 +105,7 @@
     .col-days{ width:140px; }
     .col-date{ width:170px; }
     .col-arr{ width:170px; }
+    .col-games{ width:180px; }
   </style>
 </head>
 
@@ -125,6 +126,7 @@
           <th class="col-days">NV100 sans pause</th>
           <th class="col-date">Date d'inscription</th>
           <th class="col-arr">Date d'arrivée</th>
+          <th class="col-games">Jeux notés au niveau 100</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -149,6 +151,33 @@
     }
 
     const tbody = document.querySelector("#leaderboard tbody");
+    const jeuxNotes = {
+  "largo672": "~1800",
+  "djabrail": "~1700",
+  "josué455": "≈1920",
+  "abelard": "4",
+  "talktakashi": "1973",
+  "dude": "0",
+  "korben": "0",
+  "alexc2109": "2205",
+  "francoeur": "1",
+  "hoopa": "2266",
+  "alexis279": "",
+  "golder": "70",
+  "jordanio": "2261",
+  "unit": "4",
+  "esdras950": "2174",
+  "cirpacha": "~2348",
+  "thegladiator": "0",
+  "tellor": "2270",
+  "lumia": "969",
+  "redbot": "2",
+  "pingu": "0",
+  "ko0pa": "3696",
+  "houka": "0",
+  "justice": "24",
+  "blackout": "196"
+};
 
     // On prend la liste "joueurs" depuis data.js
     // Tri du plus rapide au plus lent (sans pause)
@@ -177,6 +206,7 @@
         <td class="center">${daysNoPause(j)} jours</td>
         <td class="center">${insc}</td>
         <td class="center">${arrivee}</td>
+        <td class="center">${jeuxNotes[slugify(j.nom)] ?? ""}</td>
       `;
       tbody.appendChild(tr);
     });
