@@ -260,7 +260,7 @@ const joueurs = [
   nom:"blackout", avatar:"avatar/30.jpg", gen:6, inscription:"16-05-2019",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      jours:2506, atteint_le:"26/03/2026", rang:"—", xp:40000,
       pauses_total:{ nb:2, mois:35, jours:1079 },
       pauses_detail:[
         { xp:1696, periode:"20/05/2019 -> 01/2022~", mois:31, jours:957 },
