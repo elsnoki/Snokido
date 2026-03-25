@@ -124,9 +124,9 @@
           <th></th>
           <th>Nom du joueur</th>
           <th class="col-days">NV100 sans pause</th>
+          <th class="col-games">Jeux notés au niveau 100</th>
           <th class="col-date">Date d'inscription</th>
           <th class="col-arr">Date d'arrivée</th>
-          <th class="col-games">Jeux notés au niveau 100</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -204,9 +204,10 @@
         </td>
         <td class="name"><span>${j.nom}</span></td>
         <td class="center">${daysNoPause(j)} jours</td>
+        <td class="center">${jeuxNotes[slugify(j.nom)] ?? ""}</td>
         <td class="center">${insc}</td>
         <td class="center">${arrivee}</td>
-        <td class="center">${jeuxNotes[slugify(j.nom)] ?? ""}</td>
+        
       `;
       tbody.appendChild(tr);
     });
