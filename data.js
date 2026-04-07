@@ -445,6 +445,19 @@ const joueurs = [
     }
   }
 },
+  {
+  nom:"venom2", avatar:"avatar/34.jpg", gen:null, inscription:"07-08-2025",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:14124,
+      pauses_total:{ nb:2, mois:1, jours:35 },
+      pauses_detail:[
+        { xp:14072, periode:"~13/01/2026 -> 03/02/2026", mois:0, jours:21 },
+        { xp:14124, periode:"02/2026 -> ~16/02/2026", mois:0, jours:14 }
+      ]
+    }
+  }
+},
 ];
 
 
