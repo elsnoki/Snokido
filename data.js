@@ -174,7 +174,7 @@ const joueurs = [
     "900k": { jours:227, atteint_le:"10-11-2021", rang:"—", xp:900000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
     "1m":   { jours:251, atteint_le:"19-07-2022", rang:"—", xp:1000000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
     "1m1":  { jours:419, atteint_le:"11-09-2023", rang:"—", xp:1100000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
-    "1m2":  { jours:680, atteint_le:"22-07-2025", rang:"—", xp:1200000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
+    "1m2":  { jours:680, atteint_le:"22-07-2025", rang:"—", xp:1200000, pauses_total:{nb:1, mois:2, jours:61}, pauses_detail:[ {xp:1225000, periode:"01/02/2026 -> 02/04/2026", mois:2, jours:61}] }
   }
 },
   {
