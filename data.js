@@ -102,7 +102,7 @@ const joueurs = [
       nv100:{ jours:636, atteint_le:"09-04-2020", rang:"11/23", xp:49500, pauses_total:{nb:1, mois:5, jours:153}, pauses_detail:[
         {xp:35120, periode:"07/2019 -> 12/2019", mois:5, jours:153},
       ]},
-        "100k":{jours:null, atteint_le:"—", rang:"—", xp:100000, pauses_total:{nb:1, mois:57, jours:1754}, pauses_detail:[
+        "100k":{jours:2199, atteint_le:"17/04/2026", rang:"—", xp:100000, pauses_total:{nb:1, mois:57, jours:1754}, pauses_detail:[
         {xp:60000, periode:"05/2021 -> 18/02/2026", mois:57, jours:1754}
       ]}
     }
