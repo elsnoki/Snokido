@@ -381,7 +381,7 @@ const joueurs = [
   nom:"Napoléon.1er", avatar:"avatar/40.jpg", gen:6, inscription:"14-07-2024",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:12776,
+      jours:650, atteint_le:"18-04-2026", rang:"—", xp:12776,
       pauses_total:{ nb:2, mois:6, jours:213 },
       pauses_detail:[
         { xp:12560, periode:"06/2025 -> 10/2025", mois:4, jours:122 },
