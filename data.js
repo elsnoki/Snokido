@@ -250,7 +250,7 @@ const joueurs = [
   nom:"UY-Scuty", avatar:"avatar/27.jpg", gen:6, inscription:"03-06-2022",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      jours:1416, atteint_le:"19-04-2026", rang:"—", xp:40000,
       pauses_total:{ nb:1, mois:44, jours:1341 },
       pauses_detail:[
         { xp:40000, periode:"06/08/2022 -> 09/04/2026", mois:44, jours:1341 }
