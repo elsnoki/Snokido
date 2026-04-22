@@ -262,7 +262,7 @@ const joueurs = [
   nom:"blackout", avatar:"avatar/30.jpg", gen:6, inscription:"16-05-2019",
   modes:{
     nv100:{
-      jours:2506, atteint_le:"26/03/2026", rang:"—", xp:40000,
+      jours:2506, atteint_le:"26-03-2026", rang:"—", xp:40000,
       pauses_total:{ nb:3, mois:75, jours:2301 },
       pauses_detail:[
         { xp:1696, periode:"20/05/2019 -> 01/2022~", mois:31, jours:957 },
@@ -330,7 +330,7 @@ const joueurs = [
   nom:"Bételgeuse", avatar:"avatar/28.jpg", gen:6, inscription:"07-06-2020",
   modes:{
     nv100:{
-      jours:2145, atteint_le:"22/04/2026", rang:"—", xp:40000,
+      jours:2145, atteint_le:"22-04-2026", rang:"—", xp:40000,
       pauses_total:{ nb:2, mois:64, jours:1955 },
       pauses_detail:[
         { xp:8100, periode:"09/2020 -> 08/2022", mois:23, jours:699 },
@@ -343,7 +343,7 @@ const joueurs = [
   nom:"Aldébaran", avatar:"avatar/29.jpg", gen:6, inscription:"07-06-2020",
   modes:{
     nv100:{
-      jours:2145, atteint_le:"22/04/2026", rang:"—", xp:40000,
+      jours:2145, atteint_le:"22-04-2026", rang:"—", xp:40000,
       pauses_total:{ nb:2, mois:64, jours:1955 },
       pauses_detail:[
         { xp:8100, periode:"09/2020 -> 08/2022", mois:23, jours:699 },
