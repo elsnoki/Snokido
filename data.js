@@ -330,7 +330,7 @@ const joueurs = [
   nom:"Bételgeuse", avatar:"avatar/28.jpg", gen:6, inscription:"07-06-2020",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      jours:2145, atteint_le:"22/04/2026", rang:"—", xp:40000,
       pauses_total:{ nb:2, mois:64, jours:1955 },
       pauses_detail:[
         { xp:8100, periode:"09/2020 -> 08/2022", mois:23, jours:699 },
@@ -343,7 +343,7 @@ const joueurs = [
   nom:"Aldébaran", avatar:"avatar/29.jpg", gen:6, inscription:"07-06-2020",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      jours:2145, atteint_le:"22/04/2026", rang:"—", xp:40000,
       pauses_total:{ nb:2, mois:64, jours:1955 },
       pauses_detail:[
         { xp:8100, periode:"09/2020 -> 08/2022", mois:23, jours:699 },
