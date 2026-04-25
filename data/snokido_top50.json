@@ -4,22 +4,22 @@
     "nom": "Talk Takashi",
     "slug": "talktakashi",
     "niveau": 100,
-    "xp": 1239470,
+    "xp": 1240034,
     "inscription": "13-04-2014",
     "avatar": "https://www.snokido.fr/images/snoki/medium/14.jpg",
     "profileHref": "https://www.snokido.fr/player/talktakashi",
-    "karas": 1457560
+    "karas": 1458124
   },
   {
     "rank": 2,
     "nom": "alex.c2109",
     "slug": "alexc2109",
     "niveau": 100,
-    "xp": 870164,
+    "xp": 870436,
     "inscription": "24-06-2017",
     "avatar": "https://www.snokido.fr/images/snoki/medium/53.jpg",
     "profileHref": "https://www.snokido.fr/player/alexc2109",
-    "karas": 1182853
+    "karas": 1183125
   },
   {
     "rank": 3,
@@ -81,14 +81,25 @@
     "nom": "lumia",
     "slug": "lumia",
     "niveau": 100,
-    "xp": 165190,
+    "xp": 165758,
     "inscription": "01-01-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
     "profileHref": "https://www.snokido.fr/player/lumia",
-    "karas": 497539
+    "karas": 498107
   },
   {
     "rank": 9,
+    "nom": "Ko0pa",
+    "slug": "ko0pa",
+    "niveau": 100,
+    "xp": 159688,
+    "inscription": "24-01-2026",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/101.jpg",
+    "profileHref": "https://www.snokido.fr/player/ko0pa",
+    "karas": 484117
+  },
+  {
+    "rank": 10,
     "nom": "josué455",
     "slug": "josue455",
     "niveau": 100,
@@ -97,17 +108,6 @@
     "avatar": "https://www.snokido.fr/images/snoki/medium/161.jpg",
     "profileHref": "https://www.snokido.fr/player/josue455",
     "karas": 442910
-  },
-  {
-    "rank": 10,
-    "nom": "Ko0pa",
-    "slug": "ko0pa",
-    "niveau": 100,
-    "xp": 158932,
-    "inscription": "24-01-2026",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/101.jpg",
-    "profileHref": "https://www.snokido.fr/player/ko0pa",
-    "karas": 483361
   },
   {
     "rank": 11,
@@ -125,11 +125,11 @@
     "nom": "Unit",
     "slug": "unit",
     "niveau": 100,
-    "xp": 107024,
+    "xp": 107596,
     "inscription": "13-07-2018",
     "avatar": "https://www.snokido.fr/images/snoki/medium/133.jpg",
     "profileHref": "https://www.snokido.fr/player/unit",
-    "karas": 432577
+    "karas": 433145
   },
   {
     "rank": 13,
@@ -158,22 +158,22 @@
     "nom": "Justice-",
     "slug": "justice",
     "niveau": 100,
-    "xp": 75204,
+    "xp": 75752,
     "inscription": "29-02-2024",
     "avatar": "https://www.snokido.fr/images/snoki/medium/41.jpg",
     "profileHref": "https://www.snokido.fr/player/justice-2",
-    "karas": 413453
+    "karas": 414001
   },
   {
     "rank": 16,
     "nom": "Houka",
     "slug": "houka",
     "niveau": 100,
-    "xp": 74888,
+    "xp": 75460,
     "inscription": "18-11-2023",
     "avatar": "https://www.snokido.fr/images/snoki/medium/73.jpg",
     "profileHref": "https://www.snokido.fr/player/houka",
-    "karas": 413137
+    "karas": 413709
   },
   {
     "rank": 17,
@@ -235,44 +235,44 @@
     "nom": "Napoléon.1er",
     "slug": "napoleon1er",
     "niveau": 100,
-    "xp": 54790,
+    "xp": 55346,
     "inscription": "14-07-2024",
     "avatar": "https://www.snokido.fr/images/snoki/medium/152.jpg",
     "profileHref": "https://www.snokido.fr/player/napoleon1er",
-    "karas": 391139
+    "karas": 391695
   },
   {
     "rank": 23,
     "nom": "UY-Scuty",
     "slug": "uyscuty",
     "niveau": 100,
-    "xp": 53678,
+    "xp": 54250,
     "inscription": "03-06-2022",
     "avatar": "https://www.snokido.fr/images/snoki/medium/151.jpg",
     "profileHref": "https://www.snokido.fr/player/uyscuty",
-    "karas": 390027
+    "karas": 390599
   },
   {
     "rank": 24,
     "nom": "Bételgeuse",
     "slug": "betelgeuse",
     "niveau": 100,
-    "xp": 51068,
+    "xp": 51328,
     "inscription": "07-06-2020",
     "avatar": "https://www.snokido.fr/images/snoki/medium/5.jpg",
     "profileHref": "https://www.snokido.fr/player/betelgeuse",
-    "karas": 389417
+    "karas": 389677
   },
   {
     "rank": 25,
     "nom": "Aldébaran",
     "slug": "aldebaran",
     "niveau": 100,
-    "xp": 51068,
+    "xp": 51328,
     "inscription": "07-06-2020",
     "avatar": "https://www.snokido.fr/images/snoki/medium/4.jpg",
     "profileHref": "https://www.snokido.fr/player/aldebaran",
-    "karas": 389417
+    "karas": 389677
   },
   {
     "rank": 26,
@@ -397,6 +397,17 @@
   },
   {
     "rank": 37,
+    "nom": "Elena21",
+    "slug": "elena21",
+    "niveau": 85,
+    "xp": 36398,
+    "inscription": "31-03-2019",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/132.jpg",
+    "profileHref": "https://www.snokido.fr/player/elena21",
+    "karas": 242632
+  },
+  {
+    "rank": 38,
     "nom": "chris05",
     "slug": "chris05",
     "niveau": 85,
@@ -407,26 +418,15 @@
     "karas": 216546
   },
   {
-    "rank": 38,
-    "nom": "Elena21",
-    "slug": "elena21",
-    "niveau": 85,
-    "xp": 36138,
-    "inscription": "31-03-2019",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/132.jpg",
-    "profileHref": "https://www.snokido.fr/player/elena21",
-    "karas": 242372
-  },
-  {
     "rank": 39,
     "nom": "Shadow321",
     "slug": "shadow321",
     "niveau": 81,
-    "xp": 32528,
+    "xp": 32784,
     "inscription": "24-03-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/113.jpg",
     "profileHref": "https://www.snokido.fr/player/shadow321",
-    "karas": 208968
+    "karas": 209224
   },
   {
     "rank": 40,
@@ -455,11 +455,11 @@
     "nom": "Gangster2019",
     "slug": "gangster2019",
     "niveau": 79,
-    "xp": 31068,
+    "xp": 31328,
     "inscription": "24-03-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/150.jpg",
     "profileHref": "https://www.snokido.fr/player/gangster2019",
-    "karas": 196547
+    "karas": 196807
   },
   {
     "rank": 43,
@@ -476,12 +476,12 @@
     "rank": 44,
     "nom": "venom2",
     "slug": "venom2",
-    "niveau": 76,
-    "xp": 29038,
+    "niveau": 77,
+    "xp": 29376,
     "inscription": "07-08-2025",
     "avatar": "https://www.snokido.fr/images/snoki/medium/103.jpg",
     "profileHref": "https://www.snokido.fr/player/venom2",
-    "karas": 176263
+    "karas": 182530
   },
   {
     "rank": 45,
@@ -543,10 +543,10 @@
     "nom": "E1V2R3",
     "slug": "e1v2r3",
     "niveau": 73,
-    "xp": 26452,
+    "xp": 26464,
     "inscription": "15-06-2021",
     "avatar": "https://www.snokido.fr/images/snoki/medium/130.jpg",
     "profileHref": "https://www.snokido.fr/player/e1v2r3",
-    "karas": 156800
+    "karas": 156812
   }
 ]
