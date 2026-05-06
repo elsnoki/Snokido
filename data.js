@@ -353,7 +353,7 @@ const joueurs = [
   }
 },
 {
-  nom:"Venom_", avatar:"avatar/21.jpg", gen:7, inscription:"09-05-2021",
+  nom:"Venom_", avatar:"avatar/21.jpg", gen:6, inscription:"09-05-2021",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:48108,
