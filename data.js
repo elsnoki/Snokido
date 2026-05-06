@@ -356,7 +356,7 @@ const joueurs = [
   nom:"Venom_", avatar:"avatar/21.jpg", gen:6, inscription:"09-05-2021",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:48108,
+      jours:1824, atteint_le:"07-05-2026", rang:"—", xp:48108,
       pauses_total:{ nb:1, mois:55, jours:1696 },
       pauses_detail:[
         { xp:48108, periode:"13/09/2021 -> 06/09/2026", mois:55, jours:1696 }
