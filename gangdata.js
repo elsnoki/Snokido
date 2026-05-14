@@ -21,6 +21,8 @@ window.gangsData = [
       { nom: "Jordan.io" },
       { nom: "Houka" },
       { nom: "Athèna" },
+      { nom: "acno" },
+      { nom: "Shadow321" }
     ],
   },
 
@@ -46,6 +48,9 @@ window.gangsData = [
       { nom: "LargoJunior" },
       { nom: "Justice-" },
       { nom: "blackout" },
+      { nom: "Napoléon.1er" },
+      { nom: "Gangster2019" },
+      { nom: "Elena21" }
     ],
   },
 
@@ -247,14 +252,9 @@ window.gangsData = [
       { nom: "UY-Scuty" },
       { nom: "Bételgeuse" },
       { nom: "Aldébaran" },
-      { nom: "acno" },
-      { nom: "Napoléon.1er" },
       { nom: "venom2" },
       { nom: "Clovis1er" },
-      { nom: "Polyy" },
-      { nom: "Gangster2019" },
-      { nom: "Elena21" },
-      { nom: "Shadow321" }
+      { nom: "Polyy" }
     ],
   },
 ];
