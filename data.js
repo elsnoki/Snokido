@@ -391,10 +391,10 @@ const joueurs = [
   }
 },
 {
-  nom:"Elena21", avatar:"avatar/41.jpg", gen:7, inscription:"31-03-2019",
+  nom:"Elena21", avatar:"avatar/41.jpg", gen:6, inscription:"31-03-2019",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:200,
+      jours:2610, atteint_le:"23-05-2026", rang:"—", xp:200,
       pauses_total:{ nb:1, mois:81, jours:2468 },
       pauses_detail:[
         { xp:200, periode:"05/2019 -> 02/2026", mois:81, jours:2468 }
