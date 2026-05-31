@@ -416,10 +416,10 @@ const joueurs = [
   }
 },
 {
-  nom:"Shadow321", avatar:"avatar/42.jpg", gen:7, inscription:"24-03-2019",
+  nom:"Shadow321", avatar:"avatar/42.jpg", gen:6, inscription:"24-03-2019",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:1134,
+      jours:2625, atteint_le:"31-05-2026", rang:"—", xp:1134,
       pauses_total:{ nb:1, mois:81, jours:2471 },
       pauses_detail:[
         { xp:1134, periode:"06/2019 -> 07/03/2026", mois:81, jours:2471 }
