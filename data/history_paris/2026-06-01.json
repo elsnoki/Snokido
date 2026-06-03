@@ -25021,6 +25021,26 @@
       "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
       "profileHref": "https://www.snokido.fr/player/snokido-2",
       "karas": 406744
+    },
+    {
+      "nom": "Antarès",
+      "slug": "antares",
+      "xp": 0,
+      "niveau": null,
+      "inscription": "08-06-2026",
+      "avatar": "https://www.snokido.fr/images/snoki/123.jpg",
+      "profileHref": "https://www.snokido.fr/player/antares",
+      "karas": 0
+    },
+    {
+      "nom": "Zeta-Puppis",
+      "slug": "zetapuppis",
+      "xp": 0,
+      "niveau": null,
+      "inscription": "02-06-2026",
+      "avatar": "https://www.snokido.fr/images/snoki/102.jpg",
+      "profileHref": "https://www.snokido.fr/player/zetapuppis",
+      "karas": 0
     }
   ]
 }
