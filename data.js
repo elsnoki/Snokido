@@ -403,10 +403,10 @@ const joueurs = [
   }
 },
 {
-  nom:"Gangster2019", avatar:"avatar/44.jpg", gen:7, inscription:"24-03-2019",
+  nom:"Gangster2019", avatar:"avatar/44.jpg", gen:6, inscription:"24-03-2019",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:1940,
+      jours:2627, atteint_le:"02-06-2026", rang:"—", xp:1940,
       pauses_total:{ nb:2, mois:80, jours:2435 },
       pauses_detail:[
         { xp:1512, periode:"06/2019 -> 06/2020", mois:12, jours:366 },
