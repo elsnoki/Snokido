@@ -249,7 +249,6 @@ window.FRISE = [
       { t: "LargoJunior vs Polyy (mini duel)", p: 2 },
       { t: "Ko0pa atteint le niveau 100", p: 5 },
 
-      // AJOUTS demandés
       { t: "TheGladiator atteint 400K", p: 5 },
       { t: "Ko0pa et Unit atteignent 100K", p: 10 },
       { t: "Duel Unit vs Ko0pa", p: 2 },
@@ -257,6 +256,7 @@ window.FRISE = [
       { t: "Ko0pa atteint 100K", p: 5 },
       { t: "Houka, Justice-, LargoJunior & Blackout atteignent le niveau 100", p: 20 },
       { t: "Aldébaran, Bételgeuse, UY-Scuty atteignent le niveau 100", p: 15 },
+      { t: "Inscription de PaulaHub", p: 5 }
     ],
   },
 ];
