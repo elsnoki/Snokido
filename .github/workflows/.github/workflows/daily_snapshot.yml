@@ -1,17 +1,21 @@
-name: Daily Snokido Snapshot (23h59 Paris)
+name: Daily Snokido Snapshot (auto)
 
 on:
   workflow_dispatch:
 
   schedule:
-    # Heure d'hiver (UTC+1)
-    - cron: "59 22 * 1,2,11,12 *"
+    # Tous les jours à 22h01 UTC
+    - cron: "1 22 * * *"
 
-    # Heure d'été (UTC+2)
-    - cron: "59 21 * 3-10 *"
+    # Tous les jours à 23h01 UTC
+    - cron: "1 23 * * *"
 
 permissions:
   contents: write
+
+concurrency:
+  group: daily-snapshot
+  cancel-in-progress: false
 
 jobs:
   scrape:
@@ -21,18 +25,47 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Verify Paris date and existing snapshot
+        id: snapshot_check
+        run: |
+          TODAY_PARIS=$(TZ=Europe/Paris date +%F)
+          HOUR_PARIS=$(TZ=Europe/Paris date +%H)
+
+          echo "Paris date: $TODAY_PARIS"
+          echo "Paris hour: $HOUR_PARIS"
+
+          # Sécurité absolue :
+          # on refuse tout lancement avant minuit heure de Paris
+          if [ "$HOUR_PARIS" != "00" ]; then
+            echo "run_scraper=false" >> $GITHUB_OUTPUT
+            echo "Not after midnight Paris time."
+            exit 0
+          fi
+
+          if [ -f "data/history_paris/$TODAY_PARIS.json" ]; then
+            echo "run_scraper=false" >> $GITHUB_OUTPUT
+            echo "Snapshot already exists."
+          else
+            echo "run_scraper=true" >> $GITHUB_OUTPUT
+            echo "Snapshot missing."
+          fi
+
       - name: Setup Node
+        if: steps.snapshot_check.outputs.run_scraper == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install cheerio
+        if: steps.snapshot_check.outputs.run_scraper == 'true'
         run: npm install cheerio
 
       - name: Run scraper
+        if: steps.snapshot_check.outputs.run_scraper == 'true'
         run: node scripts/scrape_snokido_top50.mjs
 
       - name: Commit changes
+        if: steps.snapshot_check.outputs.run_scraper == 'true'
         run: |
           git config user.name "snokiki-bot"
           git config user.email "snokiki-bot@users.noreply.github.com"
@@ -46,5 +79,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Daily snapshot (23h59 Paris)"
+          git commit -m "Daily snapshot (auto)"
           git push
