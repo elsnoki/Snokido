@@ -466,9 +466,9 @@ const joueurs = [
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:260,
-      pauses_total:{ nb:1, mois:4, jours:0 },
+      pauses_total:{ nb:1, mois:4, jours:122 },
       pauses_detail:[
-        { xp:260, periode:"02/2026 -> 06/2026", mois:4, jours:0 }
+        { xp:260, periode:"02/2026 -> 06/2026", mois:4, jours:122 }
       ]
     }
   }
@@ -478,10 +478,10 @@ const joueurs = [
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:40,
-      pauses_total:{ nb:2, mois:18, jours:13 },
+      pauses_total:{ nb:2, mois:18, jours:562 },
       pauses_detail:[
-        { xp:8, periode:"16/11/2024 -> 03/2026", mois:15, jours:13 },
-        { xp:40, periode:"03/2026 -> 06/2026", mois:3, jours:0 }
+        { xp:8, periode:"16/11/2024 -> 03/2026", mois:15, jours:470 },
+        { xp:40, periode:"03/2026 -> 06/2026", mois:3, jours:92 }
       ]
     }
   }
