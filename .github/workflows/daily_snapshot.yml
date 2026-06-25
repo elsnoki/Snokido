@@ -4,11 +4,17 @@ on:
   workflow_dispatch:
 
   schedule:
-    # Tous les jours à 22h01 UTC
-    - cron: "1 22 * * *"
+    # 23h30 Paris hiver (UTC+1)
+    - cron: "30 22 * 1,2,11,12 *"
 
-    # Tous les jours à 23h01 UTC
-    - cron: "1 23 * * *"
+    # 23h30 Paris été (UTC+2)
+    - cron: "30 21 * 3-10 *"
+
+    # 00h01 Paris hiver (UTC+1)
+    - cron: "1 23 * 1,2,11,12 *"
+
+    # 00h01 Paris été (UTC+2)
+    - cron: "1 22 * 3-10 *"
 
 permissions:
   contents: write
@@ -25,22 +31,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify Paris date and existing snapshot
+      - name: Verify snapshot
         id: snapshot_check
         run: |
           TODAY_PARIS=$(TZ=Europe/Paris date +%F)
-          HOUR_PARIS=$(TZ=Europe/Paris date +%H)
 
           echo "Paris date: $TODAY_PARIS"
-          echo "Paris hour: $HOUR_PARIS"
-
-          # Sécurité absolue :
-          # on refuse tout lancement avant minuit heure de Paris
-          if [ "$HOUR_PARIS" != "00" ]; then
-            echo "run_scraper=false" >> $GITHUB_OUTPUT
-            echo "Not after midnight Paris time."
-            exit 0
-          fi
 
           if [ -f "data/history_paris/$TODAY_PARIS.json" ]; then
             echo "run_scraper=false" >> $GITHUB_OUTPUT
