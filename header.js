@@ -125,3 +125,17 @@ document.addEventListener("click", () => closeAll());
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeAll();
 });
+
+// ================= SOUS-MENU PAUSES (FIX) =================
+
+const pauseBtn = document.getElementById("pauseBtn");
+const pauseWrap = document.querySelector(".pauseWrap");
+
+if (pauseBtn && pauseWrap) {
+  pauseBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    pauseWrap.classList.toggle("is-open");
+  });
+}
