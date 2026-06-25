@@ -11,13 +11,12 @@
 
 <style>
 
-/* ===== PAGE ONLY (créateur) ===== */
+/* ===== PAGE ===== */
 
 body{
     background:#eef4ff;
 }
 
-/* espace sous la navbar */
 .createur-page{
     margin-top: 100px;
     padding: 30px;
@@ -39,7 +38,7 @@ h1{
     flex-wrap:wrap;
 }
 
-/* zone avatar */
+/* zone perso */
 .snoki-zone{
     background:white;
     padding:20px;
@@ -47,13 +46,14 @@ h1{
     box-shadow:0 0 15px rgba(0,0,0,0.1);
 }
 
+/* avatar */
 #snoki{
     position:relative;
     width:400px;
     height:400px;
 }
 
-#snoki img{
+.layer{
     position:absolute;
     top:0;
     left:0;
@@ -62,7 +62,7 @@ h1{
     object-fit:contain;
 }
 
-/* panneau options */
+/* options */
 .options{
     background:white;
     padding:20px;
@@ -81,7 +81,6 @@ h1{
     font-weight:900;
 }
 
-/* boutons harmonisés avec ton site */
 button{
     margin:4px;
     padding:10px 15px;
@@ -91,7 +90,6 @@ button{
     color:white;
     cursor:pointer;
     font-weight:900;
-    transition:0.2s;
 }
 
 button:hover{
@@ -103,66 +101,101 @@ button:hover{
 
 <body>
 
-<!-- HEADER injecté automatiquement -->
+<!-- HEADER injecté -->
 
 <div class="createur-page">
 
-    <h1>Créateur de Snoki</h1>
+<h1>Créateur de Snoki</h1>
 
-    <div class="container">
+<div class="container">
 
-        <div class="snoki-zone">
-            <div id="snoki">
+    <!-- AVATAR -->
+    <div class="snoki-zone">
+        <div id="snoki">
 
-                <img src="avatar/createur/base.png" alt="Base Snoki">
+            <!-- base -->
+            <img src="avatar/base.png" class="layer" style="z-index:1">
 
-                <img id="yeux" src="avatar/createur/yeux1.png" alt="Yeux">
-                <img id="bouche" src="avatar/createur/bouche1.png" alt="Bouche">
-                <img id="gadget" src="avatar/createur/gadget1.png" alt="Gadget">
+            <!-- corps -->
+            <img id="body" class="layer" src="avatar/body/body1.png" style="z-index:2">
 
-            </div>
+            <!-- tête -->
+            <img id="head" class="layer" src="avatar/head/head1.png" style="z-index:3">
+
+            <!-- yeux -->
+            <img id="eyeL" class="layer" src="avatar/eyes/eyeL1.png" style="z-index:4">
+            <img id="eyeR" class="layer" src="avatar/eyes/eyeR1.png" style="z-index:4">
+
+            <!-- bouche -->
+            <img id="mouth" class="layer" src="avatar/mouth/mouth1.png" style="z-index:5">
+
+            <!-- bras -->
+            <img id="armL" class="layer" src="avatar/arms/armL1.png" style="z-index:6">
+            <img id="armR" class="layer" src="avatar/arms/armR1.png" style="z-index:6">
+
+            <!-- mains / objets -->
+            <img id="handL" class="layer" src="avatar/hands/handL1.png" style="z-index:7">
+            <img id="handR" class="layer" src="avatar/hands/handR1.png" style="z-index:7">
+
+            <!-- accessoires -->
+            <img id="hat" class="layer" src="avatar/accessories/hat1.png" style="z-index:8">
+            <img id="glasses" class="layer" src="avatar/accessories/glasses1.png" style="z-index:9">
+            <img id="band" class="layer" src="avatar/accessories/band1.png" style="z-index:10">
+
+        </div>
+    </div>
+
+    <!-- OPTIONS -->
+    <div class="options">
+
+        <div class="section">
+            <h2>👁 Yeux gauche</h2>
+            <button onclick="setPart('eyeL','avatar/eyes/eyeL1.png')">Style 1</button>
+            <button onclick="setPart('eyeL','avatar/eyes/eyeL2.png')">Style 2</button>
         </div>
 
-        <div class="options">
+        <div class="section">
+            <h2>👁 Yeux droit</h2>
+            <button onclick="setPart('eyeR','avatar/eyes/eyeR1.png')">Style 1</button>
+            <button onclick="setPart('eyeR','avatar/eyes/eyeR2.png')">Style 2</button>
+        </div>
 
-            <div class="section">
-                <h2>👀 Yeux</h2>
-                <button onclick="changerYeux('avatar/createur/yeux1.png')">Yeux 1</button>
-                <button onclick="changerYeux('avatar/createur/yeux2.png')">Yeux 2</button>
-            </div>
+        <div class="section">
+            <h2>😊 Bouche</h2>
+            <button onclick="setPart('mouth','avatar/mouth/mouth1.png')">Smile</button>
+            <button onclick="setPart('mouth','avatar/mouth/mouth2.png')">Grin</button>
+        </div>
 
-            <div class="section">
-                <h2>😊 Bouche</h2>
-                <button onclick="changerBouche('avatar/createur/bouche1.png')">Bouche 1</button>
-                <button onclick="changerBouche('avatar/createur/bouche2.png')">Bouche 2</button>
-            </div>
+        <div class="section">
+            <h2>🧍 Corps</h2>
+            <button onclick="setPart('body','avatar/body/body1.png')">Normal</button>
+            <button onclick="setPart('body','avatar/body/body2.png')">Fort</button>
+        </div>
 
-            <div class="section">
-                <h2>🎒 Gadget</h2>
-                <button onclick="changerGadget('avatar/createur/gadget1.png')">Gadget 1</button>
-                <button onclick="changerGadget('avatar/createur/gadget2.png')">Gadget 2</button>
-            </div>
+        <div class="section">
+            <h2>🎩 Accessoires</h2>
+            <button onclick="setPart('hat','avatar/accessories/hat1.png')">Casquette</button>
+            <button onclick="setPart('glasses','avatar/accessories/glasses1.png')">Lunettes</button>
+            <button onclick="setPart('band','avatar/accessories/band1.png')">Bandeau</button>
+        </div>
 
+        <div class="section">
+            <h2>✋ Mains</h2>
+            <button onclick="setPart('handL','avatar/hands/swordL.png')">Main gauche épée</button>
+            <button onclick="setPart('handR','avatar/hands/swordR.png')">Main droite épée</button>
         </div>
 
     </div>
 
 </div>
 
+</div>
+
 <script>
-
-function changerYeux(img){
-    document.getElementById("yeux").src = img;
+function setPart(id, path){
+    const el = document.getElementById(id);
+    if(el) el.src = path;
 }
-
-function changerBouche(img){
-    document.getElementById("bouche").src = img;
-}
-
-function changerGadget(img){
-    document.getElementById("gadget").src = img;
-}
-
 </script>
 
 </body>
