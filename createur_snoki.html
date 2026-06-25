@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Créateur Snoki</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#eef4ff;
+    min-height:100vh;
+    padding:30px;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.container{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    gap:40px;
+    flex-wrap:wrap;
+}
+
+.snoki-zone{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
+
+#snoki{
+    position:relative;
+    width:400px;
+    height:400px;
+}
+
+#snoki img{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+}
+
+.options{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 0 15px rgba(0,0,0,0.1);
+    min-width:280px;
+}
+
+.section{
+    margin-bottom:25px;
+}
+
+.section h2{
+    margin-bottom:10px;
+    font-size:20px;
+}
+
+button{
+    margin:4px;
+    padding:10px 15px;
+    border:none;
+    border-radius:8px;
+    background:#4f7cff;
+    color:white;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+button:hover{
+    background:#315ee6;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Créateur de Snoki</h1>
+
+<div class="container">
+
+    <div class="snoki-zone">
+
+        <div id="snoki">
+
+            <!-- Base -->
+            <img src="avatar/createur/base.png" alt="Base Snoki">
+
+            <!-- Couches modifiables -->
+            <img id="yeux" src="avatar/createur/yeux1.png" alt="Yeux">
+
+            <img id="bouche" src="avatar/createur/bouche1.png" alt="Bouche">
+
+            <img id="gadget" src="avatar/createur/gadget1.png" alt="Gadget">
+
+        </div>
+
+    </div>
+
+    <div class="options">
+
+        <div class="section">
+            <h2>👀 Yeux</h2>
+
+            <button onclick="changerYeux('avatar/createur/yeux1.png')">Yeux 1</button>
+            <button onclick="changerYeux('avatar/createur/yeux2.png')">Yeux 2</button>
+        </div>
+
+        <div class="section">
+            <h2>😊 Bouche</h2>
+
+            <button onclick="changerBouche('avatar/createur/bouche1.png')">Bouche 1</button>
+            <button onclick="changerBouche('avatar/createur/bouche2.png')">Bouche 2</button>
+        </div>
+
+        <div class="section">
+            <h2>🎒 Gadget</h2>
+
+            <button onclick="changerGadget('avatar/createur/gadget1.png')">Gadget 1</button>
+            <button onclick="changerGadget('avatar/createur/gadget2.png')">Gadget 2</button>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function changerYeux(image){
+    document.getElementById("yeux").src = image;
+}
+
+function changerBouche(image){
+    document.getElementById("bouche").src = image;
+}
+
+function changerGadget(image){
+    document.getElementById("gadget").src = image;
+}
+
+</script>
+
+</body>
+</html>
