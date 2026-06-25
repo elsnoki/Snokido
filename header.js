@@ -88,9 +88,11 @@ const headerHTML = `
     </nav>
   </div>
 
-  <a class="tab tab-createur" href="createur_snoki.html">
-  Créateur de Snoki
-</a>
+ <div class="menuWrap">
+  <a class="tab tab-menu-createur" href="createur_snoki.html">
+    Créateur de Snoki
+  </a>
+</div>
 </header>
 `;
 
@@ -290,8 +292,8 @@ document.addEventListener("keydown", (e) => {
     const linkTotal = document.getElementById("pauseLinkTotal");
     if (linkTotal) linkTotal.classList.add("is-active");
   }
-  // Créateur de Snoki
+// Créateur de Snoki
 if (file === "createur_snoki.html") {
-  activateLink(".tab-createur");
+  activateLink(".tab-menu-createur");
 }
 })();
