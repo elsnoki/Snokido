@@ -85,14 +85,13 @@ const headerHTML = `
         </div>
       </div>
 
+      <!-- ===== LIEN SIMPLE (corrigé) ===== -->
+      <a class="tab tab-menu-createur" href="createur_snoki.html">
+        Créateur de Snoki
+      </a>
+
     </nav>
   </div>
-
- <div class="menuWrap">
-  <a class="tab tab-menu-createur" href="createur_snoki.html">
-    Créateur de Snoki
-  </a>
-</div>
 </header>
 `;
 
@@ -142,16 +141,6 @@ menuButtons.forEach((button) => {
 const pauseWrap = document.querySelector(".pauseWrap");
 const pauseBtn = document.getElementById("pauseBtn");
 
-function openPauseMenu() {
-  if (!pauseWrap) return;
-  pauseWrap.classList.add("is-open");
-}
-
-function closePauseMenu() {
-  if (!pauseWrap) return;
-  pauseWrap.classList.remove("is-open");
-}
-
 function togglePauseMenu() {
   if (!pauseWrap) return;
   pauseWrap.classList.toggle("is-open");
@@ -165,17 +154,17 @@ if (pauseBtn) {
   });
 }
 
-// ================= FERMETURE CLIC EXTÉRIEUR / ESC =================
+// ================= FERMETURE =================
 
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".menuWrap")) {
-    closeAllMenus();
+    menuWraps.forEach(w => w.classList.remove("is-open"));
   }
 });
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
-    closeAllMenus();
+    menuWraps.forEach(w => w.classList.remove("is-open"));
   }
 });
 
@@ -195,105 +184,23 @@ document.addEventListener("keydown", (e) => {
     if (el) el.classList.add("active");
   };
 
-  // Classements
   if (
-    file === "rank.html" ||
-    file === "rank0pause.html" ||
-    file === "100k.html" ||
-    file === "200k.html" ||
-    file === "300k.html" ||
-    file === "400k.html" ||
-    file === "500k.html" ||
-    file === "kara.html" ||
-    file === "classement.html"
-  ) {
-    activateMainMenu(".tab-menu-classements");
-  }
+    ["rank.html","rank0pause.html","100k.html","200k.html","300k.html","400k.html","500k.html","kara.html","classement.html"].includes(file)
+  ) activateMainMenu(".tab-menu-classements");
 
-  // Analyses
   if (
-    file === "gang.html" ||
-    file === "graphe.html" ||
-    file === "frise.html" ||
-    file === "video.html" ||
-    file === "rankyear.html" ||
-    file === "timeline.html" ||
-    file === "gen.html"
-  ) {
-    activateMainMenu(".tab-menu-analyses");
-  }
+    ["gang.html","graphe.html","frise.html","video.html","rankyear.html","timeline.html","gen.html"].includes(file)
+  ) activateMainMenu(".tab-menu-analyses");
 
-  // Records
   if (
-    file === "pause.html" ||
-    file === "pauses.html" ||
-    file === "pauses_total.html" ||
-    file === "trophee.html" ||
-    file === "exp1an.html" ||
-    file === "role.html" ||
-    file === "humble.html"
-  ) {
-    activateMainMenu(".tab-menu-records");
-  }
+    ["pause.html","pauses.html","pauses_total.html","trophee.html","exp1an.html","role.html","humble.html"].includes(file)
+  ) activateMainMenu(".tab-menu-records");
 
-  // Panthéons
   if (
-    file === "pantheon.html" ||
-    file === "pantheon2.html" ||
-    file === "pantheon3.html"
-  ) {
-    activateMainMenu(".tab-menu-pantheon");
+    ["pantheon.html","pantheon2.html","pantheon3.html"].includes(file)
+  ) activateMainMenu(".tab-menu-pantheon");
+
+  if (file === "createur_snoki.html") {
+    activateLink(".tab-menu-createur");
   }
-
-  // Liens précis
-  if (file === "rank.html") activateLink('.dropMenu a[href="rank.html"]');
-  if (file === "rank0pause.html") activateLink('.dropMenu a[href="rank0pause.html"]');
-  if (file === "100k.html") activateLink('.dropMenu a[href="100k.html"]');
-  if (file === "200k.html") activateLink('.dropMenu a[href="200k.html"]');
-  if (file === "300k.html") activateLink('.dropMenu a[href="300k.html"]');
-  if (file === "400k.html") activateLink('.dropMenu a[href="400k.html"]');
-  if (file === "500k.html") activateLink('.dropMenu a[href="500k.html"]');
-  if (file === "kara.html") activateLink('.dropMenu a[href="kara.html"]');
-
-  if (file === "gang.html") activateLink('.dropMenu a[href="gang.html"]');
-  if (file === "graphe.html") activateLink('.dropMenu a[href="graphe.html"]');
-  if (file === "frise.html") activateLink('.dropMenu a[href="frise.html"]');
-  if (file === "video.html") activateLink('.dropMenu a[href="video.html"]');
-  if (file === "rankyear.html") activateLink('.dropMenu a[href="rankyear.html"]');
-  if (file === "timeline.html") activateLink('.dropMenu a[href="timeline.html"]');
-  if (file === "gen.html") activateLink('.dropMenu a[href="gen.html"]');
-
-  if (file === "trophee.html") activateLink('.dropMenu a[href="trophee.html"]');
-  if (file === "exp1an.html") activateLink('.dropMenu a[href="exp1an.html"]');
-  if (file === "role.html") activateLink('.dropMenu a[href="role.html"]');
-  if (file === "humble.html") activateLink('.dropMenu a[href="humble.html"]');
-
-  if (file === "pantheon.html") activateLink('.dropMenu a[href="pantheon.html"]');
-  if (file === "pantheon2.html") activateLink('.dropMenu a[href="pantheon2.html"]');
-  if (file === "pantheon3.html") activateLink('.dropMenu a[href="pantheon3.html"]');
-
-  // Pauses
-  const isPausePage =
-    file === "pause.html" ||
-    file === "pauses.html" ||
-    file === "pauses_total.html";
-
-  if (isPausePage) {
-    const tabPause = document.querySelector(".tab-pause");
-    if (tabPause) tabPause.classList.add("active");
-  }
-
-  if (file === "pause.html") {
-    const linkUnique = document.getElementById("pauseLinkUnique");
-    if (linkUnique) linkUnique.classList.add("is-active");
-  }
-
-  if (file === "pauses.html" || file === "pauses_total.html") {
-    const linkTotal = document.getElementById("pauseLinkTotal");
-    if (linkTotal) linkTotal.classList.add("is-active");
-  }
-// Créateur de Snoki
-if (file === "createur_snoki.html") {
-  activateLink(".tab-menu-createur");
-}
 })();
