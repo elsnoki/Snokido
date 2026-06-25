@@ -24,7 +24,7 @@ body{
 
 h1{
     text-align:center;
-    margin-bottom:30px;
+    margin-bottom:25px;
     font-size:28px;
     font-weight:900;
 }
@@ -38,7 +38,7 @@ h1{
     flex-wrap:wrap;
 }
 
-/* zone perso */
+/* zone avatar */
 .snoki-zone{
     background:white;
     padding:20px;
@@ -46,54 +46,54 @@ h1{
     box-shadow:0 0 15px rgba(0,0,0,0.1);
 }
 
-/* avatar */
 #snoki{
     position:relative;
-    width:400px;
-    height:400px;
+    width:450px;
+    height:450px;
+    background:#fff;
+    border-radius:15px;
+    overflow:hidden;
 }
 
-.layer{
+/* pièces */
+.piece{
     position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    object-fit:contain;
+    user-select:none;
+    cursor:move;
 }
 
-/* options */
+/* UI */
 .options{
     background:white;
     padding:20px;
     border-radius:15px;
     box-shadow:0 0 15px rgba(0,0,0,0.1);
-    min-width:280px;
+    min-width:320px;
 }
 
 .section{
-    margin-bottom:25px;
+    margin-bottom:20px;
 }
 
 .section h2{
+    font-size:16px;
     margin-bottom:10px;
-    font-size:18px;
     font-weight:900;
 }
 
-button{
-    margin:4px;
-    padding:10px 15px;
-    border:none;
+.thumb{
+    width:60px;
+    height:60px;
+    object-fit:contain;
     border-radius:10px;
-    background:#4f7cff;
-    color:white;
+    border:2px solid #ddd;
+    background:#fafafa;
     cursor:pointer;
-    font-weight:900;
+    margin:4px;
 }
 
-button:hover{
-    background:#315ee6;
+.thumb:hover{
+    border-color:#4f7cff;
 }
 
 </style>
@@ -101,101 +101,140 @@ button:hover{
 
 <body>
 
-<!-- HEADER injecté -->
-
 <div class="createur-page">
 
-<h1>Créateur de Snoki</h1>
+<h1>Créateur Snoki</h1>
 
 <div class="container">
 
-    <!-- AVATAR -->
-    <div class="snoki-zone">
-        <div id="snoki">
+<!-- ===== AVATAR ===== -->
+<div class="snoki-zone">
+<div id="snoki">
 
-            <!-- base -->
-            <img src="avatar/base.png" class="layer" style="z-index:1">
+    <!-- BODY -->
+    <img id="body" class="piece" src="createur/body/body1.png">
 
-            <!-- corps -->
-            <img id="body" class="layer" src="avatar/body/body1.png" style="z-index:2">
+    <!-- HAIR -->
+    <img id="hair" class="piece" src="createur/hair/hair1.png">
 
-            <!-- tête -->
-            <img id="head" class="layer" src="avatar/head/head1.png" style="z-index:3">
+    <!-- EYES -->
+    <img id="eyeL" class="piece" src="createur/eyes/eyeL1.png">
+    <img id="eyeR" class="piece" src="createur/eyes/eyeR1.png">
 
-            <!-- yeux -->
-            <img id="eyeL" class="layer" src="avatar/eyes/eyeL1.png" style="z-index:4">
-            <img id="eyeR" class="layer" src="avatar/eyes/eyeR1.png" style="z-index:4">
+    <!-- MOUTH -->
+    <img id="mouth" class="piece" src="createur/mouth/mouth1.png">
 
-            <!-- bouche -->
-            <img id="mouth" class="layer" src="avatar/mouth/mouth1.png" style="z-index:5">
+    <!-- HANDS -->
+    <img id="handL" class="piece" src="createur/hands/handL1.png">
+    <img id="handR" class="piece" src="createur/hands/handR1.png">
 
-            <!-- bras -->
-            <img id="armL" class="layer" src="avatar/arms/armL1.png" style="z-index:6">
-            <img id="armR" class="layer" src="avatar/arms/armR1.png" style="z-index:6">
+</div>
+</div>
 
-            <!-- mains / objets -->
-            <img id="handL" class="layer" src="avatar/hands/handL1.png" style="z-index:7">
-            <img id="handR" class="layer" src="avatar/hands/handR1.png" style="z-index:7">
+<!-- ===== OPTIONS ===== -->
+<div class="options">
 
-            <!-- accessoires -->
-            <img id="hat" class="layer" src="avatar/accessories/hat1.png" style="z-index:8">
-            <img id="glasses" class="layer" src="avatar/accessories/glasses1.png" style="z-index:9">
-            <img id="band" class="layer" src="avatar/accessories/band1.png" style="z-index:10">
+<!-- BODY -->
+<div class="section">
+<h2>Corps</h2>
+<img class="thumb" src="createur/body/body1.png"
+onclick="setPart('body','createur/body/body1.png')">
+<img class="thumb" src="createur/body/body2.png"
+onclick="setPart('body','createur/body/body2.png')">
+</div>
 
-        </div>
-    </div>
+<!-- HAIR -->
+<div class="section">
+<h2>Cheveux</h2>
+<img class="thumb" src="createur/hair/hair1.png"
+onclick="setPart('hair','createur/hair/hair1.png')">
+<img class="thumb" src="createur/hair/hair2.png"
+onclick="setPart('hair','createur/hair/hair2.png')">
+</div>
 
-    <!-- OPTIONS -->
-    <div class="options">
+<!-- EYES -->
+<div class="section">
+<h2>Yeux gauche</h2>
+<img class="thumb" src="createur/eyes/eyeL1.png"
+onclick="setPart('eyeL','createur/eyes/eyeL1.png')">
+<img class="thumb" src="createur/eyes/eyeL2.png"
+onclick="setPart('eyeL','createur/eyes/eyeL2.png')">
+</div>
 
-        <div class="section">
-            <h2>👁 Yeux gauche</h2>
-            <button onclick="setPart('eyeL','avatar/eyes/eyeL1.png')">Style 1</button>
-            <button onclick="setPart('eyeL','avatar/eyes/eyeL2.png')">Style 2</button>
-        </div>
+<div class="section">
+<h2>Yeux droit</h2>
+<img class="thumb" src="createur/eyes/eyeR1.png"
+onclick="setPart('eyeR','createur/eyes/eyeR1.png')">
+<img class="thumb" src="createur/eyes/eyeR2.png"
+onclick="setPart('eyeR','createur/eyes/eyeR2.png')">
+</div>
 
-        <div class="section">
-            <h2>👁 Yeux droit</h2>
-            <button onclick="setPart('eyeR','avatar/eyes/eyeR1.png')">Style 1</button>
-            <button onclick="setPart('eyeR','avatar/eyes/eyeR2.png')">Style 2</button>
-        </div>
+<!-- MOUTH -->
+<div class="section">
+<h2>Bouche</h2>
+<img class="thumb" src="createur/mouth/mouth1.png"
+onclick="setPart('mouth','createur/mouth/mouth1.png')">
+<img class="thumb" src="createur/mouth/mouth2.png"
+onclick="setPart('mouth','createur/mouth/mouth2.png')">
+</div>
 
-        <div class="section">
-            <h2>😊 Bouche</h2>
-            <button onclick="setPart('mouth','avatar/mouth/mouth1.png')">Smile</button>
-            <button onclick="setPart('mouth','avatar/mouth/mouth2.png')">Grin</button>
-        </div>
+<!-- HANDS -->
+<div class="section">
+<h2>Mains gauche</h2>
+<img class="thumb" src="createur/hands/handL1.png"
+onclick="setPart('handL','createur/hands/handL1.png')">
+<img class="thumb" src="createur/hands/handL2.png"
+onclick="setPart('handL','createur/hands/handL2.png')">
+</div>
 
-        <div class="section">
-            <h2>🧍 Corps</h2>
-            <button onclick="setPart('body','avatar/body/body1.png')">Normal</button>
-            <button onclick="setPart('body','avatar/body/body2.png')">Fort</button>
-        </div>
+<div class="section">
+<h2>Mains droite</h2>
+<img class="thumb" src="createur/hands/handR1.png"
+onclick="setPart('handR','createur/hands/handR1.png')">
+<img class="thumb" src="createur/hands/handR2.png"
+onclick="setPart('handR','createur/hands/handR2.png')">
+</div>
 
-        <div class="section">
-            <h2>🎩 Accessoires</h2>
-            <button onclick="setPart('hat','avatar/accessories/hat1.png')">Casquette</button>
-            <button onclick="setPart('glasses','avatar/accessories/glasses1.png')">Lunettes</button>
-            <button onclick="setPart('band','avatar/accessories/band1.png')">Bandeau</button>
-        </div>
-
-        <div class="section">
-            <h2>✋ Mains</h2>
-            <button onclick="setPart('handL','avatar/hands/swordL.png')">Main gauche épée</button>
-            <button onclick="setPart('handR','avatar/hands/swordR.png')">Main droite épée</button>
-        </div>
-
-    </div>
+</div>
 
 </div>
 
 </div>
 
 <script>
-function setPart(id, path){
-    const el = document.getElementById(id);
-    if(el) el.src = path;
+
+// ===== changer image =====
+function setPart(id, file){
+    document.getElementById(id).src = file;
 }
+
+// ===== drag system =====
+document.querySelectorAll(".piece").forEach(el => {
+
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    el.addEventListener("mousedown", (e) => {
+        dragging = true;
+        offsetX = e.clientX - el.offsetLeft;
+        offsetY = e.clientY - el.offsetTop;
+        el.style.zIndex = 9999;
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (!dragging) return;
+
+        el.style.left = (e.clientX - offsetX) + "px";
+        el.style.top = (e.clientY - offsetY) + "px";
+    });
+
+    document.addEventListener("mouseup", () => {
+        dragging = false;
+    });
+
+});
+
 </script>
 
 </body>
