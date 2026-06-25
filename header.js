@@ -11,7 +11,7 @@ document.body.insertAdjacentHTML("afterbegin", `
     <nav class="nav">
 
       <div class="menuWrap">
-        <a class="tab menuBtn tab-menu-classements" href="#">
+        <a class="tab menuBtn tab-menu-classements" href="#" data-menu="classements">
           Classements <span class="caret">▾</span>
         </a>
 
@@ -29,7 +29,7 @@ document.body.insertAdjacentHTML("afterbegin", `
       </div>
 
       <div class="menuWrap">
-        <a class="tab menuBtn tab-menu-analyses" href="#">
+        <a class="tab menuBtn tab-menu-analyses" href="#" data-menu="analyses">
           Analyses <span class="caret">▾</span>
         </a>
 
@@ -45,7 +45,7 @@ document.body.insertAdjacentHTML("afterbegin", `
       </div>
 
       <div class="menuWrap">
-        <a class="tab menuBtn tab-menu-records" href="#">
+        <a class="tab menuBtn tab-menu-records" href="#" data-menu="records">
           Records <span class="caret">▾</span>
         </a>
 
@@ -57,29 +57,29 @@ document.body.insertAdjacentHTML("afterbegin", `
             </a>
 
             <div class="pauseMenu">
-              <a href="pause.html">Records — pauses uniques</a>
-              <a href="pauses.html">Records — total par joueur</a>
+              <a id="pauseLinkUnique" href="pause.html">Records — pauses uniques</a>
+              <a id="pauseLinkTotal" href="pauses.html">Records — total par joueur</a>
             </div>
           </div>
 
-          <a class="tab" href="trophee.html">Trophées</a>
-          <a class="tab" href="exp1an.html">Record 1 an</a>
-          <a class="tab" href="1ers.html">1ers</a>
-          <a class="tab" href="role.html">Rôles</a>
-          <a class="tab" href="humble.html">Hommes Humbles</a>
+          <a class="tab tab-trophee" href="trophee.html">Trophées</a>
+          <a class="tab tab-record" href="exp1an.html">Record 1 an</a>
+          <a class="tab tab-1ers" href="1ers.html">1ers</a>
+          <a class="tab tab-role" href="role.html">Rôles</a>
+          <a class="tab tab-humble" href="humble.html">Hommes Humbles</a>
 
         </div>
       </div>
 
       <div class="menuWrap">
-        <a class="tab menuBtn tab-menu-pantheon" href="#">
+        <a class="tab menuBtn tab-menu-pantheon" href="#" data-menu="pantheons">
           Panthéons <span class="caret">▾</span>
         </a>
 
         <div class="dropMenu">
-          <a class="tab" href="pantheon.html">Panthéon des Légendes</a>
-          <a class="tab" href="pantheon2.html">Panthéon de la honte</a>
-          <a class="tab" href="pantheon3.html">Panthéon des Noobs</a>
+          <a class="tab tab-pantheon" href="pantheon.html">Panthéon des Légendes</a>
+          <a class="tab tab-pantheon2" href="pantheon2.html">Panthéon de la honte</a>
+          <a class="tab tab-noob" href="pantheon3.html">Panthéon des Noobs</a>
         </div>
       </div>
 
@@ -93,49 +93,88 @@ document.body.insertAdjacentHTML("afterbegin", `
 `);
 
 
-// ================= DROPDOWNS =================
+// ================= ATTENTE DOM PROPRE =================
+window.addEventListener("DOMContentLoaded", () => {
 
-const menuWraps = document.querySelectorAll(".menuWrap");
-const menuButtons = document.querySelectorAll(".menuBtn");
+  const menuWraps = document.querySelectorAll(".menuWrap");
+  const menuButtons = document.querySelectorAll(".menuBtn");
 
-function closeAll() {
-  menuWraps.forEach(w => w.classList.remove("is-open"));
-}
+  function closeAllMenus() {
+    menuWraps.forEach(w => w.classList.remove("is-open"));
+  }
 
-menuButtons.forEach(btn => {
-  btn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
+  function toggleMenu(btn) {
     const wrap = btn.closest(".menuWrap");
+    if (!wrap) return;
 
-    if (wrap.classList.contains("is-open")) {
-      wrap.classList.remove("is-open");
-    } else {
-      closeAll();
+    const isOpen = wrap.classList.contains("is-open");
+
+    closeAllMenus();
+
+    if (!isOpen) {
       wrap.classList.add("is-open");
     }
+  }
+
+  menuButtons.forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleMenu(btn);
+    });
   });
-});
 
-// fermer clic extérieur
-document.addEventListener("click", () => closeAll());
-
-// ESC
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeAll();
-});
-
-// ================= SOUS-MENU PAUSES (FIX) =================
-
-const pauseBtn = document.getElementById("pauseBtn");
-const pauseWrap = document.querySelector(".pauseWrap");
-
-if (pauseBtn && pauseWrap) {
-  pauseBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    pauseWrap.classList.toggle("is-open");
+  // fermeture clic extérieur
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".menuWrap")) {
+      closeAllMenus();
+    }
   });
-}
+
+  // ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAllMenus();
+  });
+
+
+  // ================= SOUS-MENU PAUSES (IMPORTANT) =================
+
+  const pauseWrap = document.querySelector(".pauseWrap");
+  const pauseBtn = document.getElementById("pauseBtn");
+
+  if (pauseBtn && pauseWrap) {
+    pauseBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      pauseWrap.classList.toggle("is-open");
+    });
+  }
+
+
+  // ================= ACTIVE STATE (inchangé) =================
+
+  const path = (window.location.pathname || "").toLowerCase();
+  const file = path.split("/").pop();
+
+  const activate = (sel) => {
+    const el = document.querySelector(sel);
+    if (el) el.classList.add("active");
+  };
+
+  if (["rank.html","rank0pause.html","100k.html","200k.html","300k.html","400k.html","500k.html","kara.html","classement.html"].includes(file))
+    activate(".tab-menu-classements");
+
+  if (["gang.html","graphe.html","frise.html","video.html","rankyear.html","timeline.html","gen.html"].includes(file))
+    activate(".tab-menu-analyses");
+
+  if (["pause.html","pauses.html","pauses_total.html","trophee.html","exp1an.html","role.html","humble.html"].includes(file))
+    activate(".tab-menu-records");
+
+  if (["pantheon.html","pantheon2.html","pantheon3.html"].includes(file))
+    activate(".tab-menu-pantheon");
+
+  if (file === "createur_snoki.html")
+    activate(".tab-menu-createur");
+
+});
