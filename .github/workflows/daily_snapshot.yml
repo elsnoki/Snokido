@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
 
   schedule:
-    # 23h30 Paris hiver (UTC+1)
-    - cron: "30 22 * 1,2,11,12 *"
+    # 23h05 Paris hiver (UTC+1)
+    - cron: "5 22 * 1,2,11,12 *"
 
-    # 23h30 Paris été (UTC+2)
-    - cron: "30 21 * 3-10 *"
+    # 23h05 Paris été (UTC+2)
+    - cron: "5 21 * 3-10 *"
 
-    # 00h01 Paris hiver (UTC+1)
-    - cron: "1 23 * 1,2,11,12 *"
+    # 23h36 Paris hiver (UTC+1)
+    - cron: "36 22 * 1,2,11,12 *"
 
-    # 00h01 Paris été (UTC+2)
-    - cron: "1 22 * 3-10 *"
+    # 23h36 Paris été (UTC+2)
+    - cron: "36 21 * 3-10 *"
 
 permissions:
   contents: write
