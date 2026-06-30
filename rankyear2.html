@@ -315,9 +315,12 @@ async function loadMonthlyHistory(){
 
   first.forEach(p=>{
     firstMap.set(
-      p.profileHref || p.slug,
-      Number(p.xp) || 0
-    );
+  p.profileHref || p.slug,
+  {
+    xp: Number(p.xp) || 0,
+    rang: Number(p.rank) || Number(p.rang) || null
+  }
+);
   });
 
   const gains = new Map();
@@ -336,10 +339,18 @@ async function loadMonthlyHistory(){
       return;
     }
 
-    gains.set(key,{
-      value:xpFin-firstMap.get(key),
-      nouveau:false
-    });
+    const ancien = firstMap.get(key);
+
+const rangFin = Number(p.rank) || Number(p.rang) || null;
+
+gains.set(key,{
+  value: xpFin - ancien.xp,
+  nouveau:false,
+  rankChange:
+    ancien.rang == null || rangFin == null
+      ? null
+      : ancien.rang - rangFin
+});
 
   });
 
@@ -530,7 +541,25 @@ ${
 <td class="center">
 ${r.niveau == null ? "—" : fmtInt(r.niveau)}
 </td>
-          <td class="center">${r.rang ?? "—"}</td>
+          <td class="center">
+${r.rang ?? "—"}
+
+${
+!r.gainMois || r.gainMois.rankChange == null
+? ""
+: r.gainMois.rankChange > 0
+? `<span style="color:#18a118;font-weight:900;">
+⬆ +${r.gainMois.rankChange}
+</span>`
+: r.gainMois.rankChange < 0
+? `<span style="color:#d02020;font-weight:900;">
+⬇ ${r.gainMois.rankChange}
+</span>`
+: `<span style="color:#888;font-weight:900;">
+➡ 0
+</span>`
+}
+</td>
           <td class="center">${r.inscription ?? "—"}</td>
         `;
         tbody.appendChild(tr);
