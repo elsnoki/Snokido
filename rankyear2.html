@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Classement XP par année d'inscription</title>
+
+<link rel="stylesheet" href="style.css" />
+<script src="header.js" defer></script>
+<script src="xp_widget.js" defer></script>
+
+<style>
+  body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+  }
+  .wrap{
+    width:1100px;
+    max-width: calc(100% - 40px);
+    margin:60px auto;
+  }
+  .panel{
+    background:#fff;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,.35);
+    margin-bottom:16px;
+  }
+  .title{
+    background:#3a3a3a;
+    color:#fff;
+    padding:14px 16px;
+    font-size:20px;
+    font-weight:900;
+  }
+  .hint{
+    background:#ffffff;
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.20);
+    border:1px solid rgba(0,0,0,.10);
+    color:#222;
+    font-weight:900;
+  }
+  .hint small{ display:block; margin-top:4px; font-weight:900; color:#666; }
+  .pill{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:999px;
+    font-weight:900;
+    font-size:12px;
+    background:#efefef;
+    border:1px solid rgba(0,0,0,.10);
+    color:#333;
+    margin-left:8px;
+  }
+
+  .yearBox{
+    background:#fff;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,.22);
+    border:1px solid rgba(0,0,0,.10);
+    margin-bottom:14px;
+  }
+  .yearHead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 16px;
+    background:#f6f6f6;
+    border-bottom:1px solid #e2e2e2;
+    cursor:pointer;
+    user-select:none;
+    font-weight:900;
+    color:#222;
+  }
+  .yearMeta{
+    font-weight:900;
+    color:#666;
+    font-size:12px;
+    margin-left:10px;
+  }
+  .caret{
+    font-weight:900;
+    color:#333;
+    margin-left:10px;
+  }
+  .yearBody{ display:none; }
+  .yearBox.open .yearBody{ display:block; }
+
+  table{ width:100%; border-collapse:separate; border-spacing:0; }
+  thead th{
+    background:#fff;
+    padding:12px 10px;
+    text-align:left;
+    font-size:13px;
+    font-weight:900;
+    border-bottom:1px solid #cfcfcf;
+  }
+  tbody td{
+    padding:14px 10px;
+    border-bottom:1px solid #cfcfcf;
+    vertical-align:middle;
+    font-size:14px;
+  }
+  tbody tr:nth-child(odd){ background:#f2f2f2; }
+
+  .rank{ font-weight:900; font-size:18px; width:60px; text-align:center; color:#444; }
+  .avatar{ width:70px; text-align:center; }
+  .avatar .frame{
+    width:44px; height:44px; margin:0 auto;
+    background:#e9e9e9; border:1px solid #bdbdbd; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .avatar img{
+    width:38px; height:38px; object-fit:cover;
+    border:2px solid #8f8f8f; border-radius:10px; background:#ddd; display:block;
+  }
+
+  .name a{ color:#2c6fb7; font-weight:900; text-decoration:none; }
+  .name a:hover{ text-decoration:underline; }
+  .center{ text-align:center; white-space:nowrap; }
+
+  .errorBox{
+    padding:14px 16px;
+    font-weight:900;
+    color:#b00020;
+  }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="hint">
+    Classement XP par <b>année d'inscription</b> (Top 10 max par année).
+    <small>
+      Tri : XP décroissante (la meilleure XP trouvée par année d'inscription).
+    </small>
+  </div>
+
+  <div class="panel">
+    <div class="title">Classement XP — par année d'inscription <span id="meta" class="pill">…</span></div>
+    <div id="years" style="padding:14px;"></div>
+  </div>
+</div>
+
+<script>
+  const DATA_URL = "data/players_pages.json";
+  const HISTORY_INDEX_URL = "data/history_paris/index.json";
+  const HISTORY_PATH = "data/history_paris/";
+
+  function slugify2(name){
+    return String(name || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toLowerCase();
+  }
+
+  function fmtInt(n){
+    if(n == null) return "—";
+    try { return new Intl.NumberFormat("fr-FR").format(n); }
+    catch(e){ return String(n); }
+  }
+
+  function toNumber(v){
+    if(v == null) return null;
+    if(typeof v === "number" && Number.isFinite(v)) return v;
+
+    const s = String(v).trim();
+    if(!s) return null;
+
+    // Supporte "12 345", "#123", "123/2500" (on récupère le 1er nombre)
+    const m = s.replace(/\u00A0/g, " ").match(/-?\d[\d\s]*/);
+    if(!m) return null;
+
+    const cleaned = m[0].replace(/\s/g, "");
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  // Trouve la première valeur (pas forcément numérique) pour un set de clés, en profondeur
+  function deepFindValue(obj, keyNames, maxDepth = 7){
+    const keysSet = new Set(keyNames.map(k => String(k).toLowerCase()));
+    const seen = new Set();
+
+    function walk(node, depth){
+      if(!node || depth > maxDepth) return null;
+      if(typeof node !== "object") return null;
+      if(seen.has(node)) return null;
+      seen.add(node);
+
+      for(const k of Object.keys(node)){
+        if(keysSet.has(k.toLowerCase())){
+          const v = node[k];
+          if(v != null && v !== "") return v;
+        }
+      }
+      for(const k of Object.keys(node)){
+        const v = node[k];
+        if(v && typeof v === "object"){
+          const r = walk(v, depth + 1);
+          if(r != null) return r;
+        }
+      }
+      return null;
+    }
+    return walk(obj, 0);
+  }
+
+  function deepFindNumber(obj, keyNames, maxDepth = 7){
+    const v = deepFindValue(obj, keyNames, maxDepth);
+    const n = toNumber(v);
+    return n;
+  }
+
+  function extractYear(inscription){
+    if(!inscription) return null;
+    const s = String(inscription).trim();
+
+    // "DD-MM-YYYY"
+    const parts = s.split("-");
+    if(parts.length === 3){
+      const y = Number(parts[2]);
+      return Number.isFinite(y) ? y : null;
+    }
+
+    // "YYYY-MM-DD" ou autre
+    const m = s.match(/(19\d{2}|20\d{2}|2100)/);
+    return m ? Number(m[1]) : null;
+  }
+
+  // Supporte beaucoup de formats possibles:
+  // - [players]
+  // - {players:[...]}
+  // - {pages:[[...],[...]]}
+  // - {pages:[{players:[...]}, ...]}
+  // - {"page1":[...], "page2":[...]}
+  function normalizePlayers(json){
+    if(Array.isArray(json)) return json;
+    if(json && Array.isArray(json.players)) return json.players;
+
+    if(json && Array.isArray(json.pages)){
+      const out = [];
+      for(const p of json.pages){
+        if(Array.isArray(p)) out.push(...p);
+        else if(p && Array.isArray(p.players)) out.push(...p.players);
+        else if(p && Array.isArray(p.joueurs)) out.push(...p.joueurs);
+        else if(p && Array.isArray(p.items)) out.push(...p.items);
+      }
+      return out;
+    }
+
+    if(json && typeof json === "object"){
+      const out = [];
+      for(const k of Object.keys(json)){
+        if(Array.isArray(json[k])) out.push(...json[k]);
+      }
+      if(out.length) return out;
+    }
+
+    return [];
+  }
+
+  async function loadAllPlayers(){
+    const res = await fetch(DATA_URL, { cache: "no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
+    const list = normalizePlayers(json);
+    if(!list.length) throw new Error("Format JSON non reconnu ou liste vide");
+    return list;
+  }
+  async function loadJson(url){
+  const res = await fetch(url, { cache:"no-store" });
+  if(!res.ok) throw new Error("HTTP " + res.status + " : " + url);
+  return await res.json();
+}
+
+
+// Trouve le premier et dernier snapshot du mois courant
+async function loadMonthlyHistory(){
+
+  const index = await loadJson(HISTORY_INDEX_URL);
+
+  if(!Array.isArray(index) || !index.length){
+    throw new Error("Index historique vide");
+  }
+
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth()+1).padStart(2,"0");
+
+  const prefix = `${year}-${month}-`;
+
+  const monthFiles = index
+    .filter(d => d.startsWith(prefix))
+    .sort();
+
+
+  if(monthFiles.length < 2){
+    console.warn("Pas assez d'historiques pour calcul mensuel");
+    return new Map();
+  }
+
+
+  const firstDate = monthFiles[0];
+  const lastDate = monthFiles[monthFiles.length-1];
+
+
+  const first = await loadJson(
+    `${HISTORY_PATH}${firstDate}.json`
+  );
+
+  const last = await loadJson(
+    `${HISTORY_PATH}${lastDate}.json`
+  );
+
+
+  const firstMap = new Map();
+  const lastMap = new Map();
+
+
+  first.forEach(p=>{
+    const key = p.profileHref || p.slug;
+    if(key){
+      firstMap.set(key, p.xp);
+    }
+  });
+
+
+  last.forEach(p=>{
+    const key = p.profileHref || p.slug;
+    if(key){
+      lastMap.set(key, p.xp);
+    }
+  });
+
+
+
+  const gains = new Map();
+
+
+  for(const [key,xpFin] of lastMap){
+
+    const xpDebut = firstMap.get(key);
+
+
+    if(xpDebut == null){
+      gains.set(key,{
+        value:null,
+        nouveau:true
+      });
+      continue;
+    }
+
+
+    const gain = xpFin - xpDebut;
+
+
+    gains.set(key,{
+      value:gain,
+      nouveau:false
+    });
+
+  }
+
+
+  console.log(
+    "[rankyear2] historique",
+    firstDate,
+    "→",
+    lastDate
+  );
+
+
+  return gains;
+}
+
+  // 1) Si "modes" existe: meilleur xp = max(modes[*].xp), rang = modes[*].rang
+  // 2) Sinon: XP via deepFindNumber("xp","exp","experience"...), rang via ("rank","rang","classement"...)
+  function bestXP(player){
+    // Cas data.js-like
+    if(player && player.modes && typeof player.modes === "object"){
+      let best = { xp: null, mode: null, rang: null };
+      for(const modeKey of Object.keys(player.modes)){
+        const m = player.modes[modeKey];
+        const xp = (m && typeof m.xp === "number") ? m.xp : toNumber(m?.xp);
+        if(xp == null) continue;
+        if(best.xp == null || xp > best.xp){
+          best.xp = xp;
+          best.mode = modeKey;
+          best.rang = m?.rang ?? null;
+        }
+      }
+      if(best.xp != null) return best;
+    }
+
+    // Cas players_pages.json (structure différente)
+    const xp = deepFindNumber(player, [
+      "xp","xptotal","xp_total","total_xp","totalxp",
+      "experience","exp","points_xp","pointsxp"
+    ]);
+    const mode = deepFindValue(player, ["mode","bestMode","best_mode","category","categorie"]);
+    const rang = deepFindValue(player, ["rang","rank","classement","position","top2500","top_2500"]);
+    return { xp, mode, rang };
+  }
+
+  function getName(player){
+    return deepFindValue(player, ["nom","name","pseudo","username","player","player_name"]) ?? "—";
+  }
+  function getPlayerId(player){
+
+  return (
+    player.profileHref ||
+    player.slug ||
+    null
+  );
+
+}
+
+  function getAvatar(player){
+    return deepFindValue(player, ["avatar","img","image","photo","pfp","avatar_url","avatarUrl"]) ?? "avatar/1.jpg";
+  }
+
+  function getInscription(player){
+    return deepFindValue(player, ["inscription","registered","register_date","registration","created","created_at","createdAt","date_inscription"]) ?? null;
+  }
+
+  function getLevel(player){
+    // Ton data.js: gen
+    const n1 = deepFindNumber(player, ["gen"]);
+    if(n1 != null) return n1;
+
+    // Autres formats possibles
+    const n2 = deepFindNumber(player, ["niveau","level","lvl","nv","tier"]);
+    return n2;
+  }
+
+  function renderByYear(players, monthlyXP){
+    const host = document.getElementById("years");
+    const meta = document.getElementById("meta");
+
+    const rows = players.map(pl => {
+      const name = getName(pl);
+      const avatar = getAvatar(pl);
+      const inscriptionRaw = getInscription(pl);
+      const year = extractYear(inscriptionRaw);
+      const best = bestXP(pl);
+      const level = getLevel(pl);
+
+      return {
+        raw: pl,
+                playerId: getPlayerId(pl),
+        gainMois: monthlyXP.get(getPlayerId(pl)) || null,
+        nom: name,
+        avatar,
+        inscription: inscriptionRaw,
+        year,
+        xp: best.xp,
+        bestMode: best.mode,
+        rang: best.rang,
+        niveau: level
+      };
+    }).filter(r => r.year != null);
+
+    meta.textContent = `${rows.length} joueurs`;
+
+    const byYear = new Map();
+    for(const r of rows){
+      if(!byYear.has(r.year)) byYear.set(r.year, []);
+      byYear.get(r.year).push(r);
+    }
+
+    const years = Array.from(byYear.keys()).sort((a,b) => b - a);
+    if(!years.length){
+      host.innerHTML = `<div class="errorBox">Aucune année d'inscription exploitable dans le JSON.</div>`;
+      return;
+    }
+
+    host.innerHTML = "";
+
+    years.forEach((year, idx) => {
+      const list = byYear.get(year) || [];
+
+      list.sort((a,b) => {
+        const ax = (a.xp == null) ? -Infinity : a.xp;
+        const bx = (b.xp == null) ? -Infinity : b.xp;
+        if(bx !== ax) return bx - ax;
+        return String(a.nom).localeCompare(String(b.nom), "fr", { sensitivity:"base" });
+      });
+
+      const top = list.slice(0, 10);
+
+      const box = document.createElement("div");
+      box.className = "yearBox" + (idx === 0 ? " open" : "");
+
+      const head = document.createElement("div");
+      head.className = "yearHead";
+      head.innerHTML = `
+        <div>
+          Année ${year}
+          <span class="yearMeta">(Top ${Math.min(10, list.length)} / ${list.length})</span>
+        </div>
+        <div class="caret">${idx === 0 ? "▾" : "▸"}</div>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "yearBody";
+      body.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px;"></th>
+              <th style="width:70px;"></th>
+              <th>Nom du joueur</th>
+              <th class="center">XP</th>
+              <th class="center">Gain du mois</th>
+              <th class="center">Niveau</th>
+              <th class="center">Rang (Top 2500)</th>
+              <th class="center">Inscription</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      `;
+
+      const tbody = body.querySelector("tbody");
+
+      top.forEach((r, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="rank">${i+1}</td>
+          <td class="avatar">
+            <div class="frame">
+              <img src="${r.avatar}" alt="${r.nom}">
+            </div>
+          </td>
+          <td class="name">
+            <a href="profil.html?u=${encodeURIComponent(slugify2(r.nom))}">
+              ${r.nom}
+            </a>
+          </td>
+          <td class="center">${fmtInt(r.xp)}</td>
+
+<td class="center">
+${
+  !r.gainMois
+    ? "—"
+    : r.gainMois.nouveau
+      ? "Nouveau"
+      : `<span style="color:green;font-weight:900;">
+          +${fmtInt(r.gainMois.value)} XP
+         </span>`
+}
+</td>
+
+<td class="center">
+${r.niveau == null ? "—" : fmtInt(r.niveau)}
+</td>
+          <td class="center">${r.rang ?? "—"}</td>
+          <td class="center">${r.inscription ?? "—"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      head.addEventListener("click", () => {
+        const isOpen = box.classList.toggle("open");
+        head.querySelector(".caret").textContent = isOpen ? "▾" : "▸";
+      });
+
+      box.appendChild(head);
+      box.appendChild(body);
+      host.appendChild(box);
+    });
+
+    const tab = document.querySelector(".tab-year");
+    if(tab) tab.classList.add("is-active");
+
+    // Debug utile (tu peux supprimer après)
+    console.log("[rankyear] sample player raw:", players[0]);
+    console.log("[rankyear] parsed sample:", rows[0]);
+  }
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    const host = document.getElementById("years");
+    host.innerHTML = `<div style="padding:12px 2px;font-weight:900;color:#444;">Chargement des joueurs...</div>`;
+
+    try{
+      const players = await loadAllPlayers();
+
+let monthlyXP = new Map();
+
+try{
+  monthlyXP = await loadMonthlyHistory();
+}
+catch(e){
+  console.warn(
+    "Impossible de charger historique mensuel",
+    e
+  );
+}
+
+renderByYear(players, monthlyXP);
+    }catch(e){
+      host.innerHTML = `
+        <div class="errorBox">
+          Impossible de charger <code>${DATA_URL}</code> : ${String(e.message || e)}
+        </div>
+      `;
+      console.error(e);
+    }
+  });
+</script>
+
+</body>
+</html>
