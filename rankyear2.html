@@ -364,7 +364,9 @@ gains.set(key,{
 });
 
   });
-
+console.log("MONTH FILES", monthFiles);
+console.log("GAINS", gains.size);
+  
   return gains;
 
 }
@@ -440,10 +442,7 @@ gains.set(key,{
       const year = extractYear(inscriptionRaw);
       const best = bestXP(pl);
       const level = getLevel(pl);
-console.log(
-  getPlayerId(pl),
-  monthlyXP.get(getPlayerId(pl))
-);
+      
       return {
         raw: pl,
                 playerId: getPlayerId(pl),
