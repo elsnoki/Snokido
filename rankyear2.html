@@ -296,20 +296,31 @@ async function loadMonthlyHistory(){
     .filter(d => d.startsWith(prefix))
     .sort();
 
-  if(monthFiles.length < 2){
-    return new Map();
-  }
-
   const firstData = await loadJson(
-    `${HISTORY_PATH}${monthFiles[0]}.json`
-  );
+  `${HISTORY_PATH}${monthFiles[0]}.json`
+);
+
+const first = firstData.players || [];
+
+let last;
+
+if(monthFiles.length >= 2){
 
   const lastData = await loadJson(
     `${HISTORY_PATH}${monthFiles[monthFiles.length-1]}.json`
   );
 
-  const first = firstData.players || [];
-  const last = lastData.players || [];
+  last = lastData.players || [];
+
+}else{
+
+  const current = await loadJson(PLAYERS_URL);
+
+  last = Array.isArray(current)
+    ? current
+    : current.players || [];
+
+}
 
   const firstMap = new Map();
 
