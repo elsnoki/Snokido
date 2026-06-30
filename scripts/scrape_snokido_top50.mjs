@@ -239,8 +239,12 @@ async function upsertFixed(players, url){
     (p.slug && info.slug && p.slug.toLowerCase() === info.slug.toLowerCase())
   );
 
-  const merged = { rank: null, ...info, karas: karas };
-
+  const merged = {
+  rank: null,
+  ...info,
+  niveau: 100,
+  karas: karas
+};
   if(idx >= 0) players[idx] = { ...players[idx], ...merged };
   else players.push(merged);
 
