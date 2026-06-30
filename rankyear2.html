@@ -279,7 +279,6 @@
 }
 
 
-// Trouve le premier et dernier snapshot du mois courant
 async function loadMonthlyHistory(){
 
   const index = await loadJson(HISTORY_INDEX_URL);
@@ -289,94 +288,63 @@ async function loadMonthlyHistory(){
   }
 
   const now = new Date();
-
   const year = now.getFullYear();
   const month = String(now.getMonth()+1).padStart(2,"0");
-
   const prefix = `${year}-${month}-`;
 
   const monthFiles = index
     .filter(d => d.startsWith(prefix))
     .sort();
 
-
   if(monthFiles.length < 2){
-    console.warn("Pas assez d'historiques pour calcul mensuel");
     return new Map();
   }
 
-
-  const firstDate = monthFiles[0];
-  const lastDate = monthFiles[monthFiles.length-1];
-
-
-  const first = await loadJson(
-    `${HISTORY_PATH}${firstDate}.json`
+  const firstData = await loadJson(
+    `${HISTORY_PATH}${monthFiles[0]}.json`
   );
 
-  const last = await loadJson(
-    `${HISTORY_PATH}${lastDate}.json`
+  const lastData = await loadJson(
+    `${HISTORY_PATH}${monthFiles[monthFiles.length-1]}.json`
   );
 
+  const first = firstData.players || [];
+  const last = lastData.players || [];
 
   const firstMap = new Map();
-  const lastMap = new Map();
-
 
   first.forEach(p=>{
-    const key = p.profileHref || p.slug;
-    if(key){
-      firstMap.set(key, p.xp);
-    }
+    firstMap.set(
+      p.profileHref || p.slug,
+      Number(p.xp) || 0
+    );
   });
-
-
-  last.forEach(p=>{
-    const key = p.profileHref || p.slug;
-    if(key){
-      lastMap.set(key, p.xp);
-    }
-  });
-
-
 
   const gains = new Map();
 
+  last.forEach(p=>{
 
-  for(const [key,xpFin] of lastMap){
+    const key = p.profileHref || p.slug;
 
-    const xpDebut = firstMap.get(key);
+    const xpFin = Number(p.xp) || 0;
 
-
-    if(xpDebut == null){
+    if(!firstMap.has(key)){
       gains.set(key,{
         value:null,
         nouveau:true
       });
-      continue;
+      return;
     }
 
-
-    const gain = xpFin - xpDebut;
-
-
     gains.set(key,{
-      value:gain,
+      value:xpFin-firstMap.get(key),
       nouveau:false
     });
 
-  }
-
-
-  console.log(
-    "[rankyear2] historique",
-    firstDate,
-    "→",
-    lastDate
-  );
-
+  });
 
   return gains;
+
 }
 
   // 1) Si "modes" existe: meilleur xp = max(modes[*].xp), rang = modes[*].rang
