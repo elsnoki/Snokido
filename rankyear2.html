@@ -519,9 +519,11 @@ ${
     ? "—"
     : r.gainMois.nouveau
       ? "Nouveau"
-      : `<span style="color:green;font-weight:900;">
-          +${fmtInt(r.gainMois.value)} XP
-         </span>`
+      : r.gainMois.value === 0
+        ? `<span style="color:#888;font-weight:900;">0</span>`
+        : `<span style="color:green;font-weight:900;">
+            +${fmtInt(r.gainMois.value)} XP
+           </span>`
 }
 </td>
 
