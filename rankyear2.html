@@ -314,8 +314,7 @@ if(monthFiles.length >= 2){
 
 }else{
 
-  const current = await loadJson(PLAYERS_URL);
-
+const current = await loadJson(DATA_URL);
   last = Array.isArray(current)
     ? current
     : current.players || [];
