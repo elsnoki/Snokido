@@ -334,6 +334,7 @@ async function main(){
     players: players.map(p => ({
       nom: p.nom,
       slug: p.slug,
+      rank: p.rank ?? null,
       xp: Number(p.xp) || 0,
       niveau: (typeof p.niveau === "number") ? p.niveau : null,
       inscription: p.inscription || null,
