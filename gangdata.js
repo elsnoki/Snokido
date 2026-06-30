@@ -254,7 +254,10 @@ window.gangsData = [
       { nom: "Aldébaran" },
       { nom: "venom2" },
       { nom: "Clovis1er" },
-      { nom: "Polyy" }
+      { nom: "Polyy" },
+      { nom: "Antarès_" },
+      { nom: "Zeta-Puppis" },
+      { nom: "PaulaHub" }
     ],
   },
 ];
