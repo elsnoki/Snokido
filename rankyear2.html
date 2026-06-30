@@ -318,7 +318,7 @@ async function loadMonthlyHistory(){
   p.profileHref || p.slug,
   {
     xp: Number(p.xp) || 0,
-    rang: Number(p.rank) || Number(p.rang) || null
+    rang: p.rank ?? p.rang ?? null
   }
 );
   });
@@ -341,7 +341,7 @@ async function loadMonthlyHistory(){
 
     const ancien = firstMap.get(key);
 
-const rangFin = Number(p.rank) || Number(p.rang) || null;
+const rangFin = p.rank ?? p.rang ?? null;
 
 gains.set(key,{
   value: xpFin - ancien.xp,
