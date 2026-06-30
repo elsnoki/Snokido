@@ -440,7 +440,10 @@ gains.set(key,{
       const year = extractYear(inscriptionRaw);
       const best = bestXP(pl);
       const level = getLevel(pl);
-
+console.log(
+  getPlayerId(pl),
+  monthlyXP.get(getPlayerId(pl))
+);
       return {
         raw: pl,
                 playerId: getPlayerId(pl),
