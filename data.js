@@ -429,7 +429,7 @@ const joueurs = [
   }
 },
 {
-  nom:"Clovis1er", avatar:"avatar/36.jpg", gen:7, inscription:"14-02-2026",
+  nom:"Clovis1er", avatar:"avatar/36.jpg", gen:6, inscription:"14-02-2026",
   modes:{
     nv100:{
       jours:148, atteint_le:"12-07-2026", rang:"—", xp:0,
@@ -439,7 +439,7 @@ const joueurs = [
   }
 },
 {
-  nom:"Polyy", avatar:"avatar/33.jpg", gen:7, inscription:"24-12-2025",
+  nom:"Polyy", avatar:"avatar/33.jpg", gen:null, inscription:"24-12-2025",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:0,
@@ -449,10 +449,10 @@ const joueurs = [
   }
 },
   {
-  nom:"venom2", avatar:"avatar/34.jpg", gen:null, inscription:"07-08-2025",
+  nom:"venom2", avatar:"avatar/34.jpg", gen:6, inscription:"07-08-2025",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:14124,
+      jours:339, atteint_le:"12-07-2026", rang:"—", xp:14124,
       pauses_total:{ nb:2, mois:1, jours:35 },
       pauses_detail:[
         { xp:14072, periode:"~13/01/2026 -> 03/02/2026", mois:0, jours:21 },
