@@ -486,6 +486,36 @@ const joueurs = [
     }
   }
 },
+  {
+  nom:"Zeta-Puppis", avatar:"avatar/46.jpg", gen:null, inscription:"02-06-2026",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:0,
+      pauses_total:{ nb:0, mois:0, jours:0 },
+      pauses_detail:[]
+    }
+  }
+},
+  {
+  nom:"PaulaHub", avatar:"avatar/20.jpg", gen:null, inscription:"05-02-2026",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:0,
+      pauses_total:{ nb:0, mois:0, jours:0 },
+      pauses_detail:[]
+    }
+  }
+},
+  {
+  nom:"Antarès_", avatar:"avatar/36.jpg", gen:null, inscription:"05-06-2026",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:0,
+      pauses_total:{ nb:0, mois:0, jours:0 },
+      pauses_detail:[]
+    }
+  }
+},
 ];
 
 
