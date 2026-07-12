@@ -15,11 +15,11 @@
     "nom": "alex.c2109",
     "slug": "alexc2109",
     "niveau": 100,
-    "xp": 911840,
+    "xp": 911996,
     "inscription": "24-06-2017",
     "avatar": "https://www.snokido.fr/images/snoki/medium/53.jpg",
     "profileHref": "https://www.snokido.fr/player/alexc2109",
-    "karas": 1224529
+    "karas": 1224685
   },
   {
     "rank": 3,
@@ -48,22 +48,22 @@
     "nom": "Ko0pa",
     "slug": "ko0pa",
     "niveau": 100,
-    "xp": 258044,
+    "xp": 258152,
     "inscription": "24-01-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/101.jpg",
     "profileHref": "https://www.snokido.fr/player/ko0pa",
-    "karas": 582473
+    "karas": 582581
   },
   {
     "rank": 6,
     "nom": "lumia",
     "slug": "lumia",
     "niveau": 100,
-    "xp": 222036,
+    "xp": 222056,
     "inscription": "01-01-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
     "profileHref": "https://www.snokido.fr/player/lumia",
-    "karas": 554385
+    "karas": 554405
   },
   {
     "rank": 7,
@@ -114,11 +114,11 @@
     "nom": "Unit",
     "slug": "unit",
     "niveau": 100,
-    "xp": 157934,
+    "xp": 157950,
     "inscription": "13-07-2018",
     "avatar": "https://www.snokido.fr/images/snoki/medium/133.jpg",
     "profileHref": "https://www.snokido.fr/player/unit",
-    "karas": 483483
+    "karas": 483499
   },
   {
     "rank": 12,
@@ -353,6 +353,17 @@
   },
   {
     "rank": 33,
+    "nom": "venom2",
+    "slug": "venom2",
+    "niveau": 100,
+    "xp": 49552,
+    "inscription": "07-08-2025",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/103.jpg",
+    "profileHref": "https://www.snokido.fr/player/venom2",
+    "karas": 383901
+  },
+  {
+    "rank": 34,
     "nom": "redbot",
     "slug": "redbot",
     "niveau": 100,
@@ -361,17 +372,6 @@
     "avatar": "https://www.snokido.fr/images/snoki/medium/3.jpg",
     "profileHref": "https://www.snokido.fr/player/redbot",
     "karas": 387849
-  },
-  {
-    "rank": 34,
-    "nom": "venom2",
-    "slug": "venom2",
-    "niveau": 99,
-    "xp": 49100,
-    "inscription": "07-08-2025",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/103.jpg",
-    "profileHref": "https://www.snokido.fr/player/venom2",
-    "karas": 373449
   },
   {
     "rank": 35,
@@ -532,11 +532,11 @@
     "nom": "E1V2R3",
     "slug": "e1v2r3",
     "niveau": 74,
-    "xp": 27552,
+    "xp": 27560,
     "inscription": "15-06-2021",
     "avatar": "https://www.snokido.fr/images/snoki/medium/130.jpg",
     "profileHref": "https://www.snokido.fr/player/e1v2r3",
-    "karas": 163376
+    "karas": 163384
   },
   {
     "rank": 50,
@@ -576,7 +576,7 @@
     "nom": "felipe23",
     "slug": "felipe23",
     "niveau": 72,
-    "xp": 25844,
+    "xp": 25848,
     "inscription": "14-11-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/154.jpg",
     "profileHref": "https://www.snokido.fr/player/felipe23",
@@ -741,7 +741,7 @@
     "nom": "Yole",
     "slug": "yole",
     "niveau": 66,
-    "xp": 21762,
+    "xp": 21770,
     "inscription": "05-08-2022",
     "avatar": "https://www.snokido.fr/images/snoki/medium/5.jpg",
     "profileHref": "https://www.snokido.fr/player/yole",
@@ -1049,7 +1049,7 @@
     "nom": "Antarès_",
     "slug": "antares",
     "niveau": 60,
-    "xp": 18120,
+    "xp": 18272,
     "inscription": "05-06-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/2.jpg",
     "profileHref": "https://www.snokido.fr/player/antares-3",
@@ -1302,7 +1302,7 @@
     "nom": "CrackerJack",
     "slug": "crackerjack",
     "niveau": 56,
-    "xp": 15932,
+    "xp": 15936,
     "inscription": "25-11-2021",
     "avatar": "https://www.snokido.fr/images/snoki/medium/3.jpg",
     "profileHref": "https://www.snokido.fr/player/crackerjack",
@@ -1376,6 +1376,17 @@
   },
   {
     "rank": 126,
+    "nom": "PaulaHub",
+    "slug": "paulahub",
+    "niveau": 56,
+    "xp": 15752,
+    "inscription": "05-02-2026",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/3.jpg",
+    "profileHref": "https://www.snokido.fr/player/paulahub",
+    "karas": null
+  },
+  {
+    "rank": 127,
     "nom": "Brayt5",
     "slug": "brayt5",
     "niveau": 56,
@@ -1386,7 +1397,7 @@
     "karas": null
   },
   {
-    "rank": 127,
+    "rank": 128,
     "nom": "silver96389",
     "slug": "silver96389",
     "niveau": 56,
@@ -1394,17 +1405,6 @@
     "inscription": "11-08-2014",
     "avatar": "https://www.snokido.fr/images/snoki/medium/156.jpg",
     "profileHref": "https://www.snokido.fr/player/silver96389",
-    "karas": null
-  },
-  {
-    "rank": 128,
-    "nom": "PaulaHub",
-    "slug": "paulahub",
-    "niveau": 56,
-    "xp": 15600,
-    "inscription": "05-02-2026",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/3.jpg",
-    "profileHref": "https://www.snokido.fr/player/paulahub",
     "karas": null
   },
   {
@@ -1497,6 +1497,17 @@
   },
   {
     "rank": 137,
+    "nom": "Brumaire",
+    "slug": "brumaire",
+    "niveau": 55,
+    "xp": 15012,
+    "inscription": "16-11-2024",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/4.jpg",
+    "profileHref": "https://www.snokido.fr/player/brumaire",
+    "karas": null
+  },
+  {
+    "rank": 138,
     "nom": "Youcef1326",
     "slug": "youcef1326",
     "niveau": 55,
@@ -1507,7 +1518,7 @@
     "karas": null
   },
   {
-    "rank": 138,
+    "rank": 139,
     "nom": "loxio",
     "slug": "loxio",
     "niveau": 55,
@@ -1515,17 +1526,6 @@
     "inscription": "07-12-2016",
     "avatar": "https://www.snokido.fr/images/snoki/medium/159.jpg",
     "profileHref": "https://www.snokido.fr/player/loxio",
-    "karas": null
-  },
-  {
-    "rank": 139,
-    "nom": "Brumaire",
-    "slug": "brumaire",
-    "niveau": 55,
-    "xp": 14860,
-    "inscription": "16-11-2024",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/4.jpg",
-    "profileHref": "https://www.snokido.fr/player/brumaire",
     "karas": null
   },
   {
@@ -1753,7 +1753,7 @@
     "nom": "Zeta-Puppis",
     "slug": "zetapuppis",
     "niveau": 53,
-    "xp": 13936,
+    "xp": 13944,
     "inscription": "02-06-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/102.jpg",
     "profileHref": "https://www.snokido.fr/player/zetapuppis",
@@ -11793,6 +11793,17 @@
   },
   {
     "rank": 1073,
+    "nom": "fnf345",
+    "slug": "fnf345",
+    "niveau": 36,
+    "xp": 6400,
+    "inscription": "12-11-2021",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/153.jpg",
+    "profileHref": "https://www.snokido.fr/player/fnf345",
+    "karas": null
+  },
+  {
+    "rank": 1074,
     "nom": "latif976",
     "slug": "latif976",
     "niveau": 36,
@@ -11803,7 +11814,7 @@
     "karas": null
   },
   {
-    "rank": 1074,
+    "rank": 1075,
     "nom": "mahad-LPF",
     "slug": "mahadlpf",
     "niveau": 36,
@@ -11814,7 +11825,7 @@
     "karas": null
   },
   {
-    "rank": 1075,
+    "rank": 1076,
     "nom": "aminekadir",
     "slug": "aminekadir",
     "niveau": 36,
@@ -11825,7 +11836,7 @@
     "karas": null
   },
   {
-    "rank": 1076,
+    "rank": 1077,
     "nom": "Kay2",
     "slug": "kay2",
     "niveau": 36,
@@ -11836,7 +11847,7 @@
     "karas": null
   },
   {
-    "rank": 1077,
+    "rank": 1078,
     "nom": "MrDanidu54",
     "slug": "mrdanidu54",
     "niveau": 36,
@@ -11847,7 +11858,7 @@
     "karas": null
   },
   {
-    "rank": 1078,
+    "rank": 1079,
     "nom": "koko",
     "slug": "koko",
     "niveau": 36,
@@ -11855,17 +11866,6 @@
     "inscription": "18-12-2013",
     "avatar": "https://www.snokido.fr/images/snoki/medium/154.jpg",
     "profileHref": "https://www.snokido.fr/player/koko",
-    "karas": null
-  },
-  {
-    "rank": 1079,
-    "nom": "fnf345",
-    "slug": "fnf345",
-    "niveau": 36,
-    "xp": 6384,
-    "inscription": "12-11-2021",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/153.jpg",
-    "profileHref": "https://www.snokido.fr/player/fnf345",
     "karas": null
   },
   {
@@ -16325,6 +16325,17 @@
   },
   {
     "rank": 1485,
+    "nom": "Maya20",
+    "slug": "maya20",
+    "niveau": 33,
+    "xp": 5488,
+    "inscription": "29-08-2023",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/5.jpg",
+    "profileHref": "https://www.snokido.fr/player/maya20",
+    "karas": null
+  },
+  {
+    "rank": 1486,
     "nom": "kid.paddle",
     "slug": "kidpaddle",
     "niveau": 33,
@@ -16335,7 +16346,7 @@
     "karas": null
   },
   {
-    "rank": 1486,
+    "rank": 1487,
     "nom": "Vinapu",
     "slug": "vinapu",
     "niveau": 33,
@@ -16343,17 +16354,6 @@
     "inscription": "24-08-2014",
     "avatar": "https://www.snokido.fr/images/snoki/medium/30.jpg",
     "profileHref": "https://www.snokido.fr/player/vinapu",
-    "karas": null
-  },
-  {
-    "rank": 1487,
-    "nom": "Maya20",
-    "slug": "maya20",
-    "niveau": 33,
-    "xp": 5484,
-    "inscription": "29-08-2023",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/5.jpg",
-    "profileHref": "https://www.snokido.fr/player/maya20",
     "karas": null
   },
   {
@@ -24641,6 +24641,17 @@
   },
   {
     "rank": 2241,
+    "nom": "makcoo",
+    "slug": "makcoo",
+    "niveau": 30,
+    "xp": 4488,
+    "inscription": "12-12-2025",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/5.jpg",
+    "profileHref": "https://www.snokido.fr/player/makcoo",
+    "karas": null
+  },
+  {
+    "rank": 2242,
     "nom": "julien211",
     "slug": "julien211",
     "niveau": 30,
@@ -24651,7 +24662,7 @@
     "karas": null
   },
   {
-    "rank": 2242,
+    "rank": 2243,
     "nom": "eudes",
     "slug": "eudes",
     "niveau": 30,
@@ -24659,17 +24670,6 @@
     "inscription": "20-02-2018",
     "avatar": "https://www.snokido.fr/images/snoki/medium/103.jpg",
     "profileHref": "https://www.snokido.fr/player/eudes",
-    "karas": null
-  },
-  {
-    "rank": 2243,
-    "nom": "makcoo",
-    "slug": "makcoo",
-    "niveau": 30,
-    "xp": 4484,
-    "inscription": "12-12-2025",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/5.jpg",
-    "profileHref": "https://www.snokido.fr/player/makcoo",
     "karas": null
   },
   {
@@ -25334,6 +25334,17 @@
   },
   {
     "rank": 2304,
+    "nom": "marie1956",
+    "slug": "marie1956",
+    "niveau": 30,
+    "xp": 4422,
+    "inscription": "05-06-2022",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/3.jpg",
+    "profileHref": "https://www.snokido.fr/player/marie1956",
+    "karas": null
+  },
+  {
+    "rank": 2305,
     "nom": "GENAROYEN",
     "slug": "genaroyen",
     "niveau": 30,
@@ -25344,7 +25355,7 @@
     "karas": null
   },
   {
-    "rank": 2305,
+    "rank": 2306,
     "nom": "dxjrthebeastslay",
     "slug": "dxjrthebeastslay",
     "niveau": 30,
@@ -25355,7 +25366,7 @@
     "karas": null
   },
   {
-    "rank": 2306,
+    "rank": 2307,
     "nom": "TOMazerty15",
     "slug": "tomazerty15",
     "niveau": 30,
@@ -25366,7 +25377,7 @@
     "karas": null
   },
   {
-    "rank": 2307,
+    "rank": 2308,
     "nom": "AlexgamingfrYT",
     "slug": "alexgamingfryt",
     "niveau": 30,
@@ -25377,7 +25388,7 @@
     "karas": null
   },
   {
-    "rank": 2308,
+    "rank": 2309,
     "nom": "MOURADDUNCH",
     "slug": "mouraddunch",
     "niveau": 30,
@@ -25388,7 +25399,7 @@
     "karas": null
   },
   {
-    "rank": 2309,
+    "rank": 2310,
     "nom": "axiolou7",
     "slug": "axiolou7",
     "niveau": 30,
@@ -25399,7 +25410,7 @@
     "karas": null
   },
   {
-    "rank": 2310,
+    "rank": 2311,
     "nom": "ajjaajja",
     "slug": "ajjaajja",
     "niveau": 30,
@@ -25410,7 +25421,7 @@
     "karas": null
   },
   {
-    "rank": 2311,
+    "rank": 2312,
     "nom": "Rip_FROST",
     "slug": "ripfrost",
     "niveau": 30,
@@ -25421,7 +25432,7 @@
     "karas": null
   },
   {
-    "rank": 2312,
+    "rank": 2313,
     "nom": "gavinnator",
     "slug": "gavinnator",
     "niveau": 30,
@@ -25432,7 +25443,7 @@
     "karas": null
   },
   {
-    "rank": 2313,
+    "rank": 2314,
     "nom": "SnaggyNickel",
     "slug": "snaggynickel",
     "niveau": 30,
@@ -25440,17 +25451,6 @@
     "inscription": "19-08-2021",
     "avatar": "https://www.snokido.fr/images/snoki/medium/3.jpg",
     "profileHref": "https://www.snokido.fr/player/snaggynickel",
-    "karas": null
-  },
-  {
-    "rank": 2314,
-    "nom": "marie1956",
-    "slug": "marie1956",
-    "niveau": 30,
-    "xp": 4414,
-    "inscription": "05-06-2022",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/3.jpg",
-    "profileHref": "https://www.snokido.fr/player/marie1956",
     "karas": null
   },
   {
