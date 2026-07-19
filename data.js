@@ -389,7 +389,7 @@ const joueurs = [
         { xp:12776, periode:"11/2025 -> 01/2026", mois:2, jours:91 }
       ]
     }
-    "100k":{jours:92, atteint_le:"19-07-2026", rang:"", xp:100000,
+    "100k":{jours:92, atteint_le:"19-07-2026", rang:"—", xp:100000,
       pauses_total:{ nb:0, mois:0, jours:0 },
       pauses_detail:[]
     }
