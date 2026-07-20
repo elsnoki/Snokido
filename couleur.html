@@ -179,90 +179,47 @@ Classement
 </tr>
 </thead>
 
-<tbody>
+<tbody id="classement">
+    <script>
+fetch("data/players_pages.json")
+.then(response => response.json())
+.then(players => {
 
-<tr class="top1"><td class="rank">1</td><td class="name"><a href="#">Talk Takashi</a></td><td class="center">1266680 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr class="top2"><td class="rank">2</td><td class="name"><a href="#">alex.c2109</a></td><td class="center">915180 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr class="top3"><td class="rank">3</td><td class="name"><a href="#">francoeur</a></td><td class="center">443222 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+    let html = "";
 
-<tr><td class="rank">4</td><td class="name"><a href="#">TheGladiator</a></td><td class="center">400002 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">5</td><td class="name"><a href="#">Ko0pa</a></td><td class="center">269386 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">6</td><td class="name"><a href="#">lumia</a></td><td class="center">230598 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">7</td><td class="name"><a href="#">Abelard</a></td><td class="center">201568 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">8</td><td class="name"><a href="#">Jordan.io</a></td><td class="center">200000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">9</td><td class="name"><a href="#">hoopa</a></td><td class="center">175000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">10</td><td class="name"><a href="#">Unit</a></td><td class="center">165042 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+    players
+    .sort((a,b) => b.xp - a.xp)
+    .slice(0,50)
+    .forEach((p,i)=>{
 
-<tr><td class="rank">11</td><td class="name"><a href="#">josué455</a></td><td class="center">159480 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">12</td><td class="name"><a href="#">Alexis279</a></td><td class="center">157282 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">13</td><td class="name"><a href="#">cirpacha</a></td><td class="center">102876 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">14</td><td class="name"><a href="#">Napoléon.1er</a></td><td class="center">100750 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">15</td><td class="name"><a href="#">Esdras950</a></td><td class="center">100000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+        html += `
+        <tr class="${i==0?'top1':i==1?'top2':i==2?'top3':''}">
+            <td class="rank">${i+1}</td>
 
-<tr><td class="rank">16</td><td class="name"><a href="#">Houka</a></td><td class="center">92000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">17</td><td class="name"><a href="#">Venom_</a></td><td class="center">90672 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">18</td><td class="name"><a href="#">Justice-</a></td><td class="center">82424 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">19</td><td class="name"><a href="#">UY-Scuty</a></td><td class="center">70000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">20</td><td class="name"><a href="#">Bételgeuse</a></td><td class="center">69000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-<tr><td class="rank">21</td><td class="name"><a href="#">Aldébaran</a></td><td class="center">69000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+            <td class="name">
+                <a href="#">${p.name}</a>
+            </td>
 
-<tr><td class="rank">22</td><td class="name"><a href="#">Golder</a></td><td class="center">66666 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+            <td class="center">
+                ${p.xp} xp
+            </td>
 
-<tr><td class="rank">23</td><td class="name"><a href="#">blackout</a></td><td class="center">61096 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+            <td class="center">
+                ${p.kara}
+            </td>
 
-<tr><td class="rank">24</td><td class="name"><a href="#">Largo672</a></td><td class="center">57836 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+            <td class="skin">
+                <img src="avatar/${p.base_skin}">
+            </td>
+        </tr>
+        `;
 
-<tr><td class="rank">25</td><td class="name"><a href="#">LargoJunior</a></td><td class="center">57522 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+    });
 
-<tr><td class="rank">26</td><td class="name"><a href="#">djabrail</a></td><td class="center">57166 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+    document.getElementById("classement").innerHTML = html;
 
-<tr><td class="rank">27</td><td class="name"><a href="#">Elena21</a></td><td class="center">56666 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">28</td><td class="name"><a href="#">Shadow321</a></td><td class="center">54444 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">29</td><td class="name"><a href="#">Clovis1er</a></td><td class="center">53400 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">30</td><td class="name"><a href="#">Gangster2019</a></td><td class="center">52200 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">31</td><td class="name"><a href="#">venom2</a></td><td class="center">51172 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">32</td><td class="name"><a href="#">Tellor</a></td><td class="center">51014 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">33</td><td class="name"><a href="#">Pingu</a></td><td class="center">50000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">34</td><td class="name"><a href="#">redbot</a></td><td class="center">49500 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">35</td><td class="name"><a href="#">marcosino</a></td><td class="center">45216 xp</td><td class="center">95</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">36</td><td class="name"><a href="#">Polyy</a></td><td class="center">42720 xp</td><td class="center">92</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">37</td><td class="name"><a href="#">seka</a></td><td class="center">42648 xp</td><td class="center">92</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">38</td><td class="name"><a href="#">cahincaha</a></td><td class="center">42000 xp</td><td class="center">92</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">39</td><td class="name"><a href="#">Athèna</a></td><td class="center">40004 xp</td><td class="center">89</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">40</td><td class="name"><a href="#">acno</a></td><td class="center">40000 xp</td><td class="center">89</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">41</td><td class="name"><a href="#">souda999</a></td><td class="center">39826 xp</td><td class="center">89</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">42</td><td class="name"><a href="#">roi1</a></td><td class="center">39200 xp</td><td class="center">89</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">43</td><td class="name"><a href="#">chris05</a></td><td class="center">36182 xp</td><td class="center">85</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">44</td><td class="name"><a href="#">mala49</a></td><td class="center">32264 xp</td><td class="center">80</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">45</td><td class="name"><a href="#">anime123</a></td><td class="center">31364 xp</td><td class="center">79</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">46</td><td class="name"><a href="#">BNDAZ205</a></td><td class="center">30152 xp</td><td class="center">78</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">47</td><td class="name"><a href="#">Fifi75018</a></td><td class="center">28388 xp</td><td class="center">75</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">48</td><td class="name"><a href="#">henoc77</a></td><td class="center">28038 xp</td><td class="center">75</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">49</td><td class="name"><a href="#">E1V2R3</a></td><td class="center">27564 xp</td><td class="center">74</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
-
-<tr><td class="rank">50</td><td class="name"><a href="#">swaga976</a></td><td class="center">27404 xp</td><td class="center">74</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+});
+</script>
 </tbody>
 
 </table>
