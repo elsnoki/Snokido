@@ -10,17 +10,20 @@
 <script src="header.js" defer></script>
 
 <style>
+
 body{
     margin:0;
     font-family:Arial,Helvetica,sans-serif;
     background:radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
 }
 
+
 .wrap{
     max-width:1300px;
     margin:30px auto;
     padding:0 15px;
 }
+
 
 .hero{
     background:rgba(255,255,255,.10);
@@ -32,10 +35,12 @@ body{
     margin-bottom:20px;
 }
 
+
 .heroTitle{
     font-size:30px;
     font-weight:900;
 }
+
 
 .heroSub{
     margin-top:8px;
@@ -44,12 +49,14 @@ body{
     font-weight:600;
 }
 
+
 .panel{
     background:#fff;
     border-radius:18px;
     overflow:hidden;
     box-shadow:0 20px 55px rgba(0,0,0,.28);
 }
+
 
 .panelHead{
     padding:16px 20px;
@@ -59,11 +66,13 @@ body{
     font-weight:900;
 }
 
+
 table{
     width:100%;
     border-collapse:collapse;
     table-layout:fixed;
 }
+
 
 thead th{
     background:#fafafa;
@@ -73,33 +82,38 @@ thead th{
     font-weight:900;
 }
 
+
 tbody td{
     padding:12px 10px;
     border-bottom:1px solid #e4e4e4;
 }
 
+
 tbody tr:nth-child(even){
     background:#f7f7f7;
 }
+
 
 tbody tr:hover{
     background:#eef8ff;
 }
 
 
-/* Rang */
-.rank{
+/* RANG */
+thead th:nth-child(1),
+tbody td:nth-child(1){
     width:70px;
     text-align:center;
-    font-weight:bold;
 }
 
 
-/* Skin actuel */
-.skin{
-    width:90px;
+/* SKIN ACTUEL */
+thead th:nth-child(2),
+tbody td:nth-child(2){
+    width:110px;
     text-align:center;
 }
+
 
 .skin img{
     width:64px;
@@ -110,12 +124,14 @@ tbody tr:hover{
 }
 
 
-/* Nom joueur */
-.name{
-    width:220px;
+/* NOM JOUEUR */
+thead th:nth-child(3),
+tbody td:nth-child(3){
+    width:260px;
     text-align:left;
     padding-left:30px;
 }
+
 
 .name a{
     color:#2870bf;
@@ -123,26 +139,36 @@ tbody tr:hover{
     font-weight:bold;
 }
 
+
 .name a:hover{
     text-decoration:underline;
 }
 
 
 /* XP */
-.xp{
+thead th:nth-child(4),
+tbody td:nth-child(4){
     width:150px;
     text-align:center;
 }
 
 
-/* Kara */
-.kara{
+/* KARA */
+thead th:nth-child(5),
+tbody td:nth-child(5){
     width:150px;
     text-align:center;
 }
 
 
-/* Snoki base */
+/* SNOKI DE BASE */
+thead th:nth-child(6),
+tbody td:nth-child(6){
+    width:120px;
+    text-align:center;
+}
+
+
 .base img{
     width:64px;
     height:64px;
@@ -152,41 +178,49 @@ tbody tr:hover{
 }
 
 
+/* TOP 3 */
 .top1{
     background:#fff7d2 !important;
 }
 
+
 .top2{
     background:#ededed !important;
 }
+
 
 .top3{
     background:#f7e1d2 !important;
 }
 
 
+
 @media(max-width:900px){
 
-table{
-    font-size:13px;
+    table{
+        font-size:13px;
+    }
+
+
+    .skin img,
+    .base img{
+        width:48px;
+        height:48px;
+    }
+
+
+    thead th:nth-child(3),
+    tbody td:nth-child(3){
+        padding-left:10px;
+    }
+
+
+    .heroTitle{
+        font-size:24px;
+    }
+
 }
 
-.skin img,
-.base img{
-    width:48px;
-    height:48px;
-}
-
-.name{
-    padding-left:10px;
-    width:auto;
-}
-
-.heroTitle{
-    font-size:24px;
-}
-
-}
 </style>
 
 </head>
@@ -198,7 +232,7 @@ table{
     <div class="heroTitle">Classement par Snoki de base</div>
 
     <div class="heroSub">
-        Classement des joueurs ayant terminé leur progression avec le skin de base.
+        Classement avec Snoki de base des joueurs.
     </div>
 </div>
 
