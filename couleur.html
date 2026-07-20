@@ -180,14 +180,12 @@ Classement
 </thead>
 
 <tbody id="classement">
-   <script>
+  <script>
 fetch("data/players_pages.json")
 .then(response => response.json())
 .then(players => {
 
 const snokiBase = {
-
-"talktakashi":"14.jpg",
 
 "alexc2109":"4.jpg",
 "TheGladiator":"4.jpg",
@@ -224,24 +222,22 @@ const snokiBase = {
 };
 
 
-let classement = players
-.filter(p => snokiBase[p.nom])
-.sort((a,b)=>b.xp-a.xp)
-.slice(0,50);
-
-
 let html="";
 
 
-classement.forEach((p,i)=>{
+players
+.sort((a,b)=>b.xp-a.xp)
+.slice(0,50)
+.forEach((p,i)=>{
+
+let base = snokiBase[p.nom];
+
 
 html += `
 
 <tr class="${i==0?'top1':i==1?'top2':i==2?'top3':''}">
 
-<td class="rank">
-${i+1}
-</td>
+<td class="rank">${i+1}</td>
 
 
 <td class="skin">
@@ -267,7 +263,7 @@ ${p.karas}
 
 
 <td class="skin">
-<img src="avatar/${snokiBase[p.nom]}">
+${base ? `<img src="avatar/${base}">` : ""}
 </td>
 
 
@@ -279,7 +275,6 @@ ${p.karas}
 
 
 document.getElementById("classement").innerHTML=html;
-
 
 });
 </script>
