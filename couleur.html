@@ -2,156 +2,274 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Snoki de Base</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Classement par Snoki de base</title>
 
 <link rel="stylesheet" href="style.css">
 <script src="header.js" defer></script>
-<script src="bars.js" defer></script>
 
 <style>
 body{
     margin:0;
-    background: radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
-    font-family:Arial,sans-serif;
+    font-family:Arial,Helvetica,sans-serif;
+    background:radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
 }
-.wrap{max-width:1280px;margin:26px auto;padding:0 12px;}
-.panel{
-    background:#fff;
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow:0 12px 30px rgba(0,0,0,.28);
+
+.wrap{
+    max-width:1300px;
+    margin:30px auto;
+    padding:0 15px;
 }
-.titlebar{
-    background:#3b3b3b;
+
+.hero{
+    background:rgba(255,255,255,.10);
+    backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:18px;
+    padding:20px;
     color:#fff;
-    padding:14px 16px;
-    font-size:22px;
+    margin-bottom:20px;
+}
+
+.heroTitle{
+    font-size:30px;
     font-weight:900;
 }
-table{width:100%;border-collapse:collapse;}
-th,td{
-    padding:14px;
-    border-bottom:1px solid #ddd;
+
+.heroSub{
+    margin-top:8px;
+    font-size:15px;
+    color:rgba(255,255,255,.92);
+    font-weight:600;
 }
-th{
-    text-align:left;
+
+.panel{
+    background:#fff;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 20px 55px rgba(0,0,0,.28);
+}
+
+.panelHead{
+    padding:16px 20px;
+    background:linear-gradient(#424242,#272727);
+    color:#fff;
+    font-size:20px;
+    font-weight:900;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+thead th{
     background:#fafafa;
+    padding:15px;
+    border-bottom:2px solid #ddd;
+    text-align:center;
+    font-weight:900;
 }
+
+tbody td{
+    padding:12px;
+    border-bottom:1px solid #e4e4e4;
+}
+
+tbody tr:nth-child(even){
+    background:#f7f7f7;
+}
+
+tbody tr:hover{
+    background:#eef8ff;
+}
+
 .rank{
-    width:60px;
+    width:70px;
     text-align:center;
     font-weight:bold;
 }
-.center{text-align:center;}
-.snoki{
-    width:64px;
-    height:64px;
-    object-fit:contain;
+
+.skin{
+    width:90px;
+    text-align:center;
 }
+
+.skin img{
+    width:56px;
+    height:56px;
+    border-radius:10px;
+    border:2px solid #aaa;
+    background:#ddd;
+}
+
 .name a{
-    color:#2c6fb7;
-    font-weight:bold;
+    color:#2870bf;
     text-decoration:none;
+    font-weight:bold;
+}
+
+.name a:hover{
+    text-decoration:underline;
+}
+
+.center{
+    text-align:center;
+}
+
+.top1{
+    background:#fff7d2 !important;
+}
+
+.top2{
+    background:#ededed !important;
+}
+
+.top3{
+    background:#f7e1d2 !important;
+}
+
+@media(max-width:900px){
+
+table{
+    font-size:13px;
+}
+
+.skin img{
+    width:42px;
+    height:42px;
+}
+
+.heroTitle{
+    font-size:24px;
+}
+
 }
 </style>
-</head>
 
+</head>
 <body>
 
 <main class="wrap">
-<section class="panel">
 
-<div class="titlebar">Snoki de Base</div>
+<div class="hero">
+    <div class="heroTitle">Classement par Snoki de base</div>
 
-<div class="barMount" data-bar="main"></div>
+    <div class="heroSub">
+        Classement des joueurs ayant terminé leur progression avec le skin de base.
+    </div>
+</div>
+
+<div class="panel">
+
+<div class="panelHead">
+Classement
+</div>
 
 <table>
+
 <thead>
 <tr>
-<th>#</th>
-<th class="center">Snoki</th>
-<th>Joueur</th>
+<th>Rang</th>
+<th>Nom du joueur</th>
+<th>XP</th>
+<th>Kara</th>
+<th>Snoki de base</th>
 </tr>
 </thead>
 
-<tbody id="tbody"></tbody>
+<tbody>
+
+<tr class="top1"><td class="rank">1</td><td class="name"><a href="#">Talk Takashi</a></td><td class="center">1266680 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr class="top2"><td class="rank">2</td><td class="name"><a href="#">alex.c2109</a></td><td class="center">915180 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr class="top3"><td class="rank">3</td><td class="name"><a href="#">francoeur</a></td><td class="center">443222 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">4</td><td class="name"><a href="#">TheGladiator</a></td><td class="center">400002 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">5</td><td class="name"><a href="#">Ko0pa</a></td><td class="center">269386 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">6</td><td class="name"><a href="#">lumia</a></td><td class="center">230598 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">7</td><td class="name"><a href="#">Abelard</a></td><td class="center">201568 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">8</td><td class="name"><a href="#">Jordan.io</a></td><td class="center">200000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">9</td><td class="name"><a href="#">hoopa</a></td><td class="center">175000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">10</td><td class="name"><a href="#">Unit</a></td><td class="center">165042 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">11</td><td class="name"><a href="#">josué455</a></td><td class="center">159480 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">12</td><td class="name"><a href="#">Alexis279</a></td><td class="center">157282 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">13</td><td class="name"><a href="#">cirpacha</a></td><td class="center">102876 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">14</td><td class="name"><a href="#">Napoléon.1er</a></td><td class="center">100750 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">15</td><td class="name"><a href="#">Esdras950</a></td><td class="center">100000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">16</td><td class="name"><a href="#">Houka</a></td><td class="center">92000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">17</td><td class="name"><a href="#">Venom_</a></td><td class="center">90672 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">18</td><td class="name"><a href="#">Justice-</a></td><td class="center">82424 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">19</td><td class="name"><a href="#">UY-Scuty</a></td><td class="center">70000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">20</td><td class="name"><a href="#">Bételgeuse</a></td><td class="center">69000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+<tr><td class="rank">21</td><td class="name"><a href="#">Aldébaran</a></td><td class="center">69000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">22</td><td class="name"><a href="#">Golder</a></td><td class="center">66666 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">23</td><td class="name"><a href="#">blackout</a></td><td class="center">61096 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">24</td><td class="name"><a href="#">Largo672</a></td><td class="center">57836 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">25</td><td class="name"><a href="#">LargoJunior</a></td><td class="center">57522 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">26</td><td class="name"><a href="#">djabrail</a></td><td class="center">57166 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">27</td><td class="name"><a href="#">Elena21</a></td><td class="center">56666 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">28</td><td class="name"><a href="#">Shadow321</a></td><td class="center">54444 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">29</td><td class="name"><a href="#">Clovis1er</a></td><td class="center">53400 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">30</td><td class="name"><a href="#">Gangster2019</a></td><td class="center">52200 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">31</td><td class="name"><a href="#">venom2</a></td><td class="center">51172 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">32</td><td class="name"><a href="#">Tellor</a></td><td class="center">51014 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">33</td><td class="name"><a href="#">Pingu</a></td><td class="center">50000 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">34</td><td class="name"><a href="#">redbot</a></td><td class="center">49500 xp</td><td class="center">100</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">35</td><td class="name"><a href="#">marcosino</a></td><td class="center">45216 xp</td><td class="center">95</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">36</td><td class="name"><a href="#">Polyy</a></td><td class="center">42720 xp</td><td class="center">92</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">37</td><td class="name"><a href="#">seka</a></td><td class="center">42648 xp</td><td class="center">92</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">38</td><td class="name"><a href="#">cahincaha</a></td><td class="center">42000 xp</td><td class="center">92</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">39</td><td class="name"><a href="#">Athèna</a></td><td class="center">40004 xp</td><td class="center">89</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">40</td><td class="name"><a href="#">acno</a></td><td class="center">40000 xp</td><td class="center">89</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">41</td><td class="name"><a href="#">souda999</a></td><td class="center">39826 xp</td><td class="center">89</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">42</td><td class="name"><a href="#">roi1</a></td><td class="center">39200 xp</td><td class="center">89</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">43</td><td class="name"><a href="#">chris05</a></td><td class="center">36182 xp</td><td class="center">85</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">44</td><td class="name"><a href="#">mala49</a></td><td class="center">32264 xp</td><td class="center">80</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">45</td><td class="name"><a href="#">anime123</a></td><td class="center">31364 xp</td><td class="center">79</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">46</td><td class="name"><a href="#">BNDAZ205</a></td><td class="center">30152 xp</td><td class="center">78</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">47</td><td class="name"><a href="#">Fifi75018</a></td><td class="center">28388 xp</td><td class="center">75</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">48</td><td class="name"><a href="#">henoc77</a></td><td class="center">28038 xp</td><td class="center">75</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">49</td><td class="name"><a href="#">E1V2R3</a></td><td class="center">27564 xp</td><td class="center">74</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+
+<tr><td class="rank">50</td><td class="name"><a href="#">swaga976</a></td><td class="center">27404 xp</td><td class="center">74</td><td class="skin"><img src="avatar/4.jpg"></td></tr>
+</tbody>
 
 </table>
 
-</section>
+</div>
+
 </main>
-
-<script>
-
-const snoki = {
-"alex.c2109":"4.jpg",
-"TheGladiator":"4.jpg",
-"cahincaha":"4.jpg",
-"acno":"4.jpg",
-
-"Abelard":"13.jpg",
-"Jordan.io":"13.jpg",
-"Bételgeuse":"13.jpg",
-"Golder":"13.jpg",
-"blackout":"13.jpg",
-"LargoJunior":"13.jpg",
-"Pingu":"13.jpg",
-"Polyy":"13.jpg",
-"Fifi75018":"13.jpg",
-"Zeta-Puppis":"13.jpg",
-
-"francoeur":"36.jpg",
-"Clovis1er":"36.jpg",
-"Antarès_":"36.jpg",
-
-"Ko0pa":"29.jpg",
-"Houka":"29.jpg",
-"Aldébaran":"29.jpg",
-"venom2":"29.jpg",
-"henoc77":"29.jpg",
-"Brumaire":"29.jpg",
-
-"Alexis279":"20.jpg",
-"Napoléon.1er":"20.jpg",
-"redbot":"20.jpg",
-"PaulaHub":"20.jpg"
-};
-
-async function run(){
-
-    const res=await fetch("period/players_pages.json");
-    const data=await res.json();
-
-    const joueurs=data.joueurs||data.players||data;
-
-    joueurs.sort((a,b)=>(b.xp||0)-(a.xp||0));
-
-    const tbody=document.getElementById("tbody");
-
-    joueurs.slice(0,50).forEach((p,i)=>{
-
-        const img=snoki[p.nom];
-
-        tbody.innerHTML+=`
-        <tr>
-            <td class="rank">${i+1}</td>
-
-            <td class="center">
-                ${img?`<img class="snoki" src="avatar/${img}">`:""}
-            </td>
-
-            <td class="name">
-                <a href="${p.profileHref||"#"}">${p.nom}</a>
-            </td>
-        </tr>`;
-    });
-
-}
-
-run();
-
-</script>
 
 </body>
 </html>
