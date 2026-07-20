@@ -181,6 +181,48 @@ Classement
 
 <tbody id="classement">
     <script>
+
+const snokiBase = {
+
+    // vert
+    "alex.c2109":"4.jpg",
+    "TheGladiator":"4.jpg",
+    "cahincaha":"4.jpg",
+    "acno":"4.jpg",
+
+    // jaune
+    "Abelard":"13.jpg",
+    "Jordan.io":"13.jpg",
+    "Bételgeuse":"13.jpg",
+    "Golder":"13.jpg",
+    "blackout":"13.jpg",
+    "LargoJunior":"13.jpg",
+    "Pingu":"13.jpg",
+    "Polyy":"13.jpg",
+    "Fifi75018":"13.jpg",
+    "Zeta-Puppis":"13.jpg",
+
+    // rouge
+    "francoeur":"36.jpg",
+    "Clovis1er":"36.jpg",
+    "Antarès_":"36.jpg",
+
+    // bleu
+    "Ko0pa":"29.jpg",
+    "Houka":"29.jpg",
+    "Aldébaran":"29.jpg",
+    "venom2":"29.jpg",
+    "henoc77":"29.jpg",
+    "Brumaire":"29.jpg",
+
+    // violet
+    "Alexis279":"20.jpg",
+    "Napoléon.1er":"20.jpg",
+    "redbot":"20.jpg",
+    "PaulaHub":"20.jpg"
+};
+
+
 fetch("data/players_pages.json")
 .then(response => response.json())
 .then(players => {
@@ -188,16 +230,19 @@ fetch("data/players_pages.json")
     let html = "";
 
     players
-    .sort((a,b) => b.xp - a.xp)
-    .slice(0,50)
+    .filter(p => snokiBase[p.nom])
+    .sort((a,b)=> b.xp - a.xp)
     .forEach((p,i)=>{
 
         html += `
         <tr class="${i==0?'top1':i==1?'top2':i==2?'top3':''}">
+
             <td class="rank">${i+1}</td>
 
             <td class="name">
-                <a href="#">${p.name}</a>
+                <a href="${p.profileHref}">
+                    ${p.nom}
+                </a>
             </td>
 
             <td class="center">
@@ -205,12 +250,13 @@ fetch("data/players_pages.json")
             </td>
 
             <td class="center">
-                ${p.kara}
+                ${p.karas}
             </td>
 
             <td class="skin">
-                <img src="avatar/${p.base_skin}">
+                <img src="avatar/${snokiBase[p.nom]}">
             </td>
+
         </tr>
         `;
 
@@ -219,6 +265,7 @@ fetch("data/players_pages.json")
     document.getElementById("classement").innerHTML = html;
 
 });
+
 </script>
 </tbody>
 
