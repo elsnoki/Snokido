@@ -42,6 +42,7 @@ document.body.insertAdjacentHTML("afterbegin", `
           <a class="tab tab-year" href="rankyear2.html">Année2</a>
           <a class="tab tab-chrono" href="timeline.html">Timeline</a>
           <a class="tab tab-gen" href="gen.html">Générations</a>
+          <a class="tab tab-analyse" href="couleur.html">Snoki de base</a>
         </div>
       </div>
 
