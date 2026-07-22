@@ -180,7 +180,7 @@ window.gangsData = [
     members: [
       { nom: "Vendémiaire", xp: 8, karas: 8, avatar: "avatar/123.jpg" },
       { nom: "Pluviôse", xp: 8, karas: 8, avatar: "avatar/123.jpg" },
-      { nom: "Brumaire", xp: 8, karas: 8, avatar: "avatar/123.jpg" },
+      { nom: "Brumaire" },
       { nom: "Messidor", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
       { nom: "Frimaire", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
       { nom: "Ventôse", xp: 8, karas: 8, avatar: "avatar/116.jpg" },
