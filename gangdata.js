@@ -22,7 +22,10 @@ window.gangsData = [
       { nom: "Houka" },
       { nom: "Athèna" },
       { nom: "acno" },
-      { nom: "Shadow321" }
+      { nom: "Shadow321" },
+      { nom: "venom2" },
+      { nom: "Clovis1er" },
+      { nom: "Polyy" }
     ],
   },
 
@@ -50,7 +53,9 @@ window.gangsData = [
       { nom: "blackout" },
       { nom: "Napoléon.1er" },
       { nom: "Gangster2019" },
-      { nom: "Elena21" }
+      { nom: "Elena21" },
+      { nom: "PaulaHub" },
+      { nom: "cahincaha" }
     ],
   },
 
@@ -248,16 +253,11 @@ window.gangsData = [
     recrutement: "40k minimum.",
     trophees: "—",
     members: [
-      { nom: "cahincaha" },
       { nom: "UY-Scuty" },
       { nom: "Bételgeuse" },
       { nom: "Aldébaran" },
-      { nom: "venom2" },
-      { nom: "Clovis1er" },
-      { nom: "Polyy" },
       { nom: "Antarès_" },
-      { nom: "Zeta-Puppis" },
-      { nom: "PaulaHub" }
+      { nom: "Zeta-Puppis" }
     ],
   },
 ];
