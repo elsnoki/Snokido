@@ -249,6 +249,10 @@ td:nth-child(6){
     <div class="heroSub">
         Classement avec Snoki de base des joueurs.
     </div>
+
+    <p style="margin-top:20px;">
+        <a href="couleur.html" class="btn">← Retour aux couleurs</a>
+    </p>
 </div>
 
 <div class="panel">
@@ -332,7 +336,7 @@ couleurs.forEach(c=>{
     const liste=players
         .filter(p=>snokiBase[p.nom]==c.id)
         .sort((a,b)=>b.xp-a.xp)
-        .slice(0,10);
+        .slice(0,15);
 
     if(liste.length==0) return;
 
@@ -361,7 +365,7 @@ couleurs.forEach(c=>{
 
             <td>${p.xp.toLocaleString("fr-FR")} xp</td>
 
-            <td>${p.karas}</td>
+            <td>${p.rank}</td>
 
             <td>${p.inscription ?? "-"}</td>
 
