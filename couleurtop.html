@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Classement par Snoki de base</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="header.js" defer></script>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:radial-gradient(1100px 600px at 25% 15%, #2a88ad 0%, #0b3551 60%, #062638 100%);
+}
+
+
+.wrap{
+    max-width:1300px;
+    margin:30px auto;
+    padding:0 15px;
+}
+
+
+.hero{
+    background:rgba(255,255,255,.10);
+    backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:18px;
+    padding:20px;
+    color:#fff;
+    margin-bottom:20px;
+}
+
+
+.heroTitle{
+    font-size:30px;
+    font-weight:900;
+}
+
+
+.heroSub{
+    margin-top:8px;
+    font-size:15px;
+    color:rgba(255,255,255,.92);
+    font-weight:600;
+}
+
+
+.panel{
+    background:#fff;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 20px 55px rgba(0,0,0,.28);
+}
+
+
+.panelHead{
+    padding:16px 20px;
+    background:linear-gradient(#424242,#272727);
+    color:#fff;
+    font-size:20px;
+    font-weight:900;
+}
+
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+}
+
+
+thead th{
+    background:#fafafa;
+    padding:15px 10px;
+    border-bottom:2px solid #ddd;
+    text-align:center;
+    font-weight:900;
+}
+
+
+tbody td{
+    padding:12px 10px;
+    border-bottom:1px solid #e4e4e4;
+}
+
+
+tbody tr:nth-child(even){
+    background:#f7f7f7;
+}
+
+
+tbody tr:hover{
+    background:#eef8ff;
+}
+
+
+/* RANG */
+th:nth-child(1),
+td:nth-child(1){
+    width:70px;
+    text-align:center;
+    font-weight:bold;
+}
+
+
+/* SNOKI ACTUEL */
+th:nth-child(2),
+td:nth-child(2){
+    width:120px;
+    text-align:center;
+}
+
+
+.skin img{
+    width:60px;
+    height:60px;
+    border-radius:10px;
+    border:2px solid #aaa;
+    background:#ddd;
+}
+
+
+/* NOM JOUEUR */
+th:nth-child(3),
+td:nth-child(3){
+    width:260px;
+    text-align:left;
+    padding-left:35px;
+}
+
+
+.name a{
+    color:#2870bf;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+
+.name a:hover{
+    text-decoration:underline;
+}
+
+
+/* XP */
+th:nth-child(4),
+td:nth-child(4){
+    width:160px;
+    text-align:center;
+}
+
+
+/* KARA */
+th:nth-child(5),
+td:nth-child(5){
+    width:160px;
+    text-align:center;
+}
+
+
+/* SNOKI DE BASE */
+th:nth-child(6),
+td:nth-child(6){
+    width:120px;
+    text-align:center;
+}
+
+
+.base img{
+    width:50px;
+    height:50px;
+    border-radius:10px;
+    border:2px solid #aaa;
+    background:#ddd;
+}
+
+
+/* TOP 3 */
+.top1{
+    background:#fff7d2 !important;
+}
+
+
+.top2{
+    background:#ededed !important;
+}
+
+
+.top3{
+    background:#f7e1d2 !important;
+}
+
+
+
+@media(max-width:900px){
+
+    table{
+        font-size:13px;
+    }
+
+
+    .skin img,
+    .base img{
+        width:45px;
+        height:45px;
+    }
+
+
+    th:nth-child(3),
+    td:nth-child(3){
+        padding-left:10px;
+    }
+
+
+    .heroTitle{
+        font-size:24px;
+    }
+
+}
+  .section td{
+    background:#1f4b73;
+    color:#fff;
+    font-size:22px;
+    font-weight:bold;
+    text-align:center;
+    padding:14px;
+}
+
+.base img{
+    width:55px;
+    height:55px;
+    border-radius:10px;
+    border:2px solid #999;
+}
+
+</style>
+</head>
+<body>
+
+<main class="wrap">
+
+<div class="hero">
+    <div class="heroTitle">Classement par Snoki de base</div>
+
+    <div class="heroSub">
+        Classement avec Snoki de base des joueurs.
+    </div>
+</div>
+
+<div class="panel">
+
+<div class="panelHead">
+Classement
+</div>
+
+<table>
+
+<thead>
+<tr>
+    <th>Rang</th>
+    <th>Snoki</th>
+    <th>Nom du joueur</th>
+    <th>XP</th>
+    <th>Rang</th>
+    <th>Inscription</th>
+</tr>
+</thead>
+
+<tbody id="classement">
+  <script>
+fetch("data/players_pages.json")
+.then(r=>r.json())
+.then(players=>{
+
+const snokiBase={
+
+"alex.c2109":"4.jpg",
+"TheGladiator":"4.jpg",
+"cahincaha":"4.jpg",
+"acno":"4.jpg",
+"UY-Scuty":"4.jpg",
+
+"Abelard":"13.jpg",
+"Jordan.io":"13.jpg",
+"Bételgeuse":"13.jpg",
+"Golder":"13.jpg",
+"blackout":"13.jpg",
+"LargoJunior":"13.jpg",
+"Pingu":"13.jpg",
+"Polyy":"13.jpg",
+"Fifi75018":"13.jpg",
+"Zeta-Puppis":"13.jpg",
+"Justice-":"13.jpg",
+"Shadow321":"13.jpg",
+"Venom_":"13.jpg",
+
+"francoeur":"36.jpg",
+"Clovis1er":"36.jpg",
+"Antarès_":"36.jpg",
+
+"Ko0pa":"29.jpg",
+"Houka":"29.jpg",
+"Aldébaran":"29.jpg",
+"henoc77":"29.jpg",
+"Brumaire":"29.jpg",
+"Athèna":"29.jpg",
+
+"Alexis279":"20.jpg",
+"Napoléon.1er":"20.jpg",
+"redbot":"20.jpg",
+"PaulaHub":"20.jpg",
+"venom2":"20.jpg"
+
+};
+
+const couleurs=[
+    {id:"4.jpg",nom:"🟢 Vert"},
+    {id:"13.jpg",nom:"🟡 Jaune"},
+    {id:"36.jpg",nom:"🔴 Rouge"},
+    {id:"29.jpg",nom:"🔵 Bleu"},
+    {id:"20.jpg",nom:"🟣 Violet"}
+];
+
+let html="";
+
+couleurs.forEach(c=>{
+
+    const liste=players
+        .filter(p=>snokiBase[p.nom]==c.id)
+        .sort((a,b)=>b.xp-a.xp)
+        .slice(0,10);
+
+    if(liste.length==0) return;
+
+    html+=`
+    <tr class="section">
+        <td colspan="6">${c.nom}</td>
+    </tr>
+    `;
+
+    liste.forEach((p,i)=>{
+
+        html+=`
+        <tr class="${i==0?'top1':i==1?'top2':i==2?'top3':''}">
+
+            <td>${i+1}</td>
+
+            <td class="base">
+                <img src="avatar/${c.id}">
+            </td>
+
+            <td class="name">
+                <a href="${p.profileHref}">
+                    ${p.nom}
+                </a>
+            </td>
+
+            <td>${p.xp.toLocaleString("fr-FR")} xp</td>
+
+            <td>${p.karas}</td>
+
+            <td>${p.inscription ?? "-"}</td>
+
+        </tr>
+        `;
+
+    });
+
+});
+
+document.getElementById("classement").innerHTML=html;
+
+});
+</script>
+</tbody>
+
+</table>
+
+</div>
+
+</main>
+
+</body>
+</html>
