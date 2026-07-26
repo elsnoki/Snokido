@@ -329,16 +329,12 @@
     const content = document.getElementById("content");
     const members = document.getElementById("members");
 
-    if(!gang){
-      pageTitle.textContent = "Gang introuvable";
-      content.innerHTML = `
-        <div class="notice">
-          Ce profil ne peut pas se charger car les données ne sont pas encore calculées.<br>
-          Ouvre d’abord <b>gang.html</b> puis reviens ici.
-        </div>
-      `;
-      members.innerHTML = "";
-    } else {
+    if (!gang) {
+  // Les données ne sont pas encore en mémoire :
+  // on retourne automatiquement sur gang.html
+  localStorage.setItem("gangToOpen", gSlug);
+  location.replace("gang.html");
+} else {
       pageTitle.textContent = "Gang : " + gang.name;
 
       const xpStr = (gang.totalXp || 0).toLocaleString("fr-FR") + " xp";
