@@ -91,8 +91,8 @@ const joueurs = [
     nom:"Largo672", avatar:"avatar/15.jpg", gen:1, inscription:"10-02-2014",
     modes:{
       nv100:{ jours:610, atteint_le:"10-10-2015", rang:"10/23", xp:49500, pauses_total:{nb:2, mois:8, jours:243}, pauses_detail:[
-        {xp:22828, periode:"07/2014 -> 01/2015", mois:5, jours:153},
-        {xp:23632, periode:"01/2015 -> 03/2015", mois:2, jours:61}
+        { xp: 22828, periode: "27/06/2014 -> 06/12/2014", mois: 5, jours: 162 },
+        { xp: 23632, periode: "06/12/2014 -> 15/02/2015", mois: 2, jours: 71 }
       ]}
     }
   },
