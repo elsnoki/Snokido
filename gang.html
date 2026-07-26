@@ -230,6 +230,12 @@ const karas =
 
       // stock pour gang_profil
       localStorage.setItem("gangsResolved", JSON.stringify(gangs));
+      const gangToOpen = localStorage.getItem("gangToOpen");
+
+if (gangToOpen) {
+  localStorage.removeItem("gangToOpen");
+  location.href = "gang_profil.html?g=" + encodeURIComponent(gangToOpen);
+}
 
       // render
       tbody.innerHTML = "";
