@@ -370,18 +370,36 @@ body{
 const HISTORY_BASE = "data/history_paris";
 
 const REIGNS = [
-  { nom:"Korben", start:"2013-06-01", end:"2013-09-01", xpStart:2000, xpEnd:7100, note:"Juin 2013 → septembre 2013. Compte masqué à partir de septembre." },
-  { nom:"sanji", start:"2013-09-01", end:"2013-10-15", xpStart:600, xpEnd:1830, note:"Septembre 2013 → mi-octobre 2013." },
-  { nom:"aurel-08", start:"2013-10-15", end:"2013-12-05", xpStart:1900, xpEnd:3500, note:"Mi-octobre 2013 → vers début décembre 2013." },
-  { nom:"jordialba", start:"2013-12-05", end:"2014-01-31", xpStart:3700, xpEnd:6750, note:"Décembre 2013 → fin janvier 2014." },
-  { nom:"monkey.D dragon", start:"2014-01-31", end:"2014-03-31", xpStart:7000, xpEnd:10900, note:"Fin janvier 2014 → fin mars 2014." },
-  { nom:"Largo672", start:"2014-03-31", end:"2017-05-21", xpStart:11000, xpEnd:57756, note:"Fin mars 2014 → 21 mai 2017. XP indiquée à novembre 2016 : 57 756." },
-  { nom:"josué455", start:"2017-05-21", end:"2017-06-16", xpStart:58000, xpEnd:80300, note:"Jusqu’au 16 juin 2017." },
-  { nom:"Abelard", start:"2017-06-16", end:"2017-07-18", xpStart:80500, xpEnd:86160, note:"16 juin 2017 → 18 juillet 2017." },
-  { nom:"josué455", start:"2017-07-18", end:"2017-08-05", xpStart:86168, xpEnd:92196, note:"18 juillet 2017 → début août 2017." },
-  { nom:"Abelard", start:"2017-08-05", end:"2017-08-31", xpStart:92200, xpEnd:93000, note:"Début août 2017 → fin août 2017. XP fin approximative." },
-  { nom:"josué455", start:"2017-08-31", end:"2018-01-31", xpStart:93001, xpEnd:116000, note:"Début septembre 2017 → fin janvier 2018." },
-  { nom:"Talk Takashi", start:"2018-01-31", end:null, xpStart:116500, xpEnd:null, note:"Fin janvier 2018 → aujourd’hui." }
+  { nom:"Korben", start:"2013-06-01", end:"2013-09-26", xpStart:2000, xpEnd:6031, note:"Juin 2013 → 26 septembre 2013. Compte masqué à partir du 26 septembre." },
+  { nom:"sanji", start:"2013-09-26", end:"2013-10-23", xpStart:1499, xpEnd:1932, note:"26 Septembre 2013 → 23 octobre 2013." },
+  { nom:"aurel-08", start:"2013-10-23", end:"2013-11-10", xpStart:1900, xpEnd:2856, note:"23 octobre 2013 → 10 novembre 2013." },
+  { nom:"Luko", start:"2013-11-10", end:"2013-11-11", xpStart:2862, xpEnd:2905, note:"10 novembre 2013 → 11 novembre 2013." },
+  { nom:"aurel-08", start:"2013-11-11", end:"2013-11-18", xpStart:2942, xpEnd:3066, note:"11 novembre 2013 → 18 novembre 2013." },
+  { nom:"Luko", start:"2013-11-18", end:"2013-11-19", xpStart:3076, xpEnd:3087, note:"18 novembre 2013 → 19 novembre 2013." },
+  { nom:"aurel-08", start:"2013-11-19", end:"2013-11-30", xpStart:3090, xpEnd:3211, note:"19 novembre 2013 → 30 novembre 2013." },
+  { nom:"Luko", start:"2013-11-30", end:"2013-11-30", xpStart:3018, xpEnd:3224, note:"30 novembre 2013 → 30 novembre 2013." },
+  { nom:"aurel-08", start:"2013-11-30", end:"2013-12-01", xpStart:3250, xpEnd:3250, note:"30 novembre 2013 → 1 décembre 2013" },
+  { nom:"seb", start:"2013-12-01", end:"2013-12-06", xpStart:3271, xpEnd:3350, note:"1 Décembre 2013 -> 6 décembre 2013" },
+  { nom:"jordialba", start:"2013-12-06", end:"2013-12-09", xpStart:3440, xpEnd:3722, note:"6 Décembre 2013 → 9 décembre 2013." },
+  { nom:"aurel-08", start:"2013-12-09", end:"2013-12-09", xpStart:3725, xpEnd:3725, note:" 9 décembre 2013 → 9 décembre 2013" },
+  { nom:"jordialba", start:"2013-12-09", end:"2013-12-10", xpStart:3783, xpEnd:3781, note:"9 Décembre 2013 → 10 décembre 2013." },
+  { nom:"aurel-08", start:"2013-12-10", end:"2013-12-13", xpStart:3915, xpEnd:4001, note:" 10 décembre 2013 → 13 décembre 2013" },
+  { nom:"jordialba", start:"2013-12-13", end:"2014-01-02", xpStart:4194, xpEnd:6851, note:"9 Décembre 2013 → 2 janvier 2014." },
+  { nom:"monkey.D dragon", start:"2014-01-02", end:"2014-01-03", xpStart:6884, xpEnd:6884, note:"2 janvier 2014 → 3 janvier 2014." },
+  { nom:"jordialba", start:"2014-01-03", end:"2014-01-11", xpStart:7125, xpEnd:7111, note:"3 janvier 2014 → 11 janvier 2014." },
+  { nom:"monkey.D dragon", start:"2014-01-11", end:"2014-02-04", xpStart:7274, xpEnd:8739, note:"11 janvier 2014 → 4 février 2014." },
+  { nom:"yassine", start:"2014-02-04", end:"2014-02-08", xpStart:8776, xpEnd:6578, note:"4 février 2014 → 8 février 2014." },
+  { nom:"monkey.D dragon", start:"2014-02-08", end:"2014-03-27", xpStart:7489, xpEnd:9725, note:"8 février 2014 → 27 mars 2014." },
+  { nom:"Largo672", start:"2014-03-27", end:"2016-11-03", xpStart:9728, xpEnd:57756, note:"27 mars 2014 → 3 novembre 2016." },
+  { nom:"josué455", start:"2016-11-03", end:"2017-05-22", xpStart:58000, xpEnd:80248, note:"3 novembre 2016 -> 22 mai 2017." },
+  { nom:"Abelard", start:"2017-05-22", end:"2017-06-14", xpStart:80400, xpEnd:85800, note:"22 mai 2017 → 14 juin 2017." },
+  { nom:"josué455", start:"2017-06-14", end:"2017-06-15", xpStart:85852, xpEnd:85976, note:"14 juin 2017 → 15 juin 2017." },
+  { nom:"Abelard", start:"2017-06-15", end:"2017-06-16", xpStart:86084, xpEnd:86160, note:"15 juin 2017 → 16 juin 2017." },
+  { nom:"josué455", start:"2017-06-16", end:"2017-07-18", xpStart:86168, xpEnd:92196, note:"16 juin 2017 → 18 juillet 2017." },
+  { nom:"Abelard", start:"2017-07-18", end:"2017-07-22", xpStart:92200, xpEnd:94020, note:"18 juillet 2017 → 22 juillet 2017." },
+  
+  { nom:"josué455", start:"2017-07-22", end:"2018-01-31", xpStart:94296, xpEnd:116800, note:"22 juillet 2017 → fin janvier 2018." },
+  { nom:"Talk Takashi", start:"2018-01-31", end:null, xpStart:118830, xpEnd:null, note:"31 janvier 2018 → aujourd’hui." }
 ];
 
 const MANUAL_AVATARS = {
