@@ -51,7 +51,7 @@ const joueurs = [
   {
     nom:"Tellor", avatar:"avatar/18.jpg", gen:5, inscription:"10-04-2020",
     modes:{
-      nv100:{ jours:170, atteint_le:"17-09-2020", rang:"6/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
+      nv100:{ jours:170, atteint_le:"27-09-2020", rang:"6/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
     }
   },
   {
