@@ -257,14 +257,13 @@
     }
 
     const list = joueurs
-      .map(p => ({ p, s: p.modes?.nv100 || null }))
-      .filter(x => x.s);
+  .map(p => ({ p, s: p.modes?.nv100 || null }))
+  .filter(x => {
+    // Garde uniquement les joueurs ayant un nombre de jours valide
+    return x.s && x.s.jours !== null && x.s.jours !== undefined && x.s.jours !== "?";
+  });
 
-    list.sort((a, b) => {
-      const ax = (a.s.jours == null) ? Infinity : a.s.jours;
-      const bx = (b.s.jours == null) ? Infinity : b.s.jours;
-      return ax - bx;
-    });
+    list.sort((a, b) => a.s.jours - b.s.jours);
 
     tbody.innerHTML = "";
 
