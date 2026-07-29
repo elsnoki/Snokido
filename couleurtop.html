@@ -338,10 +338,29 @@ let html="";
 
 couleurs.forEach(c=>{
 
-    const liste=players
-        .filter(p=>snokiBase[p.nom]==c.id)
-        .sort((a,b)=>b.xp-a.xp)
-        .slice(0,15);
+    let liste=players
+    .filter(p=>snokiBase[p.nom]==c.id)
+    .sort((a,b)=>b.xp-a.xp);
+
+/* Ajout manuel de l'ancien cahincaha supprimé */
+if(c.id=="20.jpg"){
+
+    liste.push({
+        nom:"cahincaha",
+        xp:42000,
+        rank:"-",
+        inscription:"22/04/2015",
+        profileHref:"#",
+        supprime:true
+    });
+
+    /* Tri après l'ajout */
+    liste.sort((a,b)=>b.xp-a.xp);
+
+}
+
+/* Limite à 15 joueurs */
+liste=liste.slice(0,15);
 
     if(liste.length==0) return;
 
@@ -364,7 +383,7 @@ couleurs.forEach(c=>{
 
             <td class="name">
                 <a href="${p.profileHref}">
-                    ${p.nom}
+                    ${p.nom}${p.supprime ? " <span style='color:#c62828;'>(supprimé)</span>" : ""}
                 </a>
             </td>
 
