@@ -264,7 +264,15 @@ Classement
 fetch("data/players_pages.json")
 .then(response => response.json())
 .then(players => {
-
+players.push({
+    nom: "cahincaha (supprimé)",
+    xp: 42000,
+    karas: 305809 , 
+    avatar: "avatar/20.jpg",
+    profileHref: "#",
+    deleted: true
+});
+    
 const snokiBase = {
 
 "alex.c2109":"4.jpg",
@@ -316,7 +324,7 @@ let html="";
 
 players
 .sort((a,b)=>b.xp-a.xp)
-.slice(0,50)
+.slice(0, 100)
 .forEach((p,i)=>{
 
 let base = snokiBase[p.nom];
@@ -335,9 +343,10 @@ html += `
 
 
 <td class="name">
-<a href="${p.profileHref}">
-${p.nom}
-</a>
+${p.deleted
+    ? `<span class="deleted-player">${p.nom}</span>`
+    : `<a href="${p.profileHref}">${p.nom}</a>`
+}
 </td>
 
 
