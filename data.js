@@ -434,7 +434,7 @@ const joueurs = [
   }
 },
 {
-  nom:"Clovis1er", avatar:"avatar/36.jpg", gen:6, inscription:"14-02-2026",
+  nom:"Clovis1er", avatar:"avatar/52.jpg", gen:6, inscription:"14-02-2026",
   modes:{
     nv100:{
       jours:148, atteint_le:"12-07-2026", rang:"—", xp:0,
@@ -493,16 +493,6 @@ const joueurs = [
 },
   {
   nom:"Zeta-Puppis", avatar:"avatar/46.jpg", gen:null, inscription:"02-06-2026",
-  modes:{
-    nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:0,
-      pauses_total:{ nb:0, mois:0, jours:0 },
-      pauses_detail:[]
-    }
-  }
-},
-  {
-  nom:"PaulaHub", avatar:"avatar/20.jpg", gen:null, inscription:"05-02-2026",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:0,
