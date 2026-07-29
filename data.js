@@ -152,7 +152,7 @@ const joueurs = [
   {
     nom:"Golder", avatar:"avatar/13.jpg", gen:4, inscription:"24-07-2017",
     modes:{
-      nv100:{ jours:980, atteint_le:"30-03-2020", rang:"16/23", xp:49500, pauses_total:{nb:3, mois:6, jours:182}, pauses_detail:[
+      nv100:{ jours:980, atteint_le:"30-03-2020", rang:"16/23", xp:49500, pauses_total:{nb:2, mois:6, jours:182}, pauses_detail:[
         {xp:43360, periode:"09/2019 -> 11/2019", mois:2, jours:61},
         {xp:43476, periode:"12/2019 -> 03/2020", mois:3, jours:92}
       ] }
@@ -195,9 +195,9 @@ const joueurs = [
     nom:"lumia", avatar:"avatar/10.jpg", gen:5, inscription:"01-01-2019",
     modes:{
       nv100:{ jours:1226, atteint_le:"11-05-2022", rang:"19/23", xp:49500, pauses_total:{nb:3, mois:27, jours:821}, pauses_detail:[
-        {xp:17360, periode:"08/2019 -> 11/2019", mois:3},
-        {xp:17914, periode:"12/2019 -> 03/2020", mois:3},
-        {xp:24554, periode:"06/2020 -> 03/2022", mois:21}
+        {xp:17360, periode:"08/2019 -> 11/2019", mois:3, jours:92},
+        {xp:17914, periode:"12/2019 -> 03/2020", mois:3, jours:91},
+        {xp:24554, periode:"06/2020 -> 03/2022", mois:21, jours:638}
       ]},
       "100k":{ jours:823, atteint_le:"11-08-2024", rang:"13/14", xp:100000, pauses_total:{nb:2, mois:14, jours:428}, pauses_detail:[
         {xp:61666, periode:"07/2022 -> 11/2022", mois:4, jours:123},
@@ -359,7 +359,7 @@ const joueurs = [
       jours:1824, atteint_le:"07-05-2026", rang:"—", xp:49500,
       pauses_total:{ nb:1, mois:55, jours:1696 },
       pauses_detail:[
-        { xp:48108, periode:"13/09/2021 -> 06/09/2026", mois:55, jours:1696 }
+        { xp:48108, periode:"13/09/2021 -> 06/05/2026", mois:55, jours:1696 }
       ]
     }
   }
