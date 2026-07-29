@@ -251,9 +251,7 @@ const joueurs = [
 {
   nom:"UY-Scuty", avatar:"avatar/27.jpg", gen:6, inscription:"03-06-2022",
   modes:{
-    nv100:{
-      jours:1416, atteint_le:"19-04-2026", rang:"—", xp:40000,
-      pauses_total:{ nb:1, mois:44, jours:1341 },
+    nv100:{ jours:1416, atteint_le:"19-04-2026", rang:"—", xp:49500, pauses_total:{ nb:1, mois:44, jours:1341 },
       pauses_detail:[
         { xp:40000, periode:"06/08/2022 -> 09/04/2026", mois:44, jours:1341 }
       ]
@@ -264,7 +262,7 @@ const joueurs = [
   nom:"blackout", avatar:"avatar/30.jpg", gen:6, inscription:"16-05-2019",
   modes:{
     nv100:{
-      jours:2506, atteint_le:"26-03-2026", rang:"—", xp:40000,
+      jours:2506, atteint_le:"26-03-2026", rang:"—", xp:49500,
       pauses_total:{ nb:3, mois:75, jours:2301 },
       pauses_detail:[
         { xp:1696, periode:"20/05/2019 -> 01/2022~", mois:31, jours:957 },
@@ -278,7 +276,7 @@ const joueurs = [
   nom:"Athèna", avatar:"avatar/31.jpg", gen:7, inscription:"30-03-2019",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      jours:null, atteint_le:"—", rang:"—", xp:49500,
       pauses_total:{ nb:3, mois:75, jours:2334 },
       pauses_detail:[
         { xp:5080, periode:"16/06/2019 -> 08/2021~", mois:25, jours:777 },
@@ -292,7 +290,7 @@ const joueurs = [
   nom:"acno", avatar:"avatar/32.jpg", gen:7, inscription:"23-03-2019",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:40000,
+      jours:null, atteint_le:"—", rang:"—", xp:49500,
       pauses_total:{ nb:3, mois:77, jours:2372 },
       pauses_detail:[
         { xp:5080, periode:"19/05/2019 -> 10/2021", mois:28, jours:866 },
@@ -306,7 +304,7 @@ const joueurs = [
   nom:"cahincaha", avatar:"avatar/24.jpg", gen:7, inscription:"22-04-2023",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:42000,
+      jours:null, atteint_le:"—", rang:"—", xp:49500,
       pauses_total:{ nb:3, mois:25, jours:736 },
       pauses_detail:[
         { xp:40000, periode:"16/12/2023 -> 14/03/2024", mois:2, jours:89 },
@@ -320,7 +318,7 @@ const joueurs = [
   nom:"Houka", avatar:"avatar/25.jpg", gen:6, inscription:"18-11-2023",
   modes:{
     nv100:{
-      jours:851, atteint_le:"18-03-2026", rang:"—", xp:41000,
+      jours:851, atteint_le:"18-03-2026", rang:"—", xp:49500,
       pauses_total:{ nb:1, mois:19, jours:595 },
       pauses_detail:[
         { xp:41000, periode:"15/07/2024 -> 02/03/2026", mois:19, jours:595 }
@@ -332,7 +330,7 @@ const joueurs = [
   nom:"Bételgeuse", avatar:"avatar/28.jpg", gen:6, inscription:"07-06-2020",
   modes:{
     nv100:{
-      jours:2145, atteint_le:"22-04-2026", rang:"—", xp:40000,
+      jours:2145, atteint_le:"22-04-2026", rang:"—", xp:49500,
       pauses_total:{ nb:2, mois:64, jours:1955 },
       pauses_detail:[
         { xp:8100, periode:"09/2020 -> 08/2022", mois:23, jours:699 },
@@ -345,7 +343,7 @@ const joueurs = [
   nom:"Aldébaran", avatar:"avatar/29.jpg", gen:6, inscription:"07-06-2020",
   modes:{
     nv100:{
-      jours:2145, atteint_le:"22-04-2026", rang:"—", xp:40000,
+      jours:2145, atteint_le:"22-04-2026", rang:"—", xp:49500,
       pauses_total:{ nb:2, mois:64, jours:1955 },
       pauses_detail:[
         { xp:8100, periode:"09/2020 -> 08/2022", mois:23, jours:699 },
@@ -358,7 +356,7 @@ const joueurs = [
   nom:"Venom_", avatar:"avatar/21.jpg", gen:6, inscription:"09-05-2021",
   modes:{
     nv100:{
-      jours:1824, atteint_le:"07-05-2026", rang:"—", xp:48108,
+      jours:1824, atteint_le:"07-05-2026", rang:"—", xp:49500,
       pauses_total:{ nb:1, mois:55, jours:1696 },
       pauses_detail:[
         { xp:48108, periode:"13/09/2021 -> 06/09/2026", mois:55, jours:1696 }
@@ -370,7 +368,7 @@ const joueurs = [
   nom:"Justice-", avatar:"avatar/26.jpg", gen:6, inscription:"29-02-2024",
   modes:{
     nv100:{
-      jours:749, atteint_le:"19-03-2026", rang:"—", xp:32580,
+      jours:749, atteint_le:"19-03-2026", rang:"—", xp:49500,
       pauses_total:{ nb:2, mois:15, jours:488 },
       pauses_detail:[
         { xp:27824, periode:"12/08/2024 -> 22/01/2025", mois:5, jours:163 },
@@ -383,7 +381,7 @@ const joueurs = [
   nom:"Napoléon.1er", avatar:"avatar/40.jpg", gen:6, inscription:"14-07-2024",
   modes:{
     nv100:{
-      jours:650, atteint_le:"18-04-2026", rang:"—", xp:12776,
+      jours:650, atteint_le:"18-04-2026", rang:"—", xp:49500,
       pauses_total:{ nb:2, mois:6, jours:213 },
       pauses_detail:[
         { xp:12560, periode:"06/2025 -> 10/2025", mois:4, jours:122 },
@@ -400,7 +398,7 @@ const joueurs = [
   nom:"Elena21", avatar:"avatar/41.jpg", gen:6, inscription:"31-03-2019",
   modes:{
     nv100:{
-      jours:2610, atteint_le:"23-05-2026", rang:"—", xp:200,
+      jours:2610, atteint_le:"23-05-2026", rang:"—", xp:49500,
       pauses_total:{ nb:1, mois:81, jours:2468 },
       pauses_detail:[
         { xp:200, periode:"05/2019 -> 02/2026", mois:81, jours:2468 }
@@ -412,7 +410,7 @@ const joueurs = [
   nom:"Gangster2019", avatar:"avatar/44.jpg", gen:6, inscription:"24-03-2019",
   modes:{
     nv100:{
-      jours:2627, atteint_le:"02-06-2026", rang:"—", xp:1940,
+      jours:2627, atteint_le:"02-06-2026", rang:"—", xp:49500,
       pauses_total:{ nb:2, mois:80, jours:2435 },
       pauses_detail:[
         { xp:1512, periode:"06/2019 -> 06/2020", mois:12, jours:366 },
@@ -425,7 +423,7 @@ const joueurs = [
   nom:"Shadow321", avatar:"avatar/42.jpg", gen:6, inscription:"24-03-2019",
   modes:{
     nv100:{
-      jours:2625, atteint_le:"31-05-2026", rang:"—", xp:1134,
+      jours:2625, atteint_le:"31-05-2026", rang:"—", xp:49500,
       pauses_total:{ nb:1, mois:81, jours:2471 },
       pauses_detail:[
         { xp:1134, periode:"06/2019 -> 07/03/2026", mois:81, jours:2471 }
@@ -437,7 +435,7 @@ const joueurs = [
   nom:"Clovis1er", avatar:"avatar/52.jpg", gen:6, inscription:"14-02-2026",
   modes:{
     nv100:{
-      jours:148, atteint_le:"12-07-2026", rang:"—", xp:0,
+      jours:148, atteint_le:"12-07-2026", rang:"—", xp:49500,
       pauses_total:{ nb:0, mois:0, jours:0 },
       pauses_detail:[]
     }
@@ -447,9 +445,10 @@ const joueurs = [
   nom:"Polyy", avatar:"avatar/33.jpg", gen:null, inscription:"24-12-2025",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:0,
-      pauses_total:{ nb:0, mois:0, jours:0 },
-      pauses_detail:[]
+      jours:null, atteint_le:"—", rang:"—", xp:49500,
+      pauses_total:{ nb:1, mois:0, jours:15 },
+      pauses_detail:[
+        { xp:42720, periode:" 11/07/2026 -> ", mois:0, jours:15 }]
     }
   }
 },
@@ -457,7 +456,7 @@ const joueurs = [
   nom:"venom2", avatar:"avatar/34.jpg", gen:6, inscription:"07-08-2025",
   modes:{
     nv100:{
-      jours:339, atteint_le:"12-07-2026", rang:"—", xp:14124,
+      jours:339, atteint_le:"12-07-2026", rang:"—", xp:49500,
       pauses_total:{ nb:2, mois:1, jours:35 },
       pauses_detail:[
         { xp:14072, periode:"~13/01/2026 -> 03/02/2026", mois:0, jours:21 },
@@ -470,7 +469,7 @@ const joueurs = [
   nom:"PaulaHub", avatar:"avatar/20.jpg", gen:null, inscription:"05-02-2026",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:260,
+      jours:null, atteint_le:"—", rang:"—", xp:49500,
       pauses_total:{ nb:1, mois:4, jours:122 },
       pauses_detail:[
         { xp:260, periode:"02/2026 -> 06/2026", mois:4, jours:122 }
@@ -482,7 +481,7 @@ const joueurs = [
   nom:"Brumaire", avatar:"avatar/29.jpg", gen:null, inscription:"16-11-2024",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:40,
+      jours:null, atteint_le:"—", rang:"—", xp:49500,
       pauses_total:{ nb:2, mois:18, jours:562 },
       pauses_detail:[
         { xp:8, periode:"16/11/2024 -> 03/2026", mois:15, jours:470 },
@@ -495,7 +494,7 @@ const joueurs = [
   nom:"Zeta-Puppis", avatar:"avatar/46.jpg", gen:null, inscription:"02-06-2026",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:0,
+      jours:null, atteint_le:"—", rang:"—", xp:49500,
       pauses_total:{ nb:0, mois:0, jours:0 },
       pauses_detail:[]
     }
@@ -505,7 +504,7 @@ const joueurs = [
   nom:"Antarès_", avatar:"avatar/36.jpg", gen:null, inscription:"05-06-2026",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:0,
+      jours:null, atteint_le:"—", rang:"—", xp:49500,
       pauses_total:{ nb:0, mois:0, jours:0 },
       pauses_detail:[]
     }
