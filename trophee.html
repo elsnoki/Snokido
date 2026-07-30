@@ -585,7 +585,137 @@
 
       return list.slice(0, 3);
     }
+const HISTORY_BASE = "data/history_paris";
 
+function toNumberXP(v){
+  if(typeof v === "number") return v;
+  const s = String(v || "")
+    .replace(/\s/g, "")
+    .replace(/,/g, "")
+    .trim();
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function extractPlayers(d){
+  if(!d) return null;
+  if(Array.isArray(d)) return d;
+  if(Array.isArray(d.players)) return d.players;
+  if(Array.isArray(d.joueurs)) return d.joueurs;
+  return null;
+}
+
+function normalizeDay(s){
+  const m = String(s || "").match(/^(\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : null;
+}
+
+async function loadIndex(){
+  const idx = await fetchJson(HISTORY_BASE + "/index.json");
+  if(!Array.isArray(idx)) return null;
+  return idx.map(normalizeDay).filter(Boolean).sort();
+}
+
+async function loadSnapPlayers(day){
+  const raw = await fetchJson(HISTORY_BASE + "/" + day + ".json");
+  return extractPlayers(raw);
+}
+
+function buildPlayerMap(players){
+  const map = new Map();
+
+  (players || []).forEach(p => {
+    map.set(slugify2(p.nom), {
+      nom: p.nom,
+      xp: toNumberXP(p.xp),
+      avatar: p.avatar || null
+    });
+  });
+
+  return map;
+}
+
+function buildYearPairs(index){
+  const jan = index.filter(d => d.endsWith("-01-01")).sort();
+  const pairs = [];
+
+  if(index.length && jan.length && index[0] < jan[0]){
+    pairs.push({
+      year: index[0].slice(0,4),
+      start: index[0],
+      end: jan[0]
+    });
+  }
+
+  for(let i = 0; i < jan.length - 1; i++){
+    pairs.push({
+      year: jan[i].slice(0,4),
+      start: jan[i],
+      end: jan[i + 1]
+    });
+  }
+
+  const lastJan = jan[jan.length - 1];
+  const latest = index[index.length - 1];
+
+  if(lastJan && latest && latest > lastJan){
+    pairs.push({
+      year: lastJan.slice(0,4),
+      start: lastJan,
+      end: latest
+    });
+  }
+
+  return pairs;
+}
+
+async function computeBestYearXp(){
+  const index = await loadIndex();
+  if(!index || !index.length) return [];
+
+  const pairs = buildYearPairs(index);
+  const best = new Map();
+
+  for(const p of pairs){
+    const start = await loadSnapPlayers(p.start);
+    const end = await loadSnapPlayers(p.end);
+
+    if(!start || !end) continue;
+
+    const startMap = buildPlayerMap(start);
+    const endMap = buildPlayerMap(end);
+
+    for(const [k, e] of endMap){
+      const s = startMap.get(k);
+      if(!s) continue;
+
+      const gain = e.xp - s.xp;
+      if(gain <= 0) continue;
+
+      const prev = best.get(k);
+
+      if(!prev || gain > prev.gain){
+        best.set(k, {
+          nom: e.nom,
+          avatar: e.avatar,
+          gain,
+          year: p.year
+        });
+      }
+    }
+  }
+
+  best.set("cahincaha-2023-exception", {
+    nom: "cahincaha",
+    avatar: playerAvatar("cahincaha"),
+    gain: 40000,
+    year: "2023"
+  });
+
+  return Array.from(best.values())
+    .sort((a,b) => b.gain - a.gain)
+    .slice(0,100);
+}
     function buildPodiumItem(entry, place){
       if(!entry){
         return `
@@ -674,15 +804,16 @@
       const mostPausesTop3 = computeMostPausesTop3();
       const karaTop3 = await computeKaraTop3();
       const ratedGamesTop3 = await computeRatedGamesTop3();
+      const bestYearXp = await computeBestYearXp();
 
       const trophies = [
         {
           title: "Premier niveau 100",
           sub: "Les premiers joueurs à atteindre le niveau 100",
           podium: [
-            { nom:"Largo672", detail:"Le 10/10/2015" },
-            { nom:"djabrail", detail:"Le 30/06/2016" },
-            { nom:"josué455", detail:"Le 01/10/2016" }
+            { nom:"Largo672", detail:"Le 09/10/2015" },
+            { nom:"djabrail", detail:"Le 28/06/2016" },
+            { nom:"josué455", detail:"Le 06/10/2016" }
           ]
         },
         {
@@ -690,8 +821,8 @@
           sub: "Temps record pour atteindre le niveau 100",
           podium: [
             { nom:"Ko0pa", detail:"23 jours • 16/02/2026" },
+            { nom:"LargoJunior", detail:"48 jours • 30/03/2026" },
             { nom:"TheGladiator", detail:"54 jours • 16/07/2020" },
-            { nom:"redbot", detail:"55 jours • 01/10/2022" }
           ]
         },
         {
@@ -825,7 +956,7 @@
           podium: [
             { nom:"TheGladiator", detail:"Le 16/07/2020" },
             { nom:"Pingu", detail:"Le 15/09/2024" },
-            null
+            { nom:"Houka", detail:"Le 18/03/2026" },
           ]
         },
         {
@@ -850,14 +981,28 @@
           ]
         },
         {
-          title: "Le plus d’EXP réalisées sur un an",
-          sub: "Meilleure année individuelle",
-          podium: [
-            { nom:"Talk Takashi", detail:"349 000 EXP • 2020" },
-            { nom:"TheGladiator", detail:"246 000 EXP • 2020" },
-            { nom:"alex.c2109", detail:"184 000 EXP • 2025" }
-          ]
-        }
+  title: "Le plus d’EXP réalisées sur un an",
+  sub: "Meilleure année individuelle",
+  podium: [
+    bestYearXp[0] ? {
+      nom: bestYearXp[0].nom,
+      avatar: bestYearXp[0].avatar,
+      detail: `${fmt(bestYearXp[0].gain)} EXP • ${bestYearXp[0].year}`
+    } : null,
+
+    bestYearXp[1] ? {
+      nom: bestYearXp[1].nom,
+      avatar: bestYearXp[1].avatar,
+      detail: `${fmt(bestYearXp[1].gain)} EXP • ${bestYearXp[1].year}`
+    } : null,
+
+    bestYearXp[2] ? {
+      nom: bestYearXp[2].nom,
+      avatar: bestYearXp[2].avatar,
+      detail: `${fmt(bestYearXp[2].gain)} EXP • ${bestYearXp[2].year}`
+    } : null
+  ]
+}
       ];
 
       grid.innerHTML = trophies.map(renderTrophyCard).join("");
