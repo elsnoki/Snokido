@@ -91,7 +91,7 @@ const joueurs = [
   {
     nom:"Largo672", avatar:"avatar/15.jpg", gen:1, inscription:"10-02-2014",
     modes:{
-      nv100:{ jours:610, atteint_le:"10-10-2015", rang:"10/23", xp:49500, pauses_total:{nb:2, mois:8, jours:243}, pauses_detail:[
+      nv100:{ jours:606, atteint_le:"09-10-2015", rang:"10/23", xp:49500, pauses_total:{nb:2, mois:8, jours:243}, pauses_detail:[
         { xp: 22828, periode: "27/06/2014 -> 06/12/2014", mois: 5, jours: 162 },
         { xp: 23632, periode: "06/12/2014 -> 15/02/2015", mois: 2, jours: 71 }
       ]}
@@ -103,7 +103,7 @@ const joueurs = [
       nv100:{ jours:636, atteint_le:"09-04-2020", rang:"11/23", xp:49500, pauses_total:{nb:1, mois:5, jours:153}, pauses_detail:[
         {xp:35120, periode:"07/2019 -> 12/2019", mois:5, jours:153},
       ]},
-        "100k":{jours:2199, atteint_le:"17/04/2026", rang:"—", xp:100000, pauses_total:{nb:1, mois:57, jours:1754}, pauses_detail:[
+        "100k":{jours:2199, atteint_le:"17-04-2026", rang:"—", xp:100000, pauses_total:{nb:1, mois:57, jours:1754}, pauses_detail:[
         {xp:60000, periode:"05/2021 -> 18/02/2026", mois:57, jours:1754}
       ]}
     }
@@ -129,7 +129,7 @@ const joueurs = [
   {
     nom:"djabrail", avatar:"avatar/16.jpg", gen:1, inscription:"07-08-2014",
     modes:{
-      nv100:{ jours:693, atteint_le:"30-06-2016", rang:"13/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
+      nv100:{ jours:691, atteint_le:"~28-06-2016", rang:"13/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
     }
   },
   {
@@ -378,7 +378,7 @@ const joueurs = [
   nom:"Napoléon.1er", avatar:"avatar/40.jpg", gen:6, inscription:"14-07-2024",
   modes:{
     nv100:{
-      jours:650, atteint_le:"18-04-2026", rang:"—", xp:49500,
+      jours:643, atteint_le:"18-04-2026", rang:"—", xp:49500,
       pauses_total:{ nb:2, mois:6, jours:213 },
       pauses_detail:[
         { xp:12560, periode:"06/2025 -> 10/2025", mois:4, jours:122 },
