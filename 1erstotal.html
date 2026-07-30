@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Temps total cumulé des n°1</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="header.js" defer></script>
+
+<style>
+:root{
+  --panel:#ffffff;
+  --panelSoft:#f7f9fc;
+  --line:#dfe7ef;
+  --text:#1f2c38;
+  --muted:#6a7b8d;
+  --blue:#2c6fb7;
+  --blueDark:#1f5c9d;
+  --gold:#d5a53b;
+  --goldSoft:#fff4d8;
+  --silver:#cfd7e3;
+  --silverSoft:#f2f5f9;
+  --bronze:#ba8352;
+  --bronzeSoft:#f9ede3;
+  --green:#2f8f60;
+  --greenSoft:#eaf8f0;
+  --shadow:0 18px 48px rgba(0,0,0,.24);
+}
+
+body{
+  margin:0;
+  background: radial-gradient(1200px 700px at 20% 10%, #2d88ad 0%, #0b3551 58%, #072638 100%);
+  font-family: Arial, sans-serif;
+  color:var(--text);
+}
+
+.wrap{
+  max-width:1360px;
+  margin:28px auto 46px;
+  padding:0 14px;
+}
+
+.hero{
+  background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:20px;
+  padding:24px;
+  color:#fff;
+  box-shadow:0 16px 40px rgba(0,0,0,.18);
+  backdrop-filter: blur(4px);
+  margin-bottom:18px;
+}
+
+.heroTop{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.heroTitle{
+  margin:0 0 8px;
+  font-size:32px;
+  font-weight:900;
+  line-height:1.08;
+}
+
+.heroSub{
+  max-width:780px;
+  font-size:15px;
+  line-height:1.45;
+  font-weight:700;
+  color:rgba(255,255,255,.84);
+}
+
+.heroBadge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.18);
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:14px;
+  margin-top:18px;
+}
+
+.stat{
+  background:rgba(255,255,255,.11);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:16px;
+  padding:15px 16px;
+}
+
+.statLabel{
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.72);
+  margin-bottom:6px;
+}
+
+.statValue{
+  font-size:24px;
+  font-weight:900;
+  color:#fff;
+}
+
+.panel{
+  background:var(--panel);
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,.08);
+}
+
+.topnav{
+  padding:14px 18px;
+  border-bottom:1px solid #e6ebf1;
+  background:linear-gradient(180deg, #fcfdff 0%, #f3f6fa 100%);
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.topnav a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:11px 16px;
+  border-radius:12px;
+  text-decoration:none;
+  font-weight:900;
+  color:#4d5e70;
+  background:#e9eef5;
+  border:1px solid #d8e0ea;
+  transition:.18s ease;
+}
+
+.topnav a:hover{
+  transform:translateY(-1px);
+  background:#dfe8f2;
+}
+
+.topnav a.active{
+  background:linear-gradient(180deg, var(--blue) 0%, var(--blueDark) 100%);
+  color:#fff;
+  border-color:transparent;
+  box-shadow:0 10px 24px rgba(44,111,183,.28);
+}
+
+.sub{
+  padding:12px 18px;
+  font-weight:900;
+  color:#465566;
+  border-bottom:1px solid #e7edf3;
+  background:#fafcff;
+}
+
+.note{
+  margin:14px 18px 0;
+  padding:13px 15px;
+  background:linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+  border:1px solid #d7e5fb;
+  border-radius:14px;
+  font-weight:700;
+  color:#35506c;
+}
+
+.warn{
+  margin:14px 18px 0;
+  padding:11px 13px;
+  background:#fff3cd;
+  border:1px solid #ffe69c;
+  border-radius:12px;
+  font-weight:900;
+  color:#664d03;
+  display:none;
+}
+
+.tableWrap{
+  padding:16px 18px 18px;
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  min-width:1120px;
+  border-collapse:separate;
+  border-spacing:0;
+  border:1px solid #e3eaf2;
+  border-radius:18px;
+  overflow:hidden;
+  background:#fff;
+}
+
+thead th{
+  background:linear-gradient(180deg, #ffffff 0%, #f4f7fb 100%);
+  padding:15px 12px;
+  text-align:left;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  color:#5a6d7f;
+  border-bottom:1px solid #dde6ef;
+}
+
+tbody td{
+  padding:15px 12px;
+  border-bottom:1px solid #edf2f7;
+  vertical-align:middle;
+  font-size:15px;
+}
+
+tbody tr:last-child td{
+  border-bottom:none;
+}
+
+tbody tr:nth-child(odd){
+  background:#fcfdff;
+}
+
+tbody tr:hover{
+  background:#f4f8fc;
+}
+
+.rank{
+  width:78px;
+  text-align:center;
+  font-weight:900;
+  font-size:24px;
+  color:#3f4f60;
+}
+
+.medal{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  font-weight:900;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45);
+}
+
+.gold{ background:linear-gradient(180deg, #ffe8a8 0%, #ddb24b 100%); color:#5f4300; }
+.silver{ background:linear-gradient(180deg, #f7f9fc 0%, #cbd5e1 100%); color:#4a596b; }
+.bronze{ background:linear-gradient(180deg, #f6dcc7 0%, #bf8555 100%); color:#5d3516; }
+
+.playerCell{
+  min-width:280px;
+}
+
+.playerCard{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.avatarWrap{
+  width:68px;
+  height:68px;
+  border-radius:16px;
+  background:linear-gradient(180deg, #eef3f9 0%, #dbe5f0 100%);
+  border:1px solid #cbd6e2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+  flex:0 0 auto;
+}
+
+.avatarWrap img{
+  width:58px;
+  height:58px;
+  object-fit:cover;
+  border-radius:14px;
+  border:2px solid #95a6b8;
+  display:block;
+  background:#dfe5eb;
+}
+
+.playerInfo{
+  min-width:0;
+}
+
+.playerInfo a{
+  color:#223140;
+  text-decoration:none;
+  font-size:18px;
+  font-weight:900;
+}
+
+.playerInfo a:hover{
+  text-decoration:underline;
+}
+
+.playerMeta{
+  margin-top:5px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--muted);
+}
+
+.center{
+  text-align:center;
+  white-space:nowrap;
+  font-weight:900;
+}
+
+.durationBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 12px;
+  border-radius:999px;
+  background:var(--goldSoft);
+  color:#815f0d;
+  border:1px solid #efd486;
+  font-weight:900;
+  min-width:110px;
+}
+
+.dateBox{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+}
+
+.miniBadge{
+  display:inline-flex;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid #d8e6d9;
+  background:var(--greenSoft);
+  color:var(--green);
+}
+
+.xpBox{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+
+.xpValue{
+  font-weight:900;
+  color:#243648;
+}
+
+.xpHint{
+  font-size:12px;
+  font-weight:700;
+  color:var(--muted);
+}
+
+.noteCell{
+  color:#445464;
+  line-height:1.42;
+  min-width:280px;
+}
+
+@media (max-width: 980px){
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  .heroTitle{
+    font-size:26px;
+  }
+}
+</style>
+</head>
+
+<body>
+<main class="wrap">
+
+  <section class="hero">
+    <div class="heroTop">
+      <div>
+        <h1 class="heroTitle">Temps total cumulé des n°1</h1>
+        <div class="heroSub">
+          Classement des joueurs ayant passé le plus de temps au total à la première place, tous leurs règnes cumulés.
+        </div>
+      </div>
+      <div class="heroBadge">👑 Histoire des leaders</div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="panel">
+    <div class="topnav">
+      <a href="1ers.html" class="active">Plus longs règnes</a>
+      <a href="1erstotal.html">Total cumulé</a>
+      <a href="1erschrono.html">Ordre chronologique</a>
+    </div>
+
+    <div class="sub" id="rangeTxt">Chargement…</div>
+
+    
+
+    <div id="warn" class="warn"></div>
+
+    <div class="tableWrap">
+      <table>
+        <thead>
+<tr>
+  <th></th>
+  <th>Joueur</th>
+  <th class="center">Temps total n°1</th>
+  <th class="center">Nombre de règnes</th>
+</tr>
+</thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+const HISTORY_BASE = "data/history_paris";
+
+const REIGNS = [
+  { nom:"Korben", start:"2013-06-01", end:"2013-09-26", xpStart:2000, xpEnd:6031, note:"Juin 2013 → 26 septembre 2013. Compte masqué à partir du 26 septembre." },
+  { nom:"sanji", start:"2013-09-26", end:"2013-10-23", xpStart:1499, xpEnd:1932, note:"26 Septembre 2013 → 23 octobre 2013." },
+  { nom:"aurel-08", start:"2013-10-23", end:"2013-11-10", xpStart:1900, xpEnd:2856, note:"23 octobre 2013 → 10 novembre 2013." },
+  { nom:"Luko", start:"2013-11-10", end:"2013-11-11", xpStart:2862, xpEnd:2905, note:"10 novembre 2013 → 11 novembre 2013." },
+  { nom:"aurel-08", start:"2013-11-11", end:"2013-11-18", xpStart:2942, xpEnd:3066, note:"11 novembre 2013 → 18 novembre 2013." },
+  { nom:"Luko", start:"2013-11-18", end:"2013-11-19", xpStart:3076, xpEnd:3087, note:"18 novembre 2013 → 19 novembre 2013." },
+  { nom:"aurel-08", start:"2013-11-19", end:"2013-11-30", xpStart:3090, xpEnd:3211, note:"19 novembre 2013 → 30 novembre 2013." },
+  { nom:"Luko", start:"2013-11-30", end:"2013-11-30", xpStart:3018, xpEnd:3224, note:"30 novembre 2013 → 30 novembre 2013." },
+  { nom:"aurel-08", start:"2013-11-30", end:"2013-12-01", xpStart:3250, xpEnd:3250, note:"30 novembre 2013 → 1 décembre 2013" },
+  { nom:"seb", start:"2013-12-01", end:"2013-12-06", xpStart:3271, xpEnd:3350, note:"1 Décembre 2013 -> 6 décembre 2013" },
+  { nom:"jordialba", start:"2013-12-06", end:"2013-12-09", xpStart:3440, xpEnd:3722, note:"6 Décembre 2013 → 9 décembre 2013." },
+  { nom:"aurel-08", start:"2013-12-09", end:"2013-12-09", xpStart:3725, xpEnd:3725, note:" 9 décembre 2013 → 9 décembre 2013" },
+  { nom:"jordialba", start:"2013-12-09", end:"2013-12-10", xpStart:3783, xpEnd:3781, note:"9 Décembre 2013 → 10 décembre 2013." },
+  { nom:"aurel-08", start:"2013-12-10", end:"2013-12-13", xpStart:3915, xpEnd:4001, note:" 10 décembre 2013 → 13 décembre 2013" },
+  { nom:"jordialba", start:"2013-12-13", end:"2014-01-02", xpStart:4194, xpEnd:6851, note:"9 Décembre 2013 → 2 janvier 2014." },
+  { nom:"monkey.D dragon", start:"2014-01-02", end:"2014-01-03", xpStart:6884, xpEnd:6884, note:"2 janvier 2014 → 3 janvier 2014." },
+  { nom:"jordialba", start:"2014-01-03", end:"2014-01-11", xpStart:7125, xpEnd:7111, note:"3 janvier 2014 → 11 janvier 2014." },
+  { nom:"monkey.D dragon", start:"2014-01-11", end:"2014-02-04", xpStart:7274, xpEnd:8739, note:"11 janvier 2014 → 4 février 2014." },
+  { nom:"yassine", start:"2014-02-04", end:"2014-02-08", xpStart:8776, xpEnd:6578, note:"4 février 2014 → 8 février 2014." },
+  { nom:"monkey.D dragon", start:"2014-02-08", end:"2014-03-27", xpStart:7489, xpEnd:9725, note:"8 février 2014 → 27 mars 2014." },
+  { nom:"Largo672", start:"2014-03-27", end:"2016-11-03", xpStart:9728, xpEnd:57756, note:"27 mars 2014 → 3 novembre 2016." },
+  { nom:"josué455", start:"2016-11-03", end:"2017-05-22", xpStart:58000, xpEnd:80248, note:"3 novembre 2016 -> 22 mai 2017." },
+  { nom:"Abelard", start:"2017-05-22", end:"2017-06-14", xpStart:80400, xpEnd:85800, note:"22 mai 2017 → 14 juin 2017." },
+  { nom:"josué455", start:"2017-06-14", end:"2017-06-15", xpStart:85852, xpEnd:85976, note:"14 juin 2017 → 15 juin 2017." },
+  { nom:"Abelard", start:"2017-06-15", end:"2017-06-16", xpStart:86084, xpEnd:86160, note:"15 juin 2017 → 16 juin 2017." },
+  { nom:"josué455", start:"2017-06-16", end:"2017-07-18", xpStart:86168, xpEnd:92196, note:"16 juin 2017 → 18 juillet 2017." },
+  { nom:"Abelard", start:"2017-07-18", end:"2017-07-22", xpStart:92200, xpEnd:94020, note:"18 juillet 2017 → 22 juillet 2017." },
+  
+  { nom:"josué455", start:"2017-07-22", end:"2018-01-28", xpStart:94296, xpEnd:116800, note:"22 juillet 2017 → 28 janvier 2018." },
+  { nom:"Talk Takashi", start:"2018-01-28", end:null, xpStart:118830, xpEnd:null, note:"28 janvier 2018 → aujourd’hui." }
+];
+
+const MANUAL_AVATARS = {
+  "korben": {
+    avatar: "https://elsnoki.github.io/Snokido/avatar/38.jpg",
+    profileHref: "https://www.snokido.fr/player/korben"
+  },
+  "dude": {
+    avatar: "https://elsnoki.github.io/Snokido/avatar/37.jpg",
+    profileHref: "https://www.snokido.fr/player/dude"
+  },
+  "sanji": {
+    avatar: "avatar/44.jpg",
+    profileHref: "https://www.snokido.fr/player/sanji"
+  },
+  "aurel08": {
+    avatar: "avatar/133.jpg",
+    profileHref: "https://www.snokido.fr/player/aurel-08"
+  },
+  "seb": {
+    avatar: "avatar/19.jpg",
+    profileHref: "https://www.snokido.fr/player/seb"
+  },
+};
+
+function warn(msg){
+  const w = document.getElementById("warn");
+  w.style.display = "block";
+  w.textContent = msg;
+}
+
+function slugify(name){
+  return String(name || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toLowerCase();
+}
+
+function fmt(n){
+  const v = Number(n);
+  if(!Number.isFinite(v)) return "—";
+  return v.toLocaleString("fr-FR");
+}
+
+function parseDate(str){
+  return new Date(str + "T00:00:00");
+}
+
+function formatDay(str){
+  return parseDate(str).toLocaleDateString("fr-FR");
+}
+
+function addMonths(date, months){
+  const d = new Date(date.getTime());
+  const day = d.getDate();
+  d.setMonth(d.getMonth() + months);
+  if(d.getDate() < day) d.setDate(0);
+  return d;
+}
+
+function diffMonthsDays(startStr, endStr){
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+
+  let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+  let cursor = addMonths(start, months);
+
+  if(cursor > end){
+    months--;
+    cursor = addMonths(start, months);
+  }
+
+  const days = Math.round((end - cursor) / 86400000);
+  return { months, days };
+}
+
+function durationText(startStr, endStr){
+  const d = diffMonthsDays(startStr, endStr);
+  const parts = [];
+  if(d.months) parts.push(d.months + " mois");
+  if(d.days || !parts.length) parts.push(d.days + " jour" + (d.days > 1 ? "s" : ""));
+  return parts.join(" et ");
+}
+
+async function fetchJson(path){
+  try{
+    const res = await fetch(path + "?t=" + Date.now(), { cache:"no-store" });
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){
+    return null;
+  }
+}
+
+function normalizeDay(s){
+  const m = String(s || "").match(/^(\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : null;
+}
+
+async function loadLatestHistoryDay(){
+  const idx = await fetchJson(HISTORY_BASE + "/index.json");
+  if(!Array.isArray(idx) || !idx.length) return null;
+  const days = idx.map(normalizeDay).filter(Boolean).sort();
+  return days[days.length - 1] || null;
+}
+
+async function loadPlayersPages(){
+  const data = await fetchJson("data/players_pages.json");
+  const map = new Map();
+
+  if(Array.isArray(data)){
+    data.forEach(p => {
+      const key = slugify(p.slug || p.nom);
+      map.set(key, {
+        avatar: p.avatar || null,
+        profileHref: p.profileHref || null,
+        inscription: p.inscription || null
+      });
+    });
+  }
+
+  Object.keys(MANUAL_AVATARS).forEach(k => {
+    if(!map.has(k)){
+      map.set(k, MANUAL_AVATARS[k]);
+    }
+  });
+
+  return map;
+}
+
+function playerLink(name, extra){
+  if(extra && extra.profileHref) return extra.profileHref;
+  return "profil.html?mode=nv100&u=" + encodeURIComponent(slugify(name));
+}
+
+function playerAvatar(extra){
+  if(extra && extra.avatar) return extra.avatar;
+  return "avatar/1.jpg";
+}
+
+async function buildRows(){
+
+  const latest = await loadLatestHistoryDay();
+  const fallbackToday = new Date().toISOString().slice(0,10);
+  const playersPages = await loadPlayersPages();
+
+  const totals = {};
+
+  REIGNS.forEach(r => {
+
+    const end = r.end || latest || fallbackToday;
+
+    const days =
+      Math.round(
+        (parseDate(end) - parseDate(r.start))
+        / 86400000
+      );
+
+    const key = slugify(r.nom);
+
+    if(!totals[key]){
+      const extra = playersPages.get(key) || null;
+
+      totals[key] = {
+        nom: r.nom,
+        totalDays: 0,
+        reigns: 0,
+        avatar: playerAvatar(extra),
+        profileHref: playerLink(r.nom, extra)
+      };
+    }
+
+    totals[key].totalDays += days;
+    totals[key].reigns++;
+  });
+
+  const rows = Object.values(totals);
+
+  rows.forEach(r => {
+
+    const months = Math.floor(r.totalDays / 30);
+    const days = r.totalDays % 30;
+
+    const parts = [];
+
+    if(months){
+      parts.push(months + " mois");
+    }
+
+    if(days || !parts.length){
+      parts.push(days + " jour" + (days > 1 ? "s" : ""));
+    }
+
+    r.duration = parts.join(" et ");
+  });
+
+  rows.sort((a,b)=>b.totalDays-a.totalDays);
+
+  return rows;
+}
+
+function renderStats(rows){
+  const box = document.getElementById("stats");
+  if(!rows.length) return;
+
+  const top = rows[0];
+  const total = rows.length;
+  const unique = new Set(rows.map(r => r.nom)).size;
+
+  box.innerHTML =
+    '<div class="stat">' +
+      '<div class="statLabel">Plus long règne</div>' +
+      '<div class="statValue">' + top.nom + '</div>' +
+    '</div>' +
+    '<div class="stat">' +
+      '<div class="statLabel">Durée record</div>' +
+      '<div class="statValue">' + top.duration + '</div>' +
+    '</div>' +
+    '<div class="stat">' +
+      '<div class="statLabel">Règnes / leaders</div>' +
+      '<div class="statValue">' + total + ' règnes • ' + unique + ' leaders</div>' +
+    '</div>';
+}
+
+function rankHtml(i){
+  if(i === 0) return '<span class="medal gold">1</span>';
+  if(i === 1) return '<span class="medal silver">2</span>';
+  if(i === 2) return '<span class="medal bronze">3</span>';
+  return String(i + 1);
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  const tbody = document.getElementById("tbody");
+  const rangeTxt = document.getElementById("rangeTxt");
+
+  tbody.innerHTML = "";
+  rangeTxt.textContent = "Chargement…";
+
+  const rows = await buildRows();
+  renderStats(rows);
+
+  rangeTxt.textContent = "Classement des règnes les plus longs à la 1re place";
+
+if(!rows.length){
+  warn("Aucune donnée.");
+  tbody.innerHTML = '<tr><td colspan="4" style="padding:16px;font-weight:900;color:#666;">Aucune donnée.</td></tr>';
+  return;
+}
+
+rows.forEach((r, i) => {
+
+  const tr = document.createElement("tr");
+
+  tr.innerHTML =
+    '<td class="rank">' + rankHtml(i) + '</td>' +
+
+    '<td class="playerCell">' +
+      '<div class="playerCard">' +
+        '<div class="avatarWrap">' +
+          '<img src="' + r.avatar + '" alt="' + r.nom + '">' +
+        '</div>' +
+        '<div class="playerInfo">' +
+          '<a target="_blank" rel="noopener" href="' + r.profileHref + '">' +
+            r.nom +
+          '</a>' +
+        '</div>' +
+      '</div>' +
+    '</td>' +
+
+    '<td class="center">' +
+      '<span class="durationBadge">' +
+        r.duration +
+      '</span>' +
+    '</td>' +
+
+    '<td class="center">' +
+      r.reigns +
+    '</td>';
+
+  tbody.appendChild(tr);
+
+});
+</script>
+</body>
+</html>
