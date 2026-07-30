@@ -145,7 +145,7 @@ const joueurs = [
   {
     nom:"josué455", avatar:"avatar/8.jpg", gen:2, inscription:"15-08-2014",
     modes:{
-      nv100:{ jours:778, atteint_le:"01-10-2016", rang:"15/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
+      nv100:{ jours:783, atteint_le:"06-10-2016", rang:"15/23", xp:49500, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] },
       "100k":{ jours:808, atteint_le:"05-08-2017", rang:"12/14", xp:100000, pauses_total:{nb:0, mois:0, jours:0}, pauses_detail:[] }
     }
   },
