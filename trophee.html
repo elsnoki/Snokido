@@ -770,7 +770,13 @@ async function computeBestYearXp(){
       return `
         <section class="trophy-card">
           <div class="trophy-head">
-            <h2>${trophy.title}</h2>
+            <h2>
+  ${
+    trophy.link
+      ? `<a href="${trophy.link}" style="color:inherit;text-decoration:none;">${trophy.title}</a>`
+      : trophy.title
+  }
+</h2>
             ${trophy.sub ? `<div class="sub">${trophy.sub}</div>` : ``}
           </div>
 
@@ -982,6 +988,7 @@ async function computeBestYearXp(){
         },
         {
   title: "Le plus d’EXP réalisées sur un an",
+   link: "exp1an.html",
   sub: "Meilleure année individuelle",
   podium: [
     bestYearXp[0] ? {
