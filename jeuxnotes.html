@@ -206,7 +206,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   try {
 
-    const response = await fetch("players_games_rated.json");
+    const response = await fetch("data/players_games_rated.json");
     const ratedPlayers = await response.json();
 
     const list = ratedPlayers.map(r => {
