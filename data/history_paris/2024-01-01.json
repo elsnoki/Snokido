@@ -55,6 +55,27 @@
     { "nom": "Justice-", "xp": 0, "nv": 0, "inscription": "29-02-2024" },
     { "nom": "Houka", "xp": 6848, "nv": null, "inscription": "18-11-2023" },
     { "nom": "Napoléon.1er", "xp": 0, "nv": 0, "inscription": "14-07-2024" },
-    { "nom": "Pingu", "xp": 1500, "nv": null, "inscription": "12-05-2019" }
+    { "nom": "Pingu", "xp": 1500, "nv": null, "inscription": "12-05-2019" },
+
+     {
+      "nom": "Snokido",
+      "slug": "snokido",
+      "xp": 87220,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido",
+      "karas": null
+    },
+    {
+      "nom": "Snokido",
+      "slug": "snokido-2",
+      "xp": 82463,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido-2",
+      "karas": null
+    }
   ]
 }
