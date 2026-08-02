@@ -4,8 +4,17 @@
   background: linear-gradient(#3a3a3a,#232323);
   border-bottom: 4px solid #1b7aa1;
   box-shadow: 0 3px 0 rgba(0,0,0,.25);
-  position: relative;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+
   z-index: 1000;
+  transition: transform .25s ease;
+}
+.topbar.hide{
+  transform: translateY(-100%);
 }
 
 .topbar-inner{
