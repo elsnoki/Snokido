@@ -644,19 +644,80 @@ function enrichRowFromPlayer(row, p, enrichMap){
 }
 
 function linkForPlayer(nom, profileHref){
-  return profileHref ? profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(nom)));
+  return profileHref
+    ? profileHref
+    : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(nom)));
 }
-  function getAvatarForPlayer(nom, avatar){
-  const name = String(nom || "").toLowerCase().trim();
 
-  if(name === "dude"){
-    return "avatar/37.jpg";
+function getAvatarForPlayer(nom, avatar){
+  const name = String(nom || "")
+    .toLowerCase()
+    .trim();
+
+  const customSkins = {
+    "dude": "avatar/37.jpg",
+    "korben": "avatar/38.jpg",
+
+    "vico": "https://www.snokido.fr/images/snoki/154.jpg",
+    "aurel-08": "https://www.snokido.fr/images/snoki/133.jpg",
+    "seb": "https://www.snokido.fr/images/snoki/154.jpg",
+    "ichicool": "https://www.snokido.fr/images/snoki/133.jpg",
+    "powa-ly": "https://www.snokido.fr/images/snoki/154.jpg",
+
+    "antoine121": "https://www.snokido.fr/images/snoki/151.jpg",
+    "besuto": "https://www.snokido.fr/images/snoki/133.jpg",
+    "moria": "https://www.snokido.fr/images/snoki/120.jpg",
+    "maxi 18": "https://www.snokido.fr/images/snoki/151.jpg",
+    "sanji": "https://www.snokido.fr/images/snoki/150.jpg",
+    "adammes": "https://www.snokido.fr/images/snoki/151.jpg",
+
+    "arckeur": "https://www.snokido.fr/images/snoki/133.jpg",
+    "bambodu936": "https://www.snokido.fr/images/snoki/133.jpg",
+    "gusse69200": "https://www.snokido.fr/images/snoki/144.jpg",
+    "x man": "https://www.snokido.fr/images/snoki/150.jpg",
+
+    "dragonel natsu": "https://www.snokido.fr/images/snoki/154.jpg",
+    "kakashi": "https://www.snokido.fr/images/snoki/100.jpg",
+    "yassir5": "https://www.snokido.fr/images/snoki/154.jpg",
+    "faouzi39": "https://www.snokido.fr/images/snoki/133.jpg",
+    "fallstar": "https://www.snokido.fr/images/snoki/5.jpg",
+    "sanji2": "https://www.snokido.fr/images/snoki/22.jpg",
+
+    "grey fullbuster": "https://www.snokido.fr/images/snoki/111.jpg",
+    "tot0": "https://www.snokido.fr/images/snoki/113.jpg",
+    "zinou": "https://www.snokido.fr/images/snoki/22.jpg",
+    "persaud": "https://www.snokido.fr/images/snoki/133.jpg",
+    "idriss": "https://www.snokido.fr/images/snoki/144.jpg",
+    "rootskiller": "https://www.snokido.fr/images/snoki/133.jpg",
+    "nathi35": "https://www.snokido.fr/images/snoki/144.jpg",
+
+    "luffy": "https://www.snokido.fr/images/snoki/101.jpg",
+    "red38": "https://www.snokido.fr/images/snoki/133.jpg",
+    "morgan du 83": "https://www.snokido.fr/images/snoki/113.jpg",
+    "ace": "https://www.snokido.fr/images/snoki/140.jpg",
+    "yvesnell": "https://www.snokido.fr/images/snoki/154.jpg",
+    "justin": "https://www.snokido.fr/images/snoki/100.jpg",
+    "ronaldo": "https://www.snokido.fr/images/snoki/144.jpg",
+    "manou": "https://www.snokido.fr/images/snoki/133.jpg",
+
+    "bgscreem200": "https://www.snokido.fr/images/snoki/133.jpg",
+    "gilles": "https://www.snokido.fr/images/snoki/41.jpg",
+    "franky 2310": "https://www.snokido.fr/images/snoki/133.jpg",
+    "aslam": "https://www.snokido.fr/images/snoki/63.jpg",
+    "smyledufun122": "https://www.snokido.fr/images/snoki/140.jpg",
+    "theboss68": "https://www.snokido.fr/images/snoki/123.jpg",
+    "thanatos": "https://www.snokido.fr/images/snoki/143.jpg",
+    "the ultime gamer": "https://www.snokido.fr/images/snoki/13.jpg",
+    "zak39": "https://www.snokido.fr/images/snoki/133.jpg",
+    "snoki12": "https://www.snokido.fr/images/snoki/143.jpg"
+  };
+
+  // Utilise le skin personnalisé si le pseudo existe dans la liste
+  if(customSkins[name]){
+    return customSkins[name];
   }
 
-  if(name === "korben"){
-    return "avatar/38.jpg";
-  }
-
+  // Sinon, conserve l'avatar normal du joueur
   return avatar || "avatar/1.jpg";
 }
 
