@@ -412,3 +412,7 @@
 @media (max-width: 1100px){
   .xpSide{ display:none; }
 }
+
+body{
+  padding-top: 70px;
+}
