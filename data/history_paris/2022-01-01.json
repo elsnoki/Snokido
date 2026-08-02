@@ -58,6 +58,27 @@
     { "nom": "Aldébaran", "xp": 8100, "nv": null, "inscription": "07-06-2020" },
     { "nom": "blackout", "xp": 1696, "nv": null, "inscription": "16-05-2019" },
     { "nom": "Athèna", "xp": 22028, "nv": null, "inscription": "30-03-2019" },
-    { "nom": "acno", "xp": 21600, "nv": null, "inscription": "23-03-2019" }
+    { "nom": "acno", "xp": 21600, "nv": null, "inscription": "23-03-2019" },
+
+     {
+      "nom": "Snokido",
+      "slug": "snokido",
+      "xp": 73150,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido",
+      "karas": null
+    },
+    {
+      "nom": "Snokido",
+      "slug": "snokido-2",
+      "xp": 71800,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido-2",
+      "karas": null
+    }
   ]
 }
