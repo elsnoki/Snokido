@@ -53,6 +53,27 @@
     { "nom": "arrow2012", "xp": 21022, "nv": 65, "inscription": "01-02-2016" },
 
     { "nom": "cahincaha", "xp": 0, "nv": 0, "inscription": "22-04-2023" },
-    { "nom": "Houka", "xp": 0, "nv": 0, "inscription": "18-11-2023" }
+    { "nom": "Houka", "xp": 0, "nv": 0, "inscription": "18-11-2023" },
+
+     {
+      "nom": "Snokido",
+      "slug": "snokido",
+      "xp": 80720,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido",
+      "karas": null
+    },
+    {
+      "nom": "Snokido",
+      "slug": "snokido-2",
+      "xp": 77640,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido-2",
+      "karas": null
+    }
   ]
 }
