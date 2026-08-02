@@ -58,6 +58,27 @@
     { "nom": "Esdras950", "xp": 0, "nv": null, "inscription": "01-05-2018" },
     { "nom": "Golder", "xp": 1800, "nv": null, "inscription": "24-07-2017" },
     { "nom": "Alexis279", "xp": 0, "nv": null, "inscription": "07-10-2018" },
-    { "nom": "Unit", "xp": 0, "nv": null, "inscription": "13-07-2018" }
+    { "nom": "Unit", "xp": 0, "nv": null, "inscription": "13-07-2018" },
+
+     {
+      "nom": "Snokido",
+      "slug": "snokido",
+      "xp": 44780,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido",
+      "karas": null
+    },
+    {
+      "nom": "Snokido",
+      "slug": "snokido-2",
+      "xp": 42750,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido-2",
+      "karas": null
+    }
   ]
 }
