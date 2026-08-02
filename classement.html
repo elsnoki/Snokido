@@ -646,6 +646,19 @@ function enrichRowFromPlayer(row, p, enrichMap){
 function linkForPlayer(nom, profileHref){
   return profileHref ? profileHref : ("profil.html?mode=nv100&u=" + encodeURIComponent(slugify(nom)));
 }
+  function getAvatarForPlayer(nom, avatar){
+  const name = String(nom || "").toLowerCase().trim();
+
+  if(name === "dude"){
+    return "avatar/37.jpg";
+  }
+
+  if(name === "korben"){
+    return "avatar/38.jpg";
+  }
+
+  return avatar || "avatar/1.jpg";
+}
 
 /* ================= SHARED DIFF (snap A -> snap B) ================= */
 function buildMapFromSnap(players){
@@ -951,7 +964,7 @@ async function runHebdo(){
       const tr = document.createElement("tr");
       tr.innerHTML =
         '<td class="rank">'+(i+1)+'</td>' +
-        '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+(r.avatar||"avatar/1.jpg")+'" alt="'+r.nom+'"></div></td>' +
+        '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+getAvatarForPlayer(r.nom, r.avatar)+'" alt="'+r.nom+'"></div></td>' +
         '<td class="name"><a target="_blank" rel="noopener" href="'+link+'">'+r.nom+'</a><div class="small">'+r.xpEnd.toLocaleString("fr-FR")+' XP</div></td>' +
         '<td class="center">'+formatSigned(r.dx)+'</td>' +
         '<td class="center">'+r.xpEnd.toLocaleString("fr-FR")+'</td>';
@@ -975,7 +988,7 @@ async function runHebdo(){
     const tr = document.createElement("tr");
     tr.innerHTML =
       '<td class="rank">'+(i+1)+'</td>' +
-      '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+(r.avatar||"avatar/1.jpg")+'" alt="'+r.nom+'"></div></td>' +
+      '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+getAvatarForPlayer(r.nom, r.avatar)+'" alt="'+r.nom+'"></div></td>' +
       '<td class="name"><a target="_blank" rel="noopener" href="'+link+'">'+r.nom+'</a><div class="small">'+r.xpEnd.toLocaleString("fr-FR")+' XP</div></td>' +
       '<td class="center">'+formatSigned(r.dx)+'</td>' +
       '<td class="center">'+r.xpEnd.toLocaleString("fr-FR")+'</td>';
