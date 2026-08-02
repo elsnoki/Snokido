@@ -178,4 +178,33 @@ window.addEventListener("DOMContentLoaded", () => {
   if (file === "createur_snoki.html")
     activate(".tab-menu-createur");
 
+  // ================= HEADER MASQUÉ / AFFICHÉ AU SCROLL =================
+
+const header = document.querySelector(".topbar");
+
+let lastScroll = 0;
+
+window.addEventListener("scroll", () => {
+
+  const current = window.pageYOffset;
+
+  // Toujours visible en haut de page
+  if (current <= 20) {
+    header.classList.remove("hide");
+    lastScroll = current;
+    return;
+  }
+
+  // On descend
+  if (current > lastScroll) {
+    header.classList.add("hide");
+  }
+  // On remonte
+  else {
+    header.classList.remove("hide");
+  }
+
+  lastScroll = current;
+});
+
 });
