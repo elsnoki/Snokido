@@ -2446,5 +2446,26 @@
     "xp": 7900,
     "nv": 40,
     "inscription": "14-07-2024"
-  }
+  },
+
+   {
+      "nom": "Snokido",
+      "slug": "snokido",
+      "xp": 93038,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido",
+      "karas": null
+    },
+    {
+      "nom": "Snokido",
+      "slug": "snokido-2",
+      "xp": 87270,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido-2",
+      "karas": null
+    }
 ]
