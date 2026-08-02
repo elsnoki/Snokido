@@ -68,6 +68,27 @@
     { "nom": "Esdras950", "xp": 14474, "nv": null, "inscription": "01-05-2018" },
     
     { "nom": "chris05", "xp": 0, "nv": null, "inscription": "18-07-2019" },
-    { "nom": "GangsterTeam", "xp": 0, "nv": null, "inscription": "22-04-2019" }
+    { "nom": "GangsterTeam", "xp": 0, "nv": null, "inscription": "22-04-2019" },
+
+     {
+      "nom": "Snokido",
+      "slug": "snokido",
+      "xp": 54400,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido",
+      "karas": null
+    },
+    {
+      "nom": "Snokido",
+      "slug": "snokido-2",
+      "xp": 50700,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido-2",
+      "karas": null
+    }
   ]
 }
