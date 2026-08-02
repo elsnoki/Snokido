@@ -1511,6 +1511,13 @@ async function runAnnee(year){
     rows.push(row);
   }
 
+  // Masquer Snokido et Snokido-2 uniquement pour 2013
+if (String(year) === "2013") {
+  rows = rows.filter(r => {
+    const nom = (r.nom || "").toLowerCase().trim();
+    return nom !== "snokido" && nom !== "snokido-2";
+  });
+}
   applyDxTieBreakPlus12Over500(rows);
   sortRowsForRanking(rows);
 
