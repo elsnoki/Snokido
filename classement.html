@@ -1462,18 +1462,22 @@ async function runAnnee(year){
   }
 
   for(let i=0;i<shown.length;i++){
-    const r = shown[i];
-    const link = linkForPlayer(r.nom, r.profileHref);
-    const tr = document.createElement("tr");
-    tr.innerHTML =
-      '<td class="rank">'+(i+1)+'</td>' +
-      '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+(r.avatar||"avatar/1.jpg")+'" alt="'+r.nom+'"></div></td>' +
-      '<td class="name"><a target="_blank" rel="noopener" href="'+link+'">'+r.nom+'</a><div class="small">'+r.xpEnd.toLocaleString("fr-FR")+' XP (fin)</div></td>' +
-      '<td class="center">'+formatSigned(r.dx)+'</td>' +
-      '<td class="center">'+r.xpEnd.toLocaleString("fr-FR")+'</td>' +
-      '<td class="center">'+formatInscription(r.inscription)+'</td>';
-    tbody.appendChild(tr);
-  }
+  const r = shown[i];
+  const link = linkForPlayer(r.nom, r.profileHref);
+
+  // Avatar personnalisé de Dude et Korben
+  const avatarSrc = getAvatarForPlayer(r.nom, r.avatar);
+
+  const tr = document.createElement("tr");
+  tr.innerHTML =
+    '<td class="rank">'+(i+1)+'</td>' +
+    '<td class="avatarCell"><div class="frame"><img loading="lazy" src="'+avatarSrc+'" alt="'+r.nom+'"></div></td>' +
+    '<td class="name"><a target="_blank" rel="noopener" href="'+link+'">'+r.nom+'</a><div class="small">'+r.xpEnd.toLocaleString("fr-FR")+' XP (fin)</div></td>' +
+    '<td class="center">'+formatSigned(r.dx)+'</td>' +
+    '<td class="center">'+r.xpEnd.toLocaleString("fr-FR")+'</td>' +
+    '<td class="center">'+formatInscription(r.inscription)+'</td>';
+  tbody.appendChild(tr);
+}
 }
 
 /* NIVEAU THEORIQUE : live si dispo, sinon message */
