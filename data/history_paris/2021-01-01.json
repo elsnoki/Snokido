@@ -62,6 +62,27 @@
     { "nom": "acno", "xp": 5080, "nv": null, "inscription": "23-03-2019" },
     { "nom": "Shadow321", "xp": 1208, "nv": null, "inscription": "24-03-2019" },
     { "nom": "Elena21", "xp": 200, "nv": null, "inscription": "31-03-2019" },
-    { "nom": "Gangster2019", "xp": 1940, "nv": null, "inscription": "24-03-2019" }
+    { "nom": "Gangster2019", "xp": 1940, "nv": null, "inscription": "24-03-2019" },
+
+     {
+      "nom": "Snokido",
+      "slug": "snokido",
+      "xp": 65850,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido",
+      "karas": null
+    },
+    {
+      "nom": "Snokido",
+      "slug": "snokido-2",
+      "xp": 65050,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido-2",
+      "karas": null
+    }
   ]
 }
