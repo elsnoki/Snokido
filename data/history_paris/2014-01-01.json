@@ -174,7 +174,25 @@
     { "nom": "dude", "xp": 6007, "nv": null, "inscription": "23-05-2013" },
     { "nom": "Korben", "xp": 8200, "nv": null, "inscription": "23-05-2013" },
 
-    { "nom": "Snokido", "xp": 6007, "nv": null, "inscription": "23-05-2013" },
-    { "nom": "Snokido", "xp": 8200, "nv": null, "inscription": "23-05-2013" }
+ {
+      "nom": "Snokido",
+      "slug": "snokido",
+      "xp": 6007,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido",
+      "karas": null
+    },
+    {
+      "nom": "Snokido",
+      "slug": "snokido-2",
+      "xp": 8200,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido-2",
+      "karas": null
+    }
   ]
 }
