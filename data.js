@@ -463,7 +463,7 @@ const joueurs = [
   }
 },
   {
-  nom:"PaulaHub", avatar:"avatar/20.jpg", gen:null, inscription:"05-02-2026",
+  nom:"PaulaHub", avatar:"avatar/45.jpg", gen:null, inscription:"05-02-2026",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:49500,
