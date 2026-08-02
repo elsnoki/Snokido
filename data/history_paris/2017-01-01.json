@@ -56,6 +56,27 @@
     { "nom": "francoeur", "xp": 4946, "nv": null, "inscription": "18-12-2015" },
     { "nom": "Lyes255", "xp": 0, "nv": null, "inscription": "02-05-2017" },
     { "nom": "Golder", "xp": 0, "nv": null, "inscription": "24-07-2017" },
-    { "nom": "Olivi", "xp": 0, "nv": null, "inscription": "27-12-2016" }
+    { "nom": "Olivi", "xp": 0, "nv": null, "inscription": "27-12-2016" },
+
+     {
+      "nom": "Snokido",
+      "slug": "snokido",
+      "xp": 35070,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido",
+      "karas": null
+    },
+    {
+      "nom": "Snokido",
+      "slug": "snokido-2",
+      "xp": 33720,
+      "niveau": null,
+      "inscription": "22-03-2013",
+      "avatar": "https://www.snokido.fr/images/snoki/admin.jpg",
+      "profileHref": "https://www.snokido.fr/player/snokido-2",
+      "karas": null
+    }
   ]
 }
