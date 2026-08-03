@@ -507,6 +507,16 @@ const joueurs = [
     }
   }
 },
+  {
+  nom:"cahincaha", avatar:"avatar/24.jpg", gen:1, inscription:"22-04-2015",
+  modes:{
+    nv100:{
+      jours:null, atteint_le:"—", rang:"—", xp:42000,
+      pauses_total:{ nb:0, mois:0, jours:0 },
+      pauses_detail:[]
+    }
+  }
+},
 ];
 
 
