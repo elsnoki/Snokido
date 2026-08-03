@@ -273,7 +273,7 @@ const joueurs = [
   }
 },
 {
-  nom:"Athèna", avatar:"avatar/31.jpg", gen:, inscription:"30-03-2019",
+  nom:"Athèna", avatar:"avatar/31.jpg", gen:null, inscription:"30-03-2019",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:49500,
@@ -287,7 +287,7 @@ const joueurs = [
   }
 },
 {
-  nom:"acno", avatar:"avatar/32.jpg", gen:, inscription:"23-03-2019",
+  nom:"acno", avatar:"avatar/32.jpg", gen:null, inscription:"23-03-2019",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:49500,
@@ -301,7 +301,7 @@ const joueurs = [
   }
 },
 {
-  nom:"cahincaha", avatar:"avatar/24.jpg", gen:, inscription:"22-04-2023",
+  nom:"cahincaha", avatar:"avatar/24.jpg", gen:null, inscription:"22-04-2023",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:49500,
