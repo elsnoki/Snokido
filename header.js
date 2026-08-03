@@ -33,6 +33,7 @@ document.body.insertAdjacentHTML("afterbegin", `
           <a class="tab tab-500" href="500k.html">500K et +</a>
           <a class="tab tab-niveau" href="classement.html?mode=niveau">Niveau théorique</a>
           <a class="tab tab-kara" href="kara.html">Kara</a>
+          <a class="tab tab-gen" href="jeuxnotes.html">Jeux notés</a>
         </div>
       </div>
 
