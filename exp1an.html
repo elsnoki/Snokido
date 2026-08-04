@@ -273,29 +273,21 @@ async function loadPlayersPages(){
 
   if(Array.isArray(data)){
     data.forEach(p => {
-      const key = slugify(p.slug || p.nom);
+      const inscription =
+        p.inscription ||
+        p.dateInscription ||
+        p.date_inscription ||
+        "";
+
+      const key = slugify(p.slug || p.nom) + "|" + inscription;
+
       map.set(key, {
         avatar: p.avatar || null,
         profileHref: p.profileHref || null,
-        inscription: p.inscription || p.dateInscription || p.date_inscription || null
+        inscription
       });
     });
   }
-
-  return map;
-}
-
-function buildPlayerMap(players){
-  const map = new Map();
-
-  (players || []).forEach(p => {
-    map.set(slugify(p.nom), {
-      nom: p.nom,
-      xp: toNumberXP(p.xp),
-      avatar: p.avatar || null,
-      profileHref: p.profileHref || null
-    });
-  });
 
   return map;
 }
@@ -431,8 +423,13 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   rows.forEach((r, i) => {
-    const k = slugify(r.nom);
-    const extra = playersPages.get(k) || null;
+    const inscriptionCle =
+  r.id === "cahincaha-2023-exception"
+    ? "2015"
+    : "2023";
+
+const k = slugify(r.nom) + "|" + inscriptionCle;
+const extra = playersPages.get(k) || null;
 
     if(extra){
       if(!r.avatar) r.avatar = extra.avatar;
