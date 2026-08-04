@@ -386,17 +386,18 @@ async function computeBestYearXp(){
     }
   }
 
-  best.set("cahincaha-2023-exception", {
-    id: "cahincaha-2023-exception",
-    nom: "cahincaha",
-    avatar: null,
-    profileHref: null,
-    gain: 42000,
-    year: "2015",
-    xpStart: 0,
-    xpEnd: 42000,
-    dynamic: false
-  });
+  best.set("cahincaha-2015-exception", {
+  id: "cahincaha-2015-exception",
+  nom: "cahincaha",
+  avatar: null,
+  profileHref: null,
+  gain: 42000,
+  year: "2015",
+  xpStart: 0,
+  xpEnd: 42000,
+  dynamic: false,
+  inscription: "22/04/2015"
+});
 
   return Array.from(best.values())
     .sort((a, b) => {
@@ -439,7 +440,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       if(!r.profileHref) r.profileHref = extra.profileHref;
     }
 
-    const inscription = extra && extra.inscription ? extra.inscription : "—";
+    const inscription = r.inscription || (extra && extra.inscription ? extra.inscription : "—");
 
     const tr = document.createElement("tr");
 
