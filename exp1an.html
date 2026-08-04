@@ -435,6 +435,14 @@ window.addEventListener("DOMContentLoaded", async () => {
     const k = slugify(r.nom);
     const extra = playersPages.get(k) || null;
 
+    if (k === "dude") {
+  r.avatar = "avatar/37.jpg";
+}
+
+if (k === "korben") {
+  r.avatar = "avatar/38.jpg";
+}
+
     if(extra){
       if(!r.avatar) r.avatar = extra.avatar;
       if(!r.profileHref) r.profileHref = extra.profileHref;
