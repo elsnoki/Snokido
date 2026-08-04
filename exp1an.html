@@ -396,7 +396,7 @@ async function computeBestYearXp(){
   xpStart: 0,
   xpEnd: 42000,
   dynamic: false,
-  inscription: "22/04/2015"
+  inscription: "22-04-2015"
 });
 
   return Array.from(best.values())
@@ -441,7 +441,9 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
 
     const inscription = r.inscription || (extra && extra.inscription ? extra.inscription : "—");
-
+if (r.id === "cahincaha") {
+  r.year = "2023";
+}
     const tr = document.createElement("tr");
 
     tr.innerHTML =
