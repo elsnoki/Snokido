@@ -273,11 +273,17 @@ async function loadPlayersPages(){
 
   if(Array.isArray(data)){
     data.forEach(p => {
+      // Le slug permet de distinguer les joueurs ayant le même pseudo.
       const key = slugify(p.slug || p.nom);
+
       map.set(key, {
         avatar: p.avatar || null,
         profileHref: p.profileHref || null,
-        inscription: p.inscription || p.dateInscription || p.date_inscription || null
+        inscription:
+          p.inscription ||
+          p.dateInscription ||
+          p.date_inscription ||
+          null
       });
     });
   }
@@ -289,7 +295,12 @@ function buildPlayerMap(players){
   const map = new Map();
 
   (players || []).forEach(p => {
-    map.set(slugify(p.nom), {
+    // Le slug est utilisé comme identifiant unique.
+    // On utilise le nom seulement si le slug est absent.
+    const id = slugify(p.slug || p.nom);
+
+    map.set(id, {
+      id: id,
       nom: p.nom,
       xp: toNumberXP(p.xp),
       avatar: p.avatar || null,
@@ -432,8 +443,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   rows.forEach((r, i) => {
-    const k = slugify(r.nom);
-    const extra = playersPages.get(k) || null;
+const k = r.id || slugify(r.nom);
+const extra = playersPages.get(k) || null;
 
     if (k === "dude") {
   r.avatar = "avatar/37.jpg";
@@ -448,7 +459,12 @@ if (k === "korben") {
       if(!r.profileHref) r.profileHref = extra.profileHref;
     }
 
-    const inscription = r.inscription || (extra && extra.inscription ? extra.inscription : "—");
+    let inscription = r.inscription || (extra && extra.inscription ? extra.inscription : "—");
+
+// Dates d'inscription personnalisées
+if (k === "dude" || k === "korben") {
+  inscription = "22-03-2013";
+}
 if (r.id === "cahincaha") {
   r.year = "2023";
 }
