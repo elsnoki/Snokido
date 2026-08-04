@@ -156,7 +156,7 @@
 
   <div class="tableWrap">
 
-```
+
 <table id="leaderboard">
 
   <thead>
@@ -171,7 +171,7 @@
   <tbody></tbody>
 
 </table>
-```
+
 
   </div>
 
@@ -182,199 +182,207 @@
 </div>
 
 <script>
-
 window.addEventListener("DOMContentLoaded", async () => {
 
   const tbody = document.querySelector("#leaderboard tbody");
 
   try {
 
-    const response = await fetch("data/players_games_rated.json");
+    // Chargement des joueurs ayant noté des jeux
+    const responseRated = await fetch(
+      "data/players_games_rated.json"
+    );
 
-    if (!response.ok) {
+    // Chargement de tous les profils et de leurs skins
+    const responsePlayers = await fetch(
+      "data/players_pages.json"
+    );
+
+    if (!responseRated.ok) {
       throw new Error(
-        "Erreur lors du chargement du fichier : " + response.status
+        "Impossible de charger players_games_rated.json"
       );
     }
 
-    const ratedPlayers = await response.json();
+    if (!responsePlayers.ok) {
+      throw new Error(
+        "Impossible de charger players_pages.json"
+      );
+    }
+
+    const ratedPlayers =
+      await responseRated.json();
+
+    const allPlayers =
+      await responsePlayers.json();
+
+
+    // Création d'une liste permettant de retrouver
+    // rapidement chaque joueur grâce à son slug
+
+    const playersBySlug = new Map();
+
+    allPlayers.forEach(player => {
+
+      const slug = slugify2(
+        player.slug || player.nom
+      );
+
+      playersBySlug.set(
+        slug,
+        player
+      );
+
+    });
+
+
+    // Fusion des données :
+    // nombre de jeux notés + avatar du joueur
 
     const list = ratedPlayers.map(r => {
 
-      /*
-       * Recherche du joueur dans data.js.
-       *
-       * On compare :
-       * 1. le slug du joueur ;
-       * 2. le nom normalisé ;
-       * 3. le slug normalisé.
-       */
+      const slug = slugify2(
+        r.slug || r.nom
+      );
 
-      const joueur = joueurs.find(j => {
+      const joueur =
+        playersBySlug.get(slug);
 
-        const slugJoueur = slugify2(
-          j.slug || j.nom
-        );
-
-        const slugClassement = slugify2(
-          r.slug || r.nom
-        );
-
-        return (
-          slugJoueur === slugClassement ||
-          slugify2(j.nom) === slugify2(r.nom)
-        );
-
-      });
 
       return {
 
-        nom: r.nom,
+        nom:
+          joueur?.nom ||
+          r.nom,
 
-        slug: r.slug || slugify2(r.nom),
+        slug:
+          joueur?.slug ||
+          r.slug ||
+          slug,
 
-        jeuxNotes: Number(r.jeuxNotes) || 0,
-
-        /*
-         * Utilise le skin du joueur trouvé.
-         * L'image par défaut est utilisée uniquement
-         * si aucun joueur n'a été trouvé.
-         */
+        jeuxNotes:
+          Number(r.jeuxNotes) || 0,
 
         avatar:
           joueur?.avatar ||
-          joueur?.skin ||
-          joueur?.image ||
           "avatar/1.jpg"
 
       };
 
     });
 
-    /*
-     * Tri du plus grand nombre de jeux notés
-     * vers le plus petit.
-     */
+
+    // Tri du plus grand nombre de jeux notés
+    // vers le plus petit
 
     list.sort(
-      (a, b) => b.jeuxNotes - a.jeuxNotes
+      (a, b) =>
+        b.jeuxNotes -
+        a.jeuxNotes
     );
 
+
+    // Suppression de l'ancien contenu
+
     tbody.innerHTML = "";
+
+
+    // Affichage des 50 premiers joueurs
 
     list
       .slice(0, 50)
       .forEach((p, index) => {
 
-        const tr = document.createElement("tr");
+        const tr =
+          document.createElement("tr");
 
-        /*
-         * Création des cellules sans utiliser
-         * directement les noms dans innerHTML.
-         */
 
-        const rankCell = document.createElement("td");
+        tr.innerHTML = `
 
-        rankCell.className = "rank";
+          <td class="rank">
 
-        rankCell.innerHTML = `
-          <span class="badgeRank">
-            ${index + 1}
-          </span>
+            <span class="badgeRank">
+
+              ${index + 1}
+
+            </span>
+
+          </td>
+
+
+          <td class="avatar">
+
+            <div class="frame">
+
+              <img
+                src="${p.avatar}"
+                alt="Skin de ${p.nom}"
+                onerror="
+                  this.onerror = null;
+                  this.src = 'avatar/1.jpg';
+                "
+              >
+
+            </div>
+
+          </td>
+
+
+          <td class="name">
+
+            <a
+              href="profil.html?u=${encodeURIComponent(
+                p.slug
+              )}"
+            >
+
+              ${p.nom}
+
+            </a>
+
+          </td>
+
+
+          <td class="center">
+
+            ${p.jeuxNotes.toLocaleString(
+              "fr-FR"
+            )}
+
+          </td>
+
         `;
-
-
-        const avatarCell = document.createElement("td");
-
-        avatarCell.className = "avatar";
-
-        const frame = document.createElement("div");
-
-        frame.className = "frame";
-
-        const image = document.createElement("img");
-
-        image.src = p.avatar;
-
-        image.alt = `Skin de ${p.nom}`;
-
-        /*
-         * Si l'image du joueur n'existe pas,
-         * l'image par défaut est affichée.
-         */
-
-        image.onerror = function(){
-
-          if (
-            !this.src.endsWith("avatar/1.jpg")
-          ) {
-
-            this.src = "avatar/1.jpg";
-
-          }
-
-        };
-
-        frame.appendChild(image);
-
-        avatarCell.appendChild(frame);
-
-
-        const nameCell = document.createElement("td");
-
-        nameCell.className = "name";
-
-        const link = document.createElement("a");
-
-        link.href =
-          "profil.html?u=" +
-          encodeURIComponent(p.slug);
-
-        link.textContent = p.nom;
-
-        nameCell.appendChild(link);
-
-
-        const gamesCell = document.createElement("td");
-
-        gamesCell.className = "center";
-
-        gamesCell.textContent =
-          p.jeuxNotes.toLocaleString(
-            "fr-FR"
-          );
-
-
-        tr.appendChild(rankCell);
-
-        tr.appendChild(avatarCell);
-
-        tr.appendChild(nameCell);
-
-        tr.appendChild(gamesCell);
 
 
         tbody.appendChild(tr);
 
       });
 
-  } catch(err) {
+
+  } catch (err) {
 
     console.error(
       "Erreur du classement :",
       err
     );
 
+
     tbody.innerHTML = `
+
       <tr>
+
         <td
           colspan="4"
           style="padding:20px;"
         >
+
           Impossible de charger
-          players_games_rated.json
+          les données des joueurs.
+
         </td>
+
       </tr>
+
     `;
 
   }
@@ -382,7 +390,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-function slugify2(name){
+function slugify2(name) {
 
   return String(name || "")
 
@@ -401,8 +409,8 @@ function slugify2(name){
     .toLowerCase();
 
 }
-
 </script>
+
 
 </body>
 </html>
