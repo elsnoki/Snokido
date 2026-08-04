@@ -436,7 +436,11 @@ const extra = playersPages.get(k) || null;
       if(!r.profileHref) r.profileHref = extra.profileHref;
     }
 
-    const inscription = extra && extra.inscription ? extra.inscription : "—";
+    let inscription = extra && extra.inscription ? extra.inscription : "—";
+
+if (r.id === "cahincaha-2023-exception") {
+  inscription = "2015";
+}
 
     const tr = document.createElement("tr");
 
