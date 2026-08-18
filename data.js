@@ -310,7 +310,7 @@ const joueurs = [
       pauses_detail:[
         { xp:40000, periode:"16/12/2023 -> 14/03/2024", mois:2, jours:89 },
         { xp:40056, periode:"14/03/2024 -> 01/06/2024", mois:2, jours:79 },
-        { xp:42000, periode:"depuis 05/06/2024", mois:21, jours:647 }
+        { xp:42000, periode:"05/06/2024 -> 18/08/2026", mois:26, jours:804 }
       ]
     }
   }
