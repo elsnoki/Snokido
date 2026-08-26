@@ -15,11 +15,11 @@
     "nom": "alex.c2109",
     "slug": "alexc2109",
     "niveau": 100,
-    "xp": 929420,
+    "xp": 929576,
     "inscription": "24-06-2017",
     "avatar": "https://www.snokido.fr/images/snoki/medium/53.jpg",
     "profileHref": "https://www.snokido.fr/player/alexc2109",
-    "karas": 1242109
+    "karas": 1242265
   },
   {
     "rank": 3,
@@ -48,22 +48,22 @@
     "nom": "Ko0pa",
     "slug": "ko0pa",
     "niveau": 100,
-    "xp": 314186,
+    "xp": 314642,
     "inscription": "24-01-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/101.jpg",
     "profileHref": "https://www.snokido.fr/player/ko0pa",
-    "karas": 638615
+    "karas": 639071
   },
   {
     "rank": 6,
     "nom": "lumia",
     "slug": "lumia",
     "niveau": 100,
-    "xp": 248182,
+    "xp": 248234,
     "inscription": "01-01-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
     "profileHref": "https://www.snokido.fr/player/lumia",
-    "karas": 580531
+    "karas": 580583
   },
   {
     "rank": 7,
@@ -136,22 +136,22 @@
     "nom": "Napoléon.1er",
     "slug": "napoleon1er",
     "niveau": 100,
-    "xp": 122630,
+    "xp": 122790,
     "inscription": "14-07-2024",
     "avatar": "https://www.snokido.fr/images/snoki/medium/152.jpg",
     "profileHref": "https://www.snokido.fr/player/napoleon1er",
-    "karas": 458979
+    "karas": 459139
   },
   {
     "rank": 14,
     "nom": "Venom_",
     "slug": "venom",
     "niveau": 100,
-    "xp": 114352,
+    "xp": 114560,
     "inscription": "09-05-2021",
     "avatar": "https://www.snokido.fr/images/snoki/medium/71.jpg",
     "profileHref": "https://www.snokido.fr/player/venom-2",
-    "karas": 451901
+    "karas": 452109
   },
   {
     "rank": 15,
@@ -378,22 +378,22 @@
     "nom": "cahincaha",
     "slug": "cahincaha",
     "niveau": 99,
-    "xp": 48712,
+    "xp": 48956,
     "inscription": "22-04-2023",
     "avatar": "https://www.snokido.fr/images/snoki/medium/10.jpg",
     "profileHref": "https://www.snokido.fr/player/cahincaha",
-    "karas": 377041
+    "karas": 377285
   },
   {
     "rank": 36,
     "nom": "Polyy",
     "slug": "polyy",
     "niveau": 98,
-    "xp": 48224,
+    "xp": 48456,
     "inscription": "24-12-2025",
     "avatar": "https://www.snokido.fr/images/snoki/medium/163.jpg",
     "profileHref": "https://www.snokido.fr/player/polyy",
-    "karas": 363972
+    "karas": 364204
   },
   {
     "rank": 37,
@@ -411,11 +411,11 @@
     "nom": "Zeta-Puppis",
     "slug": "zetapuppis",
     "niveau": 93,
-    "xp": 43028,
+    "xp": 43260,
     "inscription": "02-06-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/102.jpg",
     "profileHref": "https://www.snokido.fr/player/zetapuppis",
-    "karas": 314686
+    "karas": 314918
   },
   {
     "rank": 39,
@@ -488,11 +488,11 @@
     "nom": "Antarès_",
     "slug": "antares",
     "niveau": 82,
-    "xp": 33460,
+    "xp": 33616,
     "inscription": "05-06-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/2.jpg",
     "profileHref": "https://www.snokido.fr/player/antares-3",
-    "karas": 220624
+    "karas": 220780
   },
   {
     "rank": 46,
@@ -520,15 +520,26 @@
     "rank": 48,
     "nom": "PaulaHub",
     "slug": "paulahub",
-    "niveau": 78,
-    "xp": 30760,
+    "niveau": 79,
+    "xp": 30916,
     "inscription": "05-02-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/52.jpg",
     "profileHref": "https://www.snokido.fr/player/paulahub",
-    "karas": 191198
+    "karas": 197595
   },
   {
     "rank": 49,
+    "nom": "Brumaire",
+    "slug": "brumaire",
+    "niveau": 78,
+    "xp": 30176,
+    "inscription": "16-11-2024",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/4.jpg",
+    "profileHref": "https://www.snokido.fr/player/brumaire",
+    "karas": 191414
+  },
+  {
+    "rank": 50,
     "nom": "BNDAZ205",
     "slug": "bndaz205",
     "niveau": 78,
@@ -537,16 +548,5 @@
     "avatar": "https://www.snokido.fr/images/snoki/medium/144.jpg",
     "profileHref": "https://www.snokido.fr/player/bndaz205",
     "karas": 125990
-  },
-  {
-    "rank": 50,
-    "nom": "Brumaire",
-    "slug": "brumaire",
-    "niveau": 77,
-    "xp": 30020,
-    "inscription": "16-11-2024",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/4.jpg",
-    "profileHref": "https://www.snokido.fr/player/brumaire",
-    "karas": 185174
   }
 ]
