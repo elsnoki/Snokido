@@ -443,7 +443,7 @@ const joueurs = [
   nom:"Polyy", avatar:"avatar/33.jpg", gen:7, inscription:"24-12-2025",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:49500,
+      jours:247, atteint_le:"28-08-2026", rang:"—", xp:49500,
       pauses_total:{ nb:1, mois:1, jours:39 },
       pauses_detail:[
         { xp:42720, periode:"11/07/2026 -> 19/08/2026", mois:1, jours:39 }]
