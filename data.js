@@ -302,10 +302,10 @@ const joueurs = [
   }
 },
 {
-  nom:"cahincaha", avatar:"avatar/24.jpg", gen:null, inscription:"22-04-2023",
+  nom:"cahincaha", avatar:"avatar/24.jpg", gen:7, inscription:"22-04-2023",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:49500,
+      jours:1223, atteint_le:"27-08-2026", rang:"—", xp:49500,
       pauses_total:{ nb:3, mois:31, jours:972 },
       pauses_detail:[
         { xp:40000, periode:"16/12/2023 -> 14/03/2024", mois:2, jours:89 },
@@ -440,7 +440,7 @@ const joueurs = [
   }
 },
 {
-  nom:"Polyy", avatar:"avatar/33.jpg", gen:null, inscription:"24-12-2025",
+  nom:"Polyy", avatar:"avatar/33.jpg", gen:7, inscription:"24-12-2025",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:49500,
@@ -464,7 +464,7 @@ const joueurs = [
   }
 },
   {
-  nom:"PaulaHub", avatar:"avatar/45.jpg", gen:null, inscription:"05-02-2026",
+  nom:"PaulaHub", avatar:"avatar/45.jpg", gen:7, inscription:"05-02-2026",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:49500,
@@ -476,7 +476,7 @@ const joueurs = [
   }
 },
   {
-  nom:"Brumaire", avatar:"avatar/29.jpg", gen:null, inscription:"16-11-2024",
+  nom:"Brumaire", avatar:"avatar/29.jpg", gen:7, inscription:"16-11-2024",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:49500,
@@ -489,7 +489,7 @@ const joueurs = [
   }
 },
   {
-  nom:"Zeta-Puppis", avatar:"avatar/46.jpg", gen:null, inscription:"02-06-2026",
+  nom:"Zeta-Puppis", avatar:"avatar/46.jpg", gen:7, inscription:"02-06-2026",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:49500,
@@ -499,7 +499,7 @@ const joueurs = [
   }
 },
   {
-  nom:"Antarès_", avatar:"avatar/36.jpg", gen:null, inscription:"05-06-2026",
+  nom:"Antarès_", avatar:"avatar/36.jpg", gen:7, inscription:"05-06-2026",
   modes:{
     nv100:{
       jours:null, atteint_le:"—", rang:"—", xp:49500,
