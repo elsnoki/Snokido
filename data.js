@@ -492,7 +492,7 @@ const joueurs = [
   nom:"Zeta-Puppis", avatar:"avatar/46.jpg", gen:7, inscription:"02-06-2026",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:49500,
+      jours:96, atteint_le:"06-09-2026", rang:"—", xp:49500,
       pauses_total:{ nb:0, mois:0, jours:0 },
       pauses_detail:[]
     }
