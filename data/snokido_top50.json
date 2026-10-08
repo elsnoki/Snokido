@@ -4,22 +4,22 @@
     "nom": "Talk Takashi",
     "slug": "talktakashi",
     "niveau": 100,
-    "xp": 1287146,
+    "xp": 1287390,
     "inscription": "13-04-2014",
     "avatar": "https://www.snokido.fr/images/snoki/medium/14.jpg",
     "profileHref": "https://www.snokido.fr/player/talktakashi",
-    "karas": 1505236
+    "karas": 1505480
   },
   {
     "rank": 2,
     "nom": "alex.c2109",
     "slug": "alexc2109",
     "niveau": 100,
-    "xp": 944816,
+    "xp": 945020,
     "inscription": "24-06-2017",
     "avatar": "https://www.snokido.fr/images/snoki/medium/53.jpg",
     "profileHref": "https://www.snokido.fr/player/alexc2109",
-    "karas": 1257505
+    "karas": 1257709
   },
   {
     "rank": 3,
@@ -48,22 +48,22 @@
     "nom": "Ko0pa",
     "slug": "ko0pa",
     "niveau": 100,
-    "xp": 359192,
+    "xp": 359714,
     "inscription": "24-01-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/101.jpg",
     "profileHref": "https://www.snokido.fr/player/ko0pa",
-    "karas": 683621
+    "karas": 684143
   },
   {
     "rank": 6,
     "nom": "lumia",
     "slug": "lumia",
     "niveau": 100,
-    "xp": 264732,
+    "xp": 264980,
     "inscription": "01-01-2019",
     "avatar": "https://www.snokido.fr/images/snoki/medium/145.jpg",
     "profileHref": "https://www.snokido.fr/player/lumia",
-    "karas": 597081
+    "karas": 597329
   },
   {
     "rank": 7,
@@ -147,11 +147,11 @@
     "nom": "Venom_",
     "slug": "venom",
     "niveau": 100,
-    "xp": 131888,
+    "xp": 132132,
     "inscription": "09-05-2021",
     "avatar": "https://www.snokido.fr/images/snoki/medium/71.jpg",
     "profileHref": "https://www.snokido.fr/player/venom-2",
-    "karas": 469437
+    "karas": 469681
   },
   {
     "rank": 15,
@@ -246,14 +246,25 @@
     "nom": "Polyy",
     "slug": "polyy",
     "niveau": 100,
-    "xp": 65064,
+    "xp": 65308,
     "inscription": "24-12-2025",
     "avatar": "https://www.snokido.fr/images/snoki/medium/163.jpg",
     "profileHref": "https://www.snokido.fr/player/polyy",
-    "karas": 400613
+    "karas": 400857
   },
   {
     "rank": 24,
+    "nom": "Zeta-Puppis",
+    "slug": "zetapuppis",
+    "niveau": 100,
+    "xp": 61984,
+    "inscription": "02-06-2026",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/102.jpg",
+    "profileHref": "https://www.snokido.fr/player/zetapuppis",
+    "karas": 399537
+  },
+  {
+    "rank": 25,
     "nom": "venom2",
     "slug": "venom2",
     "niveau": 100,
@@ -262,17 +273,6 @@
     "avatar": "https://www.snokido.fr/images/snoki/medium/103.jpg",
     "profileHref": "https://www.snokido.fr/player/venom2",
     "karas": 396277
-  },
-  {
-    "rank": 25,
-    "nom": "Zeta-Puppis",
-    "slug": "zetapuppis",
-    "niveau": 100,
-    "xp": 61596,
-    "inscription": "02-06-2026",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/102.jpg",
-    "profileHref": "https://www.snokido.fr/player/zetapuppis",
-    "karas": 399145
   },
   {
     "rank": 26,
@@ -408,6 +408,17 @@
   },
   {
     "rank": 38,
+    "nom": "Antarès_",
+    "slug": "antares",
+    "niveau": 95,
+    "xp": 45340,
+    "inscription": "05-06-2026",
+    "avatar": "https://www.snokido.fr/images/snoki/medium/2.jpg",
+    "profileHref": "https://www.snokido.fr/player/antares-3",
+    "karas": 335659
+  },
+  {
+    "rank": 39,
     "nom": "marcosino",
     "slug": "marcosino",
     "niveau": 95,
@@ -418,26 +429,15 @@
     "karas": 242275
   },
   {
-    "rank": 39,
-    "nom": "Antarès_",
-    "slug": "antares",
-    "niveau": 95,
-    "xp": 45156,
-    "inscription": "05-06-2026",
-    "avatar": "https://www.snokido.fr/images/snoki/medium/2.jpg",
-    "profileHref": "https://www.snokido.fr/player/antares-3",
-    "karas": 335475
-  },
-  {
     "rank": 40,
     "nom": "PaulaHub",
     "slug": "paulahub",
     "niveau": 95,
-    "xp": 44856,
+    "xp": 45040,
     "inscription": "05-02-2026",
     "avatar": "https://www.snokido.fr/images/snoki/medium/52.jpg",
     "profileHref": "https://www.snokido.fr/player/paulahub",
-    "karas": 334375
+    "karas": 334559
   },
   {
     "rank": 41,
