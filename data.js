@@ -470,7 +470,7 @@ const joueurs = [
   nom:"PaulaHub", avatar:"avatar/45.jpg", gen:7, inscription:"05-02-2026",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:49500,
+      jours:256, atteint_le:"19-10-2026", rang:"—", xp:49500,
       pauses_total:{ nb:1, mois:4, jours:122 },
       pauses_detail:[
         { xp:260, periode:"02/2026 -> 06/2026", mois:4, jours:122 }
@@ -505,7 +505,7 @@ const joueurs = [
   nom:"Antarès_", avatar:"avatar/36.jpg", gen:7, inscription:"05-06-2026",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:49500,
+      jours:135, atteint_le:"18-10-2026", rang:"—", xp:49500,
       pauses_total:{ nb:0, mois:0, jours:0 },
       pauses_detail:[]
     }
