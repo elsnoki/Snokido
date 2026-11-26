@@ -483,7 +483,7 @@ const joueurs = [
   nom:"Brumaire", avatar:"avatar/29.jpg", gen:7, inscription:"16-11-2024",
   modes:{
     nv100:{
-      jours:null, atteint_le:"—", rang:"—", xp:49500,
+      jours:740, atteint_le:"26-11-2026", rang:"—", xp:49500,
       pauses_total:{ nb:2, mois:18, jours:562 },
       pauses_detail:[
         { xp:8, periode:"16/11/2024 -> 03/2026", mois:15, jours:470 },
